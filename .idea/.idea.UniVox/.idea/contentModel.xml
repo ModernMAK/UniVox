@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="AtlasPackingTest.cs" t="Include" />
+        <e p="CameraMover.cs" t="Include" />
+        <e p="DynamicAssets" t="Include">
+          <e p="Zipper" t="Include">
+            <e p="Dirt" t="Include">
+              <e p="MetallicTextureWizard.cs" t="Include" />
+              <e p="TextureData.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="IntCube.cs" t="Include" />
+        <e p="LerpCube.cs" t="Include" />
+        <e p="RecipeIdea" t="Include">
+          <e p="Item.cs" t="Include" />
+        </e>
+        <e p="Scripts" t="Include">
+          <e p="Extensions" t="Include">
+            <e p="ArrayExtensions.cs" t="Include" />
+            <e p="EnumUtilities.cs" t="Include" />
+            <e p="GameObjectExtensions.cs" t="Include" />
+            <e p="MathExtensions.cs" t="Include" />
+            <e p="Vector3IntExtensions.cs" t="Include" />
+          </e>
+          <e p="IO" t="Include">
+            <e p="FilePathType.cs" t="Include" />
+            <e p="FileUtil.cs" t="Include" />
+          </e>
+          <e p="MeshGeneration" t="Include">
+            <e p="Buffers" t="Include">
+              <e p="Index" t="Include">
+                <e p="AbstractIndexBuffer.cs" t="Include" />
+                <e p="FixedIndexBuffer.cs" t="Include" />
+                <e p="IIndexBuffer.cs" t="Include" />
+                <e p="IListIndexBuffer.cs" t="Include" />
+                <e p="ListIndexBuffer.cs" t="Include" />
+              </e>
+              <e p="Mesh" t="Include">
+                <e p="DynamicMeshBuffer.cs" t="Include" />
+                <e p="IDynamicMeshBuffer.cs" t="Include" />
+                <e p="IListMeshBuffer.cs" t="Include" />
+                <e p="IMeshBuffer.cs" t="Include" />
+                <e p="InternalIndexBuffer.cs" t="Include" />
+                <e p="InternalInternalBuffer.cs" t="Include" />
+                <e p="InternalMeshBuffer.cs" t="Include" />
+                <e p="InternalVertexBuffer.cs" t="Include" />
+                <e p="ListMeshBuffer.cs" t="Include" />
+              </e>
+              <e p="Vertex" t="Include">
+                <e p="AbstractVertexBuffer.cs" t="Include" />
+                <e p="FixedVertexBuffer.cs" t="Include" />
+                <e p="IListVertexBuffer.cs" t="Include" />
+                <e p="IVertexBuffer.cs" t="Include" />
+                <e p="ListVertexBuffer.cs" t="Include" />
+              </e>
+              <e p="Vertex.cs" t="Include" />
+            </e>
+            <e p="IMeshGenerator.cs" t="Include" />
+            <e p="IMeshRenderer.cs" t="Include" />
+            <e p="MeshRenderer.cs" t="Include" />
+            <e p="MeshVisualizer.cs" t="Include" />
+            <e p="Rendering" t="Include">
+              <e p="IRenderer.cs" t="Include" />
+              <e p="Utilities" t="Include">
+                <e p="CubeBuilder.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Random" t="Include">
+            <e p="FastNoiseWrapper.cs" t="Include" />
+            <e p="INoise.cs" t="Include" />
+            <e p="RandomExtensions.cs" t="Include" />
+          </e>
+          <e p="Serialization" t="Include">
+            <e p="Extensions" t="Include">
+              <e p="SerializationInfoExtensions.cs" t="Include" />
+            </e>
+            <e p="FolderStream.cs" t="Include" />
+            <e p="Formatters" t="Include">
+              <e p="JsonFormatter.cs" t="Include" />
+              <e p="Surrogates" t="Include">
+                <e p="AbstractSerializable.cs" t="Include" />
+                <e p="RectSerializable.cs" t="Include" />
+                <e p="Texture2DSerializable.cs" t="Include" />
+                <e p="Vector2IntSerializable.cs" t="Include" />
+                <e p="Vector2Serializable.cs" t="Include" />
+                <e p="Vector3IntSerializable.cs" t="Include" />
+                <e p="Vector3Serializable.cs" t="Include" />
+              </e>
+              <e p="Utility" t="Include">
+                <e p="JsonUtility.cs" t="Include" />
+                <e p="SerializableContractResolver.cs" t="Include" />
+                <e p="SurrogateUtility.cs" t="Include" />
+              </e>
+            </e>
+            <e p="SerializationFormat.cs" t="Include" />
+            <e p="SerializationUtil.cs" t="Include" />
+            <e p="UnityFormatterHelper.cs" t="Include" />
+            <e p="ZipStreamer.cs" t="Include" />
+          </e>
+          <e p="Third Party Code" t="Include">
+            <e p="FastNoise" t="Include">
+              <e p="Noise.cs" t="Include" />
+            </e>
+            <e p="Modules.JsonNetFormatter" t="Include">
+              <e p="JsonNetFormatter.cs" t="Include" />
+            </e>
+            <e p="NewtonsoftJson" t="Include">
+              <e p="Newtonsoft.Json.xml" t="Include" />
+            </e>
+          </e>
+          <e p="UnityUtilities" t="Include">
+            <e p="UnityDisposable.cs" t="Include" />
+          </e>
+          <e p="UniVox" t="Include">
+            <e p="Atlas" t="Include">
+              <e p="AtlasBound.cs" t="Include" />
+              <e p="AtlasBuilder.cs" t="Include" />
+              <e p="AtlasMap.cs" t="Include" />
+              <e p="AtlasTexture.cs" t="Include" />
+              <e p="MipMapMethod.cs" t="Include" />
+              <e p="TempAtlasUtil.cs" t="Include" />
+            </e>
+            <e p="Events" t="Include">
+              <e p="PairEventArgs.cs" t="Include" />
+              <e p="VoxelChangedEventArgs.cs" t="Include" />
+            </e>
+            <e p="Extensions" t="Include">
+              <e p="DirectionExtensions.cs" t="Include" />
+            </e>
+            <e p="Gameplay" t="Include">
+              <e p="Block.cs" t="Include" />
+              <e p="BlockChunk.cs" t="Include" />
+              <e p="BlockMemChunk.cs" t="Include" />
+              <e p="Chunk.cs" t="Include" />
+              <e p="ChunkData.cs" t="Include" />
+              <e p="Engine.cs" t="Include" />
+              <e p="IChunk.cs" t="Include" />
+              <e p="IUniverse.cs" t="Include" />
+              <e p="RenderingLogic.cs" t="Include" />
+              <e p="Universe.cs" t="Include" />
+            </e>
+            <e p="Generation" t="Include">
+              <e p="BlockGenArgs.cs" t="Include" />
+              <e p="BlockGenerator.cs" t="Include" />
+              <e p="BlockGeneratorV2.cs" t="Include" />
+              <e p="IAsyncGenerator.cs" t="Include" />
+              <e p="IGenerator.cs" t="Include" />
+            </e>
+            <e p="Interfaces" t="Include">
+              <e p="IBlock.cs" t="Include" />
+              <e p="IPair.cs" t="Include" />
+            </e>
+            <e p="Rendering" t="Include">
+              <e p="ChunkVisibilityFlagExtensions.cs" t="Include" />
+              <e p="ChunkVisibilityFlags.cs" t="Include" />
+              <e p="IRenderData.cs" t="Include" />
+              <e p="Orientation.cs" t="Include" />
+              <e p="RenderChunk.cs" t="Include" />
+              <e p="RenderDataHelper.cs" t="Include" />
+              <e p="RenderMemChunk.cs" t="Include" />
+              <e p="TextureMapType.cs" t="Include" />
+            </e>
+            <e p="UniVoxMaster.cs" t="Include" />
+            <e p="ValueTypes" t="Include">
+              <e p="Direction.cs" t="Include" />
+              <e p="DirectionFlags.cs" t="Include" />
+              <e p="Pair.cs" t="Include" />
+              <e p="Rotation.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Voxels" t="Include">
+            <e p="PlayerController.cs" t="Include" />
+            <e p="Unity" t="Include">
+              <e p="BuilderBehaviour.cs" t="Include" />
+              <e p="BuilderBehaviourV2.cs" t="Include" />
+              <e p="CustomCube.cs" t="Include" />
+              <e p="IMergedData.cs" t="Include" />
+              <e p="MergedChunk.cs" t="Include" />
+              <e p="MergedData.cs" t="Include" />
+              <e p="MeshManagerBehaviour.cs" t="Include" />
+              <e p="MultiMeshKey.cs" t="Include" />
+              <e p="MultiMeshManagerBehaviour.cs" t="Include" />
+              <e p="VoxelMeshManagerBehaviour.cs" t="Include" />
+              <e p="VoxelMultiMeshManagerBehaviour.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Shaders" t="Include">
+          <e p="Code Shaders" t="Include">
+            <e p="Atlas.shader" t="Include" />
+            <e p="VertexColor.shader" t="Include" />
+            <e p="WireframeShader.shader" t="Include" />
+          </e>
+          <e p="Includes" t="Include">
+            <e p="FirstLitLighting.cginc" t="Include" />
+            <e p="MyFirstToonLit.cginc" t="Include" />
+            <e p="MyFirstToonLitTriPlanar.cginc" t="Include" />
+          </e>
+        </e>
+        <e p="SplatCubeBuilder.cs" t="Include" />
+        <e p="TextureArrayFromDataListArrayWizard.cs" t="Include" />
+        <e p="TexturePacker.cs" t="Include" />
+        <e p="Third Party Assets" t="Include">
+          <e p="RuntimeGizmos" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="GizmoClickDetection.cs" t="Include" />
+              <e p="GizmoRotateScript.cs" t="Include" />
+              <e p="GizmoScaleScript.cs" t="Include" />
+              <e p="GizmoTranslateScript.cs" t="Include" />
+              <e p="GizmoViewScript.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Unity" t="Include">
+            <e p="Characters" t="Include">
+              <e p="FirstPersonCharacter" t="Include">
+                <e p="FirstPersonCharacterGuidelines.txt" t="Include" />
+                <e p="Scripts" t="Include">
+                  <e p="FirstPersonController.cs" t="Include" />
+                  <e p="HeadBob.cs" t="Include" />
+                  <e p="MouseLook.cs" t="Include" />
+                  <e p="RigidbodyFirstPersonController.cs" t="Include" />
+                </e>
+              </e>
+              <e p="ThirdPersonCharacter" t="Include">
+                <e p="Scripts" t="Include">
+                  <e p="AICharacterControl.cs" t="Include" />
+                  <e p="ThirdPersonCharacter.cs" t="Include" />
+                  <e p="ThirdPersonUserControl.cs" t="Include" />
+                </e>
+                <e p="ThirdPersonCharacterGuidelines.txt" t="Include" />
+              </e>
+            </e>
+            <e p="CrossPlatformInput" t="Include">
+              <e p="CrossPlatformInputGuidelines.txt" t="Include" />
+              <e p="Scripts" t="Include">
+                <e p="AxisTouchButton.cs" t="Include" />
+                <e p="ButtonHandler.cs" t="Include" />
+                <e p="CrossPlatformInputManager.cs" t="Include" />
+                <e p="InputAxisScrollbar.cs" t="Include" />
+                <e p="Joystick.cs" t="Include" />
+                <e p="MobileControlRig.cs" t="Include" />
+                <e p="PlatformSpecific" t="Include">
+                  <e p="MobileInput.cs" t="Include" />
+                  <e p="StandaloneInput.cs" t="Include" />
+                </e>
+                <e p="TiltInput.cs" t="Include" />
+                <e p="TouchPad.cs" t="Include" />
+                <e p="VirtualInput.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Editor" t="Include">
+              <e p="CrossPlatformInput" t="Include">
+                <e p="CrossPlatformInputInitialize.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Effects" t="Include">
+              <e p="ToonShading" t="Include">
+                <e p="Shaders" t="Include">
+                  <e p="ToonLit.shader" t="Include" />
+                </e>
+              </e>
+            </e>
+            <e p="Utility" t="Include">
+              <e p="ActivateTrigger.cs" t="Include" />
+              <e p="AlphaButtonClickMask.cs" t="Include" />
+              <e p="AutoMobileShaderSwitch.cs" t="Include" />
+              <e p="AutoMoveAndRotate.cs" t="Include" />
+              <e p="CameraRefocus.cs" t="Include" />
+              <e p="CurveControlledBob.cs" t="Include" />
+              <e p="DragRigidbody.cs" t="Include" />
+              <e p="DynamicShadowSettings.cs" t="Include" />
+              <e p="EventSystemChecker.cs" t="Include" />
+              <e p="FollowTarget.cs" t="Include" />
+              <e p="ForcedReset.cs" t="Include" />
+              <e p="FOVKick.cs" t="Include" />
+              <e p="FPSCounter.cs" t="Include" />
+              <e p="LerpControlledBob.cs" t="Include" />
+              <e p="ObjectResetter.cs" t="Include" />
+              <e p="ParticleSystemDestroyer.cs" t="Include" />
+              <e p="PlatformSpecificContent.cs" t="Include" />
+              <e p="SimpleActivatorMenu.cs" t="Include" />
+              <e p="SimpleMouseRotator.cs" t="Include" />
+              <e p="SmoothFollow.cs" t="Include" />
+              <e p="TimedObjectActivator.cs" t="Include" />
+              <e p="TimedObjectDestructor.cs" t="Include" />
+              <e p="WaypointCircuit.cs" t="Include" />
+              <e p="WaypointProgressTracker.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="VoxelPlacer.cs" t="Include" />
+        <e p="VoxelPlacerV2.cs" t="Include" />
+        <e p="VoxelPositionVisualizer.cs" t="Include" />
+        <e p="VoxelRaycaster.cs" t="Include" />
+        <e p="VoxelTester.cs" t="Include" />
+      </e>
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Temp\bin" t="ExcludeRecursive" />
+      <e p="UniVox.sln" t="IncludeFlat" />
+    </e>
+  </component>
+</project>
