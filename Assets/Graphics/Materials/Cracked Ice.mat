@@ -8,15 +8,17 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Cracked Ice
-  m_Shader: {fileID: -6465566751694194690, guid: f519b870e5d9e7e49a1cc0bcf9901e44,
+  m_Shader: {fileID: -6465566751694194690, guid: 86fc6e9df757d0845b8bc906424f0805,
     type: 3}
   m_ShaderKeywords: _ENVIRONMENTREFLECTIONS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    MotionVector: User
+  disabledShaderPasses:
+  - MOTIONVECTORS
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -28,8 +30,12 @@ Material:
         m_Texture: {fileID: 2800000, guid: 9bbe6fdd85ac9d641ae471e76d0274c9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - Texture2D_E4187779:
+        m_Texture: {fileID: 2800000, guid: 5f8c42dffb8a6c248a9cdae0c633621b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _AlbedoTex:
-        m_Texture: {fileID: 2800000, guid: 9bbe6fdd85ac9d641ae471e76d0274c9, type: 3}
+        m_Texture: {fileID: 2800000, guid: 9039b25eea0d9a647b6f0e8a1810a764, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionTex:
@@ -37,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MergedTex:
-        m_Texture: {fileID: 2800000, guid: 3f8c1500977486e40904d30c2bc86471, type: 3}
+        m_Texture: {fileID: 2800000, guid: f24e6610c55cf3340a201efcd9521eee, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicTex:
@@ -49,7 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: 38f6df8e8cefecd47ad719765b2b36e0, type: 3}
+        m_Texture: {fileID: 2800000, guid: d4ebe3d310cd2294a98ad673157e9e1c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionTex:
@@ -61,9 +67,48 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AlphaCutoff: 0.5
+    - _AlphaCutoffEnable: 0
+    - _AlphaDstBlend: 0
+    - _AlphaSrcBlend: 1
+    - _BlendMode: 0
+    - _BlendStrength: 32
+    - _CellSize: 16
+    - _CullMode: 2
+    - _CullModeForward: 2
+    - _DiffusionProfileHash: 3.1301715
+    - _DoubleSidedEnable: 0
+    - _DoubleSidedNormalMode: 2
+    - _DstBlend: 0
+    - _ReceivesSSR: 1
+    - _RenderQueueType: 1
+    - _RequireSplitLighting: 0
     - _RoughnessMode: 0
+    - _SrcBlend: 1
+    - _StencilRef: 2
+    - _StencilRefDepth: 0
+    - _StencilRefDistortionVec: 64
+    - _StencilRefGBuffer: 2
+    - _StencilRefMV: 128
+    - _StencilWriteMask: 3
+    - _StencilWriteMaskDepth: 48
+    - _StencilWriteMaskDistortionVec: 64
+    - _StencilWriteMaskGBuffer: 51
+    - _StencilWriteMaskMV: 176
+    - _SurfaceType: 0
+    - _TransparentBackfaceEnable: 0
+    - _TransparentCullMode: 2
+    - _TransparentSortPriority: 0
     - _UseRoughness: 0
+    - _UseShadowThreshold: 0
+    - _ZTestDepthEqualForOpaque: 3
+    - _ZTestGBuffer: 4
+    - _ZTestTransparent: 4
+    - _ZWrite: 1
     m_Colors:
+    - _DiffusionProfileAsset: {r: -0.01100724, g: -7.943741e+31, b: -20.109606, a: 1.2115141e-31}
+    - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _MetalSmoothness: {r: 0, g: 1, b: 0, a: 0}
 --- !u!114 &3827928103921130788
 MonoBehaviour:

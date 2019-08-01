@@ -1,0 +1,11 @@
+using System;
+using Unity.Entities;
+
+namespace ECS.Voxel.Data
+{
+    [Serializable]
+    public struct FaceSolidity : IComponentData
+    {
+        public Directions value;
+    }
+}

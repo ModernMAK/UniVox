@@ -8,20 +8,22 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Rock Lava
-  m_Shader: {fileID: -6465566751694194690, guid: e44cf71c97c145341bfda8c5dd7284d2,
+  m_Shader: {fileID: -6465566751694194690, guid: edccc7efb32cfaa41bcbea975ba32c0d,
     type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    MotionVector: User
+  disabledShaderPasses:
+  - MOTIONVECTORS
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _AlbedoTex:
-        m_Texture: {fileID: 2800000, guid: e7c63c06094ca044d8994545597e6370, type: 3}
+        m_Texture: {fileID: 2800000, guid: b59df71fa7523fc47887f426377aa4e9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -45,7 +47,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MergedTex:
-        m_Texture: {fileID: 2800000, guid: c71bb55fa6e0c124fb457f7215b9b279, type: 3}
+        m_Texture: {fileID: 2800000, guid: f110517fc6a60474396c5f17298bd91e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -57,7 +59,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: 7e05cc74d376e324f9558a906b3e1c41, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2e4d94ae440c75e4f8ac529540cb5f76, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -78,11 +80,21 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
+    - _AlphaCutoff: 0.5
+    - _AlphaCutoffEnable: 0
+    - _AlphaDstBlend: 0
+    - _AlphaSrcBlend: 1
     - _Blend: 0
+    - _BlendMode: 0
+    - _BlendStrength: 32
     - _BumpScale: 1
-    - _CellSize: 32
+    - _CellSize: 16
     - _Cull: 2
+    - _CullMode: 2
+    - _CullModeForward: 2
     - _Cutoff: 0.5
+    - _DoubleSidedEnable: 0
+    - _DoubleSidedNormalMode: 2
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
@@ -92,17 +104,41 @@ Material:
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ReceivesSSR: 1
+    - _RenderQueueType: 1
+    - _RequireSplitLighting: 0
     - _RoughnessMode: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _StencilRef: 2
+    - _StencilRefDepth: 0
+    - _StencilRefDistortionVec: 64
+    - _StencilRefGBuffer: 2
+    - _StencilRefMV: 128
+    - _StencilWriteMask: 3
+    - _StencilWriteMaskDepth: 48
+    - _StencilWriteMaskDistortionVec: 64
+    - _StencilWriteMaskGBuffer: 51
+    - _StencilWriteMaskMV: 176
     - _Surface: 0
+    - _SurfaceType: 0
+    - _TransparentBackfaceEnable: 0
+    - _TransparentCullMode: 2
+    - _TransparentSortPriority: 0
     - _UseRoughness: 1
+    - _UseShadowThreshold: 0
     - _WorkflowMode: 1
+    - _ZTestDepthEqualForOpaque: 3
+    - _ZTestGBuffer: 4
+    - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _EmissionColor: {r: 23.968628, g: 1.6313726, b: 0, a: 1}
+    - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionMaskColor: {r: 15.999998, g: 1.0666666, b: 0, a: 1}
+    - _EmissionMultiplier: {r: 64, g: 3.2000003, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
