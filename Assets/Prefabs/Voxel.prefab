@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6838670705337603887}
   - component: {fileID: -4592056558505523859}
   - component: {fileID: 46106235610306613}
+  - component: {fileID: -2570218818762261147}
   m_Layer: 0
   m_Name: Voxel
   m_TagString: Untagged
@@ -41,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1696560231841559778}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -5495902117074765545, guid: 3688b34f3fbe10446932b09bb3ef77b9, type: 3}
 --- !u!23 &6838670705337603887
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -106,3 +107,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!205 &-2570218818762261147
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696560231841559778}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0, z: 0}
+  m_Size: 1
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.6
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.3
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.1
+    fadeTransitionWidth: 0
+    renderers: []
+  m_Enabled: 0

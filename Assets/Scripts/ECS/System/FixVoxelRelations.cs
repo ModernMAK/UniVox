@@ -1,5 +1,8 @@
 using Unity.Entities;
 
-struct FixVoxelRelations : IComponentData
+namespace ECS.System
 {
+    struct FixVoxelRelations : IComponentData
+    {
+    }
 }

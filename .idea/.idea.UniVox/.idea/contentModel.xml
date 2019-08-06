@@ -4,8 +4,30 @@
     <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
     <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
     <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="3rd Party" t="Include">
+          <e p="Texture Packer" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="Editor" t="Include">
+                <e p="TextureItem.cs" t="Include" />
+                <e p="TexturePackerStyles.cs" t="Include" />
+                <e p="TexturePackerWindow.cs" t="Include" />
+                <e p="TexturePreview.cs" t="Include" />
+              </e>
+              <e p="Resources" t="Include">
+                <e p="TexturePacker.shader" t="Include" />
+              </e>
+              <e p="TextureChannel.cs" t="Include" />
+              <e p="TextureChannelInput.cs" t="Include" />
+              <e p="TextureFormat.cs" t="Include" />
+              <e p="TextureInput.cs" t="Include" />
+              <e p="TexturePacker.cs" t="Include" />
+              <e p="TextureUtility.cs" t="Include" />
+            </e>
+          </e>
+        </e>
         <e p="Scripts" t="Include">
           <e p="ECS" t="Include">
             <e p="Authoring" t="Include">
@@ -48,6 +70,7 @@
               <e p="ChildChunk.cs" t="Include" />
               <e p="ChildVoxel.cs" t="Include" />
               <e p="ChunkParentSystem.cs" t="Include" />
+              <e p="ChunkTableSystem.cs" t="Include" />
               <e p="ParentChunk.cs" t="Include" />
               <e p="ParentWorld.cs" t="Include" />
               <e p="PreviousParentChunk.cs" t="Include" />
@@ -58,10 +81,11 @@
             <e p="SpawnUniverseEvent.cs" t="Include" />
             <e p="SpawnVoxelEvent.cs" t="Include" />
             <e p="system" t="Include">
+              <e p="DissectingGather.cs" t="Include" />
               <e p="FixChunkRelations.cs" t="Include" />
               <e p="FixVoxelRelations.cs" t="Include" />
+              <e p="GatherUtilities.cs" t="Include" />
               <e p="VisibilitySystem.cs" t="Include" />
-              <e p="VoxelRelationSystem.cs" t="Include" />
               <e p="VoxelSpawnNonJobified.cs" t="Include" />
               <e p="VoxelSpawnSystem.cs" t="Include" />
               <e p="WorldPositionCalculationSystem.cs" t="Include" />

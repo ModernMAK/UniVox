@@ -7,7 +7,7 @@ using UnityEngine.Profiling;
 
 namespace UnityTemplateProjects.ECS.Rewrite
 {
-    public abstract class ChunkTableSystem : ComponentSystem
+    public abstract class ChunkParentSystem : ComponentSystem
     {
         private EntityQuery m_NewParentsGroup;
         private EntityQuery m_RemovedParentsGroup;

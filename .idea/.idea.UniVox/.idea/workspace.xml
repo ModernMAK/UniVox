@@ -5,119 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="29793497-1d89-43de-8076-f79448e301ce" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Chunk.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Chunk.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Universe.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Universe.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Voxel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkPosition.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/UniverseTable.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/UniverseTable.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/FaceSolidity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/FaceSolidity.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/InChunk.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/InChunk.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/OldChunkPosition.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/OldChunkPosition.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/OldVoxelChunkPosition.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/VoxelChunkPosition.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/VoxelChunkPosition.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildVoxel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildVoxel.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentChunk.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentChunk.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentWorld.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentWorld.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/PreviousParentChunk.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/PreviousParentChunk.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/PreviousParentWorld.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/PreviousParentWorld.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnChunkEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnChunkEvent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnUniverseEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnUniverseEvent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnVoxelEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/SpawnVoxelEvent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/UniverseSpawner.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/UniverseSpawner.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkTableSystem.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkTableSystem.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/DissectingGather.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/DissectingGather.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UniVox/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Broken Tiles.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Broken Tiles.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Cracked Ice.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Cracked Ice.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Desert Sand 3x3.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Desert Sand 3x3.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Fresh Snow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Fresh Snow.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Cracked Ice.mat.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Cracked Ice.mat.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Nature Moss.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Nature Moss.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Red Hot Steel.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Red Hot Steel.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Nature Moss.mat.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Nature Moss.mat.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Rock Lava.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Rock Lava.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Skybox_Mat.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Skybox_Mat.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/Basic.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/BasicWithEmission.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/BasicWithEmissionMask.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/ExpensiveStandard.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/ExpensiveStandardWithEmission.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/ExpensiveStandardWithEmissionMask.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/Standard.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/StandardWithEmissive.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/StandardWithEmissiveMask.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Shaders/Triplanar.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Bed Blanket Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Bed Blanket Normal.tif.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Blanket Albedo.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Blanket Height.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Blanket Normal.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Blanket Roughness.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Flannel/Flannel3 Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Flannel/Flannel3 Normal.tif.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Sand/Sand Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Sand/Sand Normal.tif.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Slime/Slime Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Slime/Slime Normal.tif.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Stone/Stone Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Stone/Stone Normal.tif.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Volcanic Cliff/Volcanic Cliff Normal.tif.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Volcanic Cliff/Volcanic Cliff Normal.tif.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Materials/Rock Lava.mat.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Materials/Rock Lava.mat.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Bed Blanket Merged.tif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Bed Blanket/Bed Blanket Merged.tif.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Textures/Rock Lava/Rock Lava Mask.tif" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Textures/Rock Lava/Rock Lava Mask.tif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Voxel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Voxel.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Ecs.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Ecs.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Direction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Directions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/DirectionsX.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Chunk.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/ChunkPosition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkPosition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/ChunkSize.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/ChunkSize.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/ChunkTable.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/FaceVisibility.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/FaceVisibility.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/LocalPosition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/VoxelPosition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/MeshData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/MeshData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/VoxelData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/VoxelData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Data/WorldPosition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/WorldPosition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/System/VisibilitySystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/System/WorldPositionCalculationSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/System/WorldPositionToTranslationSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionToTranslationSystem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Voxel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/LWRP-HighQuality.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/LWRP-LowQuality.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/LWRP-MediumQuality.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/PostProcessProfile.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/InputManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/InputManager.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/VFXManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/VFXManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -142,20 +54,99 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Chunk.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
-              <caret line="24" column="42" lean-forward="true" selection-start-line="24" selection-start-column="42" selection-end-line="24" selection-end-column="42" />
+            <state relative-caret-position="120">
+              <caret line="13" column="68" selection-start-line="13" selection-start-column="68" selection-end-line="13" selection-end-column="68" />
               <folding>
-                <marker date="1564697349781" expanded="true" signature="6:211" ph="..." />
-                <marker date="1564697349781" expanded="true" signature="282:2078" ph="{...}" />
-                <marker date="1564697349781" expanded="true" signature="430:1899" ph="{...}" />
-                <marker date="1564697349781" expanded="true" signature="578:981" ph="/* var table = new Entity[size.x, size.y, size.z]; ... */" />
-                <marker date="1564697349781" expanded="true" signature="1105:1853" ph="{...}" />
-                <marker date="1564697349781" expanded="true" signature="1228:1578" ph="/* var worldPosition = position * size + localPosition; ... */" />
-                <marker date="1564697349781" expanded="true" signature="1677:1843" ph="/* manager.SetComponentData(spawnedEntity, new WorldPosition() {value = worldPosition}); ... */" />
-                <marker date="1564697349781" expanded="true" signature="1935:2015" ph="{...}" />
-                <marker date="1564697349781" expanded="true" signature="2033:2076" ph="{...}" />
+                <marker date="1564696419109" expanded="false" signature="6:79" ph="..." />
+                <marker date="1564696419109" expanded="true" signature="104:744" ph="{...}" />
+                <marker date="1564696419109" expanded="true" signature="236:742" ph="{...}" />
+                <marker date="1564696419109" expanded="true" signature="356:736" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2655">
+              <caret line="191" column="36" selection-start-line="191" selection-start-column="36" selection-end-line="191" selection-end-column="36" />
+              <folding>
+                <marker date="1564774242505" expanded="true" signature="6:223" ph="..." />
+                <marker date="1564774242505" expanded="true" signature="226:3869" ph="/* public class MeshFixSystem : JobComponentSystem ... */" />
+                <marker date="1564774242505" expanded="true" signature="3921:9428" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="4039:4330" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="4188:4324" ph="/* _workQuery = GetEntityQuery(ComponentType.ReadOnly&lt;WorldPosition&gt;(), ... */" />
+                <marker date="1564774242505" expanded="true" signature="4336:4801" ph="/* This declares a new kind of job, which is a unit of work to do. ... */" />
+                <marker date="1564774242505" expanded="true" signature="4907:8678" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="4922:5038" ph="/* Add fields here that your job needs to do its work. ... */" />
+                <marker date="1564774242505" expanded="true" signature="5041:6808" ph="/* public void Execute(ref Translation translation, [ReadOnly] ref Rotation rotation) ... */" />
+                <marker date="1564774242505" expanded="true" signature="6993:7319" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="7069:7254" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="7624:7921" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="7747:7911" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="8077:8672" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="8750:9426" ph="{...}" />
+                <marker date="1564774242505" expanded="true" signature="9089:9301" ph="/* Assign values to the fields on your job here, so that it has ... */" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2850">
+              <caret line="196" column="51" selection-start-line="196" selection-start-column="51" selection-end-line="196" selection-end-column="51" />
+              <folding>
+                <marker date="1564774244394" expanded="true" signature="0:7116" ph="/* using ECS.Data.Voxel; ... */" />
+                <marker date="1564774244394" expanded="false" signature="7124:7215" ph="..." />
+                <marker date="1564774244394" expanded="true" signature="7237:11192" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="7312:11190" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="7436:7901" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="7686:7891" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="8146:8702" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="8497:8656" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="8804:9515" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="9073:9188" ph="/* public NativeArray&lt;int&gt; rawIndexes; ... */" />
+                <marker date="1564774244394" expanded="true" signature="9325:9505" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="9751:9983" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="10236:11184" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="10412:10583" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="10881:11173" ph="{...}" />
+                <marker date="1564774244394" expanded="true" signature="10883:11008" ph="/* chunks = chunks, ... */" />
+                <marker date="1564774244394" expanded="true" signature="11193:15509" ph="/* [BurstCompile] ... */" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="12" column="22" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="28" />
+              <folding>
+                <marker date="1564651603244" expanded="false" signature="6:35" ph="..." />
+                <marker date="1564651603244" expanded="true" signature="80:371" ph="{...}" />
+                <marker date="1564651603244" expanded="true" signature="87:150" ph="/// A Chunk within a World ... " />
+                <marker date="1564651603244" expanded="true" signature="170:235" ph="/* [WriteGroup(typeof(ParentScaleInverse)) ... */" />
+                <marker date="1564651603244" expanded="true" signature="328:369" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="45">
+              <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+              <folding>
+                <marker date="1564732804940" expanded="true" signature="43:105" ph="{...}" />
+                <marker date="1564732804940" expanded="true" signature="91:103" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -164,128 +155,215 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
+            <state relative-caret-position="150">
+              <caret line="23" column="53" lean-forward="true" selection-start-line="23" selection-start-column="53" selection-end-line="23" selection-end-column="53" />
               <folding>
-                <marker date="1564697455600" expanded="false" signature="6:156" ph="..." />
-                <marker date="1564697455600" expanded="true" signature="202:4318" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="273:4316" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="366:933" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="978:1114" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="1180:2633" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="1791:2623" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="2398:2609" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="2497:2590" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="2939:4310" ph="{...}" />
-                <marker date="1564697455600" expanded="true" signature="3641:4165" ph="{...}" />
+                <marker date="1564772537265" expanded="false" signature="6:220" ph="..." />
+                <marker date="1564772537265" expanded="true" signature="267:7115" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="338:7113" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="430:1007" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="697:997" ph="/* chunkPosList = new List&lt;VoxelChunkPosition&gt;(); ... */" />
+                <marker date="1564772537265" expanded="true" signature="1009:1206" ph="/* protected override void OnDestroy() ... */" />
+                <marker date="1564772537265" expanded="true" signature="1290:2532" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="1842:2522" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="2297:2508" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="2396:2489" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="2601:4453" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="2786:3128" ph="/* [ReadOnly] public ArchetypeChunkSharedComponentType&lt;VoxelChunkPosition&gt; ChunkPositionType; ... */" />
+                <marker date="1564772537265" expanded="true" signature="3448:4443" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="3619:3967" ph="/* var chunkPositionIndex = chunk.GetSharedComponentIndex(ChunkPositionType); ... */" />
+                <marker date="1564772537265" expanded="true" signature="4218:4429" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="4317:4410" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="4454:4692" ph="/* private List&lt;VoxelChunkPosition&gt; chunkPosList; ... */" />
+                <marker date="1564772537265" expanded="true" signature="4769:7107" ph="{...}" />
+                <marker date="1564772537265" expanded="true" signature="5249:5872" ph="/* chunkPosList.Clear(); ... */" />
+                <marker date="1564772537265" expanded="true" signature="5875:6579" ph="/* var job = new FixPositionJob() ... */" />
+                <marker date="1564772537265" expanded="true" signature="6648:6957" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Universe.cs">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="58" selection-start-line="13" selection-start-column="58" selection-end-line="13" selection-end-column="58" />
+            <state relative-caret-position="225">
+              <caret line="22" column="74" selection-start-line="22" selection-start-column="74" selection-end-line="22" selection-end-column="74" />
               <folding>
-                <marker date="1564696426871" expanded="true" signature="6:62" ph="..." />
-                <marker date="1564696426871" expanded="true" signature="87:518" ph="{...}" />
-                <marker date="1564696426871" expanded="true" signature="222:516" ph="{...}" />
-                <marker date="1564696426871" expanded="true" signature="342:510" ph="{...}" />
+                <marker date="1564648778132" expanded="false" signature="6:126" ph="..." />
+                <marker date="1564648778132" expanded="true" signature="171:10861" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="235:10859" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="514:1092" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="709:887" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="904:1082" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="1171:1432" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="1235:1342" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="1509:1961" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="1842:1951" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="1991:2138" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="2205:3764" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="2626:3754" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="2696:3740" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="2857:3722" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="3190:3700" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="3406:3672" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="3808:5666" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="3898:4365" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="3958:4160" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564648778132" expanded="true" signature="4221:4288" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4451:4775" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4511:4578" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4639:4698" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4862:5250" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4922:5173" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564648778132" expanded="true" signature="5336:5654" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="5396:5454" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="5515:5577" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="5699:6314" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="6040:6235" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="6350:7032" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="6626:6850" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="7068:8673" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="7233:8619" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="7671:7943" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="8155:8562" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="8710:10286" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="8872:10150" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="9357:10094" ph="{...}" />
+                <marker date="1564648778132" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+                <marker date="1564648778132" expanded="true" signature="10330:10853" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Voxel.cs">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkTableSystem.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="26" column="1" selection-start-line="26" selection-start-column="1" selection-end-line="26" selection-end-column="1" />
+            <state>
               <folding>
-                <marker date="1564696559010" expanded="true" signature="6:79" ph="..." />
-                <marker date="1564696559010" expanded="true" signature="104:877" ph="{...}" />
-                <marker date="1564696559010" expanded="true" signature="236:875" ph="{...}" />
-                <marker date="1564696559010" expanded="true" signature="356:869" ph="{...}" />
-                <marker date="1564696559010" expanded="true" signature="713:859" ph="/* dstManager.AddSharedComponentData(entity, new InChunk()); ... */" />
+                <marker date="1564648653098" expanded="true" signature="6:126" ph="..." />
+                <marker date="1564648653098" expanded="true" signature="171:10861" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="235:10859" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="514:1092" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="709:887" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="904:1082" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="1171:1432" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="1235:1342" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="1509:1961" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="1842:1951" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="1991:2138" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="2205:3764" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="2626:3754" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="2696:3740" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="2857:3722" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="3190:3700" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="3406:3672" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="3808:5666" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="3898:4365" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="3958:4160" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564648653098" expanded="true" signature="4221:4288" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4451:4775" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4511:4578" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4639:4698" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4862:5250" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4922:5173" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564648653098" expanded="true" signature="5336:5654" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="5396:5454" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="5515:5577" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="5699:6314" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="6040:6235" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="6350:7032" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="6626:6850" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="7068:8673" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="7233:8619" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="7671:7943" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="8155:8562" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="8710:10286" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="8872:10150" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="9357:10094" ph="{...}" />
+                <marker date="1564648653098" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+                <marker date="1564648653098" expanded="true" signature="10330:10853" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/MeshData.cs">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="5" column="14" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
+            <state relative-caret-position="135">
+              <caret line="16" column="70" selection-start-line="16" selection-start-column="70" selection-end-line="16" selection-end-column="70" />
               <folding>
-                <marker date="1563945977703" expanded="false" signature="6:54" ph="..." />
-                <marker date="1563945977703" expanded="true" signature="138:623" ph="{...}" />
-                <marker date="1563945977703" expanded="true" signature="225:308" ph="{...}" />
-                <marker date="1563945977703" expanded="true" signature="353:420" ph="{...}" />
-                <marker date="1563945977703" expanded="true" signature="459:621" ph="{...}" />
-                <marker date="1563945977703" expanded="true" signature="483:615" ph="{...}" />
+                <marker date="1564774242473" expanded="false" signature="6:126" ph="..." />
+                <marker date="1564774242473" expanded="true" signature="171:10860" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="234:10858" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="513:1091" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="708:886" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="903:1081" ph="{...}" />
+                <marker date="1564774242473" expanded="false" signature="1170:1431" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="1234:1341" ph="{...}" />
+                <marker date="1564774242473" expanded="false" signature="1508:1960" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="1841:1950" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="1990:2137" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="2204:3763" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="2625:3753" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="2695:3739" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="2856:3721" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="3189:3699" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="3405:3671" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="3807:5665" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="3897:4364" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="3957:4159" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4018:4141" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564774242473" expanded="true" signature="4220:4287" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4450:4774" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4510:4577" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4638:4697" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4861:5249" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4921:5172" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="4982:5106" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+                <marker date="1564774242473" expanded="true" signature="5335:5653" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="5395:5453" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="5514:5576" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="5698:6313" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="6039:6234" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="6349:7031" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="6625:6849" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="7067:8672" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="7232:8618" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="7670:7942" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="8154:8561" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="8709:10285" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="8871:10149" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="9356:10093" ph="{...}" />
+                <marker date="1564774242473" expanded="true" signature="9893:10075" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+                <marker date="1564774242473" expanded="true" signature="10329:10852" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/OldUniverseTable.cs">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="28" column="3" selection-end-line="28" selection-end-column="3" />
+            <state relative-caret-position="225">
+              <caret line="20" column="37" selection-start-line="20" selection-start-column="37" selection-end-line="20" selection-end-column="37" />
               <folding>
-                <marker date="1564696809696" expanded="true" signature="0:664" ph="/* using System; ... */" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/OldChunkTable.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="862">
-              <caret line="71" column="5" selection-end-line="71" selection-end-column="5" />
-              <folding>
-                <marker date="1564696730907" expanded="true" signature="0:1643" ph="/* Represents a table lookup for chunks ... */" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnSystem.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1799">
-              <caret line="156" column="3" selection-end-line="156" selection-end-column="3" />
-              <folding>
-                <marker date="1564696937687" expanded="true" signature="0:6684" ph="/* using ECS.Data.Voxel; ... */" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="915">
-              <caret line="61" column="3" selection-end-line="61" selection-end-column="3" />
-              <folding>
-                <marker date="1564696912969" expanded="true" signature="0:2561" ph="/* using ECS.Data.Voxel; ... */" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4455">
-              <caret line="297" column="3" selection-end-line="297" selection-end-column="3" />
-              <folding>
-                <marker date="1564696937669" expanded="true" signature="0:11433" ph="/* using ECS.Data.Voxel; ... */" />
+                <marker date="1564696751766" expanded="false" signature="6:85" ph="..." />
+                <marker date="1564696751766" expanded="true" signature="87:156" ph="/// Represents a table lookup for chunks ... " />
+                <marker date="1564696751766" expanded="true" signature="241:1009" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="346:379" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="462:512" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="600:645" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="673:710" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="752:806" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="851:920" ph="{...}" />
+                <marker date="1564696751766" expanded="true" signature="959:1007" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -295,11 +373,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Texture</find>
-      <find>v.uv_AlbedoTexture</find>
-      <find>GetIndex</find>
-      <find>Fix</find>
-      <find>GetUv</find>
       <find>GetIndexUv</find>
       <find>GetTa</find>
       <find>GetTan</find>
@@ -325,6 +398,11 @@
       <find>Sort</find>
       <find>OnCreate</find>
       <find>ChildVoxel</find>
+      <find>Old</find>
+      <find>Gather</find>
+      <find>AddBat</find>
+      <find>gather</find>
+      <find>GatherChunk</find>
     </findStrings>
     <replaceStrings>
       <replace>.All</replace>
@@ -367,8 +445,10 @@
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/CompositeScale.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0B94BFA9-2F0F-4D80-A8F7-ACA56A6424C9/ac/ff4fe942/SerializationInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/ParentScaleInverse.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/c7/5257342b/Environment.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/Parent.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13/Unity.Rendering.Hybrid/RenderMeshSystemV2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/UniverseTable.cs" root0="FORCE_HIGHLIGHTING" />
@@ -376,7 +456,9 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/2c/1a1c1876/Array.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkPosition.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Entities/SortingUtilities.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/bc/81ee718e/ObjectEqualityComparer`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13/Unity.Rendering.Hybrid/InstancedRenderMeshBatchGroup.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/af/9028bcf0/ObjectManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentChunk.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ide.rider@1.0.8/Rider/Editor/RiderInitializer.cs" root0="SKIP_HIGHLIGHTING" />
@@ -402,7 +484,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/eb/04237442/Path.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/83/6278531f/BinaryFormatter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/OldVoxelChunkPosition.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/Directions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/DirectionsX.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/Direction.cs" root0="FORCE_HIGHLIGHTING" />
@@ -416,6 +498,9 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/VoxelChunkPosition.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Voxel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/InUniverse.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.collections@0.0.9-preview.20/Unity.Collections/NativeList.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkTableSystem.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/DissectingGather.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/23C160F9-25BE-47D7-A4FD-083A3A62C920/9f/a08c67d3/Dictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Universe.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs" root0="FORCE_HIGHLIGHTING" />
@@ -430,6 +515,7 @@
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/LocalToParent.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/d9/a1f58ebd/List`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D616BE05-755D-41A0-8981-0B5C14E4DD50/04/7ee1d4af/Texture2D.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Entities/ComponentSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AC823E2B-B42B-41BD-A679-24A45A0173C3/1a/47f0cb92/ConcurrentDictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/Frozen.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnSystem.cs" root0="FORCE_HIGHLIGHTING" />
@@ -442,16 +528,13 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnChunkEvent.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/InChunk.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/CompositeRotation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnUniverseEvent.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/D47DE75A-7E3F-422C-A4CA-64A654C80495/56/JsonSerializerInternalReader.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnVoxelEvent.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Scripts/UniVox/Gameplay/RenderingLogic.cs" />
-        <option value="$PROJECT_DIR$/Assets/VoxelPlacerV2.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Voxels/Unity/MergedData.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Voxels/Unity/BuilderBehaviourV2.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/MeshGeneration/Rendering/Utilities/CubeBuilder.cs" />
         <option value="$PROJECT_DIR$/Assets/SplatCubeBuilder.cs" />
         <option value="$PROJECT_DIR$/Assets/RecipeIdea/Item.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Voxel/Chunk.cs" />
@@ -477,7 +560,6 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildVoxel.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentChunk.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentWorld.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/VoxelPosition.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/WorldPosition.cs" />
@@ -493,11 +575,17 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Shared/InUniverse.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/OldUniverseTable.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/UniverseTable.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnSystem.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/DissectingGather.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/SharedComponentGather.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/SharedComponentGatther.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs" />
       </list>
     </option>
   </component>
@@ -506,11 +594,10 @@
       <facet id="riderModule/invalid/Default Android Facet" />
     </ignored-facets>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1096" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-7" />
+    <option name="width" value="1376" />
+    <option name="height" value="1087" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -520,80 +607,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="UnityExplorer">
-        <subPane>
-          <expand>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-              <item name="ECS" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-              <item name="ECS" type="1045f7f1:UnityExplorerNode" />
-              <item name="Authoring" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-              <item name="ECS" type="1045f7f1:UnityExplorerNode" />
-              <item name="Data" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-              <item name="ECS" type="1045f7f1:UnityExplorerNode" />
-              <item name="Rewrite" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="8711f2a6:AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-              <item name="ECS" type="1045f7f1:UnityExplorerNode" />
-              <item name="System" type="1045f7f1:UnityExplorerNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Packages" type="4e2708dd:PackagesRoot" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Packages" type="4e2708dd:PackagesRoot" />
-              <item name="Read only" type="7f48d1bd:ReadOnlyPackagesRoot" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Packages" type="4e2708dd:PackagesRoot" />
-              <item name="Read only" type="7f48d1bd:ReadOnlyPackagesRoot" />
-              <item name="com.unity.entities@0.0.12-preview.33" type="a82a7030:PackageNode" />
-            </path>
-            <path>
-              <item name="" type="e068e287:UnityExplorerRootNode" />
-              <item name="Packages" type="4e2708dd:PackagesRoot" />
-              <item name="Read only" type="7f48d1bd:ReadOnlyPackagesRoot" />
-              <item name="com.unity.entities@0.0.12-preview.33" type="a82a7030:PackageNode" />
-              <item name="Unity.Transforms" type="1045f7f1:UnityExplorerNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-        <option name="show-hidden-items" value="false" />
-        <option name="show-project-names" value="true" />
-      </pane>
       <pane id="SolutionExplorer">
         <subPane>
           <expand>
@@ -669,7 +682,10 @@
         </subPane>
         <option name="show-all-files" value="false" />
       </pane>
-      <pane id="AssemblyExplorer" />
+      <pane id="UnityExplorer">
+        <option name="show-hidden-items" value="false" />
+        <option name="show-project-names" value="true" />
+      </pane>
       <pane id="FileSystemExplorer">
         <subPane>
           <expand>
@@ -707,6 +723,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="AssemblyExplorer" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -789,12 +806,13 @@
       <workItem from="1561411718020" duration="11029000" />
       <workItem from="1561582189527" duration="55000" />
       <workItem from="1563992791790" duration="24228000" />
-      <workItem from="1564639295967" duration="13984000" />
+      <workItem from="1564639295967" duration="26066000" />
+      <workItem from="1565052364291" duration="400000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="543798000" />
+    <option name="totallyTimeSpent" value="556280000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -806,10 +824,9 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
+    <frame x="-7" y="0" width="1376" height="1087" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14955239" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2122571" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Capture Tool" order="3" />
@@ -843,6 +860,41 @@
       <window_info anchor="right" id="Device File Explorer" order="5" show_stripe_button="false" side_tool="true" weight="0.32832617" />
       <window_info anchor="right" id="Database" order="6" show_stripe_button="false" weight="0.2415459" />
     </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14955239" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="2" />
+      <window_info id="Capture Tool" order="3" />
+      <window_info id="Favorites" order="4" side_tool="true" />
+      <window_info id="Captures" order="5" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.36973685" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32841823" />
+      <window_info anchor="bottom" id="Terminal" order="7" show_stripe_button="false" weight="0.3292683" />
+      <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Docker" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Performance Profiler" order="10" show_stripe_button="false" weight="0.32520324" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="NuGet" order="12" show_stripe_button="false" weight="0.32105264" />
+      <window_info anchor="bottom" id="Logcat" order="13" show_stripe_button="false" weight="0.3292683" />
+      <window_info anchor="bottom" id="Unit Tests" order="14" show_stripe_button="false" weight="0.3292683" />
+      <window_info anchor="bottom" id="Database Changes" order="15" />
+      <window_info anchor="bottom" id="Version Control" order="16" show_stripe_button="false" weight="0.3292683" />
+      <window_info anchor="bottom" id="Unity" order="17" weight="0.32894737" />
+      <window_info anchor="bottom" id="Build" order="18" weight="0.32841823" />
+      <window_info anchor="bottom" auto_hide="true" id="Errors In Solution" order="19" type="SLIDING" weight="0.5107296" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Capture Analysis" order="3" />
+      <window_info anchor="right" id="Unit Tests Coverage" order="4" show_stripe_button="false" side_tool="true" weight="0.32618025" />
+      <window_info anchor="right" id="Device File Explorer" order="5" show_stripe_button="false" side_tool="true" weight="0.32832617" />
+      <window_info anchor="right" id="Database" order="6" show_stripe_button="false" weight="0.2415459" />
+    </layout-to-restore>
   </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
@@ -949,148 +1001,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionToTranslationSystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
-          <folding>
-            <marker date="1564005850565" expanded="true" signature="6:173" ph="..." />
-            <marker date="1564005850565" expanded="true" signature="195:1229" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="268:1227" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="366:524" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="620:885" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="781:875" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="961:1221" ph="{...}" />
-            <marker date="1564005850565" expanded="true" signature="1027:1084" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/UniverseSpawner.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="38" column="9" selection-start-line="38" selection-start-column="9" selection-end-line="38" selection-end-column="9" />
-          <folding>
-            <marker date="1564021777159" expanded="true" signature="6:99" ph="..." />
-            <marker date="1564021777159" expanded="true" signature="228:1970" ph="{...}" />
-            <marker date="1564021777159" expanded="true" signature="547:679" ph="{...}" />
-            <marker date="1564021777159" expanded="true" signature="891:1968" ph="{...}" />
-            <marker date="1564021777159" expanded="true" signature="957:1263" ph="{...}" />
-            <marker date="1564021777159" expanded="true" signature="971:1138" ph="/* The referenced prefab will be converted due to DeclareReferencedPrefabs. ... */" />
-            <marker date="1564021777159" expanded="true" signature="1467:1627" ph="{...}" />
-            <marker date="1564021777159" expanded="true" signature="1791:1951" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnChunkEvent.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-          <folding>
-            <marker date="1564020213100" expanded="false" signature="6:46" ph="..." />
-            <marker date="1564020213100" expanded="true" signature="94:215" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13/Unity.Rendering.Hybrid/RenderMeshSystemV2.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2970">
-          <caret line="205" column="25" selection-start-line="205" selection-start-column="12" selection-end-line="205" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/FaceVisibility.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="13" column="32" lean-forward="true" selection-start-line="13" selection-start-column="32" selection-end-line="13" selection-end-column="32" />
-          <folding>
-            <marker date="1564695921179" expanded="false" signature="6:35" ph="..." />
-            <marker date="1564695921179" expanded="true" signature="61:179" ph="{...}" />
-            <marker date="1564695921179" expanded="true" signature="132:177" ph="{...}" />
-            <marker date="1564695921179" expanded="true" signature="244:289" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/InChunk.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="10" column="36" lean-forward="true" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
-          <folding>
-            <marker date="1564639773504" expanded="false" signature="6:35" ph="..." />
-            <marker date="1564639773504" expanded="true" signature="102:517" ph="{...}" />
-            <marker date="1564639773504" expanded="true" signature="109:199" ph="/// The Entity representing the chunk that this is in ... " />
-            <marker date="1564639773504" expanded="true" signature="263:317" ph="{...}" />
-            <marker date="1564639773504" expanded="true" signature="362:428" ph="{...}" />
-            <marker date="1564639773504" expanded="true" signature="467:515" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/VoxelData.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="6" column="24" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
-          <folding>
-            <marker date="1564004261496" expanded="false" signature="6:35" ph="..." />
-            <marker date="1564004261496" expanded="true" signature="61:533" ph="{...}" />
-            <marker date="1564004261496" expanded="true" signature="150:531" ph="{...}" />
-            <marker date="1564004261496" expanded="true" signature="229:292" ph="{...}" />
-            <marker date="1564004261496" expanded="true" signature="341:421" ph="{...}" />
-            <marker date="1564004261496" expanded="true" signature="464:525" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Rewrite.cs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <marker date="1563945977704" expanded="true" signature="0:9608" ph="/* using ECS.Voxel; ... */" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Entities/Blobs.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="10" column="25" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/PostRotationEuler.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="20" column="18" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/CompositeRotation.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="12" column="18" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/LocalToParent.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="12" column="18" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/LocalToWorld.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Transforms/ParentScaleInverse.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="898">
@@ -1147,59 +1057,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1211">
-          <caret line="31" selection-start-line="31" selection-end-line="31" />
-          <folding>
-            <marker date="1564648653098" expanded="false" signature="6:126" ph="..." />
-            <marker date="1564648653098" expanded="true" signature="171:10861" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="235:10859" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="514:1092" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="709:887" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="904:1082" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="1171:1432" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="1235:1342" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="1509:1961" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="1842:1951" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="1991:2138" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="2205:3764" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="2626:3754" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="2696:3740" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="2857:3722" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="3190:3700" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="3406:3672" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="3808:5666" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="3898:4365" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="3958:4160" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
-            <marker date="1564648653098" expanded="true" signature="4221:4288" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4451:4775" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4511:4578" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4639:4698" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4862:5250" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4922:5173" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
-            <marker date="1564648653098" expanded="true" signature="5336:5654" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="5396:5454" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="5515:5577" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="5699:6314" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="6040:6235" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="6350:7032" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="6626:6850" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="7068:8673" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="7233:8619" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="7671:7943" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="8155:8562" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="8710:10286" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="8872:10150" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="9357:10094" ph="{...}" />
-            <marker date="1564648653098" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
-            <marker date="1564648653098" expanded="true" signature="10330:10853" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ParentChunk.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
@@ -1250,59 +1107,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="22" column="74" lean-forward="true" selection-start-line="22" selection-start-column="74" selection-end-line="22" selection-end-column="74" />
-          <folding>
-            <marker date="1564648778132" expanded="false" signature="6:126" ph="..." />
-            <marker date="1564648778132" expanded="true" signature="171:10861" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="235:10859" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="514:1092" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="709:887" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="904:1082" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="1171:1432" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="1235:1342" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="1509:1961" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="1842:1951" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="1991:2138" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="2205:3764" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="2626:3754" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="2696:3740" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="2857:3722" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="3190:3700" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="3406:3672" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="3808:5666" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="3898:4365" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="3958:4160" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
-            <marker date="1564648778132" expanded="true" signature="4221:4288" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4451:4775" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4511:4578" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4639:4698" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4862:5250" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4922:5173" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
-            <marker date="1564648778132" expanded="true" signature="5336:5654" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="5396:5454" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="5515:5577" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="5699:6314" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="6040:6235" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="6350:7032" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="6626:6850" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="7068:8673" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="7233:8619" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="7671:7943" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="8155:8562" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="8710:10286" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="8872:10150" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="9357:10094" ph="{...}" />
-            <marker date="1564648778132" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
-            <marker date="1564648778132" expanded="true" signature="10330:10853" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Voxel/OldVoxelChunkPosition.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -1317,20 +1121,6 @@
             <marker date="1564696380138" expanded="true" signature="598:690" ph="{...}" />
             <marker date="1564696380138" expanded="true" signature="733:847" ph="{...}" />
             <marker date="1564696380138" expanded="true" signature="765:837" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="12" column="22" lean-forward="true" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="28" />
-          <folding>
-            <marker date="1564651603244" expanded="false" signature="6:35" ph="..." />
-            <marker date="1564651603244" expanded="true" signature="80:371" ph="{...}" />
-            <marker date="1564651603244" expanded="true" signature="87:150" ph="/// A Chunk within a World ... " />
-            <marker date="1564651603244" expanded="true" signature="170:235" ph="/* [WriteGroup(typeof(ParentScaleInverse)) ... */" />
-            <marker date="1564651603244" expanded="true" signature="328:369" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -1352,19 +1142,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Chunk.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
-          <folding>
-            <marker date="1564696419109" expanded="false" signature="6:79" ph="..." />
-            <marker date="1564696419109" expanded="true" signature="104:744" ph="{...}" />
-            <marker date="1564696419109" expanded="true" signature="236:742" ph="{...}" />
-            <marker date="1564696419109" expanded="true" signature="356:736" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkPosition.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -1382,25 +1159,6 @@
             <marker date="1564696734546" expanded="true" signature="889:973" ph="{...}" />
             <marker date="1564696734546" expanded="true" signature="1016:1130" ph="{...}" />
             <marker date="1564696734546" expanded="true" signature="1048:1120" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
-          <folding>
-            <marker date="1564696751766" expanded="false" signature="6:85" ph="..." />
-            <marker date="1564696751766" expanded="true" signature="87:156" ph="/// Represents a table lookup for chunks ... " />
-            <marker date="1564696751766" expanded="true" signature="241:1009" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="346:379" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="462:512" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="600:645" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="673:710" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="752:806" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="851:920" ph="{...}" />
-            <marker date="1564696751766" expanded="true" signature="959:1007" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -1549,36 +1307,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelRelationSystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4455">
-          <caret line="297" column="3" selection-end-line="297" selection-end-column="3" />
-          <folding>
-            <marker date="1564696937669" expanded="true" signature="0:11433" ph="/* using ECS.Data.Voxel; ... */" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnSystem.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1799">
-          <caret line="156" column="3" selection-end-line="156" selection-end-column="3" />
-          <folding>
-            <marker date="1564696937687" expanded="true" signature="0:6684" ph="/* using ECS.Data.Voxel; ... */" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="61" column="3" selection-end-line="61" selection-end-column="3" />
-          <folding>
-            <marker date="1564696912969" expanded="true" signature="0:2561" ph="/* using ECS.Data.Voxel; ... */" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Universe/OldUniverseTable.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -1641,40 +1369,466 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnUniverseEvent.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+          <folding>
+            <marker date="1564020213048" expanded="false" signature="6:46" ph="..." />
+            <marker date="1564020213048" expanded="true" signature="97:162" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnVoxelEvent.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="3" column="32" selection-start-line="3" selection-start-column="32" selection-end-line="3" selection-end-column="32" />
+          <folding>
+            <marker date="1564020213116" expanded="false" signature="6:46" ph="..." />
+            <marker date="1564020213116" expanded="true" signature="94:271" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.collections@0.0.9-preview.20/Unity.Collections/NativeList.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="118" selection-start-line="118" selection-end-line="118" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Entities/ComponentSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="494" column="19" selection-start-line="494" selection-start-column="19" selection-end-line="494" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="922">
+          <caret line="156" column="3" selection-end-line="156" selection-end-column="3" />
+          <folding>
+            <marker date="1564696937687" expanded="true" signature="0:6684" ph="/* using ECS.Data.Voxel; ... */" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13/Unity.Rendering.Hybrid/RenderMeshSystemV2.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="198" column="59" selection-start-line="198" selection-start-column="59" selection-end-line="198" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13/Unity.Rendering.Hybrid/InstancedRenderMeshBatchGroup.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="438">
+          <caret line="723" lean-forward="true" selection-start-line="647" selection-start-column="7" selection-end-line="723" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/ChunkSpawner.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="24" column="42" lean-forward="true" selection-start-line="24" selection-start-column="42" selection-end-line="24" selection-end-column="42" />
+        <state relative-caret-position="-1426">
           <folding>
-            <marker date="1564697349781" expanded="true" signature="6:211" ph="..." />
-            <marker date="1564697349781" expanded="true" signature="282:2078" ph="{...}" />
-            <marker date="1564697349781" expanded="true" signature="430:1899" ph="{...}" />
-            <marker date="1564697349781" expanded="true" signature="578:981" ph="/* var table = new Entity[size.x, size.y, size.z]; ... */" />
-            <marker date="1564697349781" expanded="true" signature="1105:1853" ph="{...}" />
-            <marker date="1564697349781" expanded="true" signature="1228:1578" ph="/* var worldPosition = position * size + localPosition; ... */" />
-            <marker date="1564697349781" expanded="true" signature="1677:1843" ph="/* manager.SetComponentData(spawnedEntity, new WorldPosition() {value = worldPosition}); ... */" />
-            <marker date="1564697349781" expanded="true" signature="1935:2015" ph="{...}" />
-            <marker date="1564697349781" expanded="true" signature="2033:2076" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="6:211" ph="..." />
+            <marker date="1564730410712" expanded="true" signature="282:5348" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="486:2139" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="634:1037" ph="/* var table = new Entity[size.x, size.y, size.z]; ... */" />
+            <marker date="1564730410712" expanded="true" signature="1161:2093" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="1284:1634" ph="/* var worldPosition = position * size + localPosition; ... */" />
+            <marker date="1564730410712" expanded="true" signature="1917:2083" ph="/* manager.SetComponentData(spawnedEntity, new WorldPosition() {value = worldPosition}); ... */" />
+            <marker date="1564730410712" expanded="true" signature="2216:2237" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="2376:4267" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="2579:2982" ph="/* var table = new Entity[size.x, size.y, size.z]; ... */" />
+            <marker date="1564730410712" expanded="true" signature="3131:4221" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="3254:3604" ph="/* var worldPosition = position * size + localPosition; ... */" />
+            <marker date="1564730410712" expanded="true" signature="3887:4053" ph="/* manager.SetComponentData(spawnedEntity, new WorldPosition() {value = worldPosition}); ... */" />
+            <marker date="1564730410712" expanded="true" signature="4091:4183" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="4303:4383" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="4462:4587" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="4619:4865" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="4769:4859" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="4924:5215" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="5074:5209" ph="{...}" />
+            <marker date="1564730410712" expanded="true" signature="5234:5346" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VoxelSpawnNonJobified.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="915">
+          <caret line="61" column="3" selection-end-line="61" selection-end-column="3" />
+          <folding>
+            <marker date="1564696912969" expanded="true" signature="0:2561" ph="/* using ECS.Data.Voxel; ... */" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.entities@0.0.12-preview.33/Unity.Entities/SortingUtilities.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="524" column="39" selection-start-line="524" selection-start-column="39" selection-end-line="524" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionToTranslationSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+          <folding>
+            <marker date="1564005850565" expanded="false" signature="6:149" ph="..." />
+            <marker date="1564005850565" expanded="true" signature="195:1229" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="268:1227" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="366:524" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="620:885" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="781:875" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="961:1221" ph="{...}" />
+            <marker date="1564005850565" expanded="true" signature="1027:1084" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/DissectingGather.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="604">
+          <caret line="148" column="47" selection-start-line="148" selection-start-column="34" selection-end-line="148" selection-end-column="47" />
+          <folding>
+            <marker date="1564772367224" expanded="true" signature="6:199" ph="..." />
+            <marker date="1564772367224" expanded="true" signature="221:13529" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="320:530" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="566:13527" ph="{...}" />
+            <marker date="1564772367224" expanded="false" signature="573:5043" ph="/* public unsafe void AddBatch(FrozenRenderSceneTag tag, int rendererSharedComponentIndex, int batchInstanceCount ... */" />
+            <marker date="1564772367224" expanded="true" signature="5187:5674" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="5451:5664" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="5899:6229" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="6140:6218" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="6443:7459" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="6942:7256" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="7293:7449" ph="/* var sharedRendererCounts = sharedIndex.GetSharedValueIndexCountArray(); ... */" />
+            <marker date="1564772367224" expanded="true" signature="7678:8460" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="8022:8205" ph="{...}" />
+            <marker date="1564772367224" expanded="true" signature="8462:13521" ph="/* public void Gather() ... */" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/FixChunkRelations.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+          <folding>
+            <marker date="1564732804950" expanded="true" signature="43:105" ph="{...}" />
+            <marker date="1564732804950" expanded="true" signature="91:103" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/SpawnChunkEvent.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+          <folding>
+            <marker date="1564020213100" expanded="false" signature="6:46" ph="..." />
+            <marker date="1564020213100" expanded="true" signature="94:215" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Authoring/Chunk.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="13" column="68" selection-start-line="13" selection-start-column="68" selection-end-line="13" selection-end-column="68" />
+          <folding>
+            <marker date="1564696419109" expanded="false" signature="6:79" ph="..." />
+            <marker date="1564696419109" expanded="true" signature="104:744" ph="{...}" />
+            <marker date="1564696419109" expanded="true" signature="236:742" ph="{...}" />
+            <marker date="1564696419109" expanded="true" signature="356:736" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/VisibilitySystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2655">
+          <caret line="191" column="36" selection-start-line="191" selection-start-column="36" selection-end-line="191" selection-end-column="36" />
+          <folding>
+            <marker date="1564774242505" expanded="true" signature="6:223" ph="..." />
+            <marker date="1564774242505" expanded="true" signature="226:3869" ph="/* public class MeshFixSystem : JobComponentSystem ... */" />
+            <marker date="1564774242505" expanded="true" signature="3921:9428" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="4039:4330" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="4188:4324" ph="/* _workQuery = GetEntityQuery(ComponentType.ReadOnly&lt;WorldPosition&gt;(), ... */" />
+            <marker date="1564774242505" expanded="true" signature="4336:4801" ph="/* This declares a new kind of job, which is a unit of work to do. ... */" />
+            <marker date="1564774242505" expanded="true" signature="4907:8678" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="4922:5038" ph="/* Add fields here that your job needs to do its work. ... */" />
+            <marker date="1564774242505" expanded="true" signature="5041:6808" ph="/* public void Execute(ref Translation translation, [ReadOnly] ref Rotation rotation) ... */" />
+            <marker date="1564774242505" expanded="true" signature="6993:7319" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="7069:7254" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="7624:7921" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="7747:7911" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="8077:8672" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="8750:9426" ph="{...}" />
+            <marker date="1564774242505" expanded="true" signature="9089:9301" ph="/* Assign values to the fields on your job here, so that it has ... */" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/GatherUtilities.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2850">
+          <caret line="196" column="51" selection-start-line="196" selection-start-column="51" selection-end-line="196" selection-end-column="51" />
+          <folding>
+            <marker date="1564774244394" expanded="true" signature="0:7116" ph="/* using ECS.Data.Voxel; ... */" />
+            <marker date="1564774244394" expanded="false" signature="7124:7215" ph="..." />
+            <marker date="1564774244394" expanded="true" signature="7237:11192" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="7312:11190" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="7436:7901" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="7686:7891" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="8146:8702" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="8497:8656" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="8804:9515" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="9073:9188" ph="/* public NativeArray&lt;int&gt; rawIndexes; ... */" />
+            <marker date="1564774244394" expanded="true" signature="9325:9505" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="9751:9983" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="10236:11184" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="10412:10583" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="10881:11173" ph="{...}" />
+            <marker date="1564774244394" expanded="true" signature="10883:11008" ph="/* chunks = chunks, ... */" />
+            <marker date="1564774244394" expanded="true" signature="11193:15509" ph="/* [BurstCompile] ... */" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChildChunk.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="12" column="22" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="28" />
+          <folding>
+            <marker date="1564651603244" expanded="false" signature="6:35" ph="..." />
+            <marker date="1564651603244" expanded="true" signature="80:371" ph="{...}" />
+            <marker date="1564651603244" expanded="true" signature="87:150" ph="/// A Chunk within a World ... " />
+            <marker date="1564651603244" expanded="true" signature="170:235" ph="/* [WriteGroup(typeof(ParentScaleInverse)) ... */" />
+            <marker date="1564651603244" expanded="true" signature="328:369" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/FixVoxelRelations.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+          <folding>
+            <marker date="1564732804940" expanded="true" signature="43:105" ph="{...}" />
+            <marker date="1564732804940" expanded="true" signature="91:103" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/WorldParentSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="22" column="74" selection-start-line="22" selection-start-column="74" selection-end-line="22" selection-end-column="74" />
+          <folding>
+            <marker date="1564648778132" expanded="false" signature="6:126" ph="..." />
+            <marker date="1564648778132" expanded="true" signature="171:10861" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="235:10859" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="514:1092" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="709:887" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="904:1082" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="1171:1432" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="1235:1342" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="1509:1961" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="1842:1951" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="1991:2138" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="2205:3764" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="2626:3754" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="2696:3740" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="2857:3722" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="3190:3700" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="3406:3672" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="3808:5666" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="3898:4365" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="3958:4160" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564648778132" expanded="true" signature="4221:4288" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4451:4775" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4511:4578" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4639:4698" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4862:5250" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4922:5173" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564648778132" expanded="true" signature="5336:5654" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="5396:5454" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="5515:5577" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="5699:6314" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="6040:6235" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="6350:7032" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="6626:6850" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="7068:8673" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="7233:8619" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="7671:7943" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="8155:8562" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="8710:10286" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="8872:10150" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="9357:10094" ph="{...}" />
+            <marker date="1564648778132" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+            <marker date="1564648778132" expanded="true" signature="10330:10853" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkTableSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <marker date="1564648653098" expanded="true" signature="6:126" ph="..." />
+            <marker date="1564648653098" expanded="true" signature="235:10859" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="514:1092" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="709:887" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="904:1082" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="1171:1432" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="1235:1342" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="1509:1961" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="1842:1951" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="1991:2138" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="2205:3764" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="2626:3754" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="2696:3740" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="2857:3722" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="3190:3700" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="3406:3672" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="3808:5666" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="3898:4365" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="3958:4160" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4019:4142" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564648653098" expanded="true" signature="4221:4288" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4451:4775" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4511:4578" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4639:4698" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4862:5250" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4922:5173" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="4983:5107" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564648653098" expanded="true" signature="5336:5654" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="5396:5454" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="5515:5577" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="5699:6314" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="6040:6235" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="6350:7032" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="6626:6850" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="7068:8673" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="7233:8619" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="7671:7943" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="8155:8562" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="8710:10286" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="8872:10150" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="9357:10094" ph="{...}" />
+            <marker date="1564648653098" expanded="true" signature="9894:10076" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+            <marker date="1564648653098" expanded="true" signature="10330:10853" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Rewrite/ChunkParentSystem.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="16" column="70" selection-start-line="16" selection-start-column="70" selection-end-line="16" selection-end-column="70" />
+          <folding>
+            <marker date="1564774242473" expanded="false" signature="6:126" ph="..." />
+            <marker date="1564774242473" expanded="true" signature="171:10860" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="234:10858" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="513:1091" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="708:886" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="903:1081" ph="{...}" />
+            <marker date="1564774242473" expanded="false" signature="1170:1431" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="1234:1341" ph="{...}" />
+            <marker date="1564774242473" expanded="false" signature="1508:1960" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="1841:1950" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="1990:2137" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="2204:3763" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="2625:3753" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="2695:3739" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="2856:3721" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="3189:3699" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="3405:3671" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="3807:5665" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="3897:4364" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="3957:4159" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4018:4141" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564774242473" expanded="true" signature="4220:4287" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4450:4774" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4510:4577" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4638:4697" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4861:5249" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4921:5172" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="4982:5106" ph="/* ComponentType.ReadOnly&lt;LocalToWorld&gt;(), ... */" />
+            <marker date="1564774242473" expanded="true" signature="5335:5653" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="5395:5453" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="5514:5576" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="5698:6313" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="6039:6234" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="6349:7031" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="6625:6849" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="7067:8672" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="7232:8618" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="7670:7942" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="8154:8561" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="8709:10285" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="8871:10149" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="9356:10093" ph="{...}" />
+            <marker date="1564774242473" expanded="true" signature="9893:10075" ph="/* if (EntityManager.HasComponent(childEntity, typeof(LocalToParent))) ... */" />
+            <marker date="1564774242473" expanded="true" signature="10329:10852" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/Data/Chunk/ChunkTable.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="20" column="37" selection-start-line="20" selection-start-column="37" selection-end-line="20" selection-end-column="37" />
+          <folding>
+            <marker date="1564696751766" expanded="false" signature="6:85" ph="..." />
+            <marker date="1564696751766" expanded="true" signature="87:156" ph="/// Represents a table lookup for chunks ... " />
+            <marker date="1564696751766" expanded="true" signature="241:1009" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="346:379" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="462:512" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="600:645" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="673:710" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="752:806" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="851:920" ph="{...}" />
+            <marker date="1564696751766" expanded="true" signature="959:1007" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ECS/System/WorldPositionCalculationSystem.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
+        <state relative-caret-position="150">
+          <caret line="23" column="53" lean-forward="true" selection-start-line="23" selection-start-column="53" selection-end-line="23" selection-end-column="53" />
           <folding>
-            <marker date="1564697455600" expanded="false" signature="6:156" ph="..." />
-            <marker date="1564697455600" expanded="true" signature="202:4318" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="273:4316" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="366:933" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="978:1114" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="1180:2633" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="1791:2623" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="2398:2609" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="2497:2590" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="2939:4310" ph="{...}" />
-            <marker date="1564697455600" expanded="true" signature="3641:4165" ph="{...}" />
+            <marker date="1564772537265" expanded="false" signature="6:220" ph="..." />
+            <marker date="1564772537265" expanded="true" signature="267:7115" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="338:7113" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="430:1007" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="697:997" ph="/* chunkPosList = new List&lt;VoxelChunkPosition&gt;(); ... */" />
+            <marker date="1564772537265" expanded="true" signature="1009:1206" ph="/* protected override void OnDestroy() ... */" />
+            <marker date="1564772537265" expanded="true" signature="1290:2532" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="1842:2522" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="2297:2508" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="2396:2489" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="2601:4453" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="2786:3128" ph="/* [ReadOnly] public ArchetypeChunkSharedComponentType&lt;VoxelChunkPosition&gt; ChunkPositionType; ... */" />
+            <marker date="1564772537265" expanded="true" signature="3448:4443" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="3619:3967" ph="/* var chunkPositionIndex = chunk.GetSharedComponentIndex(ChunkPositionType); ... */" />
+            <marker date="1564772537265" expanded="true" signature="4218:4429" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="4317:4410" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="4454:4692" ph="/* private List&lt;VoxelChunkPosition&gt; chunkPosList; ... */" />
+            <marker date="1564772537265" expanded="true" signature="4769:7107" ph="{...}" />
+            <marker date="1564772537265" expanded="true" signature="5249:5872" ph="/* chunkPosList.Clear(); ... */" />
+            <marker date="1564772537265" expanded="true" signature="5875:6579" ph="/* var job = new FixPositionJob() ... */" />
+            <marker date="1564772537265" expanded="true" signature="6648:6957" ph="{...}" />
           </folding>
         </state>
       </provider>

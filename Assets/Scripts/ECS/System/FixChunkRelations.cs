@@ -1,5 +1,8 @@
 using Unity.Entities;
 
-struct FixChunkRelations : IComponentData
+namespace ECS.System
 {
+    struct FixChunkRelations : IComponentData
+    {
+    }
 }
