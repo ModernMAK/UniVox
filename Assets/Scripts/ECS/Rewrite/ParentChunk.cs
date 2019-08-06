@@ -12,6 +12,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
     [Serializable]
 //    [WriteGroup(typeof(LocalToWorld))]
 
+    [Obsolete]
     public struct ParentChunk : IComponentData
     {
         public Entity Value;

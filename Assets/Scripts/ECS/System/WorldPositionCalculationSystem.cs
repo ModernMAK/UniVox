@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using ECS.Data.Voxel;
+﻿using ECS.Data.Voxel;
 using ECS.Voxel;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using NotImplementedException = System.NotImplementedException;
 
 //using ECS.Voxel.Data;
 
@@ -22,21 +20,7 @@ namespace ECS.System
                 ComponentType.ReadOnly<VoxelPosition>(),
                 ComponentType.ReadOnly<VoxelChunkPosition>(),
                 ComponentType.ReadOnly<ChunkSize>());
-
-//            chunkPosList = new List<VoxelChunkPosition>();
-//            chunkSizeList = new List<ChunkSize>();
-//
-//            nativeChunkPosList = new NativeList<VoxelChunkPosition>(1, Allocator.Persistent);
-//            nativeChunkSizeList = new NativeList<ChunkSize>(1, Allocator.Persistent);
         }
-
-//        protected override void OnDestroy()
-//        {
-//            base.OnDestroy();
-//
-////            nativeChunkPosList.Dispose();
-////            nativeChunkSizeList.Dispose();
-//        }
 
 
         [BurstCompile]
@@ -74,6 +58,7 @@ namespace ECS.System
                 }
             }
         }
+
 //
 
         [BurstCompile]
@@ -88,8 +73,11 @@ namespace ECS.System
 //            [ReadOnly] public NativeList<VoxelChunkPosition> ChunkPositions;
 //            [ReadOnly] public NativeList<ChunkSize> ChunkSizes;
 
-            [DeallocateOnJobCompletion] [ReadOnly] public SharedComponentDataArray<VoxelChunkPosition> ChunkPosData;
-            [DeallocateOnJobCompletion] [ReadOnly] public SharedComponentDataArray<ChunkSize> ChunkSizeData;
+//            [DeallocateOnJobCompletion] 
+            [ReadOnly] public SharedComponentDataArray<VoxelChunkPosition> ChunkPosData;
+
+//            [DeallocateOnJobCompletion]
+            [ReadOnly] public SharedComponentDataArray<ChunkSize> ChunkSizeData;
 
             public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
@@ -129,8 +117,10 @@ namespace ECS.System
 
             var chunks = _entityQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
-            var chunkPosData = GatherUtil.GatherSharedComponent<VoxelChunkPosition>(chunks, manager);//, Allocator.TempJob);
-            var chunkSizeData = GatherUtil.GatherSharedComponent<ChunkSize>(chunks, manager);//, Allocator.TempJob);
+            inputDependencies.Complete();
+            var chunkPosData =
+                GatherUtil.Gather<VoxelChunkPosition>(chunks, manager); //, Allocator.TempJob);
+            var chunkSizeData = GatherUtil.Gather<ChunkSize>(chunks, manager); //, Allocator.TempJob);
 
 //
 //            chunkPosList.Clear();
@@ -169,14 +159,30 @@ namespace ECS.System
             var job = new FixPositionJobParallelFor()
             {
                 WorldPositionType = GetArchetypeChunkComponentType<WorldPosition>(),
-                VoxelPositionType = GetArchetypeChunkComponentType<VoxelPosition>(),
+                VoxelPositionType = GetArchetypeChunkComponentType<VoxelPosition>(true),
                 ChunkSizeData = chunkSizeData,
                 ChunkPosData = chunkPosData,
                 Chunks = chunks
             };
+            var jobHandle = job.Schedule(chunks.Length, 64);
 
-            // Now that the job is set up, schedule it to be run. 
-            return job.Schedule(chunks.Length, 64, inputDependencies);
+
+//            var disposeChunkPosJob = new DisposeJob<SharedComponentDataArray<VoxelChunkPosition>>()
+//            {
+//                Disposable = chunkPosData
+//            };
+//            var disposeChunkPosJobHandle = disposeChunkPosJob.Schedule(jobHandle);
+//
+//
+//            var disposeChunkSizeJob = new DisposeJob<SharedComponentDataArray<ChunkSize>>()
+//            {
+//                Disposable = chunkSizeData
+//            };
+//            var disposeChunkSizeJobHandle = disposeChunkPosJob.Schedule(jobHandle);
+
+
+            return jobHandle;
+//            return JobHandle.CombineDependencies(disposeChunkPosJobHandle, disposeChunkSizeJobHandle);
         }
     }
 }

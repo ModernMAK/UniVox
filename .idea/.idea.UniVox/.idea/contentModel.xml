@@ -7,27 +7,6 @@
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
-        <e p="3rd Party" t="Include">
-          <e p="Texture Packer" t="Include">
-            <e p="Scripts" t="Include">
-              <e p="Editor" t="Include">
-                <e p="TextureItem.cs" t="Include" />
-                <e p="TexturePackerStyles.cs" t="Include" />
-                <e p="TexturePackerWindow.cs" t="Include" />
-                <e p="TexturePreview.cs" t="Include" />
-              </e>
-              <e p="Resources" t="Include">
-                <e p="TexturePacker.shader" t="Include" />
-              </e>
-              <e p="TextureChannel.cs" t="Include" />
-              <e p="TextureChannelInput.cs" t="Include" />
-              <e p="TextureFormat.cs" t="Include" />
-              <e p="TextureInput.cs" t="Include" />
-              <e p="TexturePacker.cs" t="Include" />
-              <e p="TextureUtility.cs" t="Include" />
-            </e>
-          </e>
-        </e>
         <e p="Scripts" t="Include">
           <e p="ECS" t="Include">
             <e p="Authoring" t="Include">
@@ -62,8 +41,12 @@
                 <e p="InChunk.cs" t="Include" />
                 <e p="OldChunkPosition.cs" t="Include" />
                 <e p="OldVoxelChunkPosition.cs" t="Include" />
+                <e p="PreviousRenderData.cs" t="Include" />
                 <e p="VoxelChunkPosition.cs" t="Include" />
                 <e p="VoxelData.cs" t="Include" />
+                <e p="VoxelMaterials.cs" t="Include" />
+                <e p="VoxelRenderData.cs" t="Include" />
+                <e p="VoxelRenderSystem.cs" t="Include" />
               </e>
             </e>
             <e p="Rewrite" t="Include">
@@ -81,18 +64,22 @@
             <e p="SpawnUniverseEvent.cs" t="Include" />
             <e p="SpawnVoxelEvent.cs" t="Include" />
             <e p="system" t="Include">
-              <e p="DissectingGather.cs" t="Include" />
               <e p="FixChunkRelations.cs" t="Include" />
               <e p="FixVoxelRelations.cs" t="Include" />
+              <e p="GatherUtil.cs" t="Include" />
               <e p="GatherUtilities.cs" t="Include" />
+              <e p="SharedComponentDataArray.cs" t="Include" />
               <e p="VisibilitySystem.cs" t="Include" />
-              <e p="VoxelSpawnNonJobified.cs" t="Include" />
               <e p="VoxelSpawnSystem.cs" t="Include" />
               <e p="WorldPositionCalculationSystem.cs" t="Include" />
               <e p="WorldPositionToTranslationSystem.cs" t="Include" />
             </e>
             <e p="UniverseSpawner.cs" t="Include" />
           </e>
+          <e p="Editor" t="Include">
+            <e p="MaterialListDrawer.cs" t="Include" />
+          </e>
+          <e p="MaterialList.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
         </e>
       </e>

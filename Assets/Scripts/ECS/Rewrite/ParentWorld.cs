@@ -9,6 +9,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
     /// </summary>
     [Serializable]
 //    [WriteGroup(typeof(LocalToWorld))]
+    [Obsolete]
     public struct ParentWorld : IComponentData
     {
         public Entity Value;

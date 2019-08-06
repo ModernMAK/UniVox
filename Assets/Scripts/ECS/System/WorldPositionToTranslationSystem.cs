@@ -5,14 +5,13 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+
 //using ECS.Voxel.Data;
 
 namespace ECS.System
 {
     public class WorldPositionToTranslationSystem : JobComponentSystem
     {
-    
-
         private EntityQuery _entityQuery;
 
         protected override void OnCreate()

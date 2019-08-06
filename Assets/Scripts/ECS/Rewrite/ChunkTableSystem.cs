@@ -7,6 +7,7 @@ using UnityEngine.Profiling;
 
 namespace UnityTemplateProjects.ECS.Rewrite
 {
+    [Obsolete]
     public abstract class ChunkParentSystem : ComponentSystem
     {
         private EntityQuery m_NewParentsGroup;
