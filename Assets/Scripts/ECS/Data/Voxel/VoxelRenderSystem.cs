@@ -14,6 +14,7 @@ namespace ECS.Data.Voxel
     {
         EntityQuery addQuery;
         EntityQuery gatherQuery;
+//        EntityQuery invalidatedQuery;
         EntityQuery removeQuery;
 
         EntityCommandBufferSystem Barrier;
@@ -38,8 +39,19 @@ namespace ECS.Data.Voxel
                     ComponentType.ReadOnly<VoxelRenderData>(), ComponentType.ReadWrite<PreviousRenderData>(),
                     ComponentType.ReadOnly<RenderMesh>(), ComponentType.ReadOnly<VoxelMaterials>()
                 },
+//                None = new []{ ComponentType.ReadOnly<InvalidateRenderData>()}
             };
             gatherQuery = GetEntityQuery(gatherDesc);
+//            var invalidateDesc = new EntityQueryDesc()
+//            {
+//                All = new[]
+//                {
+//                    ComponentType.ReadOnly<VoxelRenderData>(), ComponentType.ReadWrite<PreviousRenderData>(),
+//                    ComponentType.ReadOnly<RenderMesh>(), ComponentType.ReadOnly<VoxelMaterials>(),
+//                    ComponentType.ReadOnly<InvalidateRenderData>()
+//                },
+//            };
+//            invalidatedQuery = GetEntityQuery(gatherDesc);
             var removeDesc = new EntityQueryDesc()
             {
                 All = new[] {ComponentType.ReadOnly<PreviousRenderData>()},
@@ -58,39 +70,6 @@ namespace ECS.Data.Voxel
             public VoxelRenderData RenderData;
         }
 
-        [BurstCompile]
-        struct GatherJobBROKEN : IJobChunk
-        {
-            public NativeList<GatherData> Changed;
-            [ReadOnly] public ArchetypeChunkComponentType<PreviousRenderData> PreviousRenderDatatType;
-            [ReadOnly] public ArchetypeChunkComponentType<VoxelRenderData> RenderDataType;
-            [ReadOnly] public ArchetypeChunkEntityType EntityType;
-
-
-            public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
-            {
-                if (chunk.DidChange(RenderDataType, chunk.GetComponentVersion(PreviousRenderDatatType)))
-                {
-                    var chunkPreviousParents = chunk.GetNativeArray(PreviousRenderDatatType);
-                    var chunkParents = chunk.GetNativeArray(RenderDataType);
-                    var chunkEntities = chunk.GetNativeArray(EntityType);
-
-                    for (int j = 0; j < chunk.Count; j++)
-                    {
-                        if (!chunkParents[j].Equals(chunkPreviousParents[j]))
-                        {
-                            Changed.Add(new GatherData()
-                            {
-                                Target = chunkEntities[j],
-                                ChunkIndex = chunkIndex,
-                                RenderData = chunkParents[j]
-                            });
-                            chunkPreviousParents[j] = chunkParents[j];
-                        }
-                    }
-                }
-            }
-        }
 
         [BurstCompile]
         struct GatherJob : IJob
@@ -161,6 +140,39 @@ namespace ECS.Data.Voxel
             }
         }
 
+        [BurstCompile]
+        struct GatherInvalidJob : IJob
+        {
+            public NativeList<GatherData> Changed;
+            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
+            [ReadOnly] public ArchetypeChunkComponentType<VoxelRenderData> RenderDataType;
+            [ReadOnly] public ArchetypeChunkComponentType<PreviousRenderData> PreviousRenderDatatType;
+            [ReadOnly] public ArchetypeChunkEntityType EntityType;
+
+
+            public void Execute()
+            {
+                for (var chunkIndex = 0; chunkIndex < Chunks.Length; chunkIndex++)
+                {
+                    var chunk = Chunks[chunkIndex];
+                    var chunkPreviousParents = chunk.GetNativeArray(PreviousRenderDatatType);
+                    var chunkParents = chunk.GetNativeArray(RenderDataType);
+                    var chunkEntities = chunk.GetNativeArray(EntityType);
+
+                    for (int j = 0; j < chunk.Count; j++)
+                    {
+                        Changed.Add(new GatherData()
+                        {
+                            Target = chunkEntities[j],
+                            ChunkIndex = chunkIndex,
+                            RenderData = chunkParents[j]
+                        });
+                        chunkPreviousParents[j] = chunkParents[j];
+                    }
+                }
+            }
+        }
+
         struct AddJob : IJobChunk
         {
             [WriteOnly] public EntityCommandBuffer.Concurrent Buffer;
@@ -199,29 +211,15 @@ namespace ECS.Data.Voxel
             }
         }
 
-        struct UpdateJob : IJobParallelFor
-        {
-            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<GatherData> Changed;
-
-            [WriteOnly] public EntityCommandBuffer.Concurrent Buffer;
-
-            public void Execute(int index)
-            {
-                var data = Changed[index];
-                var target = data.Target;
-                var prevData = data.RenderData;
-                var updatedData = (PreviousRenderData) prevData;
-
-                Buffer.SetComponent(index, target, updatedData);
-            }
-        }
-
         void FixJob(NativeList<GatherData> changed, SharedComponentDataArrayManaged<RenderMesh> renderMeshes,
             SharedComponentDataArrayManaged<VoxelMaterials> matList)
         {
             for (var i = 0; i < changed.Length; i++)
             {
                 var data = changed[i];
+                var myMatList = matList[data.ChunkIndex];
+                if (myMatList.Count == 0)
+                    continue;
 
                 var meshData = renderMeshes[data.ChunkIndex];
                 meshData.material = matList[data.ChunkIndex][data.RenderData.MaterialIndex];
@@ -315,70 +313,11 @@ namespace ECS.Data.Voxel
 
         protected override void OnUpdate()
         {
-//            var chunks = gatherQuery.CreateArchetypeChunkArray(Allocator.TempJob, out var chunkDeps);
-//
-//
-//            chunkDeps.Complete();
-//            var renderMesh = GatherUtil.GatherManaged<RenderMesh>(chunks, EntityManager);
-//            var materialList = GatherUtil.GatherManaged<VoxelMaterials>(chunks, EntityManager);
 
             UpdateAdd().Complete();
             UpdateRemove().Complete();
             UpdateGather(gatherQuery);
             UpdateGatherAll(addQuery);
-//            inputDeps.Complete();
-
-//            //First Add State Data
-//
-//            //Then Remove State Data
-//
-//
-//            //Then Gather, Fix, & Update
-//            var changedList = new NativeList<GatherData>(Allocator.TempJob);
-//            var gatherJob = new GatherJob()
-//            {
-//                EntityType = entityType,
-//                Changed = changedList,
-//                PreviousRenderDatatType = GetArchetypeChunkComponentType<PreviousRenderData>(),
-//                RenderDataType = GetArchetypeChunkComponentType<VoxelRenderData>()
-//            };
-//            var gatherHandle = gatherJob.Schedule(gatherQuery);
-//
-//            var gatherAllJob = new GatherAllJob()
-//            {
-//                Changed = changedList,
-//                EntityType = entityType,
-//                RenderDataType = GetArchetypeChunkComponentType<VoxelRenderData>()
-//            };
-//            var gatherAllHandle = gatherAllJob.Schedule(addQuery, gatherHandle);
-//
-//            gatherAllHandle.Complete();
-//            FixJob(changedList, renderMesh, materialList);
-
-
-            //LAstly Update State Data
-
-//            var updateJob = new UpdateJob()
-//            {
-//                Changed = changedList.ToArray(Allocator.TempJob),
-//                Buffer = Barrier.CreateCommandBuffer().ToConcurrent()
-//            };
-//            var updateHandle = updateJob.Schedule(changedList.Length, 64, removeHandle);
-//            Barrier.AddJobHandleForProducer(updateHandle);
-
-//            renderMesh.Dispose();
-//            materialList.Dispose();
-//            changedList.Dispose();
-//            chunks.Dispose();
-
-//            var deallocateChanged = new DeallocateListJob<GatherData>()
-//            {
-//                Data = changedList
-//            };
-
-//            var deallocateHandle = deallocateChanged.Schedule(updateHandle);
-
-//            return JobHandle.CombineDependencies(add, remove);
         }
     }
 }

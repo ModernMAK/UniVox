@@ -68,6 +68,7 @@
               <e p="FixVoxelRelations.cs" t="Include" />
               <e p="GatherUtil.cs" t="Include" />
               <e p="GatherUtilities.cs" t="Include" />
+              <e p="Physiscs Test.cs" t="Include" />
               <e p="SharedComponentDataArray.cs" t="Include" />
               <e p="VisibilitySystem.cs" t="Include" />
               <e p="VoxelSpawnSystem.cs" t="Include" />
@@ -82,6 +83,7 @@
           <e p="MaterialList.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
         </e>
+        <e p="VoxelChanger.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />

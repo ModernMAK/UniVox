@@ -56,10 +56,11 @@ public class ChunkSpawner : MonoBehaviour
         {
             var spawnedEntity = manager.Instantiate(prefab);
             var localPosition = new int3(x, y, z);
+            var worldPos = localPosition + ChunkSize * position;
             manager.SetSharedComponentData(spawnedEntity, new VoxelChunkPosition() {value = position});
             manager.SetSharedComponentData(spawnedEntity, new ChunkSize(size));
             manager.SetComponentData(spawnedEntity, new VoxelPosition() {value = localPosition});
-            var rand = new System.Random(localPosition.GetHashCode());
+            var rand = new System.Random(worldPos.GetHashCode());
             manager.SetComponentData(spawnedEntity, new VoxelRenderData() {MaterialIndex = rand.Next(matSize)});
 
             if (counter > innerLoop)

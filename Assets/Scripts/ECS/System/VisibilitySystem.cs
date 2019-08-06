@@ -142,7 +142,7 @@ public class VisibilitySystem : JobComponentSystem
         private void Helper(ref Directions flag, int3 position, int3 directionVector, Directions directionFlag)
         {
 
-            var temp = new Entity();
+//            var temp = new Entity();
             if (TryFindActive(position + directionVector, out var result))
             {
                 if (result)

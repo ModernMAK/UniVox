@@ -1,7 +1,5 @@
 using System;
 using Unity.Entities;
-using System;
-using Unity.Entities;
 
 namespace UnityTemplateProjects.ECS.Rewrite
 {

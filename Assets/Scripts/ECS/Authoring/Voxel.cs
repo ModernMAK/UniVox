@@ -24,8 +24,11 @@ namespace ECS.Authoring
             dstManager.AddSharedComponentData(entity, new VoxelMaterials() {Materials = MaterialList});
             dstManager.AddComponentData(entity, new VoxelRenderData(){MaterialIndex = 0});
 
+            
+            
 //            dstManager.AddSharedComponentData(entity, new InChunk());
 //            dstManager.AddSharedComponentData(entity, new InUniverse());
         }
     }
+    
 }

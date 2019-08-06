@@ -9,6 +9,7 @@
     "com.unity.ide.vscode": "1.0.7",
     "com.unity.inputsystem": "0.9.0-preview",
     "com.unity.mathematics": "1.1.0",
+    "com.unity.physics": "0.2.0-preview",
     "com.unity.render-pipelines.lightweight": "6.5.3",
     "com.unity.rendering.hybrid": "0.1.0-preview",
     "com.unity.scriptablebuildpipeline": "1.5.2",

@@ -7,6 +7,11 @@ using UnityEngine;
 [Serializable]
 public class MaterialList : ScriptableObject, IList<Material>
 {
+    public MaterialList()
+    {
+        _backingList = new List<Material>();
+    }
+    
     [SerializeField] private List<Material> _backingList;
 
     public IEnumerator<Material> GetEnumerator()

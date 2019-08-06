@@ -10,7 +10,7 @@ namespace ECS.System
 
         public NativeArray<TGather> data;
         public NativeArray<int> indexes;
-
+        
 
         public void Dispose()
         {
@@ -22,6 +22,7 @@ namespace ECS.System
     public struct SharedComponentDataArrayManaged<TGather> : IDisposable where TGather : struct, ISharedComponentData
     {
         public TGather this[int chunkIndex] => data[indexes[chunkIndex]];
+        public int Length => data.Length;
 
         public TGather[] data;
         public NativeArray<int> indexes;
