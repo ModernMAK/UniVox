@@ -1,4 +1,5 @@
 using System;
+using ECS.Voxel.Data;
 using Unity.Entities;
 
 namespace ECS.Data.Voxel
@@ -7,7 +8,26 @@ namespace ECS.Data.Voxel
     public struct PreviousRenderData : ISystemStateComponentData, IEquatable<PreviousRenderData>
     {
         public int MaterialIndex;
-        public int MeshIndex;
+        public BlockShape MeshIndex;
+
+
+        public static implicit operator PreviousRenderData(VoxelRenderData data)
+        {
+            return new PreviousRenderData()
+            {
+                MaterialIndex = data.MaterialIndex,
+                MeshIndex = data.MeshShape
+            };
+        }
+
+        public static implicit operator VoxelRenderData(PreviousRenderData data)
+        {
+            return new VoxelRenderData()
+            {
+                MaterialIndex = data.MaterialIndex,
+                MeshShape = data.MeshIndex
+            };
+        }
 
         public bool Equals(PreviousRenderData other)
         {
@@ -23,26 +43,8 @@ namespace ECS.Data.Voxel
         {
             unchecked
             {
-                return (MaterialIndex * 397) ^ MeshIndex;
+                return (MaterialIndex * 397) ^ (int) MeshIndex;
             }
-        }
-
-        public static implicit operator PreviousRenderData(VoxelRenderData data)
-        {
-            return new PreviousRenderData()
-            {
-                MaterialIndex = data.MaterialIndex,
-                MeshIndex = data.MeshIndex
-            };
-        }
-
-        public static implicit operator VoxelRenderData(PreviousRenderData data)
-        {
-            return new VoxelRenderData()
-            {
-                MaterialIndex = data.MaterialIndex,
-                MeshIndex = data.MeshIndex
-            };
         }
     }
 }

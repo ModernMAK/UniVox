@@ -1,4 +1,5 @@
 using System;
+using ECS.Voxel.Data;
 using Unity.Entities;
 using NotImplementedException = System.NotImplementedException;
 
@@ -8,11 +9,11 @@ namespace ECS.Data.Voxel
     public struct VoxelRenderData : IEquatable<VoxelRenderData>, IComponentData
     {
         public int MaterialIndex;
-        public int MeshIndex;
+        public BlockShape MeshShape;
 
         public bool Equals(VoxelRenderData other)
         {
-            return MaterialIndex == other.MaterialIndex && MeshIndex == other.MeshIndex;
+            return MaterialIndex == other.MaterialIndex && MeshShape == other.MeshShape;
         }
 
         public override bool Equals(object obj)
@@ -24,7 +25,7 @@ namespace ECS.Data.Voxel
         {
             unchecked
             {
-                return (MaterialIndex * 397) ^ MeshIndex;
+                return (MaterialIndex * 397) ^ (int) MeshShape;
             }
         }
     }

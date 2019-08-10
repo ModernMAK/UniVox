@@ -19,17 +19,21 @@
               <e p="Chunk" t="Include">
                 <e p="ChunkPosition.cs" t="Include" />
                 <e p="ChunkTable.cs" t="Include" />
-                <e p="OldChunkTable.cs" t="Include" />
               </e>
               <e p="MeshData.cs" t="Include" />
               <e p="Shared" t="Include">
                 <e p="ChunkSize.cs" t="Include" />
-                <e p="Direction.cs" t="Include" />
-                <e p="Directions.cs" t="Include" />
-                <e p="DirectionsX.cs" t="Include" />
                 <e p="InUniverse.cs" t="Include" />
                 <e p="VoxelPosition.cs" t="Include" />
                 <e p="WorldPosition.cs" t="Include" />
+              </e>
+              <e p="Types" t="Include">
+                <e p="BlockShape.cs" t="Include" />
+                <e p="Direction.cs" t="Include" />
+                <e p="Directions.cs" t="Include" />
+                <e p="DirectionsX.cs" t="Include" />
+                <e p="MeshList.cs" t="Include" />
+                <e p="VoxelShapes.cs" t="Include" />
               </e>
               <e p="Universe" t="Include">
                 <e p="OldUniverseTable.cs" t="Include" />
