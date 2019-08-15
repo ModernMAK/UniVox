@@ -2,7 +2,7 @@
   "dependencies": {
     "com.unity.burst": "1.1.2",
     "com.unity.collab-proxy": "1.2.16",
-    "com.unity.entities": "0.1.0-preview",
+    "com.unity.entities": "0.1.1-preview",
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.rider": "1.0.8",
     "com.unity.ide.visualstudio": "1.0.11",
@@ -11,7 +11,7 @@
     "com.unity.mathematics": "1.1.0",
     "com.unity.physics": "0.2.0-preview",
     "com.unity.render-pipelines.lightweight": "6.5.3",
-    "com.unity.rendering.hybrid": "0.1.0-preview",
+    "com.unity.rendering.hybrid": "0.1.1-preview",
     "com.unity.scriptablebuildpipeline": "1.5.2",
     "com.unity.test-framework": "1.0.18",
     "com.unity.textmeshpro": "2.0.1",

@@ -11,6 +11,7 @@ using UnityTemplateProjects.ECS.Rewrite;
 
 namespace ECS.Data.Voxel
 {
+
     public class VoxelRenderSystem : ComponentSystem
     {
         EntityQuery addQuery;
@@ -80,7 +81,7 @@ namespace ECS.Data.Voxel
         {
             public NativeList<GatherData> Changed;
             [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-            [ReadOnly] public ArchetypeChunkComponentType<PreviousRenderData> PreviousRenderDatatType;
+            [ReadOnly] public ArchetypeChunkComponentType<PreviousRenderData> PreviousRenderDataType;
             [ReadOnly] public ArchetypeChunkComponentType<VoxelRenderData> RenderDataType;
             [ReadOnly] public ArchetypeChunkEntityType EntityType;
 
@@ -90,9 +91,9 @@ namespace ECS.Data.Voxel
                 for (var chunkIndex = 0; chunkIndex < Chunks.Length; chunkIndex++)
                 {
                     var chunk = Chunks[chunkIndex];
-                    if (chunk.DidChange(RenderDataType, chunk.GetComponentVersion(PreviousRenderDatatType)))
+                    if (chunk.DidChange(RenderDataType, chunk.GetComponentVersion(PreviousRenderDataType)))
                     {
-                        var chunkPreviousParents = chunk.GetNativeArray(PreviousRenderDatatType);
+                        var chunkPreviousParents = chunk.GetNativeArray(PreviousRenderDataType);
                         var chunkParents = chunk.GetNativeArray(RenderDataType);
                         var chunkEntities = chunk.GetNativeArray(EntityType);
 
@@ -234,7 +235,7 @@ namespace ECS.Data.Voxel
             {
                 EntityType = GetArchetypeChunkEntityType(),
                 Changed = gather, //changedList,
-                PreviousRenderDatatType = GetArchetypeChunkComponentType<PreviousRenderData>(),
+                PreviousRenderDataType = GetArchetypeChunkComponentType<PreviousRenderData>(),
                 RenderDataType = GetArchetypeChunkComponentType<VoxelRenderData>(true),
                 Chunks = chunks
             };
@@ -315,6 +316,7 @@ namespace ECS.Data.Voxel
 ////            changedList.Dispose();
 ////            chunks.Dispose();
 //        }
+
 
         private void UpdateGather(EntityQuery query, bool gatherAll = false)
         {
