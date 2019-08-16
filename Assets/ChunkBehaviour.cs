@@ -21,7 +21,7 @@ public class ChunkData : ISerializable, IDisposable
 
 
     private const int FlatSize = AxisSize * AxisSize * AxisSize;
-    private const int AxisSize = 32;
+    private const int AxisSize = 8;
 
     public ChunkData()
     {
@@ -35,6 +35,8 @@ public class ChunkData : ISerializable, IDisposable
         var dirs = info.GetValue<Directions[]>("Visibility");
         throw new NotImplementedException();
     }
+
+    public const int ChunkSizePerAxis = AxisSize;
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {

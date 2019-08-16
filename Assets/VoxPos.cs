@@ -2,8 +2,23 @@ using System.Collections.Generic;
 using ECS.Voxel;
 using Unity.Mathematics;
 
-public struct VoxPos
+public struct VoxPos 
 {
+    public bool Equals(VoxPos other)
+    {
+        return _backing == other._backing;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is VoxPos other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return _backing.GetHashCode();
+    }
+
     private const int FullMask = 0x7FFF;
     private const int PartialMask = 0x1F; //31
     private const int BitOffset = 5; //Log2 of 32 = 5

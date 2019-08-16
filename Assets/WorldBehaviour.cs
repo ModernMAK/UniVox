@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ECS.Data.Voxel;
 using ECS.Voxel.Data;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -15,6 +16,7 @@ public class WorldBehaviour : MonoBehaviour
     [SerializeField] private int RenderDistance;
     [SerializeField] private GameObject _block;
     private int3 lastChunk = int3.zero;
+    private Entity _prefab;
 
 
     private const int ChunkSize = 32;
@@ -32,7 +34,72 @@ public class WorldBehaviour : MonoBehaviour
         ChunkTable = new Dictionary<int3, ChunkEntityPair>();
         Handles = new Dictionary<int3, JobHandle>();
         lastChunk = ToChunkPos(_target.transform.position) + new int3(1);
+        _prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(_block, World.Active);
     }
+
+    private NativeArray<int3> GetListLoaded(Allocator allocator)
+    {
+        var map = new NativeArray<int3>(ChunkTable.Count, allocator);
+        var i = 0;
+        foreach (var key in ChunkTable.Keys)
+        {
+            map[i] = key;
+            i++;
+        }
+
+        return map;
+    }
+
+    [BurstCompile]
+    struct GatherChunksToUnload : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<int3> LoadedChunks;
+        [ReadOnly] public int3 ReferencePosition;
+        [ReadOnly] public int Distance;
+        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToUnload;
+
+        public void Execute(int index)
+        {
+            var chunkPos = LoadedChunks[index];
+            var delta = chunkPos - ReferencePosition;
+            var absDelta = math.abs(delta);
+            if (absDelta.x > Distance || absDelta.y > Distance || absDelta.z > Distance)
+            {
+                ChunksToUnload.Enqueue(chunkPos);
+            }
+        }
+    }
+
+    [BurstCompile]
+    struct GatherChunksToLoad : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<int3> LoadedChunks;
+        [ReadOnly] public int Distance;
+        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToLoad;
+
+
+        private int AxisSize => Distance * 2 + 1;
+
+        public void Execute(int index)
+        {
+            //-D -> D
+            // i -> 2D+1
+            var x = index % AxisSize;
+            var y = (index / AxisSize) % AxisSize;
+            var z = (index / AxisSize / AxisSize) % AxisSize;
+
+            x -= Distance;
+            y -= Distance;
+            z -= Distance;
+
+            var inspectPos = new int3(x, y, z);
+            if (!LoadedChunks.Contains(inspectPos))
+            {
+                ChunksToLoad.Enqueue(inspectPos);
+            }
+        }
+    }
+
 
     public int3 ToChunkPos(Vector3 v)
     {
@@ -53,7 +120,8 @@ public class WorldBehaviour : MonoBehaviour
     {
         var cep = ChunkTable[chunkPosition] = new ChunkEntityPair(new ChunkData());
 //        cep.Spawn(_block, chunkPosition * ChunkSize);
-        Handles[chunkPosition] = cep.Init(_block, chunkPosition);
+        cep.Spawn(_prefab);
+        Handles[chunkPosition] = cep.Init(chunkPosition);
     }
 
     public void UnloadChunk(int3 chunkPosition)
@@ -66,13 +134,12 @@ public class WorldBehaviour : MonoBehaviour
         Handles.Remove(chunkPosition);
     }
 
-
     public void UpdateFromRenderDistance(int3 chunkPos, int distance)
     {
         if (chunkPos.Equals(lastChunk))
             return;
-        LoadOutChunks(chunkPos, distance);
-        LoadInChunks(chunkPos, distance);
+        LoadOutChunksJobified(chunkPos, distance);
+        LoadInChunksJobified(chunkPos, distance);
         lastChunk = chunkPos;
     }
 
@@ -86,6 +153,7 @@ public class WorldBehaviour : MonoBehaviour
         }
     }
 
+    [Obsolete]
     public void LoadOutChunks(int3 chunkPos, int distance)
     {
         var temp = new Queue<int3>(ChunkTable.Keys);
@@ -99,6 +167,36 @@ public class WorldBehaviour : MonoBehaviour
         }
     }
 
+    public void LoadOutChunksJobified(int3 chunkPos, int distance)
+    {
+        var list = new NativeQueue<int3>(Allocator.TempJob);
+        var loaded = GetListLoaded(Allocator.TempJob);
+        var handle = new GatherChunksToUnload()
+        {
+            ChunksToUnload = list.AsParallelWriter(),
+            Distance = RenderDistance,
+            LoadedChunks = loaded,
+            ReferencePosition = chunkPos
+        }.Schedule(loaded.Length, 64);
+        handle.Complete();
+
+        while (list.Count > 0)
+            UnloadChunk(list.Dequeue());
+
+        list.Dispose();
+        loaded.Dispose();
+//        var temp = new Queue<int3>(ChunkTable.Keys);
+//        while (temp.Count > 0)
+//        {
+//            var thisChunk = temp.Dequeue();
+//            var delta = chunkPos - thisChunk;
+//            var deltaAbs = math.abs(delta);
+//            if (deltaAbs.x > distance || deltaAbs.y > distance || deltaAbs.z > distance)
+//                UnloadChunk(thisChunk);
+//        }
+    }
+
+    [Obsolete]
     public void LoadInChunks(int3 chunkPos, int distance)
     {
         for (var x = -distance; x <= distance; x++)
@@ -110,6 +208,27 @@ public class WorldBehaviour : MonoBehaviour
                 LoadChunk(pos);
         }
     }
+
+    public void LoadInChunksJobified(int3 chunkPos, int distance)
+    {
+        var perSize = (distance * 2 + 1);
+        var fullSize = perSize * perSize * perSize;
+        var list = new NativeQueue<int3>(Allocator.TempJob);
+        var loaded = GetListLoaded(Allocator.TempJob);
+        var handle = new GatherChunksToLoad()
+        {
+            Distance = RenderDistance,
+            LoadedChunks = loaded,
+            ChunksToLoad = list.AsParallelWriter()
+        }.Schedule(fullSize, 64);
+        handle.Complete();
+//        for (var i = 0; i < list.Length; i++)
+        while (list.Count > 0)
+            LoadChunk(list.Dequeue());
+
+        list.Dispose();
+        loaded.Dispose();
+    }
 }
 
 public class ChunkEntityPair : IDisposable
@@ -117,51 +236,74 @@ public class ChunkEntityPair : IDisposable
     public NativeArray<Entity> EntityTable;
     private ChunkData Chunk;
 
-    [Obsolete("Use Init")]
-    public void Spawn(GameObject prefab, int3 offset = default)
-    {
-        Debug.LogWarning("Deprecated");
-        return;
-    }
 
     public void Destroy()
     {
         var em = World.Active.EntityManager;
-        foreach (var pos in VoxPos.GetAllPositions())
-        {
-            em.DestroyEntity(EntityTable[pos]);
-        }
+        em.DestroyEntity(EntityTable);
     }
 
-    public JobHandle Init(GameObject prefab, int3 position)
+    private const int InnerBatchCount = 64;
+
+    public void Spawn(Entity prefab)
     {
-        var barrier = World.Active.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
+        World.Active.EntityManager.Instantiate(prefab, EntityTable);
+    }
 
-        var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, World.Active);
-        var spawnJob = new SpawnEntitiesJob()
+
+    private JobHandle SetupBlocks(int3 chunkPosition, EntityCommandBufferSystem bufferSystem,
+        JobHandle dependencies = default)
+    {
+        var handle = new InitBlockJob()
         {
-            Buffer = barrier.CreateCommandBuffer().ToConcurrent(),
-            ChunkOffset = position * 32,
+            Buffer = bufferSystem.CreateCommandBuffer().ToConcurrent(),
+            Entities = EntityTable,
+            ChunkOffset = chunkPosition * ChunkSizePerAxis,
             RenderOffset = new float3(1f / 2f),
-            Prefab = entityPrefab
-        };
-        var spawnHandle = spawnJob.Schedule(FlatSize, 64);
+        }.Schedule(FlatSize, InnerBatchCount, dependencies);
+        bufferSystem.AddJobHandleForProducer(handle);
+        return handle;
+    }
 
-        var setupActiveJob = new SetupActiveJob() {Solidity = Chunk.SolidTable};
-        var activeHandle = setupActiveJob.Schedule(Chunk.SolidTable.ByteCount, 64);
-
-        var setupVisibilityJob = new SetupVisibilityJob() {HiddenFaces = Chunk.HiddenFaces};
-        var visibleHandle = setupVisibilityJob.Schedule(FlatSize, 64);
-
-        var combined = JobHandle.CombineDependencies(activeHandle, visibleHandle, spawnHandle);
-        var cullJob = new SetupCulledJob()
+    private JobHandle SetupChunkActive(JobHandle dependencies = default)
+    {
+        return new SetupActiveJob()
         {
-            Buffer = barrier.CreateCommandBuffer().ToConcurrent(),
+            Solidity = Chunk.SolidTable
+        }.Schedule(Chunk.SolidTable.ByteCount, InnerBatchCount, dependencies);
+    }
+
+    private JobHandle SetupChunkVisibility(JobHandle dependencies = default)
+    {
+        return new SetupVisibilityJob()
+        {
+            HiddenFaces = Chunk.HiddenFaces
+        }.Schedule(FlatSize, InnerBatchCount, dependencies);
+    }
+
+    private JobHandle SetupCulling(EntityCommandBufferSystem bufferSystem, JobHandle dependencies = default)
+    {
+        var handle = new SetupCulledJob()
+        {
+            Buffer = bufferSystem.CreateCommandBuffer().ToConcurrent(),
             Entities = EntityTable,
             HiddenFaces = Chunk.HiddenFaces
-        };
-        var cullHandle = cullJob.Schedule(FlatSize, 64, combined);
-        return cullHandle;
+        }.Schedule(FlatSize, InnerBatchCount, dependencies);
+        bufferSystem.AddJobHandleForProducer(handle);
+        return handle;
+    }
+
+    public JobHandle Init(int3 position)
+    {
+        var beginBarrier = World.Active.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        var endBarrier = World.Active.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+
+//        var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, World.Active);
+        var setupActiveHandle = SetupChunkActive();
+        var setupChunkVisible = SetupChunkVisibility(setupActiveHandle);
+        var initHandle = SetupBlocks(position, beginBarrier, setupChunkVisible);
+        var cullingHandle = SetupCulling(endBarrier, initHandle);
+        return cullingHandle;
     }
 
     public void SetCulled(VoxPos voxPos, bool culling)
@@ -186,9 +328,7 @@ public class ChunkEntityPair : IDisposable
         Chunk = chunkData;
     }
 
-    public static T Get<T>(T[,,] data, int3 pos) => data[pos.x, pos.y, pos.z];
-    public static void Set<T>(T[,,] data, int3 pos, T value) => data[pos.x, pos.y, pos.z] = value;
-    public const int ChunkSizePerAxis = 32;
+    public const int ChunkSizePerAxis = ChunkData.ChunkSizePerAxis;
     public const int FlatSize = ChunkSizePerAxis * ChunkSizePerAxis * ChunkSizePerAxis;
 
     public void Dispose()
@@ -198,6 +338,7 @@ public class ChunkEntityPair : IDisposable
     }
 }
 
+[BurstCompile]
 struct SetupActiveJob : IJobParallelFor
 {
     [WriteOnly] public NativeBitArray Solidity;
@@ -210,6 +351,7 @@ struct SetupActiveJob : IJobParallelFor
     }
 }
 
+[BurstCompile]
 struct SetupVisibilityJob : IJobParallelFor
 {
     [WriteOnly] public NativeArray<Directions> HiddenFaces;
@@ -261,20 +403,18 @@ struct SetupCulledJob : IJobParallelFor
     }
 }
 
-struct SpawnEntitiesJob : IJobParallelFor
+struct InitBlockJob : IJobParallelFor
 {
-    [WriteOnly] public NativeArray<Entity> Entities;
-    [ReadOnly] public Entity Prefab;
+    [ReadOnly] public NativeArray<Entity> Entities;
     [ReadOnly] public float3 RenderOffset;
     [ReadOnly] public int3 ChunkOffset;
     public EntityCommandBuffer.Concurrent Buffer;
 
     public void Execute(int index)
     {
+        var e = Entities[index];
         var voxPos = new VoxPos(index);
-        var e = Entities[index] = Buffer.Instantiate(index, Prefab);
         Buffer.SetComponent(index, e, new Translation() {Value = voxPos.Position + RenderOffset + ChunkOffset});
-
         Buffer.AddComponent<Disabled>(index, e);
     }
 }
