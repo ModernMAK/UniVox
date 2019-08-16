@@ -7,6 +7,7 @@
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ChunkBehaviour.cs" t="Include" />
         <e p="MeshDrawer.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="ECS" t="Include">
@@ -96,6 +97,8 @@
         </e>
         <e p="VoxelChanger.cs" t="Include" />
         <e p="VoxelRenderBehaviour.cs" t="Include" />
+        <e p="VoxPos.cs" t="Include" />
+        <e p="WorldBehaviour.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />

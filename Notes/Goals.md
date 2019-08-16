@@ -1,9 +1,13 @@
 
-[ ] - Voxel Rendering <br/>
-The ability to Render a Voxel, simple but pivotal
+- [X] **Voxel Rendering**
+The ability to Render a Voxel, simple but pivotal.
+Accomplished via entities, attach a MeshRenderer, MeshFilter, and ConvertToEntity
 
-[ ] - Chunk Streaming <br/>
+- [X] **Chunk Streaming** 
 The ability to stream voxels when the Camera moves
+Accomplished via a simple ChunkLookup, when the target changes chunk boundaries, the chunk is then created and rendered
+	- [ ] **Optimized Chunk Streaming** 
+	Currently, streaming works and doesn't lag until a boundry is crossed, likely due to Entity creation, move to job?
 
 [ ] - World Editing <br/>
 The ability to edit the world
