@@ -5,26 +5,28 @@
       <Path>../../../AppData/Local/Unity/cache/packages/packages.unity.com/com.unity.ide.visualstudio@1.0.10</Path>
     </attachedFolders>
     <explicitIncludes>
-      <Path>Library/PackageCache/com.unity.burst@1.1.0-preview.4</Path>
+      <Path>Library/PackageCache/com.unity.burst@1.1.2</Path>
       <Path>Library/PackageCache/com.unity.collab-proxy@1.2.16</Path>
-      <Path>Library/PackageCache/com.unity.collections@0.0.9-preview.20</Path>
-      <Path>Library/PackageCache/com.unity.entities@0.0.12-preview.33</Path>
+      <Path>Library/PackageCache/com.unity.collections@0.1.1-preview</Path>
+      <Path>Library/PackageCache/com.unity.entities@0.1.1-preview</Path>
       <Path>Library/PackageCache/com.unity.ext.nunit@1.0.0</Path>
       <Path>Library/PackageCache/com.unity.ide.rider@1.0.8</Path>
       <Path>Library/PackageCache/com.unity.ide.visualstudio@1.0.11</Path>
       <Path>Library/PackageCache/com.unity.ide.vscode@1.0.7</Path>
       <Path>Library/PackageCache/com.unity.inputsystem@0.9.0-preview</Path>
-      <Path>Library/PackageCache/com.unity.jobs@0.0.7-preview.13</Path>
+      <Path>Library/PackageCache/com.unity.jobs@0.1.1-preview</Path>
       <Path>Library/PackageCache/com.unity.mathematics@1.1.0</Path>
-      <Path>Library/PackageCache/com.unity.properties@0.5.0-preview</Path>
-      <Path>Library/PackageCache/com.unity.render-pipelines.core@6.9.0</Path>
-      <Path>Library/PackageCache/com.unity.render-pipelines.high-definition@6.9.0-preview</Path>
-      <Path>Library/PackageCache/com.unity.rendering.hybrid@0.0.1-preview.13</Path>
-      <Path>Library/PackageCache/com.unity.scriptablebuildpipeline@1.5.1</Path>
-      <Path>Library/PackageCache/com.unity.shadergraph@6.9.0</Path>
-      <Path>Library/PackageCache/com.unity.test-framework@1.0.13</Path>
+      <Path>Library/PackageCache/com.unity.physics@0.2.0-preview</Path>
+      <Path>Library/PackageCache/com.unity.postprocessing@2.1.4</Path>
+      <Path>Library/PackageCache/com.unity.properties@0.6.2-preview</Path>
+      <Path>Library/PackageCache/com.unity.render-pipelines.core@6.5.3</Path>
+      <Path>Library/PackageCache/com.unity.render-pipelines.lightweight@6.5.3</Path>
+      <Path>Library/PackageCache/com.unity.rendering.hybrid@0.1.1-preview</Path>
+      <Path>Library/PackageCache/com.unity.scriptablebuildpipeline@1.5.2</Path>
+      <Path>Library/PackageCache/com.unity.shadergraph@6.5.3</Path>
+      <Path>Library/PackageCache/com.unity.test-framework@1.0.18</Path>
       <Path>Library/PackageCache/com.unity.textmeshpro@2.0.1</Path>
-      <Path>Library/PackageCache/com.unity.visualeffectgraph@6.9.0-preview</Path>
+      <Path>Library/PackageCache/com.unity.timeline@1.1.0</Path>
       <Path>Library/PackageCache/nuget.mono-cecil@0.1.6-preview</Path>
       <Path>Packages</Path>
       <Path>ProjectSettings</Path>
@@ -34,6 +36,7 @@
       <Path>.idea</Path>
       <Path>Library</Path>
       <Path>Logs</Path>
+      <Path>Notes</Path>
       <Path>Temp</Path>
       <Path>obj</Path>
     </explicitExcludes>

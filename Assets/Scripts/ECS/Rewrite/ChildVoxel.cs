@@ -9,6 +9,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
     [Serializable]
     [InternalBufferCapacity(byte.MaxValue)] //Arbitrary but big
 //    [WriteGroup(typeof(ParentScaleInverse))]
+    [Obsolete]
     public struct ChildVoxel : ISystemStateBufferElementData
     {
         public Entity Value;

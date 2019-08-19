@@ -9,6 +9,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
     [Serializable]
 //    [WriteGroup(typeof(ParentScaleInverse))
 //Arbitrary but big
+    [Obsolete]
     [InternalBufferCapacity(8)]
     public struct ChildChunk : ISystemStateBufferElementData
     {

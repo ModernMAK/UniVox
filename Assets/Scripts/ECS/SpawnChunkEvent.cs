@@ -1,6 +1,8 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[Obsolete]
 public struct SpawnChunkEvent : IComponentData
 {
     public Entity Universe;

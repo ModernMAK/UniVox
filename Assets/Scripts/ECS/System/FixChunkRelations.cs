@@ -1,5 +1,10 @@
+using System;
 using Unity.Entities;
 
-struct FixChunkRelations : IComponentData
+namespace ECS.System
 {
+    [Obsolete]
+    struct FixChunkRelations : IComponentData
+    {
+    }
 }

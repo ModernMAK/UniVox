@@ -1,0 +1,77 @@
+# Vocabulary
+**Block**: A 'Block' is a Voxel's render information
+**Voxel**: A 'Voxel' is just a point with information.
+**Chunk**: A 'Chunk' is a collections of Voxels. Chunks have a predefined size
+**World**: A 'World' is a collection of Chunks.
+**Universe**: A 'Universe' is a collection of Worlds.
+# Design 
+A Voxel represents the core of the game. For all intents and purposes, a Block will store the Rendering Information.
+
+A Block needs to know its worldspace position, & rotation, its 'Shape', 'Material' & whether it has been culled. *Therefore* a Block knows it's **Position**, **Rotation**, **Mesh**, **Material**, and whether it has been **Culled**.
+
+
+
+
+# Mechanics
+## Wires & Pipes
+Stolen from Minecraft's many 'Tech' Mods. Variants should include; Power Wires, Item, Liquid, Gas, Maybe more?
+## Jobs & Towns & Economy & Citizens
+### Towns 
+Towns can be constructed. Not sure how yet. Towns need Townies
+### Economy
+Towns have an economy, based on the jobs filled, and the Town inventory. If an item is low and useful, they will pay more, if an item is plentiful or useless, they will pay less. This will also help traders adjust their prices.
+### Jobs
+There are many Jobs for townies. Lets see how specific we can get.
+* Crafters
+	* Items
+		* Carpenter?
+	* Equipment
+		* Smiths - (Guns/Armor/Sword/Shield)
+* Traders
+	* Shopkeeper
+	* Wandering Trader
+* Food Supply
+	* Producer
+		* Farmer
+		* Rancher
+	* Gatherer
+		* Hunters
+		* Foragers
+	* Processor
+		* Butcher
+		* Chef
+		* Baker?
+* Laborers
+	* Lumberjacks
+	* Miners
+* Militia
+	* Adventurers (Mercenaries)
+	* Guards
+
+# Mechanic Implimentations
+## Jobs
+Jobs should probably require a Workspace, maybe a specific room, or a specific object.
+Jobs should be simple, they should do ONE THING. If they dont do one thing, then Jobs should be composed of CHORES, a CHORE is one thing that a JOB can do. This keeps things simple, and allows us to reduce the complexity of a JOB.
+By making CHORES a single action, we can allow Villagers to have Complex Jobs which overlap.
+
+Examples of CHORES for some Jobs
+* Guards
+	* Find a Hostile Creature
+	* Patrol
+	* Respond To Distress (Alarm / Injury)
+	* Attack Hostiles
+* Miners
+	* Find Ore
+	* Mine Ore
+	* Replace Unstable / Broken Blocks
+	
+Alternatively Jobs could act as State Machines, I will call these BEHAVIOURS
+
+
+* Guards
+	* Patrol
+		* Move To Point
+		* Wait
+		* Decide Behaviour
+	* Protect
+	

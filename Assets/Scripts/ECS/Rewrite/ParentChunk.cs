@@ -1,7 +1,5 @@
 using System;
 using Unity.Entities;
-using System;
-using Unity.Entities;
 
 namespace UnityTemplateProjects.ECS.Rewrite
 {
@@ -12,6 +10,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
     [Serializable]
 //    [WriteGroup(typeof(LocalToWorld))]
 
+    [Obsolete]
     public struct ParentChunk : IComponentData
     {
         public Entity Value;

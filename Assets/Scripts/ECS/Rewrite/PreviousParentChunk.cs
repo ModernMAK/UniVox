@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace UnityTemplateProjects.ECS.Rewrite
 {
+    [Obsolete]
     [Serializable]
     public struct PreviousParentChunk : ISystemStateComponentData
     {
