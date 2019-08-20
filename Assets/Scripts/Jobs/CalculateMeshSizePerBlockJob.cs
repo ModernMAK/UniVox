@@ -6,10 +6,10 @@ using Unity.Jobs;
 
 namespace Jobs
 {
-    
     /// <summary>
-    /// Calculates the Mesh Size on a Per Block Basis, each index in Vertexes and Triangles corresponds to the Block at that index
-    /// Vertexes will be [0,24], and Triangles will be [0,36]
+    ///     Calculates the Mesh Size on a Per Block Basis, each index in Vertexes and Triangles corresponds to the Block at
+    ///     that index
+    ///     Vertexes will be [0,24], and Triangles will be [0,36]
     /// </summary>
     [BurstCompile]
     public struct CalculateMeshSizePerBlockJob : IJobParallelFor

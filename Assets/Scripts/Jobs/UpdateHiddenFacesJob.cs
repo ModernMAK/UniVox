@@ -1,5 +1,4 @@
 using Types;
-using Types.Native;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -10,7 +9,7 @@ namespace Jobs
     [BurstCompile]
     public struct UpdateHiddenFacesJob : IJobParallelFor
     {
-        [ReadOnly] public NativeArray<bool> Solid;
+        [ReadOnly] public NativeArray<bool> Active;
         [WriteOnly] public NativeArray<Directions> HiddenFaces;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Direction> Directions;
 
@@ -25,20 +24,29 @@ namespace Jobs
         public void Execute(int index)
         {
             var oPos = new VoxelPos8(index).Position;
-            var flags = DirectionsX.NoneFlag;
-            for (var i = 0; i < 6; i++)
-            {
-                var dir = Directions[i];
-                var dPos = oPos + dir.ToInt3();
-                if (!IsValid(dPos))
-                    continue;
+            var hideFlags = DirectionsX.AllFlag;
 
-                var vPos = new VoxelPos8(dPos);
-                if (Solid[vPos])
-                    flags |= dir.ToFlag();
-            }
 
-            HiddenFaces[index] = flags;
+            //If active, we might not hide all faces
+            if (Active[index])
+                for (var i = 0; i < 6; i++)
+                {
+                    var dir = Directions[i];
+                    var dPos = oPos + dir.ToInt3();
+                    if (!IsValid(dPos))
+                    {
+                        //Dont hide if invalid
+                        hideFlags &= ~dir.ToFlag();
+                    }
+
+                    var vPos = new VoxelPos8(dPos);
+                    //Neighbor not active?
+                    if (!Active[vPos])
+                        //Dont Hide
+                        hideFlags &= ~dir.ToFlag();
+                }
+
+            HiddenFaces[index] = hideFlags;
         }
     }
 }

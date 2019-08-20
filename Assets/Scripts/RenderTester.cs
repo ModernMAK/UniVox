@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 public class RenderTester : MonoBehaviour
@@ -11,7 +10,7 @@ public class RenderTester : MonoBehaviour
         var chunk = new Chunk();
 
         var handle = RenderUtilV2.VisiblityPass(chunk);
-        RenderUtilV2.Render(chunk,  m, handle);
+        RenderUtilV2.Render(chunk, m, handle);
 
         chunk.Dispose();
 

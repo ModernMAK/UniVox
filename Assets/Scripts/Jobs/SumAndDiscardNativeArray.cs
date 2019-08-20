@@ -8,13 +8,14 @@ namespace Jobs
     public struct SumAndDiscardNativeArray : IJob
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> Values;
-        [ReadOnly] public int Index;
-        public NativeArray<int> Result;
+        [WriteOnly] public NativeValue<int> Result;
 
         public void Execute()
         {
+            var result = 0;
             for (var i = 0; i < Values.Length; i++)
-                Result[Index] += Values[i];
+                result += Values[i];
+            Result.Value = result;
         }
     }
 }

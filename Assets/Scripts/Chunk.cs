@@ -1,14 +1,17 @@
 using System;
-using System.Collections.Generic;
 using Types;
-using Types.Native;
 using Unity.Collections;
-using Unity.Mathematics;
 
 public class Chunk : IDisposable
 {
     public const int FlatSize = AxisSize * AxisSize * AxisSize;
     public const int AxisSize = 8;
+    public NativeArray<Directions> HiddenFaces;
+
+    public NativeArray<Orientation> Rotations;
+    public NativeArray<BlockShape> Shapes;
+
+    public NativeArray<bool> ActiveFlags;
 
     public Chunk()
     {
@@ -16,15 +19,10 @@ public class Chunk : IDisposable
         HiddenFaces = new NativeArray<Directions>(FlatSize, allocator);
         Shapes = new NativeArray<BlockShape>(FlatSize, allocator);
         Rotations = new NativeArray<Orientation>(FlatSize, allocator);
-        SolidFlags = new NativeArray<bool>(FlatSize, allocator);
+        ActiveFlags = new NativeArray<bool>(FlatSize, allocator);
         BlockIds = new NativeArray<byte>(FlatSize, allocator);
     }
 
-    public NativeArray<Orientation> Rotations;
-    public NativeArray<Directions> HiddenFaces;
-    public NativeArray<BlockShape> Shapes;
-
-    public NativeArray<bool> SolidFlags;
     public NativeArray<byte> BlockIds { get; }
 
 
@@ -34,7 +32,7 @@ public class Chunk : IDisposable
         HiddenFaces.Dispose();
         Shapes.Dispose();
         BlockIds.Dispose();
-        SolidFlags.Dispose();
+        ActiveFlags.Dispose();
     }
 }
 

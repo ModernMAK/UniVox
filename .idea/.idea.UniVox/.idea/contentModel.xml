@@ -13,7 +13,13 @@
             <e p="MaterialListDrawer.cs" t="Include" />
           </e>
           <e p="Jobs" t="Include">
+            <e p="CalculateActiveFromNoise.cs" t="Include" />
             <e p="CalculateMeshSizePerBlockJob.cs" t="Include" />
+            <e p="CalculateNoiseSampler4DJob.cs" t="Include" />
+            <e p="CalculateNormalizedNoiseJob.cs" t="Include" />
+            <e p="CalculateSNoiseJob.cs" t="Include" />
+            <e p="DeallocateNativeArrayJob.cs" t="Include" />
+            <e p="GatherWorldPositions.cs" t="Include" />
             <e p="GenerateBoxelMeshV2.cs" t="Include" />
             <e p="SumAndDiscardNativeArray.cs" t="Include" />
             <e p="UpdateHiddenFacesJob.cs" t="Include" />
@@ -23,6 +29,7 @@
               <e p="SharedComponentDataArrayManaged.cs" t="Include" />
             </e>
           </e>
+          <e p="NativeValue.cs" t="Include" />
           <e p="RandomCollectionOfExtensions.cs" t="Include" />
           <e p="Rendering" t="Include">
             <e p="CubeBuilder.cs" t="Include" />
@@ -54,6 +61,7 @@
             <e p="VoxelPos8.cs" t="Include" />
           </e>
         </e>
+        <e p="SolidDebug.cs" t="Include" />
         <e p="WorldBehaviour.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
