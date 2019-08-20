@@ -19,6 +19,8 @@ namespace Jobs
         [WriteOnly] public NativeMesh NativeMesh;
 
         [ReadOnly] public float3 WorldOffset;
+
+        [ReadOnly] public int3 ChunkOffset;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeCubeBuilder NativeCube;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Direction> Directions;
 
@@ -41,7 +43,8 @@ namespace Jobs
 
                 for (var i = 0; i < QuadSize; i++)
                 {
-                    NativeMesh.Vertexes[VertexPos + i] = NativeCube.GetVertex(dir, i) + WorldOffset + blockPos.Position;
+                    NativeMesh.Vertexes[VertexPos + i] =
+                        NativeCube.GetVertex(dir, i) + WorldOffset + blockPos.Position;
                     NativeMesh.Normals[VertexPos + i] = n;
                     NativeMesh.Tangents[VertexPos + i] = t;
                     NativeMesh.Uv0[VertexPos + i] = NativeCube.Uvs[i];

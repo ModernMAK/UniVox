@@ -10,7 +10,7 @@ namespace Jobs
     [BurstCompile]
     public struct UpdateHiddenFacesJob : IJobParallelFor
     {
-        [ReadOnly] public BitArray512 Solid;
+        [ReadOnly] public NativeArray<bool> Solid;
         [WriteOnly] public NativeArray<Directions> HiddenFaces;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Direction> Directions;
 
