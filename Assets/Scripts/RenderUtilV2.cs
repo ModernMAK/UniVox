@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Jobs;
 using Rendering;
 using Types;
@@ -22,7 +23,7 @@ public static class RenderUtilV2
         return job;
     }
 
-    private static JobHandle CalculateSNoise(int seed, float frequency, float resolution, NativeArray<int3> positions,
+    private static JobHandle CalculateSNoise(int seed, float frequency, float resolution, NativeArray<float3> positions,
         out NativeArray<float> noise, JobHandle handle = default)
     {
         var size = positions.Length;
@@ -76,29 +77,9 @@ public static class RenderUtilV2
 
         var noiseJob =
             CalculateSNoiseNormalized(seed, frequency, resolution, positions, out var noise, positionJob);
-//
-//        var noiseBJob = CalculateSNoiseNormalized(seed, frequency[1], resolution, positions, out var noiseB, noiseAJob);
-//
-//        var noiseCJob = CalculateSNoiseNormalized(seed, frequency[2], resolution, positions, out var noiseC, noiseBJob);
-//        var noiseDJob = CalculateSNoiseNormalized(seed, frequency[2], resolution, positions, out var noiseD, noiseCJob);
-//
+
         var deallocatePositions = new DeallocateNativeArrayJob<float3>(positions).Schedule(noiseJob);
-//
-//        var mergedNoise = new NativeArray<float>(size, Allocator.TempJob);
-//        var mergedJob = new MergeOctaves4Job()
-//        {
-//            Merged = mergedNoise,
-//            OctaveA = noiseA,
-//            OctaveB = noiseB,
-//            OctaveC = noiseC,
-//            OctaveD = noiseD
-//        }.SetDefaultScales().Schedule(size, 64, deallocatePositions);
-//        
-//        var deallocateNoiseA = new DeallocateNativeArrayJob<float>(noiseA).Schedule(mergedJob);
-//        var deallocateNoiseB = new DeallocateNativeArrayJob<float>(noiseB).Schedule(deallocateNoiseA);
-//        var deallocateNoiseC = new DeallocateNativeArrayJob<float>(noiseC).Schedule(deallocateNoiseB);
-//        var deallocateNoiseD = new DeallocateNativeArrayJob<float>(noiseD).Schedule(deallocateNoiseC);
-//        
+
         var activeJob = new CalculateActiveFromNoise()
         {
             Active = chunk.ActiveFlags,
@@ -116,15 +97,15 @@ public static class RenderUtilV2
     {
         //TODO - It will probably last more then a couple frames, but for now use tempjob instead of Persistant
 
-        var a = RenderPartA(chunk, out var v, out var t, handle);
+        var a = CalculateMeshSizePass(chunk, out var v, out var t, handle);
         a.Complete();
-        var b = RenderPartB(chunk, v, t, out var nativeMesh, a);
+        var b = GenerateMeshPass(chunk, v, t, out var nativeMesh, a);
         b.Complete();
-        var c = RenderPartC(nativeMesh, mesh);
+        var c = UpdateMeshPass(nativeMesh, mesh);
         c.Complete();
     }
 
-    private static JobHandle RenderPartA(Chunk chunk, out NativeValue<int> vert, out NativeValue<int> tri,
+    private static JobHandle CalculateMeshSizePass(Chunk chunk, out NativeValue<int> vert, out NativeValue<int> tri,
         JobHandle handle = default)
     {
         vert = new NativeValue<int>(Allocator.TempJob);
@@ -149,7 +130,7 @@ public static class RenderUtilV2
         return flattenTrisJob;
     }
 
-    private static JobHandle RenderPartB(Chunk chunk, NativeValue<int> verts, NativeValue<int> tris,
+    private static JobHandle GenerateMeshPass(Chunk chunk, NativeValue<int> verts, NativeValue<int> tris,
         out NativeMesh nativeMesh,
         JobHandle handle = default)
     {
@@ -171,29 +152,104 @@ public static class RenderUtilV2
         return generateJob;
     }
 
-    private static JobHandle RenderPartC(NativeMesh nativeMesh, Mesh mesh, JobHandle handle = default)
+    private static JobHandle UpdateMeshPass(NativeMesh nativeMesh, Mesh mesh, JobHandle handle = default)
     {
         nativeMesh.FillInto(mesh);
         nativeMesh.Dispose();
         return handle;
     }
 
-    public static IEnumerator RenderAsync(Chunk chunk, Mesh mesh, JobHandle handle = default)
+    public static IEnumerator RenderCoroutine(Chunk chunk, Mesh mesh, JobHandle handle = default)
     {
         //TODO - It will probably last more then a couple frames, but for now use tempjob instead of Persistant
 
 
-        var partA = RenderPartA(chunk, out var v, out var t, handle);
+        var partA = CalculateMeshSizePass(chunk, out var v, out var t, handle);
         while (!partA.IsCompleted)
             yield return null;
         partA.Complete();
 
-        var partB = RenderPartB(chunk, v, t, out var nativeMesh, partA);
+        var partB = GenerateMeshPass(chunk, v, t, out var nativeMesh, partA);
 
         while (!partB.IsCompleted)
             yield return null;
         partB.Complete();
-        var partC = RenderPartC(nativeMesh, mesh, partB);
+        var partC = UpdateMeshPass(nativeMesh, mesh, partB);
         partC.Complete();
+    }
+
+    public static async Task<JobHandle> RenderAsync(Chunk chunk, Mesh mesh, JobHandle handle = default,
+        int millisecondStep = 100)
+    {
+        //TODO - It will probably last more then a couple frames, but for now use tempjob instead of Persistant
+
+
+        var partA = CalculateMeshSizePass(chunk, out var v, out var t, handle);
+
+        while (!partA.IsCompleted)
+            await Task.Delay(millisecondStep);
+
+        partA.Complete();
+
+        var partB = GenerateMeshPass(chunk, v, t, out var nativeMesh, partA);
+
+        while (!partB.IsCompleted)
+            await Task.Delay(millisecondStep);
+
+        partB.Complete();
+
+        var partC = UpdateMeshPass(nativeMesh, mesh, partB);
+
+        while (!partC.IsCompleted)
+            await Task.Delay(millisecondStep);
+        return partC;
+    }
+
+    public static JobHandle GenerationOctavePass(int3 chunkPos, Chunk chunk, ChunkGenArgs args,
+        JobHandle handle = default)
+    {
+        const int size = Chunk.FlatSize;
+        const int scale = Chunk.AxisSize;
+        var positions = new NativeArray<float3>(size, Allocator.TempJob);
+        var positionJob = new GatherWorldPositions()
+        {
+            ChunkOffset = chunkPos * scale,
+            Positions = positions
+        }.Schedule(size, 64, handle);
+
+        var noise = new NativeArray<float>(size, Allocator.TempJob);
+
+        var nativeArgs = args.ToNative(Allocator.TempJob);
+
+        var noiseJob = new CalculateOctaveSNoiseJob()
+        {
+            Amplitude = nativeArgs.Amplitude,
+            Frequency = nativeArgs.Frequency,
+            Noise = noise,
+            OctaveOffset = nativeArgs.Offset,
+            Octaves = nativeArgs.Length,
+            Positions = positions,
+            Seed = nativeArgs.Seed,
+            TotalAmplitude = nativeArgs.TotalAmplitude
+        }.Schedule(size, 64, positionJob);
+
+        var deallocateAmplitude = new DeallocateNativeArrayJob<float>(nativeArgs.Amplitude).Schedule(noiseJob);
+        var deallocateFrequency =
+            new DeallocateNativeArrayJob<float>(nativeArgs.Frequency).Schedule(deallocateAmplitude);
+        var deallocateOffset = new DeallocateNativeArrayJob<float3>(nativeArgs.Offset).Schedule(deallocateFrequency);
+
+        var deallocatePositions = new DeallocateNativeArrayJob<float3>(positions).Schedule(deallocateOffset);
+
+        var activeJob = new CalculateActiveFromNoise()
+        {
+            Active = chunk.ActiveFlags,
+            Threshold = nativeArgs.Threshold,
+            Noise = noise
+        }.Schedule(size, 64, deallocatePositions);
+
+
+        var deallocateNoise = new DeallocateNativeArrayJob<float>(noise).Schedule(activeJob);
+
+        return deallocateNoise;
     }
 }

@@ -67,11 +67,11 @@ Examples of CHORES for some Jobs
 	
 Alternatively Jobs could act as State Machines, I will call these BEHAVIOURS
 
-
 * Guards
 	* Patrol
 		* Move To Point
 		* Wait
 		* Decide Behaviour
 	* Protect
-	
+
+The main difference i See is that BEHAVIOURS dictate their future BEHAVIOURS (and thus know state), while CHORES do not. The downside i see to behaviours is that transitions would need to be defined, where as chores could be chosen by using a blackboard of information, and weighting it against Chores, then selecting the highest. (Find L4D Speach AI GDC for an example)

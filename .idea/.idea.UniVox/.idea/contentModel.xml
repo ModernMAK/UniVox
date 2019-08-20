@@ -7,6 +7,8 @@
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ChunkGenArgs.cs" t="Include" />
+        <e p="NativeChunkGenArgs.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="Chunk.cs" t="Include" />
           <e p="Editor" t="Include">
@@ -17,7 +19,7 @@
             <e p="CalculateMeshSizePerBlockJob.cs" t="Include" />
             <e p="CalculateNoiseSampler4DJob.cs" t="Include" />
             <e p="CalculateNormalizedNoiseJob.cs" t="Include" />
-            <e p="CalculateSNoiseJob.cs" t="Include" />
+            <e p="CalculateSNoiseFromSamplerJob.cs" t="Include" />
             <e p="DeallocateNativeArrayJob.cs" t="Include" />
             <e p="GatherWorldPositions.cs" t="Include" />
             <e p="GenerateBoxelMeshV2.cs" t="Include" />

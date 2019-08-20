@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -13,16 +15,13 @@ public class WorldBehaviour : MonoBehaviour
     [SerializeField] private int chunkSize;
 
     [SerializeField] private Material mat;
-    [SerializeField] private int seed;
-    [Range(0f, 1f)] [SerializeField] private float threshold;
+    [SerializeField] private ChunkGenArgs args;
 
-    [SerializeField] private float freq;
 
-    [SerializeField] private float res;
-
-    private static GameObject CreateGameObject(int3 chunkPos, Mesh mesh, Material material)
+    private static GameObject CreateGameObject(Transform parent, int3 chunkPos, Mesh mesh, Material material)
     {
         var go = new GameObject($"Chunk {chunkPos}");
+        go.transform.parent = parent;
         go.transform.position = (float3) chunkPos * Chunk.AxisSize;
         var mf = go.AddComponent<MeshFilter>();
         mf.mesh = mesh;
@@ -39,9 +38,9 @@ public class WorldBehaviour : MonoBehaviour
         World = new Dictionary<int3, Chunk>();
         _chunksToLoad = new Queue<int3>();
         _chunkObjects = new Dictionary<int3, GameObject>();
+//        StartCoroutine(LoaderCoroutine());
 
-        StartCoroutine(AsyncLoader());
-
+        Task.Run(()=>AsyncLoader(gameObject));
         for (var x = -chunkSize; x <= chunkSize; x++)
         for (var y = -chunkSize; y <= chunkSize; y++)
         for (var z = -chunkSize; z <= chunkSize; z++)
@@ -64,36 +63,66 @@ public class WorldBehaviour : MonoBehaviour
         }
     }
 
-    private IEnumerator AsyncLoader()
+    private IEnumerator LoaderCoroutine()
     {
-        bool Func()
-        {
-            return _chunksToLoad.Count > 0;
-        }
-
         while (true)
         {
-            yield return new WaitUntil(Func);
             if (_chunksToLoad.Count > 0)
             {
                 var pos = _chunksToLoad.Dequeue();
                 var chunk = World[pos];
-                yield return StartCoroutine(AsyncRender(pos, chunk));
+                yield return StartCoroutine(RenderCoroutine(pos, chunk));
             }
+
+            yield return null;
         }
     }
 
-    private IEnumerator AsyncRender(int3 chunkPos, Chunk chunk)
+    private async void AsyncLoader(GameObject go, int millisecondTimestep = 10)
     {
-        var genPass = RenderUtilV2.GenerationPass(seed, chunkPos, chunk, freq, res, threshold);
+        if (gameObject == null)
+            await Task.Delay(millisecondTimestep * 10);
+        //We assume that if the object is destroyed, that we should stop doing jobs
+        while (gameObject != null)
+        {
+            if (_chunksToLoad.Count > 0)
+            {
+                var pos = _chunksToLoad.Dequeue();
+                var chunk = World[pos];
+                await AsyncRender(pos, chunk, millisecondTimestep);
+            }
+
+            await Task.Delay(millisecondTimestep);
+        }
+    }
+
+    private IEnumerator RenderCoroutine(int3 chunkPos, Chunk chunk)
+    {
+        var genPass = RenderUtilV2.GenerationOctavePass(chunkPos, chunk, args);
         while (!genPass.IsCompleted)
             yield return null;
         var visPass = RenderUtilV2.VisiblityPass(chunk, genPass);
         while (!visPass.IsCompleted)
             yield return null;
         var mesh = new Mesh();
-        yield return StartCoroutine(RenderUtilV2.RenderAsync(chunk, mesh, visPass));
-        _chunkObjects[chunkPos] = CreateGameObject(chunkPos, mesh, mat);
+        yield return StartCoroutine(RenderUtilV2.RenderCoroutine(chunk, mesh, visPass));
+
+        _chunkObjects[chunkPos] = CreateGameObject(transform, chunkPos, mesh, mat);
+    }
+
+    private async Task<JobHandle> AsyncRender(int3 chunkPos, Chunk chunk, int millisecondTimestep = 10)
+    {
+        var genPass = RenderUtilV2.GenerationOctavePass(chunkPos, chunk, args);
+        while (!genPass.IsCompleted)
+            await Task.Delay(millisecondTimestep); //Wait a fraction of a second
+        var visPass = RenderUtilV2.VisiblityPass(chunk, genPass);
+        while (!visPass.IsCompleted)
+            await Task.Delay(millisecondTimestep); //Wait a fraction of a second
+//            yield return null;
+        var mesh = new Mesh();
+        var renderHandle = await RenderUtilV2.RenderAsync(chunk, mesh, visPass, millisecondTimestep);
+        _chunkObjects[chunkPos] = CreateGameObject(transform, chunkPos, mesh, mat);
+        return renderHandle;
     }
 
     private void OnDestroy()
