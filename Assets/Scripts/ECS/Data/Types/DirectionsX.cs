@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -12,6 +13,16 @@ namespace ECS.Voxel.Data
         public const Directions NoneFlag = 0;
 
 
+        private static readonly Direction[] AllDirectionsArray = (Direction[]) Enum.GetValues(typeof(Direction));
+        public static IEnumerable<Direction> AllDirections => AllDirectionsArray;
+
+        public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
+        {
+            var arr = new NativeArray<Direction>(6, allocator);
+            for (var i = 0; i < 6; i++)
+                arr[i] = AllDirectionsArray[i];
+            return arr;
+        }
 
         public static Directions ToFlag(this Direction direction)
         {
@@ -27,6 +38,7 @@ namespace ECS.Voxel.Data
         {
             return (directions & flags) == flags;
         }
+
         public static bool HasDirection(this Directions directions, Direction direction)
         {
             var flag = direction.ToInternalFlag();
@@ -49,11 +61,9 @@ namespace ECS.Voxel.Data
         }
 
 
-
         #region Conversions
 
-        
-        private static void ToXYZ(this Direction direction, out int x, out int y, out int z)
+        private static void GetComponents(this Direction direction, out int x, out int y, out int z)
         {
             x = y = z = 0;
             switch (direction)
@@ -81,31 +91,73 @@ namespace ECS.Voxel.Data
             }
         }
 
-        private static Vector3Int ToVector3Int(this Direction direction)
+        public static Direction Rotate(this Direction dir, quaternion rotation)
         {
-            direction.ToXYZ(out var x, out var y, out var z);
-            return new Vector3Int(x,y,z);
+            return UnsafeDirectionGuesser(math.rotate(rotation, dir.ToFloat3()));
         }
-        private static Vector3 ToVector3(this Direction direction)
+
+        public static Directions Rotate(this Directions dirs, quaternion rotation)
         {
-            direction.ToXYZ(out var x, out var y, out var z);
-            return new Vector3(x,y,z);
+            var rotated = NoneFlag;
+            foreach (var dir in dirs.ToDirection())
+            {
+                rotated |= dir.Rotate(rotation).ToFlag();
+            }
+
+            return rotated;
         }
-        private static int3 ToInt3(this Direction direction)
+
+        private static readonly float FloatError = Mathf.Epsilon;
+
+        private static Direction UnsafeDirectionGuesser(float3 dir)
         {
-            direction.ToXYZ(out var x, out var y, out var z);
-            return new int3(x,y,z);
+            if (dir.x > FloatError)
+                return Direction.Right;
+            else if (dir.x < -FloatError)
+                return Direction.Left;
+            else if (dir.y > FloatError)
+                return Direction.Up;
+            else if (dir.y < -FloatError)
+                return Direction.Down;
+            else if (dir.z > FloatError)
+                return Direction.Forward;
+            else if (dir.z < -FloatError)
+                return Direction.Backward;
+            throw new NotImplementedException();
         }
-        private static float3 ToFloat3(this Direction direction)
+
+        public static Vector3Int ToVector3Int(this Direction direction)
         {
-            direction.ToXYZ(out var x, out var y, out var z);
-            return new float3(x,y,z);
+            direction.GetComponents(out var x, out var y, out var z);
+            return new Vector3Int(x, y, z);
         }
+
+        public static Vector3 ToVector3(this Direction direction)
+        {
+            direction.GetComponents(out var x, out var y, out var z);
+            return new Vector3(x, y, z);
+        }
+
+        public static int ToInt(this Direction direction)
+        {
+            return (int) direction;
+        }
+
+        public static int3 ToInt3(this Direction direction)
+        {
+            direction.GetComponents(out var x, out var y, out var z);
+            return new int3(x, y, z);
+        }
+
+        public static float3 ToFloat3(this Direction direction)
+        {
+            direction.GetComponents(out var x, out var y, out var z);
+            return new float3(x, y, z);
+        }
+
         #endregion
 
         #region Lists
-
-        
 
         public static IList<Direction> ToDirection(this Directions directions)
         {
@@ -113,6 +165,7 @@ namespace ECS.Voxel.Data
             directions.ToDirection(temp);
             return temp;
         }
+
         public static void ToDirection(this Directions directions, IList<Direction> cache)
         {
             cache.Clear();
@@ -152,8 +205,8 @@ namespace ECS.Voxel.Data
             if (directions.HasDirection(Direction.Backward))
                 cache.Add(Direction.Backward);
             return cache;
-        }     
-        #endregion
+        }
 
+        #endregion
     }
 }

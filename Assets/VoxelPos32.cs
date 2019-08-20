@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using ECS.Voxel;
 using Unity.Mathematics;
 
-public struct VoxPos 
+public struct VoxelPos32 
 {
-    public bool Equals(VoxPos other)
+    public bool Equals(VoxelPos32 other)
     {
         return _backing == other._backing;
     }
 
     public override bool Equals(object obj)
     {
-        return obj is VoxPos other && Equals(other);
+        return obj is VoxelPos32 other && Equals(other);
     }
 
     public override int GetHashCode()
@@ -19,7 +19,7 @@ public struct VoxPos
         return _backing.GetHashCode();
     }
 
-    private const int FullMask = 0x7FFF;
+    private const int FullMask = 0x7FFF; // 32^3 - 1
     private const int PartialMask = 0x1F; //31
     private const int BitOffset = 5; //Log2 of 32 = 5
 
@@ -28,17 +28,17 @@ public struct VoxPos
     private readonly short _backing;
 
 
-    public VoxPos(int index)
+    public VoxelPos32(int index)
     {
         _backing = (short) (index & FullMask);
     }
 
-    public VoxPos(int3 position)
+    public VoxelPos32(int3 position)
     {
         _backing = FromXYZ(position.x, position.y, position.z);
     }
 
-    public VoxPos(int x, int y, int z)
+    public VoxelPos32(int x, int y, int z)
     {
         _backing = FromXYZ(x, y, z);
     }
@@ -59,96 +59,96 @@ public struct VoxPos
     public int Index => _backing & FullMask;
 
 
-    public static IEnumerable<VoxPos> GetAllPositions()
+    public static IEnumerable<VoxelPos32> GetAllPositions()
     {
         for (var i = 0; i <= FullMask; i++)
-            yield return new VoxPos(i);
+            yield return new VoxelPos32(i);
     }
 
     #region Operators
 
     #region Conversion
 
-    public static implicit operator int3(VoxPos vp)
+    public static implicit operator int3(VoxelPos32 vp)
     {
         return vp.Position;
     }
 
-    public static implicit operator int(VoxPos vp)
+    public static implicit operator int(VoxelPos32 vp)
     {
         return vp.Index;
     }
 
-    public static explicit operator VoxPos(int3 pos)
+    public static explicit operator VoxelPos32(int3 pos)
     {
-        return new VoxPos(pos);
+        return new VoxelPos32(pos);
     }
 
-    public static explicit operator VoxPos(int index)
+    public static explicit operator VoxelPos32(int index)
     {
-        return new VoxPos(index);
+        return new VoxelPos32(index);
     }
 
     #endregion
 
     #region Math
 
-    public static VoxPos operator ++(VoxPos vp)
+    public static VoxelPos32 operator ++(VoxelPos32 vp)
     {
-        return new VoxPos((vp._backing + 1) & FullMask);
+        return new VoxelPos32((vp._backing + 1) & FullMask);
     }
 
 
-    public static VoxPos operator --(VoxPos vp)
+    public static VoxelPos32 operator --(VoxelPos32 vp)
     {
-        return new VoxPos((vp._backing - 1) & FullMask);
+        return new VoxelPos32((vp._backing - 1) & FullMask);
     }
 
 
-    public static VoxPos operator +(VoxPos left, VoxPos right)
+    public static VoxelPos32 operator +(VoxelPos32 left, VoxelPos32 right)
     {
         var size = new int3(PartialMask + 1);
         var result = (left.Position + right.Position) % size;
-        return new VoxPos(result);
+        return new VoxelPos32(result);
     }
 
-    public static VoxPos operator -(VoxPos left, VoxPos right)
+    public static VoxelPos32 operator -(VoxelPos32 left, VoxelPos32 right)
     {
         var size = new int3(PartialMask + 1);
         var result = (left.Position - right.Position + size) % size;
-        return new VoxPos(result);
+        return new VoxelPos32(result);
     }
 
     #endregion
 
     #region Equality
 
-    public static bool operator <(VoxPos left, VoxPos right)
+    public static bool operator <(VoxelPos32 left, VoxelPos32 right)
     {
         return left.Index < right.Index;
     }
 
-    public static bool operator >=(VoxPos left, VoxPos right)
+    public static bool operator >=(VoxelPos32 left, VoxelPos32 right)
     {
         return !(left < right);
     }
 
-    public static bool operator >(VoxPos left, VoxPos right)
+    public static bool operator >(VoxelPos32 left, VoxelPos32 right)
     {
         return left.Index > right.Index;
     }
 
-    public static bool operator <=(VoxPos left, VoxPos right)
+    public static bool operator <=(VoxelPos32 left, VoxelPos32 right)
     {
         return !(left > right);
     }
 
-    public static bool operator ==(VoxPos left, VoxPos right)
+    public static bool operator ==(VoxelPos32 left, VoxelPos32 right)
     {
         return (left._backing == right._backing);
     }
 
-    public static bool operator !=(VoxPos left, VoxPos right)
+    public static bool operator !=(VoxelPos32 left, VoxelPos32 right)
     {
         return !(left == right);
     }
