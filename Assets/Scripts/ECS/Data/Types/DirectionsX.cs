@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using DefaultNamespace;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -31,7 +30,7 @@ namespace ECS.Voxel.Data
 
         private static int ToInternalFlag(this Direction flag)
         {
-            return (1 << (byte) flag);
+            return 1 << (byte) flag;
         }
 
         public static bool HasDirection(this Directions directions, Directions flags)
@@ -99,10 +98,7 @@ namespace ECS.Voxel.Data
         public static Directions Rotate(this Directions dirs, quaternion rotation)
         {
             var rotated = NoneFlag;
-            foreach (var dir in dirs.ToDirection())
-            {
-                rotated |= dir.Rotate(rotation).ToFlag();
-            }
+            foreach (var dir in dirs.ToDirection()) rotated |= dir.Rotate(rotation).ToFlag();
 
             return rotated;
         }
@@ -113,15 +109,15 @@ namespace ECS.Voxel.Data
         {
             if (dir.x > FloatError)
                 return Direction.Right;
-            else if (dir.x < -FloatError)
+            if (dir.x < -FloatError)
                 return Direction.Left;
-            else if (dir.y > FloatError)
+            if (dir.y > FloatError)
                 return Direction.Up;
-            else if (dir.y < -FloatError)
+            if (dir.y < -FloatError)
                 return Direction.Down;
-            else if (dir.z > FloatError)
+            if (dir.z > FloatError)
                 return Direction.Forward;
-            else if (dir.z < -FloatError)
+            if (dir.z < -FloatError)
                 return Direction.Backward;
             throw new NotImplementedException();
         }

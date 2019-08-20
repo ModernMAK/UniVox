@@ -12,12 +12,10 @@ public struct UpdateHiddenFacesJob : IJobParallelFor
     //If facing a solid, the block is hidden
     //While 
 
-    bool IsValid(int3 pos)
+    private bool IsValid(int3 pos)
     {
-        return (pos.x <= VoxelPos8.MaxValue && pos.x >= VoxelPos8.MinValue) &&
-               (pos.y <= VoxelPos8.MaxValue && pos.y >= VoxelPos8.MinValue) &&
-               (pos.z <= VoxelPos8.MaxValue && pos.z >= VoxelPos8.MinValue);
-        
+        return pos.x <= VoxelPos8.MaxValue && pos.x >= VoxelPos8.MinValue && pos.y <= VoxelPos8.MaxValue &&
+               pos.y >= VoxelPos8.MinValue && pos.z <= VoxelPos8.MaxValue && pos.z >= VoxelPos8.MinValue;
     }
 
     public void Execute(int index)
@@ -28,9 +26,9 @@ public struct UpdateHiddenFacesJob : IJobParallelFor
         {
             var dir = Directions[i];
             var dPos = oPos + dir.ToInt3();
-            if(!IsValid(dPos))
+            if (!IsValid(dPos))
                 continue;
-            
+
             var vPos = new VoxelPos8(dPos);
             if (Solid[vPos])
                 flags |= dir.ToFlag();

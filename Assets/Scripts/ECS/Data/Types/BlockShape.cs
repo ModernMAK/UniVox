@@ -9,8 +9,7 @@ namespace ECS.Voxel.Data
         CornerInner,
         CornerOuter,
         Ramp,
-        
-        CubeBevel,
-        
+
+        CubeBevel
     }
 }

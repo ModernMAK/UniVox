@@ -1,7 +1,6 @@
 using System;
 using ECS.Voxel.Data;
 using Unity.Entities;
-using NotImplementedException = System.NotImplementedException;
 
 namespace ECS.Data.Voxel
 {

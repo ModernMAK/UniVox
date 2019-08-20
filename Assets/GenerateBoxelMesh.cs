@@ -5,7 +5,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-
 public struct GenerateBoxelMeshV1 : IJob
 {
     [ReadOnly] public NativeArray<Orientation> Rotations;
@@ -29,8 +28,8 @@ public struct GenerateBoxelMeshV1 : IJob
     public int TrianglePos;
 
 
-    const int QuadSize = 4;
-    const int QuadTriSize = 6;
+    private const int QuadSize = 4;
+    private const int QuadTriSize = 6;
 
     private void GenerateCube(VoxelPos8 blockPos, Directions hidden)
     {
@@ -51,10 +50,7 @@ public struct GenerateBoxelMeshV1 : IJob
                 NativeMesh.Uv0[VertexPos + i] = CubeUvs[i];
             }
 
-            for (var j = 0; j < QuadTriSize; j++)
-            {
-                NativeMesh.Triangles[TrianglePos + j] = CubeOrder[j] + VertexPos;
-            }
+            for (var j = 0; j < QuadTriSize; j++) NativeMesh.Triangles[TrianglePos + j] = CubeOrder[j] + VertexPos;
 
             VertexPos += QuadSize;
             TrianglePos += QuadTriSize;
@@ -104,8 +100,8 @@ public struct GenerateBoxelMeshV2 : IJob
     public int TrianglePos;
 
 
-    const int QuadSize = 4;
-    const int QuadTriSize = 6;
+    private const int QuadSize = 4;
+    private const int QuadTriSize = 6;
 
     private void GenerateCube(VoxelPos8 blockPos, Directions hidden)
     {
@@ -126,9 +122,7 @@ public struct GenerateBoxelMeshV2 : IJob
             }
 
             for (var j = 0; j < QuadTriSize; j++)
-            {
                 NativeMesh.Triangles[TrianglePos + j] = NativeCube.TriangleOrder[j] + VertexPos;
-            }
 
             VertexPos += QuadSize;
             TrianglePos += QuadTriSize;

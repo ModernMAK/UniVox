@@ -21,8 +21,19 @@ namespace ECS.System
                 ComponentType.ReadOnly<WorldPosition>());
         }
 
+        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        {
+            var job = new FixPositionJob
+            {
+                Offset = new float3(0.5f)
+            };
+
+            // Now that the job is set up, schedule it to be run. 
+            return job.Schedule(this, inputDependencies);
+        }
+
         [BurstCompile]
-        struct FixPositionJob : IJobForEach<Translation, WorldPosition>
+        private struct FixPositionJob : IJobForEach<Translation, WorldPosition>
         {
             [ReadOnly] public float3 Offset;
 
@@ -30,17 +41,6 @@ namespace ECS.System
             {
                 translation.Value = worldPosition.value + Offset;
             }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var job = new FixPositionJob()
-            {
-                Offset = new float3(0.5f)
-            };
-
-            // Now that the job is set up, schedule it to be run. 
-            return job.Schedule(this, inputDependencies);
         }
     }
 }

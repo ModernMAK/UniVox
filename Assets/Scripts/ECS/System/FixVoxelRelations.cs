@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace ECS.System
 {
     [Obsolete]
-    struct FixVoxelRelations : IComponentData
+    internal struct FixVoxelRelations : IComponentData
     {
     }
 }

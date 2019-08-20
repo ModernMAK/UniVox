@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 
 [BurstCompile]
-struct SetupActiveJob : IJobParallelFor
+internal struct SetupActiveJob : IJobParallelFor
 {
     [WriteOnly] public NativeBitArray Solidity;
 

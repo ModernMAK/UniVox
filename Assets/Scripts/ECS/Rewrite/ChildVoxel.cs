@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace UnityTemplateProjects.ECS.Rewrite
 {
     /// <summary>
-    /// A Voxel within a Chunk
+    ///     A Voxel within a Chunk
     /// </summary>
     [Serializable]
     [InternalBufferCapacity(byte.MaxValue)] //Arbitrary but big

@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace ECS.System
 {
     [Obsolete]
-    struct FixChunkRelations : IComponentData
+    internal struct FixChunkRelations : IComponentData
     {
     }
 }

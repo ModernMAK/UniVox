@@ -13,8 +13,7 @@ public struct CalculateMeshSizePerBlockJob : IJobParallelFor
     [ReadOnly] public NativeArray<Orientation> Rotations;
     [WriteOnly] public NativeArray<int> Vertexes;
     [WriteOnly] public NativeArray<int> Triangles;
-    [DeallocateOnJobCompletion]
-    [ReadOnly] public NativeArray<Direction> Directions;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Direction> Directions;
 
 
     private void CalculateCube(Directions hidden, out int verts, out int indexes)
@@ -34,8 +33,8 @@ public struct CalculateMeshSizePerBlockJob : IJobParallelFor
         var hidden = HiddenFaces[index];
         var rotation = Rotations[index];
 
-        int verts = 0;
-        int indexes = 0;
+        var verts = 0;
+        var indexes = 0;
         switch (shape)
         {
             case BlockShape.Cube:

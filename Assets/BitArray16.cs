@@ -2,11 +2,11 @@ using System;
 
 public struct BitArray16
 {
-    
     public BitArray16 SetAll(bool value)
     {
         return value ? new BitArray16(~0) : new BitArray16(0);
     }
+
     private short _backing;
     private const byte Size = 16;
 

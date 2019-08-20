@@ -6,6 +6,7 @@ public struct BitArray8
     {
         return value ? new BitArray8(byte.MaxValue) : new BitArray8(0);
     }
+
     private byte _backing;
     private const byte Size = 8;
 

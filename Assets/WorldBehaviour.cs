@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ECS.Data.Voxel;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,17 +9,15 @@ using UnityEngine;
 
 public class WorldBehaviour : MonoBehaviour
 {
-    [SerializeField] private GameObject _target;
-    [SerializeField] private int RenderDistance;
-    [SerializeField] private GameObject _block;
-    private int3 lastChunk = int3.zero;
-    private Entity _prefab;
-
-
     private const int ChunkSize = 32;
+    [SerializeField] private GameObject _block;
+    private Entity _prefab;
+    [SerializeField] private GameObject _target;
 
     private Dictionary<int3, ChunkEntityPair> ChunkTable;
     private Dictionary<int3, JobHandle> Handles;
+    private int3 lastChunk = int3.zero;
+    [SerializeField] private int RenderDistance;
 
     public void OnDestroy()
     {
@@ -48,56 +45,6 @@ public class WorldBehaviour : MonoBehaviour
         return map;
     }
 
-    [BurstCompile]
-    struct GatherChunksToUnload : IJobParallelFor
-    {
-        [ReadOnly] public NativeArray<int3> LoadedChunks;
-        [ReadOnly] public int3 ReferencePosition;
-        [ReadOnly] public int Distance;
-        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToUnload;
-
-        public void Execute(int index)
-        {
-            var chunkPos = LoadedChunks[index];
-            var delta = chunkPos - ReferencePosition;
-            var absDelta = math.abs(delta);
-            if (absDelta.x > Distance || absDelta.y > Distance || absDelta.z > Distance)
-            {
-                ChunksToUnload.Enqueue(chunkPos);
-            }
-        }
-    }
-
-    [BurstCompile]
-    struct GatherChunksToLoad : IJobParallelFor
-    {
-        [ReadOnly] public NativeArray<int3> LoadedChunks;
-        [ReadOnly] public int Distance;
-        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToLoad;
-
-
-        private int AxisSize => Distance * 2 + 1;
-
-        public void Execute(int index)
-        {
-            //-D -> D
-            // i -> 2D+1
-            var x = index % AxisSize;
-            var y = (index / AxisSize) % AxisSize;
-            var z = (index / AxisSize / AxisSize) % AxisSize;
-
-            x -= Distance;
-            y -= Distance;
-            z -= Distance;
-
-            var inspectPos = new int3(x, y, z);
-            if (!LoadedChunks.Contains(inspectPos))
-            {
-                ChunksToLoad.Enqueue(inspectPos);
-            }
-        }
-    }
-
 
     public int3 ToChunkPos(Vector3 v)
     {
@@ -111,7 +58,10 @@ public class WorldBehaviour : MonoBehaviour
         UpdateFromRenderDistance(curPos, RenderDistance);
     }
 
-    private bool ChunkLoaded(int3 chunkPosition) => ChunkTable.ContainsKey(chunkPosition);
+    private bool ChunkLoaded(int3 chunkPosition)
+    {
+        return ChunkTable.ContainsKey(chunkPosition);
+    }
 
 
     public void LoadChunk(int3 chunkPosition)
@@ -169,7 +119,7 @@ public class WorldBehaviour : MonoBehaviour
     {
         var list = new NativeQueue<int3>(Allocator.TempJob);
         var loaded = GetListLoaded(Allocator.TempJob);
-        var handle = new GatherChunksToUnload()
+        var handle = new GatherChunksToUnload
         {
             ChunksToUnload = list.AsParallelWriter(),
             Distance = RenderDistance,
@@ -209,11 +159,11 @@ public class WorldBehaviour : MonoBehaviour
 
     public void LoadInChunksJobified(int3 chunkPos, int distance)
     {
-        var perSize = (distance * 2 + 1);
+        var perSize = distance * 2 + 1;
         var fullSize = perSize * perSize * perSize;
         var list = new NativeQueue<int3>(Allocator.TempJob);
         var loaded = GetListLoaded(Allocator.TempJob);
-        var handle = new GatherChunksToLoad()
+        var handle = new GatherChunksToLoad
         {
             Distance = RenderDistance,
             LoadedChunks = loaded,
@@ -226,5 +176,50 @@ public class WorldBehaviour : MonoBehaviour
 
         list.Dispose();
         loaded.Dispose();
+    }
+
+    [BurstCompile]
+    private struct GatherChunksToUnload : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<int3> LoadedChunks;
+        [ReadOnly] public int3 ReferencePosition;
+        [ReadOnly] public int Distance;
+        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToUnload;
+
+        public void Execute(int index)
+        {
+            var chunkPos = LoadedChunks[index];
+            var delta = chunkPos - ReferencePosition;
+            var absDelta = math.abs(delta);
+            if (absDelta.x > Distance || absDelta.y > Distance || absDelta.z > Distance)
+                ChunksToUnload.Enqueue(chunkPos);
+        }
+    }
+
+    [BurstCompile]
+    private struct GatherChunksToLoad : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<int3> LoadedChunks;
+        [ReadOnly] public int Distance;
+        [WriteOnly] public NativeQueue<int3>.ParallelWriter ChunksToLoad;
+
+
+        private int AxisSize => Distance * 2 + 1;
+
+        public void Execute(int index)
+        {
+            //-D -> D
+            // i -> 2D+1
+            var x = index % AxisSize;
+            var y = index / AxisSize % AxisSize;
+            var z = index / AxisSize / AxisSize % AxisSize;
+
+            x -= Distance;
+            y -= Distance;
+            z -= Distance;
+
+            var inspectPos = new int3(x, y, z);
+            if (!LoadedChunks.Contains(inspectPos)) ChunksToLoad.Enqueue(inspectPos);
+        }
     }
 }

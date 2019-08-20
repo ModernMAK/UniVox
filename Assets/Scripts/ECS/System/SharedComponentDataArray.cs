@@ -10,7 +10,7 @@ namespace ECS.System
 
         public NativeArray<TGather> data;
         public NativeArray<int> indexes;
-        
+
 
         public void Dispose()
         {

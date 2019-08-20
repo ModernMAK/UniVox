@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Rendering;
+﻿using Unity.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
 

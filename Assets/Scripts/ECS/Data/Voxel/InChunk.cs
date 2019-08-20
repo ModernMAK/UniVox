@@ -4,7 +4,7 @@ using Unity.Entities;
 public struct InChunk : ISharedComponentData, IEquatable<InChunk>
 {
     /// <summary>
-    /// The Entity representing the chunk that this is in
+    ///     The Entity representing the chunk that this is in
     /// </summary>
     public Entity value;
 

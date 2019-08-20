@@ -1,25 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 using ECS.Voxel.Data;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class VoxelRenderBehaviour : MonoBehaviour
 {
-    public bool Hidden;
-    public BlockShape Shape;
-    public int MaterialIndex;
+    public MaterialList _Materials;
 
     public MeshList _Meshes;
-    public MaterialList _Materials;
     private IDictionary<BlockShape, Mesh> _MeshesDict;
     private MeshFilter _mf;
     private MeshRenderer _mr;
+    public bool Hidden;
+    public int MaterialIndex;
+    public BlockShape Shape;
 
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         _mf = GetComponent<MeshFilter>();
         _mr = GetComponent<MeshRenderer>();
@@ -27,13 +24,11 @@ public class VoxelRenderBehaviour : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         _mr.enabled = !Hidden;
-        _mr.material = _Materials[((MaterialIndex % _Materials.Count) + _Materials.Count) % _Materials.Count];
+        _mr.material = _Materials[(MaterialIndex % _Materials.Count + _Materials.Count) % _Materials.Count];
         _mf.mesh = _MeshesDict[Shape];
-        
-        
     }
 }
 

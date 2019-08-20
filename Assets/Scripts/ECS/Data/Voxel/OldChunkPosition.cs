@@ -5,14 +5,14 @@ using Unity.Mathematics;
 namespace ECS.Data.Voxel
 {
     /// <summary>
-    /// Position container FOR CHUNKS
+    ///     Position container FOR CHUNKS
     /// </summary>
     [Obsolete]
     [Serializable]
     public struct OldChunkPosition : IComponentData
     {
         /// <summary>
-        /// The position in chunk space of the Voxel
+        ///     The position in chunk space of the Voxel
         /// </summary>
         public int3 value;
     }

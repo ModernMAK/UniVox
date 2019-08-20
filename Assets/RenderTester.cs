@@ -16,7 +16,7 @@ public class RenderTester : MonoBehaviour
         chunk.Dispose();
 
         m.RecalculateBounds();
-        m.RecalculateNormals();
+        m.RecalculateNormals();    
         m.RecalculateTangents();
         mf.mesh = m;
     }

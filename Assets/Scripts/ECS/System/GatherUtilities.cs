@@ -9,21 +9,6 @@ namespace ECS.System
     [Obsolete("Use GatherUtil")]
     public static class GatherUtilities
     {
-        [BurstCompile]
-        struct GatherChunkIndexJob<T> : IJobParallelFor where T : struct, ISharedComponentData
-        {
-            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-            [ReadOnly] public ArchetypeChunkSharedComponentType<T> GatherType;
-            public NativeArray<int> Gathered;
-
-            public void Execute(int chunkIndex)
-            {
-                var chunk = Chunks[chunkIndex];
-                var sharedIndex = chunk.GetSharedComponentIndex(GatherType);
-                Gathered[chunkIndex] = sharedIndex;
-            }
-        }
-
         public static NativeArray<TGather> GatherChunkValues<TGather>(NativeArraySharedValues<int> uniqueInChunk,
             EntityManager em, Allocator valueAllocator = Allocator.Temp)
             where TGather : struct, ISharedComponentData
@@ -39,22 +24,6 @@ namespace ECS.System
             }
 
             return gatheredValues;
-        }
-
-        public struct GatherData<TGather> : IDisposable where TGather : struct, ISharedComponentData
-        {
-            public TGather this[int chunkIndex] => values[indexes.GetSharedIndexBySourceIndex(chunkIndex)];
-
-            public NativeArraySharedValues<int> indexes;
-
-
-            public NativeArray<TGather> values;
-
-            public void Dispose()
-            {
-                indexes.Dispose();
-                values.Dispose();
-            }
         }
 
         public static GatherData<TGather> Gather<TGather>(EntityQuery query, EntityManager em,
@@ -73,7 +42,7 @@ namespace ECS.System
         {
             var gatheredChunks = new NativeArray<int>(chunks.Length, Allocator.TempJob);
 
-            var gatherJob = new GatherChunkIndexJob<TGather>()
+            var gatherJob = new GatherChunkIndexJob<TGather>
             {
                 Chunks = chunks,
                 GatherType = em.GetArchetypeChunkSharedComponentType<TGather>(),
@@ -83,11 +52,42 @@ namespace ECS.System
             var gatherHandle = gatherJob.Schedule(chunks.Length, 64, jobDep);
             var sortedChunks = new NativeArraySharedValues<int>(gatheredChunks, Allocator.TempJob);
             sortedChunks.Schedule(gatherHandle).Complete();
-            return new GatherData<TGather>()
+            return new GatherData<TGather>
             {
                 values = GatherChunkValues<TGather>(sortedChunks, em, valueAllocator),
                 indexes = sortedChunks
             };
+        }
+
+        [BurstCompile]
+        private struct GatherChunkIndexJob<T> : IJobParallelFor where T : struct, ISharedComponentData
+        {
+            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
+            [ReadOnly] public ArchetypeChunkSharedComponentType<T> GatherType;
+            public NativeArray<int> Gathered;
+
+            public void Execute(int chunkIndex)
+            {
+                var chunk = Chunks[chunkIndex];
+                var sharedIndex = chunk.GetSharedComponentIndex(GatherType);
+                Gathered[chunkIndex] = sharedIndex;
+            }
+        }
+
+        public struct GatherData<TGather> : IDisposable where TGather : struct, ISharedComponentData
+        {
+            public TGather this[int chunkIndex] => values[indexes.GetSharedIndexBySourceIndex(chunkIndex)];
+
+            public NativeArraySharedValues<int> indexes;
+
+
+            public NativeArray<TGather> values;
+
+            public void Dispose()
+            {
+                indexes.Dispose();
+                values.Dispose();
+            }
         }
     }
 }

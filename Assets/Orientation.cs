@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Mathematics;
 
 namespace DefaultNamespace
@@ -51,7 +50,7 @@ namespace DefaultNamespace
 
         public static explicit operator Orientation(byte orientation)
         {
-            return new Orientation() {_backing = (byte) (orientation & FullMask)};
+            return new Orientation {_backing = (byte) (orientation & FullMask)};
         }
     }
 }

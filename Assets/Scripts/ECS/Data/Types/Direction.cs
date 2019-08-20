@@ -2,9 +2,8 @@ using System;
 
 namespace ECS.Voxel.Data
 {
- 
     /// <summary>
-    /// An enumeration of the directions in 3D space. See <see cref="Directions"/> for its counterpart.
+    ///     An enumeration of the directions in 3D space. See <see cref="Directions" /> for its counterpart.
     /// </summary>
     [Serializable]
     public enum Direction : byte
@@ -14,6 +13,6 @@ namespace ECS.Voxel.Data
         Right = 2,
         Left = 3,
         Forward = 4,
-        Backward = 5,
+        Backward = 5
     }
 }

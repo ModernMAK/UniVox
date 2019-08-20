@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using ECS.System;
+﻿using ECS.System;
 using Unity.Entities;
 using UnityEngine;
 
@@ -9,13 +7,13 @@ public class VoxelChanger : MonoBehaviour
     private Camera _camera;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         _camera = Camera.main;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetMouseButtonDown(1))
         {
@@ -27,9 +25,7 @@ public class VoxelChanger : MonoBehaviour
                 var active = World.Active;
                 var manager = active.EntityManager;
                 if (!manager.HasComponent(hit.entity, typeof(Disabled)))
-                {
                     manager.AddComponent(hit.entity, typeof(Disabled));
-                }
             }
         }
     }

@@ -1,5 +1,5 @@
-using Unity.Mathematics;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 
@@ -22,23 +22,17 @@ namespace ECS.System
         public static RaycastInput GetRay(float3 from, float3 to, uint rayLayers = ~0u, uint targetLayers = ~0u,
             int groupIndex = 0)
         {
-            return new RaycastInput()
+            return new RaycastInput
             {
                 Start = from,
                 End = to,
-                Filter = new CollisionFilter()
+                Filter = new CollisionFilter
                 {
                     BelongsTo = rayLayers, // all 1s, so all layers, collide with everything 
                     CollidesWith = targetLayers,
                     GroupIndex = groupIndex
                 }
             };
-        }
-
-        public struct EntityHit
-        {
-            public Entity entity;
-            public RaycastHit hit;
         }
 
         public static bool RaycastEntity(float3 RayFrom, float3 RayTo, out EntityHit hitEntity)
@@ -50,7 +44,7 @@ namespace ECS.System
             {
                 // see hit.Position 
                 // see hit.SurfaceNormal
-                hitEntity = new EntityHit()
+                hitEntity = new EntityHit
                 {
                     entity = world.Bodies[hit.RigidBodyIndex].Entity,
                     hit = hit
@@ -58,12 +52,18 @@ namespace ECS.System
                 return true;
             }
 
-            hitEntity = new EntityHit()
+            hitEntity = new EntityHit
             {
                 entity = Entity.Null,
                 hit = hit
             };
             return false;
+        }
+
+        public struct EntityHit
+        {
+            public Entity entity;
+            public RaycastHit hit;
         }
     }
 }

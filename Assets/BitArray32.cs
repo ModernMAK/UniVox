@@ -9,6 +9,7 @@ public struct BitArray32
     {
         return value ? new BitArray32(~0) : new BitArray32(0);
     }
+
     public BitArray32(int value)
     {
         _backing = value;

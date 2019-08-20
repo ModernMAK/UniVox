@@ -4,8 +4,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using UnityEditor.PackageManager;
-using NotImplementedException = System.NotImplementedException;
 
 //using ECS.Voxel.Data;
 
@@ -14,32 +12,32 @@ namespace ECS.System
     public class WorldPositionCalculationSystem : JobComponentSystem
     {
         private EntityQuery _addQuery;
-        private EntityQuery _updateQuery;
         private EntityQuery _removeQuery;
+        private EntityQuery _updateQuery;
 
         protected override void OnCreate()
         {
-            var updateDesc = new EntityQueryDesc()
+            var updateDesc = new EntityQueryDesc
             {
                 All = new[]
                 {
                     typeof(WorldPosition),
                     ComponentType.ReadOnly<VoxelPosition>(),
                     ComponentType.ReadOnly<VoxelChunkPosition>(),
-                    ComponentType.ReadOnly<ChunkSize>(),
+                    ComponentType.ReadOnly<ChunkSize>()
 //                    typeof(PreviousPositionData)
-                },
+                }
             };
             _updateQuery = GetEntityQuery(updateDesc);
 
-            var addDesc = new EntityQueryDesc()
+            var addDesc = new EntityQueryDesc
             {
                 All = new[]
                 {
                     typeof(WorldPosition),
                     ComponentType.ReadOnly<VoxelPosition>(),
                     ComponentType.ReadOnly<VoxelChunkPosition>(),
-                    ComponentType.ReadOnly<ChunkSize>(),
+                    ComponentType.ReadOnly<ChunkSize>()
                 },
                 None = new[]
                 {
@@ -49,7 +47,7 @@ namespace ECS.System
 
             _addQuery = GetEntityQuery(addDesc);
 
-            var removeDesc = new EntityQueryDesc()
+            var removeDesc = new EntityQueryDesc
             {
                 All = new[]
                 {
@@ -60,7 +58,7 @@ namespace ECS.System
                     typeof(WorldPosition),
                     ComponentType.ReadOnly<VoxelPosition>(),
                     ComponentType.ReadOnly<VoxelChunkPosition>(),
-                    ComponentType.ReadOnly<ChunkSize>(),
+                    ComponentType.ReadOnly<ChunkSize>()
                 }
             };
 
@@ -68,13 +66,40 @@ namespace ECS.System
         }
 
 
-        struct GatherData
+        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        {
+            var world = World.Active;
+            var manager = world.EntityManager;
+
+            var chunks = _updateQuery.CreateArchetypeChunkArray(Allocator.TempJob);
+
+            inputDependencies.Complete();
+            var chunkPosData = GatherUtil.Gather<VoxelChunkPosition>(chunks, manager); //, Allocator.TempJob);
+            var chunkSizeData = GatherUtil.Gather<ChunkSize>(chunks, manager); //, Allocator.TempJob);
+
+
+            var job = new FixPositionJobParallelFor
+            {
+                WorldPositionType = GetArchetypeChunkComponentType<WorldPosition>(),
+                VoxelPositionType = GetArchetypeChunkComponentType<VoxelPosition>(true),
+                ChunkSizeData = chunkSizeData,
+                ChunkPosData = chunkPosData,
+                Chunks = chunks
+            };
+            var jobHandle = job.Schedule(chunks.Length, 64);
+
+
+            return jobHandle;
+        }
+
+
+        private struct GatherData
         {
             public Entity Target;
             public int ChunkIndex;
         }
 
-        struct GatherFilteredJob : IJob
+        private struct GatherFilteredJob : IJob
         {
             public NativeList<GatherData> Changed;
             [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
@@ -87,20 +112,18 @@ namespace ECS.System
                     var chunk = Chunks[chunkIndex];
                     var chunkEntities = chunk.GetNativeArray(EntityType);
 
-                    for (int j = 0; j < chunk.Count; j++)
-                    {
-                        Changed.Add(new GatherData()
+                    for (var j = 0; j < chunk.Count; j++)
+                        Changed.Add(new GatherData
                         {
                             Target = chunkEntities[j],
                             ChunkIndex = chunkIndex
                         });
-                    }
                 }
             }
         }
 
 
-        struct AddJob : IJobChunk
+        private struct AddJob : IJobChunk
         {
             [WriteOnly] public EntityCommandBuffer.Concurrent Buffer;
 
@@ -122,7 +145,7 @@ namespace ECS.System
             }
         }
 
-        struct RemoveJob : IJobChunk
+        private struct RemoveJob : IJobChunk
         {
             [WriteOnly] public EntityCommandBuffer.Concurrent Buffer;
             [ReadOnly] public ArchetypeChunkEntityType EntityType;
@@ -132,14 +155,12 @@ namespace ECS.System
                 var entites = chunk.GetNativeArray(EntityType);
 
                 for (var i = 0; i < chunk.Count; i++)
-                {
                     Buffer.RemoveComponent<PreviousPositionData>(chunkIndex, entites[i]);
-                }
             }
         }
 
         [BurstCompile]
-        struct GatherJob : IJob
+        private struct GatherJob : IJob
         {
             public NativeList<GatherData> Changed;
             [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
@@ -161,24 +182,20 @@ namespace ECS.System
                         var previousVoxelPositions = chunk.GetNativeArray(PreviousPositionDataType);
                         var chunkEntities = chunk.GetNativeArray(EntityType);
 
-                        for (int j = 0; j < chunk.Count; j++)
-                        {
+                        for (var j = 0; j < chunk.Count; j++)
                             if (previousVoxelPositions[j].Equals(voxelPositions[j]))
-                            {
-                                Changed.Add(new GatherData()
+                                Changed.Add(new GatherData
                                 {
                                     Target = chunkEntities[j],
                                     ChunkIndex = chunkIndex
                                 });
-                            }
-                        }
                     }
                 }
             }
         }
 
         [BurstCompile]
-        struct FixPositionJobParallelFor : IJobParallelFor
+        private struct FixPositionJobParallelFor : IJobParallelFor
         {
             public ArchetypeChunkComponentType<WorldPosition> WorldPositionType;
 
@@ -203,40 +220,11 @@ namespace ECS.System
                 var chunkOffset = chunkPosition.value * chunkSize.value;
 
                 for (var i = 0; i < chunk.Count; i++)
-                {
-                    worldPositions[i] = new WorldPosition()
+                    worldPositions[i] = new WorldPosition
                     {
                         value = voxelPositions[i].value + chunkOffset
                     };
-                }
             }
-        }
-
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var world = World.Active;
-            var manager = world.EntityManager;
-
-            var chunks = _updateQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-
-            inputDependencies.Complete();
-            var chunkPosData = GatherUtil.Gather<VoxelChunkPosition>(chunks, manager); //, Allocator.TempJob);
-            var chunkSizeData = GatherUtil.Gather<ChunkSize>(chunks, manager); //, Allocator.TempJob);
-
-
-            var job = new FixPositionJobParallelFor()
-            {
-                WorldPositionType = GetArchetypeChunkComponentType<WorldPosition>(),
-                VoxelPositionType = GetArchetypeChunkComponentType<VoxelPosition>(true),
-                ChunkSizeData = chunkSizeData,
-                ChunkPosData = chunkPosData,
-                Chunks = chunks
-            };
-            var jobHandle = job.Schedule(chunks.Length, 64);
-
-
-            return jobHandle;
         }
     }
 }

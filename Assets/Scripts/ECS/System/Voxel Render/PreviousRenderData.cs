@@ -13,7 +13,7 @@ namespace ECS.Data.Voxel
 
         public static implicit operator PreviousRenderData(VoxelRenderData data)
         {
-            return new PreviousRenderData()
+            return new PreviousRenderData
             {
                 MaterialIndex = data.MaterialIndex,
                 MeshIndex = data.MeshShape
@@ -22,7 +22,7 @@ namespace ECS.Data.Voxel
 
         public static implicit operator VoxelRenderData(PreviousRenderData data)
         {
-            return new VoxelRenderData()
+            return new VoxelRenderData
             {
                 MaterialIndex = data.MaterialIndex,
                 MeshShape = data.MeshIndex

@@ -30,7 +30,7 @@ namespace DefaultNamespace
         //Angle is a representation of the four block faces available given our axis; [0,3]
         public int Angle
         {
-            get => ((_backing & RotationMask) >> RotationShift);
+            get => (_backing & RotationMask) >> RotationShift;
             set => _backing = (byte) ((_backing & ~RotationMask) | ((value << RotationShift) & RotationMask));
         }
 
@@ -52,7 +52,10 @@ namespace DefaultNamespace
             }
         }
 
-        public int GetDegrees() => Angle * 90;
+        public int GetDegrees()
+        {
+            return Angle * 90;
+        }
 
         public void SetDegrees(int value)
         {
@@ -63,9 +66,15 @@ namespace DefaultNamespace
         }
 
 
-        public float GetRadians() => Mathf.PI * Angle / 2f;
+        public float GetRadians()
+        {
+            return Mathf.PI * Angle / 2f;
+        }
 
-        public float3 GetAxis() => Direction.ToFloat3();
+        public float3 GetAxis()
+        {
+            return Direction.ToFloat3();
+        }
 
         private static quaternion AngleAxis(float3 axis, float angleRadians)
         {

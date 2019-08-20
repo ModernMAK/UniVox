@@ -7,9 +7,21 @@ using Random = System.Random;
 
 public class ChunkDataEntity
 {
-    public Entity[] EntityTable;
+    public const int ChunkSizePerAxis = 32;
+    public const int FlatSize = ChunkSizePerAxis * ChunkSizePerAxis * ChunkSizePerAxis;
 
     public ChunkData Chunk;
+    public Entity[] EntityTable;
+
+    public ChunkDataEntity() : this(new ChunkData())
+    {
+    }
+
+    public ChunkDataEntity(ChunkData chunkData)
+    {
+        EntityTable = new Entity[FlatSize];
+        Chunk = chunkData;
+    }
 
     public void Init()
     {
@@ -25,7 +37,7 @@ public class ChunkDataEntity
 
     public static void SetupActive(ChunkData data)
     {
-        Random r = new Random();
+        var r = new Random();
         foreach (var pos in VoxelPos32.GetAllPositions())
             data.SolidTable[pos] = true;
     }
@@ -92,17 +104,4 @@ public class ChunkDataEntity
 
         em.DestroyEntity(entityPrefab);
     }
-
-    public ChunkDataEntity() : this(new ChunkData())
-    {
-    }
-
-    public ChunkDataEntity(ChunkData chunkData)
-    {
-        EntityTable = new Entity[FlatSize];
-        Chunk = chunkData;
-    }
-
-    public const int ChunkSizePerAxis = 32;
-    public const int FlatSize = ChunkSizePerAxis * ChunkSizePerAxis * ChunkSizePerAxis;
 }

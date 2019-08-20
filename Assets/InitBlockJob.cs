@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-struct InitBlockJob : IJobParallelFor
+internal struct InitBlockJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<Entity> Entities;
     [ReadOnly] public float3 RenderOffset;
@@ -15,7 +15,7 @@ struct InitBlockJob : IJobParallelFor
     {
         var e = Entities[index];
         var voxPos = new VoxelPos32(index);
-        Buffer.SetComponent(index, e, new Translation() {Value = voxPos.Position + RenderOffset + ChunkOffset});
+        Buffer.SetComponent(index, e, new Translation {Value = voxPos.Position + RenderOffset + ChunkOffset});
         Buffer.AddComponent<Disabled>(index, e);
     }
 }

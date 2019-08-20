@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using ECS.Voxel;
 using Unity.Mathematics;
 
-public struct VoxelPos32 
+public struct VoxelPos32
 {
     public bool Equals(VoxelPos32 other)
     {
@@ -145,7 +144,7 @@ public struct VoxelPos32
 
     public static bool operator ==(VoxelPos32 left, VoxelPos32 right)
     {
-        return (left._backing == right._backing);
+        return left._backing == right._backing;
     }
 
     public static bool operator !=(VoxelPos32 left, VoxelPos32 right)

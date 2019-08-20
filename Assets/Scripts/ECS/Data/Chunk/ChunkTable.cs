@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 /// <summary>
-/// Represents a table lookup for chunks
+///     Represents a table lookup for chunks
 /// </summary>
 public struct ChunkTable : ISharedComponentData, IDisposable, IEquatable<ChunkTable>
 {

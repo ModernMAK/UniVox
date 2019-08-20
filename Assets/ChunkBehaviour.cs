@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ChunkBehaviour : MonoBehaviour
 {
@@ -18,7 +17,7 @@ public class ChunkBehaviour : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
     }
 }

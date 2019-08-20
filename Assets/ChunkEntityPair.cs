@@ -6,8 +6,24 @@ using Unity.Mathematics;
 
 public class ChunkEntityPair : IDisposable
 {
+    private const int InnerBatchCount = 64;
+
+    public const int ChunkSizePerAxis = ChunkData.ChunkSizePerAxis;
+    public const int FlatSize = ChunkSizePerAxis * ChunkSizePerAxis * ChunkSizePerAxis;
+    private readonly ChunkData Chunk;
     public NativeArray<Entity> EntityTable;
-    private ChunkData Chunk;
+
+    public ChunkEntityPair(ChunkData chunkData)
+    {
+        EntityTable = new NativeArray<Entity>(FlatSize, Allocator.Persistent);
+        Chunk = chunkData;
+    }
+
+    public void Dispose()
+    {
+        EntityTable.Dispose();
+        Chunk?.Dispose();
+    }
 
 
     public void Destroy()
@@ -15,8 +31,6 @@ public class ChunkEntityPair : IDisposable
         var em = World.Active.EntityManager;
         em.DestroyEntity(EntityTable);
     }
-
-    private const int InnerBatchCount = 64;
 
     public void Spawn(Entity prefab)
     {
@@ -27,12 +41,12 @@ public class ChunkEntityPair : IDisposable
     private JobHandle SetupBlocks(int3 chunkPosition, EntityCommandBufferSystem bufferSystem,
         JobHandle dependencies = default)
     {
-        var handle = new InitBlockJob()
+        var handle = new InitBlockJob
         {
             Buffer = bufferSystem.CreateCommandBuffer().ToConcurrent(),
             Entities = EntityTable,
             ChunkOffset = chunkPosition * ChunkSizePerAxis,
-            RenderOffset = new float3(1f / 2f),
+            RenderOffset = new float3(1f / 2f)
         }.Schedule(FlatSize, InnerBatchCount, dependencies);
         bufferSystem.AddJobHandleForProducer(handle);
         return handle;
@@ -40,7 +54,7 @@ public class ChunkEntityPair : IDisposable
 
     private JobHandle SetupChunkActive(JobHandle dependencies = default)
     {
-        return new SetupActiveJob()
+        return new SetupActiveJob
         {
             Solidity = Chunk.SolidTable
         }.Schedule(Chunk.SolidTable.ByteCount, InnerBatchCount, dependencies);
@@ -48,7 +62,7 @@ public class ChunkEntityPair : IDisposable
 
     private JobHandle SetupChunkVisibility(JobHandle dependencies = default)
     {
-        return new SetupVisibilityJob()
+        return new SetupVisibilityJob
         {
             HiddenFaces = Chunk.HiddenFaces
         }.Schedule(FlatSize, InnerBatchCount, dependencies);
@@ -56,7 +70,7 @@ public class ChunkEntityPair : IDisposable
 
     private JobHandle SetupCulling(EntityCommandBufferSystem bufferSystem, JobHandle dependencies = default)
     {
-        var handle = new SetupCulledJob()
+        var handle = new SetupCulledJob
         {
             Buffer = bufferSystem.CreateCommandBuffer().ToConcurrent(),
             Entities = EntityTable,
@@ -93,20 +107,5 @@ public class ChunkEntityPair : IDisposable
             if (em.HasComponent(e, typeof(Disabled)))
                 em.RemoveComponent(e, typeof(Disabled));
         }
-    }
-
-    public ChunkEntityPair(ChunkData chunkData)
-    {
-        EntityTable = new NativeArray<Entity>(FlatSize, Allocator.Persistent);
-        Chunk = chunkData;
-    }
-
-    public const int ChunkSizePerAxis = ChunkData.ChunkSizePerAxis;
-    public const int FlatSize = ChunkSizePerAxis * ChunkSizePerAxis * ChunkSizePerAxis;
-
-    public void Dispose()
-    {
-        EntityTable.Dispose();
-        Chunk?.Dispose();
     }
 }

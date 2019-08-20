@@ -48,7 +48,7 @@ namespace ECS.Data.Voxel
 
         public override int GetHashCode()
         {
-            return (Materials != null ? Materials.GetHashCode() : 0);
+            return Materials != null ? Materials.GetHashCode() : 0;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

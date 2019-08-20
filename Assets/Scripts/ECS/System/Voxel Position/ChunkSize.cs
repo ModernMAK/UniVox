@@ -5,22 +5,22 @@ using Unity.Mathematics;
 namespace ECS.Data.Voxel
 {
     /// <summary>
-    /// Represents the size of a chunk
+    ///     Represents the size of a chunk
     /// </summary>
     /// TODO consider merging this with ChunkTable
     [Serializable]
     public struct ChunkSize : ISharedComponentData, IEquatable<ChunkSize>
     {
         /// <summary>
-        /// The size of the Voxel Chunk (not the ecs chunk)
+        ///     The size of the Voxel Chunk (not the ecs chunk)
         /// </summary>
         public int3 value;
-        
+
         public ChunkSize(int3 size)
         {
             value = size;
         }
-        
+
         public static implicit operator int3(ChunkSize chunkSize)
         {
             return chunkSize.value;
@@ -44,11 +44,7 @@ namespace ECS.Data.Voxel
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return value.GetHashCode();
-            }
+            return value.GetHashCode();
         }
-
     }
 }

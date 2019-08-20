@@ -1,10 +1,7 @@
-using System;
-using ECS.Data.Voxel;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using NotImplementedException = System.NotImplementedException;
 
 namespace ECS.System
 {
@@ -19,22 +16,6 @@ namespace ECS.System
 
     public static class GatherUtil
     {
-        [BurstCompile]
-        struct GatherIndexes<TComponent> : IJobParallelFor where TComponent : struct, ISharedComponentData
-        {
-            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-            [ReadOnly] public ArchetypeChunkSharedComponentType<TComponent> GatherType;
-            public NativeArray<int> ChunkGatherIndex;
-
-            public void Execute(int chunkIndex)
-            {
-                var chunk = Chunks[chunkIndex];
-                var sharedIndex = chunk.GetSharedComponentIndex(GatherType);
-                ChunkGatherIndex[chunkIndex] = sharedIndex;
-            }
-        }
-
-
         public static SharedComponentDataArray<TGather> Gather<TGather>(
             NativeArray<ArchetypeChunk> chunks, EntityManager manager, JobHandle inputDeps = default)
             where TGather : struct, ISharedComponentData
@@ -44,12 +25,12 @@ namespace ECS.System
             var converted = GetConvertedIndexes(indexes);
             var unique = GetUniqueIndexes(indexes);
             var data = GetData<TGather>(unique, manager);
-            
+
             indexes.SourceBuffer.Dispose();
             indexes.Dispose();
             unique.Dispose();
-            
-            return new SharedComponentDataArray<TGather>()
+
+            return new SharedComponentDataArray<TGather>
             {
                 data = data,
                 indexes = converted
@@ -65,12 +46,12 @@ namespace ECS.System
             var converted = GetConvertedIndexes(indexes);
             var unique = GetUniqueIndexes(indexes);
             var data = GetManagedData<TGather>(unique, manager);
-            
+
             indexes.SourceBuffer.Dispose();
             indexes.Dispose();
             unique.Dispose();
 
-            return new SharedComponentDataArrayManaged<TGather>()
+            return new SharedComponentDataArrayManaged<TGather>
             {
                 data = data,
                 indexes = converted
@@ -139,18 +120,6 @@ namespace ECS.System
         }
 
 
-        private struct ConvertJob : IJobParallelFor
-        {
-            [ReadOnly] public NativeArraySharedValues<int> Indexes;
-            public NativeArray<int> Converted;
-
-            public void Execute(int index)
-            {
-                Converted[index] = Indexes.GetSharedIndexBySourceIndex(index);
-            }
-        }
-
-
         public static NativeArraySharedValues<int> GetIndexes<TGather>(NativeArray<ArchetypeChunk> chunks,
             EntityManager manager, JobHandle inputDeps = default) where TGather : struct, ISharedComponentData
         {
@@ -168,6 +137,33 @@ namespace ECS.System
             var sortedChunksJobHandle = sortedChunks.Schedule(gatherDataJobHandle);
             sortedChunksJobHandle.Complete();
             return sortedChunks;
+        }
+
+        [BurstCompile]
+        private struct GatherIndexes<TComponent> : IJobParallelFor where TComponent : struct, ISharedComponentData
+        {
+            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
+            [ReadOnly] public ArchetypeChunkSharedComponentType<TComponent> GatherType;
+            public NativeArray<int> ChunkGatherIndex;
+
+            public void Execute(int chunkIndex)
+            {
+                var chunk = Chunks[chunkIndex];
+                var sharedIndex = chunk.GetSharedComponentIndex(GatherType);
+                ChunkGatherIndex[chunkIndex] = sharedIndex;
+            }
+        }
+
+
+        private struct ConvertJob : IJobParallelFor
+        {
+            [ReadOnly] public NativeArraySharedValues<int> Indexes;
+            public NativeArray<int> Converted;
+
+            public void Execute(int index)
+            {
+                Converted[index] = Indexes.GetSharedIndexBySourceIndex(index);
+            }
         }
     }
 }

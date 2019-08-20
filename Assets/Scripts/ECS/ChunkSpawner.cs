@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using ECS.Data.Voxel;
 using ECS.Voxel;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using Random = System.Random;
 
 [DisallowMultipleComponent]
 public class ChunkSpawner : MonoBehaviour
 {
     public int3 ChunkSize;
+    public int InnerLoop;
     public int3 UniverseSize;
     public GameObject VoxelPrefab;
-    public int InnerLoop;
 
-    void SpawnChunk(GameObject voxelPrefab, int3 size, int3 position, World world)
+    private void SpawnChunk(GameObject voxelPrefab, int3 size, int3 position, World world)
     {
         var manager = world.EntityManager;
         var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(voxelPrefab, world);
@@ -26,19 +26,19 @@ public class ChunkSpawner : MonoBehaviour
         {
             var spawnedEntity = manager.Instantiate(prefab);
             var localPosition = new int3(x, y, z);
-            manager.SetSharedComponentData(spawnedEntity, new VoxelChunkPosition() {value = position});
+            manager.SetSharedComponentData(spawnedEntity, new VoxelChunkPosition {value = position});
             manager.SetSharedComponentData(spawnedEntity, new ChunkSize(size));
-            manager.SetComponentData(spawnedEntity, new VoxelPosition() {value = localPosition});
+            manager.SetComponentData(spawnedEntity, new VoxelPosition {value = localPosition});
         }
 
         manager.DestroyEntity(prefab);
     }
 
-    void SpawnVoxel(Entity prefab, int3 chunkPos, int3 localPos, int3 size)
+    private void SpawnVoxel(Entity prefab, int3 chunkPos, int3 localPos, int3 size)
     {
     }
 
-    IEnumerator SpawnChunkAsync(GameObject voxelPrefab, int3 size, int3 position, World world,
+    private IEnumerator SpawnChunkAsync(GameObject voxelPrefab, int3 size, int3 position, World world,
         int innerLoop = byte.MaxValue)
     {
         if (innerLoop < 1)
@@ -57,34 +57,37 @@ public class ChunkSpawner : MonoBehaviour
             var spawnedEntity = manager.Instantiate(prefab);
             var localPosition = new int3(x, y, z);
             var worldPos = localPosition + ChunkSize * position;
-            manager.SetSharedComponentData(spawnedEntity, new VoxelChunkPosition() {value = position});
+            manager.SetSharedComponentData(spawnedEntity, new VoxelChunkPosition {value = position});
             manager.SetSharedComponentData(spawnedEntity, new ChunkSize(size));
-            manager.SetComponentData(spawnedEntity, new VoxelPosition() {value = localPosition});
-            var rand = new System.Random(worldPos.GetHashCode());
-            manager.SetComponentData(spawnedEntity, new VoxelRenderData() {MaterialIndex = rand.Next(matSize)});
+            manager.SetComponentData(spawnedEntity, new VoxelPosition {value = localPosition});
+            var rand = new Random(worldPos.GetHashCode());
+            manager.SetComponentData(spawnedEntity, new VoxelRenderData {MaterialIndex = rand.Next(matSize)});
 
             if (counter > innerLoop)
             {
                 counter = 0;
                 yield return null;
             }
-            else counter++;
+            else
+            {
+                counter++;
+            }
         }
 
         manager.DestroyEntity(prefab);
     }
 
-    void SpawnChunk(int3 position)
+    private void SpawnChunk(int3 position)
     {
         SpawnChunk(VoxelPrefab, ChunkSize, position, World.Active);
     }
 
-    IEnumerator SpawnChunkAsync(int3 position, int innerLoop = byte.MaxValue)
+    private IEnumerator SpawnChunkAsync(int3 position, int innerLoop = byte.MaxValue)
     {
         yield return StartCoroutine(SpawnChunkAsync(VoxelPrefab, ChunkSize, position, World.Active, innerLoop));
     }
 
-    void SpawnWorld(int3 size)
+    private void SpawnWorld(int3 size)
     {
         for (var x = -size.x; x <= size.x; x++)
         for (var y = -size.y; y <= size.y; y++)
@@ -95,7 +98,7 @@ public class ChunkSpawner : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnWorldAsync(int3 size, int innerLoop)
+    private IEnumerator SpawnWorldAsync(int3 size, int innerLoop)
     {
         for (var x = -size.x; x <= size.x; x++)
         for (var y = -size.y; y <= size.y; y++)
@@ -107,7 +110,7 @@ public class ChunkSpawner : MonoBehaviour
     }
 
 
-    void Start()
+    private void Start()
     {
         StartCoroutine(SpawnWorldAsync(UniverseSize, InnerLoop));
     }

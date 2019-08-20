@@ -4,22 +4,21 @@ using Unity.Mathematics;
 
 namespace ECS.Voxel
 {
- 
     /// <summary>
-    /// Represents a position of a voxel within a chunk using Voxel Space.
-    /// This shouldn't be used too often when not also examining the Voxel's chunk.
-    /// </summary>   
+    ///     Represents a position of a voxel within a chunk using Voxel Space.
+    ///     This shouldn't be used too often when not also examining the Voxel's chunk.
+    /// </summary>
     [Serializable]
     public struct VoxelPosition : IComponentData, IEquatable<VoxelPosition>
     {
         public int3 value;
 
-                
+
         public VoxelPosition(int3 size)
         {
             value = size;
         }
-        
+
         public static implicit operator int3(VoxelPosition chunkSize)
         {
             return chunkSize.value;
@@ -29,7 +28,7 @@ namespace ECS.Voxel
         {
             return new VoxelPosition(value);
         }
-        
+
         public bool Equals(VoxelPosition other)
         {
             return value.Equals(other.value);

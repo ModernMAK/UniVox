@@ -2,10 +2,9 @@ using System;
 
 public struct BitArray128
 {
-    
     public BitArray128 SetAll(bool value)
     {
-        return new BitArray128()
+        return new BitArray128
         {
             _front = _front.SetAll(value),
             _back = _back.SetAll(value)

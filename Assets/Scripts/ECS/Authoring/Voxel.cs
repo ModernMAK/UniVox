@@ -24,11 +24,11 @@ namespace ECS.Authoring
             dstManager.AddSharedComponentData(entity, new ChunkSize());
 
 
-            dstManager.AddSharedComponentData(entity, new VoxelMaterials() {Materials = MaterialList});
+            dstManager.AddSharedComponentData(entity, new VoxelMaterials {Materials = MaterialList});
 
             if (MeshList != null)
-                dstManager.AddSharedComponentData(entity, new VoxelShapes() {Lookup = MeshList.CreateDictionary()});
-            dstManager.AddComponentData(entity, new VoxelRenderData() {MaterialIndex = 0, MeshShape = BlockShape.Cube});
+                dstManager.AddSharedComponentData(entity, new VoxelShapes {Lookup = MeshList.CreateDictionary()});
+            dstManager.AddComponentData(entity, new VoxelRenderData {MaterialIndex = 0, MeshShape = BlockShape.Cube});
 
 
 //            dstManager.AddSharedComponentData(entity, new InChunk());

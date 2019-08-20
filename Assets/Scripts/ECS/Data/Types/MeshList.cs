@@ -6,15 +6,15 @@ namespace ECS.Voxel.Data
     [CreateAssetMenu(menuName = "Custom Assets/Mesh List")]
     public class MeshList : ScriptableObject
     {
-        [SerializeField] private Mesh Cube;
         [SerializeField] private Mesh CornerInner;
         [SerializeField] private Mesh CornerOuter;
-        [SerializeField] private Mesh Ramp;
+        [SerializeField] private Mesh Cube;
         [SerializeField] private Mesh CubeBevel;
+        [SerializeField] private Mesh Ramp;
 
         public IDictionary<BlockShape, Mesh> CreateDictionary()
         {
-            return new Dictionary<BlockShape, Mesh>()
+            return new Dictionary<BlockShape, Mesh>
             {
                 {BlockShape.Cube, Cube},
                 {BlockShape.CornerInner, CornerInner},

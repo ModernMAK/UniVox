@@ -6,20 +6,20 @@ using UnityEditorInternal;
 namespace ECS.Voxel
 {
     /// <summary>
-    /// Represents a position in the world using Voxel Space.
-    /// This may not be one to one with Unity's world space; use <see cref="Transition">Transition</see> instead.
+    ///     Represents a position in the world using Voxel Space.
+    ///     This may not be one to one with Unity's world space; use <see cref="Transition">Transition</see> instead.
     /// </summary>
     [Serializable]
     public struct WorldPosition : IComponentData, IEquatable<WorldPosition>
     {
         public int3 value;
 
-                  
+
         public WorldPosition(int3 size)
         {
             value = size;
         }
-        
+
         public static implicit operator int3(WorldPosition chunkSize)
         {
             return chunkSize.value;
@@ -29,7 +29,7 @@ namespace ECS.Voxel
         {
             return new WorldPosition(value);
         }
-        
+
         public bool Equals(WorldPosition other)
         {
             return value.Equals(other.value);
@@ -42,10 +42,7 @@ namespace ECS.Voxel
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return value.GetHashCode();
-            }
+            return value.GetHashCode();
         }
     }
 }

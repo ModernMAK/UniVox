@@ -30,7 +30,7 @@ namespace ECS.Data.Voxel
 
         public static explicit operator PreviousPositionData(VoxelPosition data)
         {
-            return new PreviousPositionData()
+            return new PreviousPositionData
             {
                 value = data.value
             };
@@ -38,11 +38,12 @@ namespace ECS.Data.Voxel
 
         public static explicit operator VoxelPosition(PreviousPositionData data)
         {
-            return new VoxelPosition()
+            return new VoxelPosition
             {
                 value = data.value
             };
         }
+
         public bool Equals(PreviousPositionData other)
         {
             return value.Equals(other.value);

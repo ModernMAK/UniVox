@@ -5,13 +5,13 @@ using Unity.Mathematics;
 namespace ECS.Data.Voxel
 {
     /// <summary>
-    /// Position container
+    ///     Position container
     /// </summary>
     [Serializable]
     public struct ChunkPosition : IComponentData, IEquatable<ChunkPosition>
     {
         /// <summary>
-        /// The position in chunk space of the chunk
+        ///     The position in chunk space of the chunk
         /// </summary>
         public int3 value;
 
@@ -43,10 +43,7 @@ namespace ECS.Data.Voxel
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return value.GetHashCode();
-            }
+            return value.GetHashCode();
         }
     }
 }

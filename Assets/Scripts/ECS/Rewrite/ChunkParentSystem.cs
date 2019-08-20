@@ -10,12 +10,12 @@ namespace UnityTemplateProjects.ECS.Rewrite
     [Obsolete]
     public abstract class ChunkTableSystem : ComponentSystem
     {
+        private EntityQuery m_DeletedParentsGroup;
+        private EntityQuery m_ExistingParentsGroup;
         private EntityQuery m_NewParentsGroup;
         private EntityQuery m_RemovedParentsGroup;
-        private EntityQuery m_ExistingParentsGroup;
-        private EntityQuery m_DeletedParentsGroup;
 
-        void AddChildToParent(Entity childEntity, Entity parentEntity)
+        private void AddChildToParent(Entity childEntity, Entity parentEntity)
         {
             EntityManager.SetComponentData(childEntity, new PreviousParentChunk {Value = parentEntity});
 
@@ -31,18 +31,16 @@ namespace UnityTemplateProjects.ECS.Rewrite
             }
         }
 
-        int FindChildIndex(DynamicBuffer<ChildVoxel> children, Entity entity)
+        private int FindChildIndex(DynamicBuffer<ChildVoxel> children, Entity entity)
         {
-            for (int i = 0; i < children.Length; i++)
-            {
+            for (var i = 0; i < children.Length; i++)
                 if (children[i].Value == entity)
                     return i;
-            }
 
             throw new InvalidOperationException("Child entity not in parent");
         }
 
-        void RemoveChildFromParent(Entity childEntity, Entity parentEntity)
+        private void RemoveChildFromParent(Entity childEntity, Entity parentEntity)
         {
             if (!EntityManager.HasComponent<ChildVoxel>(parentEntity))
                 return;
@@ -50,61 +48,16 @@ namespace UnityTemplateProjects.ECS.Rewrite
             var children = EntityManager.GetBuffer<ChildVoxel>(parentEntity);
             var childIndex = FindChildIndex(children, childEntity);
             children.RemoveAt(childIndex);
-            if (children.Length == 0)
-            {
-                EntityManager.RemoveComponent(parentEntity, typeof(ChildVoxel));
-            }
-        }
-
-        struct ChangedParent
-        {
-            public Entity ChildEntity;
-            public Entity PreviousParentEntity;
-            public Entity ParentEntity;
-        }
-
-        [BurstCompile]
-        struct FilterChangedParents : IJob
-        {
-            public NativeList<ChangedParent> ChangedParents;
-            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-            [ReadOnly] public ArchetypeChunkComponentType<PreviousParentChunk> PreviousParentType;
-            [ReadOnly] public ArchetypeChunkComponentType<ParentChunk> ParentType;
-            [ReadOnly] public ArchetypeChunkEntityType EntityType;
-
-            public void Execute()
-            {
-                for (int i = 0; i < Chunks.Length; i++)
-                {
-                    var chunk = Chunks[i];
-                    if (chunk.DidChange(ParentType, chunk.GetComponentVersion(PreviousParentType)))
-                    {
-                        var chunkPreviousParents = chunk.GetNativeArray(PreviousParentType);
-                        var chunkParents = chunk.GetNativeArray(ParentType);
-                        var chunkEntities = chunk.GetNativeArray(EntityType);
-
-                        for (int j = 0; j < chunk.Count; j++)
-                        {
-                            if (chunkParents[j].Value != chunkPreviousParents[j].Value)
-                                ChangedParents.Add(new ChangedParent
-                                {
-                                    ChildEntity = chunkEntities[j],
-                                    ParentEntity = chunkParents[j].Value,
-                                    PreviousParentEntity = chunkPreviousParents[j].Value
-                                });
-                        }
-                    }
-                }
-            }
+            if (children.Length == 0) EntityManager.RemoveComponent(parentEntity, typeof(ChildVoxel));
         }
 
         protected override void OnCreate()
         {
             m_NewParentsGroup = GetEntityQuery(new EntityQueryDesc
             {
-                All = new ComponentType[]
+                All = new[]
                 {
-                    ComponentType.ReadOnly<ParentChunk>(),
+                    ComponentType.ReadOnly<ParentChunk>()
 //                    ComponentType.ReadOnly<LocalToWorld>(),
 //                    ComponentType.ReadOnly<LocalToParent>()
                 },
@@ -128,7 +81,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
             });
             m_ExistingParentsGroup = GetEntityQuery(new EntityQueryDesc
             {
-                All = new ComponentType[]
+                All = new[]
                 {
                     ComponentType.ReadOnly<ParentChunk>(),
 //                    ComponentType.ReadOnly<LocalToWorld>(),
@@ -151,14 +104,14 @@ namespace UnityTemplateProjects.ECS.Rewrite
             });
         }
 
-        void UpdateNewParents()
+        private void UpdateNewParents()
         {
             var childEntities = m_NewParentsGroup.ToEntityArray(Allocator.TempJob);
             var parents = m_NewParentsGroup.ToComponentDataArray<ParentChunk>(Allocator.TempJob);
 
             EntityManager.AddComponent(m_NewParentsGroup, typeof(PreviousParentChunk));
 
-            for (int i = 0; i < childEntities.Length; i++)
+            for (var i = 0; i < childEntities.Length; i++)
             {
                 var childEntity = childEntities[i];
                 var parentEntity = parents[i].Value;
@@ -170,12 +123,12 @@ namespace UnityTemplateProjects.ECS.Rewrite
             parents.Dispose();
         }
 
-        void UpdateRemoveParents()
+        private void UpdateRemoveParents()
         {
             var childEntities = m_RemovedParentsGroup.ToEntityArray(Allocator.TempJob);
             var previousParents = m_RemovedParentsGroup.ToComponentDataArray<PreviousParentChunk>(Allocator.TempJob);
 
-            for (int i = 0; i < childEntities.Length; i++)
+            for (var i = 0; i < childEntities.Length; i++)
             {
                 var childEntity = childEntities[i];
                 var previousParentEntity = previousParents[i].Value;
@@ -188,7 +141,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
             previousParents.Dispose();
         }
 
-        void UpdateChangeParents()
+        private void UpdateChangeParents()
         {
             var changeParentsChunks = m_ExistingParentsGroup.CreateArchetypeChunkArray(Allocator.TempJob);
             if (changeParentsChunks.Length > 0)
@@ -209,7 +162,7 @@ namespace UnityTemplateProjects.ECS.Rewrite
                 var filterChangedParentsJobHandle = filterChangedParentsJob.Schedule();
                 filterChangedParentsJobHandle.Complete();
 
-                for (int i = 0; i < changedParents.Length; i++)
+                for (var i = 0; i < changedParents.Length; i++)
                 {
                     var childEntity = changedParents[i].ChildEntity;
                     var previousParentEntity = changedParents[i].PreviousParentEntity;
@@ -225,19 +178,19 @@ namespace UnityTemplateProjects.ECS.Rewrite
             changeParentsChunks.Dispose();
         }
 
-        void UpdateDeletedParents()
+        private void UpdateDeletedParents()
         {
             var previousParents = m_DeletedParentsGroup.ToEntityArray(Allocator.TempJob);
 
-            for (int i = 0; i < previousParents.Length; i++)
+            for (var i = 0; i < previousParents.Length; i++)
             {
                 var parentEntity = previousParents[i];
                 var childEntitiesSource = EntityManager.GetBuffer<ChildVoxel>(parentEntity).AsNativeArray();
                 var childEntities = new NativeArray<Entity>(childEntitiesSource.Length, Allocator.Temp);
-                for (int j = 0; j < childEntitiesSource.Length; j++)
+                for (var j = 0; j < childEntitiesSource.Length; j++)
                     childEntities[j] = childEntitiesSource[j].Value;
 
-                for (int j = 0; j < childEntities.Length; j++)
+                for (var j = 0; j < childEntities.Length; j++)
                 {
                     var childEntity = childEntities[j];
 
@@ -276,6 +229,46 @@ namespace UnityTemplateProjects.ECS.Rewrite
             Profiler.BeginSample("UpdateNewParents");
             UpdateNewParents();
             Profiler.EndSample();
+        }
+
+        private struct ChangedParent
+        {
+            public Entity ChildEntity;
+            public Entity PreviousParentEntity;
+            public Entity ParentEntity;
+        }
+
+        [BurstCompile]
+        private struct FilterChangedParents : IJob
+        {
+            public NativeList<ChangedParent> ChangedParents;
+            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
+            [ReadOnly] public ArchetypeChunkComponentType<PreviousParentChunk> PreviousParentType;
+            [ReadOnly] public ArchetypeChunkComponentType<ParentChunk> ParentType;
+            [ReadOnly] public ArchetypeChunkEntityType EntityType;
+
+            public void Execute()
+            {
+                for (var i = 0; i < Chunks.Length; i++)
+                {
+                    var chunk = Chunks[i];
+                    if (chunk.DidChange(ParentType, chunk.GetComponentVersion(PreviousParentType)))
+                    {
+                        var chunkPreviousParents = chunk.GetNativeArray(PreviousParentType);
+                        var chunkParents = chunk.GetNativeArray(ParentType);
+                        var chunkEntities = chunk.GetNativeArray(EntityType);
+
+                        for (var j = 0; j < chunk.Count; j++)
+                            if (chunkParents[j].Value != chunkPreviousParents[j].Value)
+                                ChangedParents.Add(new ChangedParent
+                                {
+                                    ChildEntity = chunkEntities[j],
+                                    ParentEntity = chunkParents[j].Value,
+                                    PreviousParentEntity = chunkPreviousParents[j].Value
+                                });
+                    }
+                }
+            }
         }
     }
 }

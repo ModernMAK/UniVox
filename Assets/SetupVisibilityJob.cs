@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Jobs;
 
 [BurstCompile]
-struct SetupVisibilityJob : IJobParallelFor
+internal struct SetupVisibilityJob : IJobParallelFor
 {
     [WriteOnly] public NativeArray<Directions> HiddenFaces;
 

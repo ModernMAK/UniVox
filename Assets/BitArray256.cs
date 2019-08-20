@@ -2,10 +2,9 @@ using System;
 
 public struct BitArray256
 {
-    
     public BitArray256 SetAll(bool value)
     {
-        return new BitArray256()
+        return new BitArray256
         {
             _front = _front.SetAll(value),
             _back = _back.SetAll(value)

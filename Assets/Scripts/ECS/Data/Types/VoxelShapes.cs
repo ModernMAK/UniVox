@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ECS.Voxel.Data
 {
-    public struct VoxelShapes : ISharedComponentData, IEquatable<VoxelShapes>, IDictionary<BlockShape,Mesh>
+    public struct VoxelShapes : ISharedComponentData, IEquatable<VoxelShapes>, IDictionary<BlockShape, Mesh>
     {
         public IDictionary<BlockShape, Mesh> Lookup;
 
@@ -27,7 +27,7 @@ namespace ECS.Voxel.Data
 
         public override int GetHashCode()
         {
-            return (Lookup != null ? Lookup.GetHashCode() : 0);
+            return Lookup != null ? Lookup.GetHashCode() : 0;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

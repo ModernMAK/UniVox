@@ -3,9 +3,11 @@ using DefaultNamespace;
 using ECS.Voxel.Data;
 using Unity.Collections;
 
-
 public class Chunk : IDisposable
 {
+    public const int FlatSize = AxisSize * AxisSize * AxisSize;
+    public const int AxisSize = 8;
+
     public Chunk()
     {
         HiddenFaces = new NativeArray<Directions>(FlatSize, Allocator.Persistent);
@@ -20,9 +22,6 @@ public class Chunk : IDisposable
     public NativeArray<BlockShape> Shapes { get; }
     public BitArray512 SolidTable { get; }
     public NativeArray<byte> BlockIds { get; }
-
-    public const int FlatSize = AxisSize * AxisSize * AxisSize;
-    public const int AxisSize = 8;
 
 
     public void Dispose()

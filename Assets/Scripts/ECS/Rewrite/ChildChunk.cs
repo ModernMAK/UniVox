@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace UnityTemplateProjects.ECS.Rewrite
 {
     /// <summary>
-    /// A Chunk within a World
+    ///     A Chunk within a World
     /// </summary>
     [Serializable]
 //    [WriteGroup(typeof(ParentScaleInverse))

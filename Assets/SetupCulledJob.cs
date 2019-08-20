@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-struct SetupCulledJob : IJobParallelFor
+internal struct SetupCulledJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<Directions> HiddenFaces;
     [ReadOnly] public NativeArray<Entity> Entities;
@@ -15,12 +15,8 @@ struct SetupCulledJob : IJobParallelFor
         var e = Entities[index];
         var culling = HiddenFaces[index].IsAll();
         if (culling)
-        {
             Buffer.AddComponent<Disabled>(index, e);
-        }
         else
-        {
             Buffer.RemoveComponent<Disabled>(index, e);
-        }
     }
 }

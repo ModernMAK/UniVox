@@ -5,9 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Rendering;
-using UnityEngine;
-using int3 = Unity.Mathematics.int3;
+using Unity.Mathematics;
 
 
 //public class MeshFixSystem : JobComponentSystem
@@ -114,10 +112,21 @@ public class VisibilitySystem : JobComponentSystem
             ComponentType.ReadOnly<WorldPosition>(),
             ComponentType.ReadOnly<VoxelData>());
     }
-    [BurstCompile]
-    struct VisibilitySystemJob : IJobForEach<WorldPosition, VoxelData, FaceVisibility>
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        
+        var job = new VisibilitySystemJob();
+        var worldPositions = _lookupQuery.ToComponentDataArray<WorldPosition>(Allocator.TempJob);
+        var voxelData = _lookupQuery.ToComponentDataArray<VoxelData>(Allocator.TempJob);
+        job.lookupWorldPositions = worldPositions;
+        job.lookupVoxelData = voxelData;
+        // Now that the job is set up, schedule it to be run. 
+        return job.Schedule(this, inputDependencies);
+    }
+
+    [BurstCompile]
+    private struct VisibilitySystemJob : IJobForEach<WorldPosition, VoxelData, FaceVisibility>
+    {
         public NativeArray<WorldPosition> lookupWorldPositions;
         public NativeArray<VoxelData> lookupVoxelData;
 
@@ -141,7 +150,6 @@ public class VisibilitySystem : JobComponentSystem
 
         private void Helper(ref Directions flag, int3 position, int3 directionVector, Directions directionFlag)
         {
-
 //            var temp = new Entity();
             if (TryFindActive(position + directionVector, out var result))
             {
@@ -167,16 +175,5 @@ public class VisibilitySystem : JobComponentSystem
 
             faceVisibility.value = visibility;
         }
-    }
-
-    protected override JobHandle OnUpdate(JobHandle inputDependencies)
-    {
-        var job = new VisibilitySystemJob();
-        var worldPositions = _lookupQuery.ToComponentDataArray<WorldPosition>(Allocator.TempJob);
-        var voxelData = _lookupQuery.ToComponentDataArray<VoxelData>(Allocator.TempJob);
-        job.lookupWorldPositions = worldPositions;
-        job.lookupVoxelData = voxelData;
-        // Now that the job is set up, schedule it to be run. 
-        return job.Schedule(this, inputDependencies);
     }
 }
