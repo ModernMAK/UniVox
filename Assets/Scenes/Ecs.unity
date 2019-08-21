@@ -99,7 +99,7 @@ LightmapSettings:
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: c49701b58c6c5fa46801e88ccfbd9a25,
     type: 2}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -339,8 +339,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41dcb3c287335014c877cd9fed43d59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: 0
-  mat: {fileID: 0}
+  worldSize: 0
+  mat: {fileID: 2100000, guid: 30bd394d054c14e4b8862e68338f006d, type: 2}
   args:
     seed: 0
     threshold: 0.5

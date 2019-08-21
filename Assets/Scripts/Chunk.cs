@@ -2,6 +2,7 @@ using System;
 using Types;
 using Unity.Collections;
 
+
 public class Chunk : IDisposable
 {
     public const int FlatSize = AxisSize * AxisSize * AxisSize;

@@ -4,7 +4,7 @@ using Unity.Mathematics;
 
 public struct NativeChunkGenArgs : IDisposable
 {
-    public NativeArray<float> Frequency;
+    public NativeArray<float3> Frequency;
     public NativeArray<float> Amplitude;
     public NativeArray<float3> Offset;
     public float Threshold;

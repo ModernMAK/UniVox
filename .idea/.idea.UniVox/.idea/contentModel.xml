@@ -8,6 +8,7 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="ChunkGenArgs.cs" t="Include" />
+        <e p="ChunkManager.cs" t="Include" />
         <e p="NativeChunkGenArgs.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="Chunk.cs" t="Include" />
@@ -25,23 +26,20 @@
             <e p="GenerateBoxelMeshV2.cs" t="Include" />
             <e p="SumAndDiscardNativeArray.cs" t="Include" />
             <e p="UpdateHiddenFacesJob.cs" t="Include" />
-            <e p="Utilities" t="Include">
-              <e p="GatherUtil.cs" t="Include" />
-              <e p="SharedComponentDataArray.cs" t="Include" />
-              <e p="SharedComponentDataArrayManaged.cs" t="Include" />
-            </e>
           </e>
-          <e p="NativeValue.cs" t="Include" />
           <e p="RandomCollectionOfExtensions.cs" t="Include" />
           <e p="Rendering" t="Include">
             <e p="CubeBuilder.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
+            <e p="VoxelRenderingLogic.cs" t="Include" />
+            <e p="VoxelRenderPipeline.cs" t="Include" />
           </e>
           <e p="RenderTester.cs" t="Include" />
           <e p="RenderUtilV2.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
+            <e p="ChunkManagementPipeline.cs" t="Include" />
             <e p="Direction.cs" t="Include" />
             <e p="Directions.cs" t="Include" />
             <e p="DirectionsX.cs" t="Include" />
@@ -55,15 +53,17 @@
               <e p="BitArray512.cs" t="Include" />
               <e p="BitArray64.cs" t="Include" />
               <e p="BitArray8.cs" t="Include" />
+              <e p="DynamicNativeMesh.cs" t="Include" />
+              <e p="FixedNativeMesh.cs" t="Include" />
+              <e p="INativeMesh.cs" t="Include" />
               <e p="NativeBitArray.cs" t="Include" />
-              <e p="NativeMesh.cs" t="Include" />
             </e>
+            <e p="NativeValue.cs" t="Include" />
             <e p="Orientation.cs" t="Include" />
             <e p="RenderModeFlags.cs" t="Include" />
             <e p="VoxelPos8.cs" t="Include" />
           </e>
         </e>
-        <e p="SolidDebug.cs" t="Include" />
         <e p="WorldBehaviour.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />

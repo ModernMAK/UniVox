@@ -11,7 +11,7 @@ public class ChunkGenArgs
     {
         public float Scale;
         public float Resolution;
-        public float Frequency => Resolution.Equals(0f) ? 0f : (Scale / Resolution);
+        public float3 Frequency => Resolution.Equals(0f) ? 0f : (Scale / Resolution);
         public float Amplitude;
         public float3 Offset;
     }
@@ -25,7 +25,7 @@ public class ChunkGenArgs
         var size = array.Length;
         var native = new NativeChunkGenArgs()
         {
-            Frequency = new NativeArray<float>(size, allocator),
+            Frequency = new NativeArray<float3>(size, allocator),
             Amplitude = new NativeArray<float>(size, allocator),
             Offset = new NativeArray<float3>(size, allocator),
             Seed = seed,

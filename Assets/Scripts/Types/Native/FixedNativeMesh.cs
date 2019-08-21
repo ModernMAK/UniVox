@@ -1,12 +1,11 @@
-using System;
 using Unity.Collections;
 using UnityEngine;
 
 namespace Types.Native
 {
-    public struct NativeMesh : IDisposable
+    public struct FixedNativeMesh : INativeMesh
     {
-        public NativeMesh(int vertexes, int tris, Allocator allocator)
+        public FixedNativeMesh(int vertexes, int tris, Allocator allocator)
         {
             Vertexes = new NativeArray<Vector3>(vertexes, allocator);
             Normals = new NativeArray<Vector3>(vertexes, allocator);

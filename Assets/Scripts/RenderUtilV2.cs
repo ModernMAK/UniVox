@@ -105,7 +105,7 @@ public static class RenderUtilV2
         c.Complete();
     }
 
-    private static JobHandle CalculateMeshSizePass(Chunk chunk, out NativeValue<int> vert, out NativeValue<int> tri,
+    public static JobHandle CalculateMeshSizePass(Chunk chunk, out NativeValue<int> vert, out NativeValue<int> tri,
         JobHandle handle = default)
     {
         vert = new NativeValue<int>(Allocator.TempJob);
@@ -130,11 +130,11 @@ public static class RenderUtilV2
         return flattenTrisJob;
     }
 
-    private static JobHandle GenerateMeshPass(Chunk chunk, NativeValue<int> verts, NativeValue<int> tris,
-        out NativeMesh nativeMesh,
+    public static JobHandle GenerateMeshPass(Chunk chunk, NativeValue<int> verts, NativeValue<int> tris,
+        out FixedNativeMesh fixedNativeMesh,
         JobHandle handle = default)
     {
-        nativeMesh = new NativeMesh(verts, tris, Allocator.TempJob);
+        fixedNativeMesh = new FixedNativeMesh(verts, tris, Allocator.TempJob);
         verts.Dispose();
         tris.Dispose();
         var generateJob = new GenerateBoxelMeshV2
@@ -143,7 +143,7 @@ public static class RenderUtilV2
             NativeCube = new NativeCubeBuilder(Allocator.TempJob),
             Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob),
             HiddenFaces = chunk.HiddenFaces,
-            NativeMesh = nativeMesh,
+            FixedNativeMesh = fixedNativeMesh,
             Shapes = chunk.Shapes,
             VertexPos = 0,
             TrianglePos = 0,
@@ -152,10 +152,10 @@ public static class RenderUtilV2
         return generateJob;
     }
 
-    private static JobHandle UpdateMeshPass(NativeMesh nativeMesh, Mesh mesh, JobHandle handle = default)
+    public static JobHandle UpdateMeshPass(FixedNativeMesh fixedNativeMesh, Mesh mesh, JobHandle handle = default)
     {
-        nativeMesh.FillInto(mesh);
-        nativeMesh.Dispose();
+        fixedNativeMesh.FillInto(mesh);
+        fixedNativeMesh.Dispose();
         return handle;
     }
 
@@ -234,8 +234,7 @@ public static class RenderUtilV2
         }.Schedule(size, 64, positionJob);
 
         var deallocateAmplitude = new DeallocateNativeArrayJob<float>(nativeArgs.Amplitude).Schedule(noiseJob);
-        var deallocateFrequency =
-            new DeallocateNativeArrayJob<float>(nativeArgs.Frequency).Schedule(deallocateAmplitude);
+        var deallocateFrequency = new DeallocateNativeArrayJob<float3>(nativeArgs.Frequency).Schedule(deallocateAmplitude);
         var deallocateOffset = new DeallocateNativeArrayJob<float3>(nativeArgs.Offset).Schedule(deallocateFrequency);
 
         var deallocatePositions = new DeallocateNativeArrayJob<float3>(positions).Schedule(deallocateOffset);

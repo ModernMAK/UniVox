@@ -49,31 +49,28 @@ namespace Jobs
         public NativeArray<float3> OctaveOffset;
 
         [NativeDisableParallelForRestriction] [ReadOnly]
-        public NativeArray<float> Frequency;
+        public NativeArray<float3> Frequency;
 
         [NativeDisableParallelForRestriction] [ReadOnly]
         public NativeArray<float> Amplitude;
 
         [ReadOnly] public float TotalAmplitude;
         [ReadOnly] public int Octaves;
-
+        
         public void Execute(int index)
         {
-            var pos = Positions[index];
+            var position = Positions[index];
             var mergedSample = 0f;
+
             for (var octave = 0; octave < Octaves; octave++)
             {
-                var octavePos = (pos + OctaveOffset[octave]) * Frequency[octave];
+                var octavePos = (position + OctaveOffset[octave]) * Frequency[octave];
                 var samplerPosition = new float4(octavePos.x, octavePos.y, octavePos.z, Seed);
-                var sample = noise.snoise(samplerPosition);
-                sample = math.unlerp(-1, 1, sample);
-                sample *= Amplitude[octave];
-                mergedSample += sample;
+                mergedSample += Amplitude[octave] * math.unlerp(-1, 1, noise.snoise(samplerPosition));
             }
 
-            mergedSample /= TotalAmplitude;
 
-            Noise[index] = mergedSample;
+            Noise[index] = mergedSample / TotalAmplitude;
         }
     }
 }
