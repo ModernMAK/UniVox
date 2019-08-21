@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 using Rendering;
 using Types;
 using Unity.Mathematics;
@@ -10,14 +11,15 @@ public class WorldBehaviour : MonoBehaviour
 {
     private Dictionary<int3, GoData> _chunkObjects;
 
-    [SerializeField] private int worldSize;
+//    [SerializeField] private int worldSize;
 
     [SerializeField] private Material mat;
     [SerializeField] private ChunkGenArgs args;
 
     private ChunkTableManager _cm;
-
-    private VoxelRenderPipeline _vrp;
+    private GenerationPipeline _cgp;
+    private Dictionary<int3, Chunk> _invalidBuffer;
+    private ChunkRenderPipeline _vrp;
 
     private class GoData
     {
@@ -78,31 +80,85 @@ public class WorldBehaviour : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-//        World = new Dictionary<int3, Chunk>();
         _cm = new ChunkTableManager();
-//        _crm = new ChunkRenderManager();
         _chunkObjects = new Dictionary<int3, GoData>();
-        _vrp = new VoxelRenderPipeline();
-//        StartCoroutine(LoaderCoroutine());
+        _vrp = new ChunkRenderPipeline();
+        _invalidBuffer = new Dictionary<int3, Chunk>();
+        _cgp = new GenerationPipeline();
         _toLoad = new Queue<int3>();
-
-//        Task.Run(() => AsyncLoader(gameObject));
-        for (var x = -worldSize; x <= worldSize; x++)
-        for (var y = -worldSize; y <= worldSize; y++)
-        for (var z = -worldSize; z <= worldSize; z++)
-            _toLoad.Enqueue(new int3(x,y,z));
+        _toUnload = new Queue<int3>();
+//
+//        for (var x = -worldSize; x <= worldSize; x++)
+//        for (var y = -worldSize; y <= worldSize; y++)
+//        for (var z = -worldSize; z <= worldSize; z++)
+//            _toLoad.Enqueue(new int3(x, y, z));
     }
 
     private Queue<int3> _toLoad;
+    private Queue<int3> _toUnload;
 
-    private Chunk Build(int3 pos)
+    public void RequestUnload(int3 pos)
     {
+        _toUnload.Enqueue(pos);
+    }
+
+    public void RequestLoad(int3 pos)
+    {
+        //TODO this check is neccessary, find out why
+        if (_invalidBuffer.ContainsKey(pos) || _cm.IsLoaded(pos))
+            return;
+        _toLoad.Enqueue(pos);
+    }
+
+    public void Load(int3 pos)
+    {
+
         var c = new Chunk();
-        _cm.Load(pos, c);
-        var handle = RenderUtilV2.GenerationOctavePass(pos, c, args);
-        handle = RenderUtilV2.VisiblityPass(c, handle);
-        handle.Complete();
-        return c;
+        _invalidBuffer.Add(pos, c);
+        _cgp.RequestGeneration(pos, c, args, AddToManagerAndRender(pos, c));
+    }
+
+    public void Unload(int3 pos)
+    {
+        if (_cgp.TryGetHandle(pos, out var cgpHandle))
+        {
+            cgpHandle.Complete();
+            cgpHandle.Dispose();
+        }
+
+        if (_vrp.TryGetHandle(pos, out var vrpHandle))
+        {
+            vrpHandle.Complete();
+            vrpHandle.Dispose();
+        }
+
+        if (_invalidBuffer.TryGetValue(pos, out var c))
+        {
+            c.Dispose();
+        }
+
+        _cm.Unload(pos);
+        if (_chunkObjects.TryGetValue(pos, out var data))
+        {
+            Destroy(data.GO);
+            _chunkObjects.Remove(pos);
+        }
+    }
+
+    public bool IsLoaded(int3 pos) => _cm.IsLoaded(pos);
+
+    public IEnumerable<int3> Loaded => _cm.Loaded;
+    public int LoadedCount => _cm.LoadedCount;
+
+    private Action AddToManagerAndRender(int3 position, Chunk chunk)
+    {
+        return () =>
+        {
+            _cm.Load(position, chunk);
+            _invalidBuffer.Remove(position);
+            var mesh = new Mesh();
+            _vrp.RequestRender(position, chunk, mesh, CreateMeshRenderer(position, mesh));
+        };
     }
 
     private void Update()
@@ -110,39 +166,42 @@ public class WorldBehaviour : MonoBehaviour
         if (_toLoad.Count > 0)
         {
             var pos = _toLoad.Dequeue();
-            var c = Build(pos);
-
-            var mesh = new Mesh();
-            _vrp.RequestRender(c, mesh, CreateActionCmd(pos, mesh));
+            Load(pos);
         }
 
+        if (_toUnload.Count > 0)
+        {
+            var pos = _toUnload.Dequeue();
+            Unload(pos);
+        }
+
+        _cgp.Update();
         _vrp.Update();
-
-//        CreateCMD(_crm.GetRenderedThisUpdate());
     }
 
 
-    private Action CreateActionCmd(int3 chunkPos, Mesh mesh)
+    private Action CreateMeshRenderer(int3 chunkPos, Mesh mesh)
     {
-        return () => CreateCmd(chunkPos, mesh);
-    }
-
-    private void CreateCmd(int3 chunkPos, Mesh mesh)
-    {
-        if (_chunkObjects.ContainsKey(chunkPos))
+        return () =>
         {
-            _chunkObjects[chunkPos].ResetMesh();
-        }
-        else
-        {
-            _chunkObjects[chunkPos] = CreateGameObject(transform, chunkPos, mesh, mat);
-        }
+            if (_chunkObjects.ContainsKey(chunkPos))
+            {
+                _chunkObjects[chunkPos].ResetMesh();
+            }
+            else
+            {
+                _chunkObjects[chunkPos] = CreateGameObject(transform, chunkPos, mesh, mat);
+            }
+        };
     }
 
 
     private void OnDestroy()
     {
-        _cm.Dispose();
+        _cgp.Dispose();
         _vrp.Dispose();
+        _cm.Dispose();
+        foreach (var chunk in _invalidBuffer)
+            chunk.Value.Dispose();
     }
 }

@@ -9,12 +9,15 @@
       <e p="Assets" t="Include">
         <e p="ChunkGenArgs.cs" t="Include" />
         <e p="ChunkManager.cs" t="Include" />
+        <e p="ChunkStreamer.cs" t="Include" />
         <e p="NativeChunkGenArgs.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="Chunk.cs" t="Include" />
           <e p="Editor" t="Include">
             <e p="MaterialListDrawer.cs" t="Include" />
           </e>
+          <e p="GenerationLogic.cs" t="Include" />
+          <e p="GenerationPipeline.cs" t="Include" />
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
             <e p="CalculateMeshSizePerBlockJob.cs" t="Include" />
@@ -29,10 +32,11 @@
           </e>
           <e p="RandomCollectionOfExtensions.cs" t="Include" />
           <e p="Rendering" t="Include">
+            <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
+            <e p="JobPipeline.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
-            <e p="VoxelRenderPipeline.cs" t="Include" />
           </e>
           <e p="RenderTester.cs" t="Include" />
           <e p="RenderUtilV2.cs" t="Include" />
