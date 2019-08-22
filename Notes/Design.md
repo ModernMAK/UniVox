@@ -75,3 +75,28 @@ Alternatively Jobs could act as State Machines, I will call these BEHAVIOURS
 	* Protect
 
 The main difference i See is that BEHAVIOURS dictate their future BEHAVIOURS (and thus know state), while CHORES do not. The downside i see to behaviours is that transitions would need to be defined, where as chores could be chosen by using a blackboard of information, and weighting it against Chores, then selecting the highest. (Find L4D Speach AI GDC for an example)
+
+
+# Chunk Streaming & Async Pipelines
+## Chunk Creation
+Chunks need to be valid when present in the World, a chunk is not valid until all steps of creation are completed.
+
+Ergo, our Chunk manager needs to know that a chunk is invalid(unloaded), being created but not valid yet, or created and valid.
+
+## Chunk Rendering
+Chunk rendering requires that the data does not change between chunk analysis (to determine mesh size) and mesh generation (to avoid index out of range)
+
+The two solutions I can think of include: working on copies and single frame rendering.
+
+Copies allow us to use what we have with the added step of gathering and copying the correct information. This can be costly but may outway the slowdown of rendering in a single frame.
+
+Alternatively we can render a chunk in a single frame, garunteeing that all information is synchronized properly. This will likely cause stutters. It should be mentioned that every chunk to be rendered doesnt have to be rendered in the same frame.
+
+## Chunk Pipelines
+With the two above problems addressed, one last thing to address is what is valid and when.
+Perhaps a pipeline which uses flags to let us know what state chunks are in and work on them properly?
+-> Creating | Valid | RequestingRender  
+
+This couples our code though
+
+ 

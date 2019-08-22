@@ -34,8 +34,13 @@
           <e p="Rendering" t="Include">
             <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
+            <e p="IPipelineHandle.cs" t="Include" />
+            <e p="IPipelineJobX.cs" t="Include" />
             <e p="JobPipeline.cs" t="Include" />
+            <e p="LookupJobPipeline.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
+            <e p="PipelineHandle.cs" t="Include" />
+            <e p="PipelineV2.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
           <e p="RenderTester.cs" t="Include" />

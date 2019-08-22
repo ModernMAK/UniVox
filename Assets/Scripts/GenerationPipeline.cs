@@ -85,7 +85,7 @@ namespace DefaultNamespace
         {
             var genHandle = GenerationLogic.GenerateAndInitializeChunk(chunkPos, chunk, genArgs, handle);
             var gh = new GenerationHandle(genHandle, callback);
-            _chunksGenerating.Add(chunkPos,gh);
+            _chunksGenerating.Add(chunkPos, gh);
         }
 
         protected override IEnumerable<IJobPipelineHandle> PipelineHandles => _chunksGenerating.Values;
@@ -105,6 +105,29 @@ namespace DefaultNamespace
         public override void RemoveHandle(int3 handleId)
         {
             _chunksGenerating.Remove(handleId);
+        }
+    }
+
+    public class GenerationPipelineV2 : PipelineV2<int3, PipelineHandle>
+    {
+        public static JobHandle CreateJob(int3 pos, Chunk chunk, ChunkGenArgs args,
+            JobHandle handle = default)
+        {
+            return GenerationLogic.GenerateAndInitializeChunk(pos, chunk, args, handle);
+        }
+
+
+        public PipelineHandle CreateJobAndHandle(int3 pos, Chunk chunk, ChunkGenArgs args,
+            JobHandle dependencies = default)
+        {
+            var job = CreateJob(pos, chunk, args, dependencies);
+            return new PipelineHandle(job);
+        }
+
+        public void AddJob(int3 pos, Chunk chunk, ChunkGenArgs args, JobHandle dependencies = default)
+        {
+            var handle = CreateJobAndHandle(pos, chunk, args, dependencies);
+            AddJob(pos, handle);
         }
     }
 }

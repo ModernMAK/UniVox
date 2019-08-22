@@ -22,6 +22,27 @@ namespace Types
             _chunkLookup[position] = chunk;
         }
 
+        public void TransferTo(int3 position, ChunkTableManager ctm)
+        {
+            if (_chunkLookup.TryGetValue(position, out var chunk))
+            {
+                ctm.Load(position, chunk);
+                UnsafeUnload(position);
+            }
+        }
+
+        public void UnsafeTransferTo(int3 position, ChunkTableManager ctm)
+        {
+            var chunk = Get(position);
+            ctm.UnsafeLoad(position, chunk);
+            UnsafeUnload(position);
+        }
+
+        public bool UnsafeUnload(int3 position)
+        {
+            return _chunkLookup.Remove(position);
+        }
+
         public void Load(int3 position, Chunk chunk)
         {
             if (IsLoaded(position))
@@ -35,7 +56,7 @@ namespace Types
             if (_chunkLookup.ContainsKey(position))
             {
                 DisposeAt(position);
-                _chunkLookup.Remove(position);
+                UnsafeUnload(position);
             }
         }
 

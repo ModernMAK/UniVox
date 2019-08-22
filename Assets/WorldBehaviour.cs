@@ -16,10 +16,13 @@ public class WorldBehaviour : MonoBehaviour
     [SerializeField] private Material mat;
     [SerializeField] private ChunkGenArgs args;
 
+
+    private Queue<GoData> Pool;
     private ChunkTableManager _cm;
-    private GenerationPipeline _cgp;
-    private Dictionary<int3, Chunk> _invalidBuffer;
-    private ChunkRenderPipeline _vrp;
+    private ChunkTableManager _icm;
+    private GenerationPipelineV2 _cgp;
+    private ChunkRenderPipelineV2 _vrp;
+    private Dictionary<int3, Mesh> _meshes;
 
     private class GoData
     {
@@ -52,6 +55,12 @@ public class WorldBehaviour : MonoBehaviour
             set => MR.material = value;
         }
 
+        public bool Enabled
+        {
+            get => GO.activeSelf;
+            set => GO.SetActive(value);
+        }
+
         public void ResetMesh()
         {
             Mesh = Mesh;
@@ -61,37 +70,91 @@ public class WorldBehaviour : MonoBehaviour
     private static GoData CreateGameObject(Transform parent, int3 chunkPos)
     {
         var go = new GameObject($"Chunk {chunkPos}");
-        go.transform.parent = parent;
-        go.transform.position = (float3) chunkPos * Chunk.AxisSize;
+        UpdatePos(go, parent, chunkPos);
         var mf = go.AddComponent<MeshFilter>();
         var mr = go.AddComponent<MeshRenderer>();
         var mc = go.AddComponent<MeshCollider>();
         return new GoData(go, mf, mr, mc);
     }
 
+    private static void UpdatePos(GameObject go, Transform parent, int3 chunkPos)
+    {
+        go.transform.parent = parent;
+        go.transform.position = (float3) chunkPos * Chunk.AxisSize;
+    }
+
+    private static void UpdateMeshMat(GoData data, Mesh mesh, Material material)
+    {
+        data.Mesh = mesh;
+        data.Mat = material;
+    }
+
     private static GoData CreateGameObject(Transform parent, int3 chunkPos, Mesh mesh, Material material)
     {
         var data = CreateGameObject(parent, chunkPos);
-        data.Mesh = mesh;
-        data.Mat = material;
+        UpdateMeshMat(data, mesh, material);
         return data;
+    }
+
+    private GoData CreateGameObjectFromPool(Transform parent, int3 chunkPos)
+    {
+        if (Pool.Count > 0)
+        {
+            var go = Pool.Dequeue();
+            UpdatePos(go.GO, parent, chunkPos);
+            return go;
+        }
+
+        return CreateGameObject(parent, chunkPos);
+    }
+
+    private GoData CreateGameObjectFromPool(Transform parent, int3 chunkPos, Mesh mesh, Material material)
+    {
+        if (Pool.Count > 0)
+        {
+            var go = Pool.Dequeue();
+            UpdatePos(go.GO, parent, chunkPos);
+            UpdateMeshMat(go, mesh, mat);
+            return go;
+        }
+
+        return CreateGameObject(parent, chunkPos, mesh, material);
     }
 
     // Start is called before the first frame update
     private void Awake()
     {
         _cm = new ChunkTableManager();
+        _icm = new ChunkTableManager();
         _chunkObjects = new Dictionary<int3, GoData>();
-        _vrp = new ChunkRenderPipeline();
-        _invalidBuffer = new Dictionary<int3, Chunk>();
-        _cgp = new GenerationPipeline();
+
+        _vrp = new ChunkRenderPipelineV2();
+        _vrp.Completed += VrpOnCompleted;
+
+        _cgp = new GenerationPipelineV2();
+        _cgp.Completed += CgpOnCompleted;
+
         _toLoad = new Queue<int3>();
         _toUnload = new Queue<int3>();
+
+        Pool = new Queue<GoData>();
+
+        _meshes = new Dictionary<int3, Mesh>();
 //
 //        for (var x = -worldSize; x <= worldSize; x++)
 //        for (var y = -worldSize; y <= worldSize; y++)
 //        for (var z = -worldSize; z <= worldSize; z++)
 //            _toLoad.Enqueue(new int3(x, y, z));
+    }
+
+    private void CgpOnCompleted(object sender, int3 e)
+    {
+        AddToManagerAndRender(e);
+    }
+
+    private void VrpOnCompleted(object sender, int3 e)
+    {
+        CreateMeshRenderer(e);
     }
 
     private Queue<int3> _toLoad;
@@ -105,42 +168,34 @@ public class WorldBehaviour : MonoBehaviour
     public void RequestLoad(int3 pos)
     {
         //TODO this check is neccessary, find out why
-        if (_invalidBuffer.ContainsKey(pos) || _cm.IsLoaded(pos))
+        if (_icm.IsLoaded(pos) || _cm.IsLoaded(pos))
             return;
         _toLoad.Enqueue(pos);
     }
 
     public void Load(int3 pos)
     {
-
         var c = new Chunk();
-        _invalidBuffer.Add(pos, c);
-        _cgp.RequestGeneration(pos, c, args, AddToManagerAndRender(pos, c));
+        _icm.Load(pos, c);
+        _cgp.AddJob(pos, c, args);
     }
 
     public void Unload(int3 pos)
     {
-        if (_cgp.TryGetHandle(pos, out var cgpHandle))
-        {
-            cgpHandle.Complete();
-            cgpHandle.Dispose();
-        }
+        _cgp.RemoveJob(pos);
 
-        if (_vrp.TryGetHandle(pos, out var vrpHandle))
-        {
-            vrpHandle.Complete();
-            vrpHandle.Dispose();
-        }
+        _vrp.RemoveJob(pos);
 
-        if (_invalidBuffer.TryGetValue(pos, out var c))
-        {
-            c.Dispose();
-        }
 
+        _icm.Unload(pos);
         _cm.Unload(pos);
+
+        _meshes.Remove(pos);
+
         if (_chunkObjects.TryGetValue(pos, out var data))
         {
-            Destroy(data.GO);
+            data.Enabled = false;
+            Pool.Enqueue(data);
             _chunkObjects.Remove(pos);
         }
     }
@@ -150,58 +205,69 @@ public class WorldBehaviour : MonoBehaviour
     public IEnumerable<int3> Loaded => _cm.Loaded;
     public int LoadedCount => _cm.LoadedCount;
 
-    private Action AddToManagerAndRender(int3 position, Chunk chunk)
+    private void AddToManagerAndRender(int3 position)
     {
-        return () =>
+        var chunk = _icm.Get(position);
+        _icm.TransferTo(position, _cm);
+        var mesh = _meshes[position] = new Mesh();
+        _vrp.AddJob(position, chunk, mesh);
+//            CreateMeshRenderer(position, mesh)
+    }
+
+
+    private void UpdateLoad(int batchSize)
+    {
+        int passes = 0;
+        while (batchSize > 0)
         {
-            _cm.Load(position, chunk);
-            _invalidBuffer.Remove(position);
-            var mesh = new Mesh();
-            _vrp.RequestRender(position, chunk, mesh, CreateMeshRenderer(position, mesh));
-        };
+            if (_toLoad.Count > 0)
+            {
+                var pos = _toLoad.Dequeue();
+                Load(pos);
+                passes++;
+            }
+
+            if (_toUnload.Count > 0)
+            {
+                var pos = _toUnload.Dequeue();
+                Unload(pos);
+                passes++;
+            }
+
+            if (passes > 0)
+            {
+                batchSize -= passes;
+                passes = 0;
+            }
+            else batchSize = 0;
+        }
     }
 
     private void Update()
     {
-        if (_toLoad.Count > 0)
-        {
-            var pos = _toLoad.Dequeue();
-            Load(pos);
-        }
-
-        if (_toUnload.Count > 0)
-        {
-            var pos = _toUnload.Dequeue();
-            Unload(pos);
-        }
-
-        _cgp.Update();
-        _vrp.Update();
+        UpdateLoad(8);
+        _cgp.UpdateEvents();
+        _vrp.UpdateEvents();
     }
 
 
-    private Action CreateMeshRenderer(int3 chunkPos, Mesh mesh)
+    private void CreateMeshRenderer(int3 chunkPos)
     {
-        return () =>
+        if (_chunkObjects.ContainsKey(chunkPos))
         {
-            if (_chunkObjects.ContainsKey(chunkPos))
-            {
-                _chunkObjects[chunkPos].ResetMesh();
-            }
-            else
-            {
-                _chunkObjects[chunkPos] = CreateGameObject(transform, chunkPos, mesh, mat);
-            }
-        };
+            _chunkObjects[chunkPos].ResetMesh();
+        }
+        else
+        {
+            _chunkObjects[chunkPos] = CreateGameObjectFromPool(transform, chunkPos, _meshes[chunkPos], mat);
+        }
     }
-
 
     private void OnDestroy()
     {
         _cgp.Dispose();
         _vrp.Dispose();
         _cm.Dispose();
-        foreach (var chunk in _invalidBuffer)
-            chunk.Value.Dispose();
+        _icm.Dispose();
     }
 }
