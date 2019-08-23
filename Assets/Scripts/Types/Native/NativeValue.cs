@@ -9,12 +9,12 @@ public struct NativeValue<T> : IDisposable where T : struct
     public NativeValue(Allocator allocator)
     {
         _array = new NativeArray<T>(1, allocator);
-        #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            m_Length = 1;
-            m_MinIndex = 0;
-            m_MaxIndex = 0;
-            DisposeSentinel.Create(out m_Safety, out m_DisposeSentinel, 0, allocator);
-        #endif
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+        m_Length = 1;
+        m_MinIndex = 0;
+        m_MaxIndex = 0;
+        DisposeSentinel.Create(out m_Safety, out m_DisposeSentinel, 0, allocator);
+#endif
     }
 
     private NativeArray<T> _array;

@@ -34,10 +34,8 @@ namespace Jobs
                     var dir = Directions[i];
                     var dPos = oPos + dir.ToInt3();
                     if (!IsValid(dPos))
-                    {
                         //Dont hide if invalid
                         hideFlags &= ~dir.ToFlag();
-                    }
 
                     var vPos = new VoxelPos8(dPos);
                     //Neighbor not active?

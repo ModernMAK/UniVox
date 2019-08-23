@@ -34,6 +34,7 @@ namespace Types.Native
 
         public void FillInto(Mesh m)
         {
+            m.Clear();
             m.SetVertices(Vertexes, 0, VertexCount);
             m.SetNormals(Normals, 0, VertexCount);
             m.SetTangents(Tangents, 0, VertexCount);

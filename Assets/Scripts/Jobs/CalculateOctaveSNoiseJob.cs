@@ -6,39 +6,6 @@ using Unity.Mathematics;
 namespace Jobs
 {
     [BurstCompile]
-    public struct CalculateSNoiseFromSamplerJob : IJobParallelFor
-    {
-        [WriteOnly] public NativeArray<float> Noise;
-        [ReadOnly] public NativeArray<float4> Sampler;
-
-        public void Execute(int index)
-        {
-            Noise[index] = noise.snoise(Sampler[index]);
-        }
-    }
-
-    [BurstCompile]
-    public struct CalculateSNoiseJob : IJobParallelFor
-    {
-        [WriteOnly] public NativeArray<float> Noise;
-        [ReadOnly] public NativeArray<float3> Positions;
-        [ReadOnly] public int Seed;
-        [ReadOnly] public float3 OctaveOffset;
-        [ReadOnly] public float Frequency;
-        [ReadOnly] public float Amplitude;
-
-        public void Execute(int index)
-        {
-            var tempPos = Positions[index] + OctaveOffset;
-            tempPos *= Frequency;
-            var samplerPosition = new float4(tempPos.x, tempPos.y, tempPos.z, Seed);
-            var sample = noise.snoise(samplerPosition);
-            sample = math.unlerp(-1, 1, sample);
-            Noise[index] = Amplitude * sample;
-        }
-    }
-
-    [BurstCompile]
     public struct CalculateOctaveSNoiseJob : IJobParallelFor
     {
         [WriteOnly] public NativeArray<float> Noise;
@@ -56,7 +23,7 @@ namespace Jobs
 
         [ReadOnly] public float TotalAmplitude;
         [ReadOnly] public int Octaves;
-        
+
         public void Execute(int index)
         {
             var position = Positions[index];

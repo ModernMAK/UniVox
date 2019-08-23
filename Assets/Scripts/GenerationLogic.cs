@@ -8,6 +8,9 @@ namespace DefaultNamespace
 {
     public static class GenerationLogic
     {
+        private const int Size = Chunk.FlatSize;
+        private const int ChunkScale = Chunk.AxisSize;
+
         public static JobHandle VisiblityPass(Chunk chunk, JobHandle handle = default)
 
         {
@@ -20,14 +23,11 @@ namespace DefaultNamespace
             return job;
         }
 
-        const int Size = Chunk.FlatSize;
-        const int ChunkScale = Chunk.AxisSize;
-
         public static JobHandle GatherWorldPositions(int3 chunkPos, out NativeArray<float3> positions,
             JobHandle handle = default)
         {
             positions = new NativeArray<float3>(Size, Allocator.TempJob);
-            var positionJob = new GatherWorldPositions()
+            var positionJob = new GatherWorldPositions
             {
                 ChunkOffset = chunkPos * ChunkScale,
                 Positions = positions
@@ -36,11 +36,10 @@ namespace DefaultNamespace
         }
 
         public static JobHandle CalculateVoxelNoise(NativeArray<float3> positions, out NativeArray<float> noise,
-            NativeChunkGenArgs nativeArgs,
-            JobHandle handle = default)
+            NativeChunkGenArgs nativeArgs, JobHandle handle = default)
         {
             noise = new NativeArray<float>(Size, Allocator.TempJob);
-            var noiseJob = new CalculateOctaveSNoiseJob()
+            var noiseJob = new CalculateOctaveSNoiseJob
             {
                 Amplitude = nativeArgs.Amplitude,
                 Frequency = nativeArgs.Frequency,
@@ -57,17 +56,15 @@ namespace DefaultNamespace
         public static JobHandle DeallocateNativeChunkArgs(NativeChunkGenArgs nativeArgs, JobHandle handle = default)
         {
             var deallocateAmplitude = new DeallocateNativeArrayJob<float>(nativeArgs.Amplitude).Schedule(handle);
-            var deallocateFrequency =
-                new DeallocateNativeArrayJob<float3>(nativeArgs.Frequency).Schedule(deallocateAmplitude);
-            var deallocateOffset =
-                new DeallocateNativeArrayJob<float3>(nativeArgs.Offset).Schedule(deallocateFrequency);
+            var deallocateFrequency = new DeallocateNativeArrayJob<float3>(nativeArgs.Frequency).Schedule(deallocateAmplitude);
+            var deallocateOffset = new DeallocateNativeArrayJob<float3>(nativeArgs.Offset).Schedule(deallocateFrequency);
             return deallocateOffset;
         }
 
         public static JobHandle GenerateActive(Chunk chunk, NativeChunkGenArgs args, NativeArray<float> noise,
             JobHandle handle = default)
         {
-            var activeJob = new CalculateActiveFromNoise()
+            var activeJob = new CalculateActiveFromNoise
             {
                 Active = chunk.ActiveFlags,
                 Threshold = args.Threshold,

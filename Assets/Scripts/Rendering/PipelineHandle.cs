@@ -11,7 +11,6 @@ namespace Rendering
 
         public virtual void Dispose()
         {
-            
         }
 
         public JobHandle Handle { get; }

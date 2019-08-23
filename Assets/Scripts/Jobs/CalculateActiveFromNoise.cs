@@ -13,7 +13,7 @@ namespace Jobs
 
         public void Execute(int index)
         {
-            Active[index] = (Noise[index] <= Threshold);
+            Active[index] = Noise[index] <= Threshold;
         }
     }
 }

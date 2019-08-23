@@ -4,16 +4,23 @@ using UnityEngine;
 
 namespace Rendering
 {
-    public abstract class PipelineV2<TKey, TJob> : IDisposable where TJob : IPipelineHandle
+    public abstract class JobHandlePipelineV2<TKey, TJob> : IDisposable where TJob : IPipelineHandle
     {
-        public PipelineV2()
+        private readonly Dictionary<TKey, TJob> _jobLookup;
+        private readonly Queue<KeyValuePair<TKey, TJob>> _jobsToRemove;
+
+        public JobHandlePipelineV2()
         {
             _jobLookup = new Dictionary<TKey, TJob>();
             _jobsToRemove = new Queue<KeyValuePair<TKey, TJob>>();
         }
 
-        private readonly Dictionary<TKey, TJob> _jobLookup;
-        private readonly Queue<KeyValuePair<TKey, TJob>> _jobsToRemove;
+        public void Dispose()
+        {
+            foreach (var pair in _jobLookup)
+                pair.Value.CompleteAndDispose();
+        }
+
         private event EventHandler<TKey> _completionEvent;
 
         public event EventHandler<TKey> Completed
@@ -40,11 +47,14 @@ namespace Rendering
             _jobLookup[key] = job;
         }
 
-        public bool HasJob(TKey key) => _jobLookup.ContainsKey(key);
+        public bool HasJob(TKey key)
+        {
+            return _jobLookup.ContainsKey(key);
+        }
 
 
         /// <summary>
-        /// Removes the job after ensuring its completed and disposed. Does not raise a completion event.
+        ///     Removes the job after ensuring its completed and disposed. Does not raise a completion event.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -66,10 +76,8 @@ namespace Rendering
         public void UpdateEvents()
         {
             foreach (var pair in _jobLookup)
-            {
                 if (pair.Value.IsCompleted())
                     _jobsToRemove.Enqueue(pair);
-            }
 
             while (_jobsToRemove.Count > 0)
             {
@@ -77,12 +85,6 @@ namespace Rendering
                 RemoveLogic(pair.Key, pair.Value);
                 _completionEvent?.Invoke(this, pair.Key);
             }
-        }
-
-        public void Dispose()
-        {
-            foreach (var pair in _jobLookup)
-                pair.Value.CompleteAndDispose();
         }
     }
 }

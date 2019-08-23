@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -16,6 +15,11 @@ namespace Types
 
         public IEnumerable<int3> Loaded => _chunkLookup.Keys;
         public int LoadedCount => _chunkLookup.Count;
+
+        public void Dispose()
+        {
+            foreach (var key in _chunkLookup.Keys) DisposeAt(key);
+        }
 
         public void UnsafeLoad(int3 position, Chunk chunk)
         {
@@ -60,21 +64,19 @@ namespace Types
             }
         }
 
-        public Chunk Get(int3 position) => _chunkLookup[position];
+        public Chunk Get(int3 position)
+        {
+            return _chunkLookup[position];
+        }
 
-        public bool IsLoaded(int3 position) => _chunkLookup.ContainsKey(position);
+        public bool IsLoaded(int3 position)
+        {
+            return _chunkLookup.ContainsKey(position);
+        }
 
         private void DisposeAt(int3 key)
         {
             _chunkLookup[key].Dispose();
-        }
-
-        public void Dispose()
-        {
-            foreach (var key in _chunkLookup.Keys)
-            {
-                DisposeAt(key);
-            }
         }
     }
 }

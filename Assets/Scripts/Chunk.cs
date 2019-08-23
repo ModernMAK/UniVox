@@ -2,16 +2,15 @@ using System;
 using Types;
 using Unity.Collections;
 
-
 public class Chunk : IDisposable
 {
     public const int FlatSize = AxisSize * AxisSize * AxisSize;
     public const int AxisSize = 8;
+    public NativeArray<bool> ActiveFlags;
     public NativeArray<Directions> HiddenFaces;
     public NativeArray<Orientation> Rotations;
     public NativeArray<BlockShape> Shapes;
-    public NativeArray<bool> ActiveFlags;
-    
+
     public Chunk()
     {
         var allocator = Allocator.Persistent;

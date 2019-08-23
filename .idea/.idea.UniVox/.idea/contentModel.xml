@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
-    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ChunkEngine.cs" t="Include" />
         <e p="ChunkGenArgs.cs" t="Include" />
-        <e p="ChunkManager.cs" t="Include" />
         <e p="ChunkStreamer.cs" t="Include" />
+        <e p="DisposablePool.cs" t="Include" />
         <e p="NativeChunkGenArgs.cs" t="Include" />
+        <e p="Pool.cs" t="Include" />
+        <e p="RenderGameObject.cs" t="Include" />
+        <e p="RenderingPool.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="Chunk.cs" t="Include" />
           <e p="Editor" t="Include">
@@ -20,54 +24,49 @@
           <e p="GenerationPipeline.cs" t="Include" />
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
-            <e p="CalculateMeshSizePerBlockJob.cs" t="Include" />
-            <e p="CalculateNoiseSampler4DJob.cs" t="Include" />
-            <e p="CalculateNormalizedNoiseJob.cs" t="Include" />
-            <e p="CalculateSNoiseFromSamplerJob.cs" t="Include" />
+            <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
             <e p="DeallocateNativeArrayJob.cs" t="Include" />
             <e p="GatherWorldPositions.cs" t="Include" />
-            <e p="GenerateBoxelMeshV2.cs" t="Include" />
-            <e p="SumAndDiscardNativeArray.cs" t="Include" />
+            <e p="GenerateBoxelMeshV3.cs" t="Include" />
             <e p="UpdateHiddenFacesJob.cs" t="Include" />
           </e>
-          <e p="RandomCollectionOfExtensions.cs" t="Include" />
           <e p="Rendering" t="Include">
             <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
             <e p="IPipelineHandle.cs" t="Include" />
             <e p="IPipelineJobX.cs" t="Include" />
-            <e p="JobPipeline.cs" t="Include" />
-            <e p="LookupJobPipeline.cs" t="Include" />
+            <e p="JobHandlePipelineV2.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
             <e p="PipelineHandle.cs" t="Include" />
-            <e p="PipelineV2.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
-          <e p="RenderTester.cs" t="Include" />
-          <e p="RenderUtilV2.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
-            <e p="ChunkManagementPipeline.cs" t="Include" />
+            <e p="ChunkManagerV2.cs" t="Include" />
+            <e p="ChunkTableManager.cs" t="Include" />
             <e p="Direction.cs" t="Include" />
             <e p="Directions.cs" t="Include" />
             <e p="DirectionsX.cs" t="Include" />
+            <e p="DisposableDictionary.cs" t="Include" />
             <e p="MaterialList.cs" t="Include" />
             <e p="MeshList.cs" t="Include" />
             <e p="Native" t="Include">
-              <e p="BitArray128.cs" t="Include" />
-              <e p="BitArray16.cs" t="Include" />
-              <e p="BitArray256.cs" t="Include" />
-              <e p="BitArray32.cs" t="Include" />
-              <e p="BitArray512.cs" t="Include" />
-              <e p="BitArray64.cs" t="Include" />
-              <e p="BitArray8.cs" t="Include" />
+              <e p="BitArray" t="Include">
+                <e p="BitArray128.cs" t="Include" />
+                <e p="BitArray16.cs" t="Include" />
+                <e p="BitArray256.cs" t="Include" />
+                <e p="BitArray32.cs" t="Include" />
+                <e p="BitArray512.cs" t="Include" />
+                <e p="BitArray64.cs" t="Include" />
+                <e p="BitArray8.cs" t="Include" />
+              </e>
               <e p="DynamicNativeMesh.cs" t="Include" />
               <e p="FixedNativeMesh.cs" t="Include" />
               <e p="INativeMesh.cs" t="Include" />
               <e p="NativeBitArray.cs" t="Include" />
+              <e p="NativeValue.cs" t="Include" />
             </e>
-            <e p="NativeValue.cs" t="Include" />
             <e p="Orientation.cs" t="Include" />
             <e p="RenderModeFlags.cs" t="Include" />
             <e p="VoxelPos8.cs" t="Include" />

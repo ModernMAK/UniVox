@@ -215,9 +215,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 1053627786}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd2131884317c3d49ab15713d27c305c, type: 3}
+  m_Script: {fileID: 11500000, guid: 85cea8ce586986f469a854b6ff3142c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boost: 3.5
+  invertY: 0
+  mouseSensitivityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 2.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  positionLerpTime: 0.2
+  rotationLerpTime: 0.01
 --- !u!1 &1533217629
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,6 +348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1612408237}
   - component: {fileID: 1612408236}
+  - component: {fileID: 1612408238}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -339,40 +368,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41dcb3c287335014c877cd9fed43d59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldSize: 0
-  mat: {fileID: 2100000, guid: 30bd394d054c14e4b8862e68338f006d, type: 2}
   args:
+    array: []
     seed: 0
     threshold: 0.5
-    array:
-    - Scale: 1
-      Resolution: 256
-      Amplitude: 8
-      Offset:
-        x: 0
-        y: 0
-        z: 0
-    - Scale: 4
-      Resolution: 128
-      Amplitude: 4
-      Offset:
-        x: 1
-        y: 6
-        z: 8
-    - Scale: 9
-      Resolution: 64
-      Amplitude: 2
-      Offset:
-        x: 9
-        y: 2
-        z: 4
-    - Scale: 25
-      Resolution: 64
-      Amplitude: 1
-      Offset:
-        x: 5
-        y: 7
-        z: 3
+  mat: {fileID: 2100000, guid: 174627da169b9454b8be87e22639a309, type: 2}
 --- !u!4 &1612408237
 Transform:
   m_ObjectHideFlags: 0
@@ -387,3 +387,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1612408238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1612408235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bbb352698b03254698b985255fc5cb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _renderDistance: 1
+  Target: {fileID: 1053627789}
