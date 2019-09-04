@@ -28,7 +28,30 @@
           <e p="GenerationLogic.cs" t="Include" />
           <e p="GenerationPipeline.cs" t="Include" />
           <e p="InventorySystem" t="Include">
-            <e p="IItem.cs" t="Include" />
+            <e p="AbstractItemStack.cs" t="Include" />
+            <e p="AbstractModController.cs" t="Include" />
+            <e p="BlockReference.cs" t="Include" />
+            <e p="ConveyerDockBlock.cs" t="Include" />
+            <e p="FixedInventory.cs" t="Include" />
+            <e p="FlowElement.cs" t="Include" />
+            <e p="FuseBoxBlock.cs" t="Include" />
+            <e p="GasMainBlock.cs" t="Include" />
+            <e p="IInventory.cs" t="Include" />
+            <e p="IItemStack.cs" t="Include" />
+            <e p="IPowerProducer.cs" t="Include" />
+            <e p="Registry.cs" t="Include" />
+            <e p="UnivoxBaseGameController.cs" t="Include" />
+            <e p="Version2" t="Include">
+              <e p="FlowNetwork.cs" t="Include" />
+              <e p="FlowNetworkEngine.cs" t="Include" />
+              <e p="IFlowBuffer.cs" t="Include" />
+              <e p="IFlowNetwork.cs" t="Include" />
+              <e p="IFlowSink.cs" t="Include" />
+              <e p="IFlowSource.cs" t="Include" />
+              <e p="PowerFlowNetworkIdea.cs" t="Include" />
+            </e>
+            <e p="VoxelRegistry.cs" t="Include" />
+            <e p="WaterMainBlock.cs" t="Include" />
           </e>
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
