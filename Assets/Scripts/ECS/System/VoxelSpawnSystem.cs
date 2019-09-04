@@ -15,7 +15,6 @@ namespace ECS.System
     }
 
 
-    public
         public struct BlockMeshShape : IComponentData
     {
         public BlockShape Shape;

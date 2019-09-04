@@ -27,6 +27,9 @@
           </e>
           <e p="GenerationLogic.cs" t="Include" />
           <e p="GenerationPipeline.cs" t="Include" />
+          <e p="InventorySystem" t="Include">
+            <e p="IItem.cs" t="Include" />
+          </e>
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
             <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
