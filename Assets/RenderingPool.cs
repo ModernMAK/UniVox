@@ -7,14 +7,14 @@ public class RenderingPool
     public RenderingPool()
     {
         _container = new GameObject("Mesh Engine Container").transform;
-        Meshes = new Pool<Mesh>(() => new Mesh());
-        GameObjects = new Pool<RenderGameObject>(CreateRenderGameObject);
+        Meshes = new DelegatePool<Mesh>(() => new Mesh());
+        GameObjects = new DelegatePool<RenderGameObject>(CreateRenderGameObject);
     }
 
 
-    public Pool<Mesh> Meshes { get; }
+    public DelegatePool<Mesh> Meshes { get; }
 
-    public Pool<RenderGameObject> GameObjects { get; }
+    public DelegatePool<RenderGameObject> GameObjects { get; }
 
     private RenderGameObject CreateRenderGameObject()
     {

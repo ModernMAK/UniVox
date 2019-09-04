@@ -19,13 +19,13 @@ namespace Types
 
 
         private readonly DisposableDictionary<int3, ChunkMetadata> Chunks;
-        private readonly DisposablePool<Chunk> ChunkPool;
+        private readonly DisposableDelegatePool<Chunk> _chunkDelegatePool;
 
 
         public ChunkManagerV2()
         {
             Chunks = new DisposableDictionary<int3, ChunkMetadata>();
-            ChunkPool = new DisposablePool<Chunk>(() => new Chunk());
+            _chunkDelegatePool = new DisposableDelegatePool<Chunk>(() => new Chunk());
         }
 
         public IEnumerable<int3> Loaded => Chunks.Keys;
@@ -37,7 +37,7 @@ namespace Types
         {
             if (!Chunks.ContainsKey(position))
             {
-                var chunk = ChunkPool.Acquire();
+                var chunk = _chunkDelegatePool.Acquire();
                 Chunks[position] = new ChunkMetadata()
                 {
                     Chunk = chunk,
@@ -84,7 +84,7 @@ namespace Types
         {
             if (Chunks.TryGetValue(position, out var value))
             {
-                ChunkPool.Release(value.Chunk);
+                _chunkDelegatePool.Release(value.Chunk);
                 Chunks.Remove(position);
             }
         }
@@ -93,7 +93,7 @@ namespace Types
         public void Dispose()
         {
             Chunks?.Dispose();
-            ChunkPool?.Dispose();
+            _chunkDelegatePool?.Dispose();
         }
     }
 }
