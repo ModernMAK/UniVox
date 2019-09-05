@@ -1,10 +1,131 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using InventorySystem.Version2;
 using Unity.Mathematics;
+using UnityEditor.PackageManager;
 
 namespace InventorySystem.Version2
 {
+    public enum FlowMode : byte
+    {
+        FIFO = 0,
+        FirstComeFirstServe = 0,
+        Equal
+    }
+
+    
+    
+    //OKAY Problems im seeing
+    /* How to limit flow? Who knows this. Limiting flow when resolving children, need to keep track somehow.
+     * Source, Buffer, Sink,; Sources want to give power, sinks want to take power, Buffers want to flip between the two
+     * For buffers to work, networks need to know if they are Sources or Sinks, Multiple Passes?
+     * Add Transmitter?
+    */
+    
+    
+    
+    /* Im going to say this now... SCREW IT. Keep it simple, its a prototype.
+     * Flow is the biggest problem to simlictty, simply remove it. We now have a simple model
+     * Gather Sources, Sinks and Buffers
+     * Determine if Network is Overall Source or Sink
+     * Fianlize with Buffers treated as...
+     *    Sources if network is a sink
+     *    Sinks if the network is a source
+     */
+    
+
+    public static class FlowExtensions
+    {
+        public static int GetTotalSupply(this IEnumerable<IFlowSource> sources) => sources.Sum(source => source.Supply);
+        public static int GetTotalDemand(this IEnumerable<IFlowSink> sinks) => sinks.Sum(sink => sink.Demand);
+
+        private static Func<IFlowSource, int, int> DrainSupplySurrogate =>
+            (source, demand) => source.DrainSupply(demand);
+
+        private static Func<IFlowSink, int, int> FillDemandSurrogate =>
+            (sink, supply) => sink.FillDemand(supply);
+
+        public static int DrainSupply(this IEnumerable<IFlowSource> sources, int supply, FlowMode mode = FlowMode.FirstComeFirstServe)
+        {
+            var surrogate = DrainSupplySurrogate;
+            return InternalFlowLogic(sources, supply, surrogate, mode);
+        }
+
+
+        public static int FillDemand(this IEnumerable<IFlowSink> sinks, int demand,
+            FlowMode mode = FlowMode.FirstComeFirstServe)
+        {
+            var surrogate = FillDemandSurrogate;
+            return InternalFlowLogic(sinks, demand, surrogate, mode);
+        }
+
+        private static int InternalFlowLogic<T>(this IEnumerable<T> data, int value, Func<T, int, int> surrogate,
+            FlowMode mode)
+        {
+            switch (mode)
+            {
+                case FlowMode.FIFO:
+                    return InternalFlowFIFO(data, value, surrogate);
+                case FlowMode.Equal:
+                    return InternalFlowEqualize(data, value, surrogate);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+            }
+        }
+
+        private static int InternalFlowFIFO<T>(this IEnumerable<T> data, int value, Func<T, int, int> func)
+        {
+            foreach (var d in data)
+            {
+                if (value > 0f)
+                {
+                    value = func(d, value);
+                }
+                else break;
+            }
+
+            return value;
+        }
+
+        private static int InternalFlowEqualize<T>(this IEnumerable<T> data, int value, Func<T, int, int> func)
+        {
+            throw new NotImplementedException();
+//            if (count <= 0)
+//                return value;
+//
+//            var avg = value / count;
+//            var remainder = value % count;
+//
+//            if (avg <= 0)
+//            {
+//                foreach (var d in data)
+//                {
+//                    if (remainder > 0)
+//                    {
+//                        remainder += func(d, 1);
+//                        remainder--;
+//                    }
+//                    else break;
+//                }
+//            }
+//            else
+//            {
+//                foreach (var d in data)
+//                {
+//                    if (remainder > 0)
+//                    {
+//                        remainder += func(d, 1);
+//                        remainder--;
+//                    }
+//                    else break;
+//                }
+//            }
+        }
+    }
+
+
     public class FlowNetworkEngine
     {
         public class FlowData : IFlowSink, IFlowSource
@@ -84,96 +205,67 @@ namespace InventorySystem.Version2
             public bool CanSink => ExcessDemand > 0f;
         }
 
-        private class FlowNetworkEntry
+        private class FlowNetworkEntry : IFlowNetwork
         {
-            public FlowNetworkEntry(IFlowNetwork ifn)
+            public FlowNetworkEntry(IFlowNetwork flowNetwork)
             {
+                _flowNetwork = flowNetwork;
             }
 
-            public int Supply => Sources.Sum(source => source.Supply);
-            public int Demand => Sinks.Sum(sink => sink.Demand);
+            private readonly IFlowNetwork _flowNetwork;
+
+            public int Supply => math.min(Sources.GetTotalSupply(), FlowAvailable);
+
+            public int DrainSupply(int demand)
+            {
+                var demandFlow = math.min(FlowAvailable, demand);
+                var unfilledDemandFlow = _flowNetwork.DrainSupply(demandFlow);
+                var supplyUsed = demandFlow - unfilledDemandFlow;
+                FlowUsed += supplyUsed;
+                
+                //We need to return the excess demand
+                return demand - supplyUsed;
+            }
+
+            public int Demand => math.min(Sinks.GetTotalDemand(), FlowAvailable);
+
+            public int FillDemand(int supply)
+            {
+                var supplyFlow = math.min(FlowAvailable, supply);
+                var unfilledSupplyFlow = _flowNetwork.FillDemand(supplyFlow);
+                var demandUsed = supplyFlow - unfilledSupplyFlow;
+                FlowUsed += demandUsed;
+                
+                //We need to return the excess supply
+                return supply - demandUsed;
+            }
 
             public int FlowUsed { get; private set; }
 
 
-            public void Equalize()
+            public void Initialize()
             {
-                var requestedFlow = math.min(Supply, Demand);
-                var clampedFlow = math.min(requestedFlow, FlowAvailable);
+                var flowDemand = Demand;
+                var flowSupply = Supply;
+                var min = math.min(flowDemand, flowSupply);
+
+                _flowNetwork.FillDemand(min);
+                _flowNetwork.DrainSupply(min);
+                FlowUsed += min;
             }
 
-
-            public int DrainSources(int demand)
-            {
-                var temp = new List<IFlowSource>(Sources);
-                var avg = 0;
-                do
-                {
-                    //Distribute by averaging
-                    avg = demand / temp.Count;
-                    //Drain demand
-                    demand -= avg * temp.Count;
-
-                    //Accumulate excess
-                    for (var i = 0; i < temp.Count; i++)
-                    {
-                        var source = temp[i];
-                        var excess = source.DrainSupply(avg); //REturns excess
-                        demand += excess;
-
-                        if (excess > 0)
-                        {
-                            temp.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                } while (temp.Count > 0 && avg > 0 && demand > 0);
-
-                //Distribute remainder
-                foreach (var source in temp)
-                    demand = source.DrainSupply(demand);
-                return demand;
-            }
-
-            public int FillSinks(int supply)
-            {
-                var originalSupply;
-                var temp = new List<IFlowSink>(Sinks);
-                var avg = 0;
-                do
-                {
-                    //Distribute by averaging
-                    avg = supply / temp.Count;
-                    //Drain demand
-                    supply -= avg * temp.Count;
-
-                    //Accumulate excess
-                    for (var i = 0; i < temp.Count; i++)
-                    {
-                        var sink = temp[i];
-                        var excess = sink.FillDemand(avg); //REturns excess
-                        supply += excess;
-
-                        if (excess > 0)
-                        {
-                            temp.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                } while (temp.Count > 0 && avg > 0 && supply > 0);
-
-                //Distribute remainder
-                foreach (var source in temp)
-                    supply = source.FillDemand(supply);
-                return supply;
-            }
 
             public int FlowCapacity { get; }
+
+            public FlowMode FlowMode => _flowNetwork.FlowMode;
+
             public int FlowAvailable => FlowCapacity - FlowUsed;
 
-            public IReadOnlyList<IFlowSink> Sinks => throw new NotImplementedException();
+            public IReadOnlyList<IFlowSink> Sinks => _flowNetwork.Sinks;
 
-            public IReadOnlyList<IFlowSource> Sources => throw new NotImplementedException();
+            public IReadOnlyList<IFlowSource> Sources => _flowNetwork.Sources;
+
+            public IReadOnlyList<IFlowNetwork> ChildNetworks => _flowNetwork.ChildNetworks;
         }
 
 
