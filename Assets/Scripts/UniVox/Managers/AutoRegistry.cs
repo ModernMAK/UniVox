@@ -1,36 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.UIElements;
 
 namespace InventorySystem
 {
-    public interface IRegistry<in TKey, TValue>
-    {
-        bool Register(TKey key, TValue value);
-        bool Unregister(TKey key);
-
-        TValue this[TKey key] { get; }
-
-        bool TryGetValue(TKey key, out TValue value);
-        bool IsRegistered(TKey key);
-    }
-
-    /// <summary>
-    /// Utility registry lookup via string
-    /// </summary>
-    public class NamedRegistry<TValue> : AutoRegistry<string, TValue>
-    {
-    }
-    
-    /// <summary>
-    /// Utility registry lookup via integer
-    /// </summary>
-    /// <typeparam name="TValue"></typeparam>
-    public class IndexedRegistry<TValue> : Registry<int, TValue>
-    {
-    }
-
     /// <summary>
     /// Wrapper around a dictionary, automatically assigns an integer id to each item in the registry
     /// </summary>
@@ -148,58 +120,5 @@ namespace InventorySystem
         public IEnumerable<TKey> Keys => _backingLookup.Keys;
 
         public IEnumerable<TValue> Values => _backingArray;
-    }
-
-    /// <summary>
-    /// Wrapper around a dictionary
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    public class Registry<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>, IRegistry<TKey, TValue>
-    {
-        private readonly Dictionary<TKey, TValue> _backingLookup;
-
-        public bool IsRegistered(TKey key) => ContainsKey(key);
-        
-        public Registry()
-        {
-            _backingLookup = new Dictionary<TKey, TValue>();
-        }
-
-        public Registry(Registry<TKey, TValue> registry)
-        {
-            _backingLookup = new Dictionary<TKey, TValue>(registry._backingLookup, registry._backingLookup.Comparer);
-        }
-
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _backingLookup.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-
-        public int Count => _backingLookup.Count;
-
-        public bool ContainsKey(TKey key) => _backingLookup.ContainsKey(key);
-
-        public bool TryGetValue(TKey key, out TValue value) => _backingLookup.TryGetValue(key, out value);
-
-        public TValue this[TKey key] => _backingLookup[key];
-
-        public IEnumerable<TKey> Keys => _backingLookup.Keys;
-
-        public IEnumerable<TValue> Values => _backingLookup.Values;
-
-        /// <summary>
-        /// Registers the value into the registry, overwrites previous registrations if present.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public bool Register(TKey key, TValue value)
-        {
-            if (_backingLookup.ContainsKey(key)) return false;
-            _backingLookup[key] = value;
-            return true;
-        }
-
-        public virtual bool Unregister(TKey key) => _backingLookup.Remove(key);
     }
 }

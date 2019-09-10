@@ -1,11 +1,8 @@
 fileFormatVersion: 2
-guid: f3643866cf2072d47a19ee41546a37c5
+guid: 5515693eba2228846937032ac75172bd
 ModelImporter:
   serializedVersion: 28
-  internalIDToNameTable:
-  - first:
-      74: 1989289236423521904
-    second: Default Take
+  internalIDToNameTable: []
   externalObjects: {}
   materials:
     materialImportMode: 0
@@ -33,50 +30,21 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: Default Take
-      takeName: Default Take
-      internalID: 1989289236423521904
-      firstFrame: 0
-      lastFrame: 249
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+    clipAnimations: []
     isReadable: 0
   meshes:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 0
-    useSRGBMaterialColor: 1
+    addColliders: 1
+    useSRGBMaterialColor: 0
     sortHierarchyByName: 0
-    importVisibility: 1
+    importVisibility: 0
     importBlendShapes: 0
     importCameras: 0
     importLights: 0
     swapUVChannels: 0
-    generateSecondaryUV: 1
+    generateSecondaryUV: 0
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
@@ -97,7 +65,7 @@ ModelImporter:
     tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 2
+    blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 0
@@ -123,5 +91,5 @@ ModelImporter:
   avatarSetup: 0
   additionalBone: 0
   userData: 
-  assetBundleName: univoxbase/meshes/cube
+  assetBundleName: basegame/meshes
   assetBundleVariant: 

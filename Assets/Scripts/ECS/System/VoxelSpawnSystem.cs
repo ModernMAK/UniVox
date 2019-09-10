@@ -96,33 +96,33 @@ namespace ECS.System
 //            }
 //        }
     }
-
-    public struct EntityArray : IComponentData, IDisposable
-    {
-        public EntityArray(NativeArray<Entity> entities)
-        {
-            _array = entities;
-        }
-
-        public EntityArray(int size, Allocator allocator = Allocator.Persistent)
-        {
-            _array = new NativeArray<Entity>(size, allocator);
-        }
-
-        public NativeArray<Entity> Array => _array;
-        private readonly NativeArray<Entity> _array;
-
-        public void Dispose()
-        {
-            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
-            _array.Dispose();
-        }
-
-        public static implicit operator NativeArray<Entity>(EntityArray entityArray)
-        {
-            return entityArray._array;
-        }
-    }
+//
+//    public struct EntityArray : IComponentData, IDisposable
+//    {
+//        public EntityArray(NativeArray<Entity> entities)
+//        {
+//            _array = entities;
+//        }
+//
+//        public EntityArray(int size, Allocator allocator = Allocator.Persistent)
+//        {
+//            _array = new NativeArray<Entity>(size, allocator);
+//        }
+//
+//        public NativeArray<Entity> Array => _array;
+//        private readonly NativeArray<Entity> _array;
+//
+//        public void Dispose()
+//        {
+//            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+//            _array.Dispose();
+//        }
+//
+//        public static implicit operator NativeArray<Entity>(EntityArray entityArray)
+//        {
+//            return entityArray._array;
+//        }
+//    }
 
     public struct EntityLookup<TKey> : IComponentData, IDisposable
         where TKey : struct, IEquatable<TKey>

@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
-    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ABTest.cs" t="Include" />
         <e p="ChunkEngine.cs" t="Include" />
         <e p="ChunkGenArgs.cs" t="Include" />
         <e p="ChunkStreamer.cs" t="Include" />
         <e p="DelegatePool.cs" t="Include" />
         <e p="DisposableDelegatePool.cs" t="Include" />
+        <e p="Editor" t="Include">
+          <e p="CreateAssetBundles.cs" t="Include" />
+        </e>
+        <e p="EntityTester.cs" t="Include" />
         <e p="NativeChunkGenArgs.cs" t="Include" />
         <e p="RenderGameObject.cs" t="Include" />
         <e p="RenderingPool.cs" t="Include" />
@@ -29,7 +34,6 @@
           <e p="GenerationPipeline.cs" t="Include" />
           <e p="InventorySystem" t="Include">
             <e p="AbstractItemStack.cs" t="Include" />
-            <e p="AbstractModController.cs" t="Include" />
             <e p="BlockReference.cs" t="Include" />
             <e p="ConveyerDockBlock.cs" t="Include" />
             <e p="FixedInventory.cs" t="Include" />
@@ -39,8 +43,6 @@
             <e p="IInventory.cs" t="Include" />
             <e p="IItemStack.cs" t="Include" />
             <e p="IPowerProducer.cs" t="Include" />
-            <e p="Registry.cs" t="Include" />
-            <e p="UnivoxBaseGameController.cs" t="Include" />
             <e p="Version2" t="Include">
               <e p="CollectionX.cs" t="Include" />
               <e p="FlowExtensions.cs" t="Include" />
@@ -54,7 +56,6 @@
               <e p="IFlowSource.cs" t="Include" />
               <e p="PowerFlowNetworkIdea.cs" t="Include" />
             </e>
-            <e p="VoxelRegistry.cs" t="Include" />
             <e p="WaterMainBlock.cs" t="Include" />
           </e>
           <e p="Jobs" t="Include">
@@ -119,8 +120,21 @@
                 <e p="VariantIdentity.cs" t="Include" />
               </e>
               <e p="Systems" t="Include">
-                <e p="BlockSystem.cs" t="Include" />
+                <e p="AbstractMod.cs" t="Include" />
+                <e p="BaseGameMod.cs" t="Include" />
+                <e p="BlockRenderSystem.cs" t="Include" />
+                <e p="FilteredBlockSystem.cs" t="Include" />
+                <e p="MasterRegistry.cs" t="Include" />
+                <e p="ModInitializer.cs" t="Include" />
+                <e p="ModResources.cs" t="Include" />
               </e>
+            </e>
+            <e p="Managers" t="Include">
+              <e p="AutoRegistry.cs" t="Include" />
+              <e p="IndexedRegistry.cs" t="Include" />
+              <e p="IRegistry.cs" t="Include" />
+              <e p="NamedRegistry.cs" t="Include" />
+              <e p="Registry.cs" t="Include" />
             </e>
             <e p="PositionUtil.cs" t="Include" />
             <e p="VoxelChunk.cs" t="Include" />

@@ -1,0 +1,18 @@
+ManifestFileVersion: 0
+CRC: 2623715860
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 0896ba2efebaf4a2dfdcb75a21d37145
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c5f6e0e469226d642f67f7ca9961ee03
+HashAppended: 0
+ClassTypes:
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+Assets:
+- Assets/AssetBundler/BaseGame/Materials/ErrorMaterial.mat
+Dependencies: []
