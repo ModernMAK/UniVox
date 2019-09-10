@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
-    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
+    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -42,10 +42,14 @@
             <e p="Registry.cs" t="Include" />
             <e p="UnivoxBaseGameController.cs" t="Include" />
             <e p="Version2" t="Include">
+              <e p="CollectionX.cs" t="Include" />
+              <e p="FlowExtensions.cs" t="Include" />
               <e p="FlowNetwork.cs" t="Include" />
               <e p="FlowNetworkEngine.cs" t="Include" />
               <e p="IFlowBuffer.cs" t="Include" />
+              <e p="IFlowLimiter.cs" t="Include" />
               <e p="IFlowNetwork.cs" t="Include" />
+              <e p="IFlowNetworkHandler.cs" t="Include" />
               <e p="IFlowSink.cs" t="Include" />
               <e p="IFlowSource.cs" t="Include" />
               <e p="PowerFlowNetworkIdea.cs" t="Include" />
@@ -76,6 +80,10 @@
             <e p="BlockShape.cs" t="Include" />
             <e p="ChunkManagerV2.cs" t="Include" />
             <e p="ChunkTableManager.cs" t="Include" />
+            <e p="Colors" t="Include">
+              <e p="Color16.cs" t="Include" />
+              <e p="Color8.cs" t="Include" />
+            </e>
             <e p="Direction.cs" t="Include" />
             <e p="Directions.cs" t="Include" />
             <e p="DirectionsX.cs" t="Include" />
@@ -101,6 +109,23 @@
             <e p="Orientation.cs" t="Include" />
             <e p="RenderModeFlags.cs" t="Include" />
             <e p="VoxelPos8.cs" t="Include" />
+          </e>
+          <e p="UniVox" t="Include">
+            <e p="AxisOrdering.cs" t="Include" />
+            <e p="AxisOrderingX.cs" t="Include" />
+            <e p="Entities" t="Include">
+              <e p="Data" t="Include">
+                <e p="BlockIdentity.cs" t="Include" />
+                <e p="VariantIdentity.cs" t="Include" />
+              </e>
+              <e p="Systems" t="Include">
+                <e p="BlockSystem.cs" t="Include" />
+              </e>
+            </e>
+            <e p="PositionUtil.cs" t="Include" />
+            <e p="VoxelChunk.cs" t="Include" />
+            <e p="VoxelUniverse.cs" t="Include" />
+            <e p="VoxelWorld.cs" t="Include" />
           </e>
         </e>
         <e p="WorldBehaviour.cs" t="Include" />

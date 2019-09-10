@@ -1,7 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Types;
 using Unity.Mathematics;
+using UnityEntityManager = Unity.Entities.EntityManager;
+
+namespace Univox
+{
+    //An enum representing 3D Axis Ordering
+}
 
 namespace InventorySystem.Version2
 {
@@ -137,7 +144,8 @@ namespace InventorySystem.Version2
 
             public int FillSinks(int supply)
             {
-                var originalSupply;
+                throw new Exception();
+//                var originalSupply;
                 var temp = new List<IFlowSink>(Sinks);
                 var avg = 0;
                 do
@@ -240,6 +248,7 @@ namespace InventorySystem.Version2
 
 
 //            data.
+            throw new Exception();
         }
 
         private static void ResolveChild(IFlowNetwork root, IDictionary<IFlowNetwork, FlowNetworkPass> networkData,
