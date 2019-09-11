@@ -9,7 +9,7 @@ namespace UnityEdits.Rendering
     [BurstCompile]
     struct GatherVoxelRenderMatrixV2 : IJobParallelFor
     {
-        [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> LocalToWorlds;
+        [ReadOnly] public NativeArray<LocalToWorld> LocalToWorlds;
         [WriteOnly] public NativeArray<float4x4> Matricies;
 
         [ReadOnly] public float3 MatrixOffset;

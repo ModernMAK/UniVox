@@ -17,6 +17,7 @@ namespace InventorySystem
 
 
         public bool IsRegistered(TKey key) => ContainsKey(key);
+
         public AutoRegistry(int initialSize = 0)
         {
             _backingLookup = new Dictionary<TKey, int>(initialSize);
@@ -44,7 +45,7 @@ namespace InventorySystem
         /// <param name="key"></param>
         /// <param name="value"></param>
         public bool Register(TKey key, TValue value) => Register(key, value, out _);
-        
+
         public bool Register(TKey key, TValue value, out int id)
         {
             if (ContainsKey(key))
@@ -55,7 +56,10 @@ namespace InventorySystem
 
             id = GetNextId();
             _backingLookup[key] = id;
-            _backingArray[id] = value;
+            if (id == _backingArray.Count)
+                _backingArray.Add(value);
+            else
+                _backingArray[id] = value;
             return true;
         }
 
@@ -114,6 +118,7 @@ namespace InventorySystem
             value = default;
             return false;
         }
+
         public bool TryGetValue(int key, out TValue value)
         {
             if (_backingArray.Count > key && key >= 0)

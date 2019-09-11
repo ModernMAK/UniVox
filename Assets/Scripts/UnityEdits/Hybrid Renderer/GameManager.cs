@@ -2,6 +2,6 @@ namespace UnityEdits.Rendering
 {
     public static class GameManager
     {
-        public static MasterRegistry MasterRegistry { get; set; }
+        public static readonly MasterRegistry MasterRegistry = new MasterRegistry();
     }
 }

@@ -8,28 +8,61 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits.Rendering;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WallE : MonoBehaviour
 {
-    public int Size;
+    public enum ChunkSize
+    {
+        Byte = 1 << 2,
+        Short = 1 << 5,
+        Int = 1 << 10,
+    }
+
+    public ChunkSize SizeType;
+    public int Size => (int) SizeType;
+
+    public int UniverseSize = 0;
 
     public GameObject Prefab;
 
+    [SerializeField] private Mesh _defaultMesh;
+    [SerializeField] private Material _defaultMaterial;
+
     private World disposable;
 
-    // Start is called before the first frame update
-    void Start()
+    private class SystemUnloader
     {
-        var world = World.Active; //        new World("Real World");
-        world.DestroySystem(world.GetExistingSystem<RenderMeshSystemV2>());
-        world.DestroySystem(world.GetExistingSystem<LodRequirementsUpdateSystem>());
-//        ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);
-        var em = world.EntityManager;
-        var flatSize = Size * Size * Size;
-        var prefab =
-            GameObjectConversionUtility.ConvertGameObjectHierarchy(Prefab,
-                new GameObjectConversionSettings(world, default));
-        using (var array = new NativeArray<Entity>(flatSize, Allocator.TempJob))
+        private ComponentSystemGroup initGroup;
+        private ComponentSystemGroup updateGroup;
+        private ComponentSystemGroup presentGroup;
+        private World world;
+
+        public SystemUnloader(World world)
+        {
+            this.world = world;
+            initGroup = world.GetExistingSystem<InitializationSystemGroup>();
+            updateGroup = world.GetExistingSystem<SimulationSystemGroup>();
+            presentGroup = world.GetExistingSystem<PresentationSystemGroup>();
+        }
+
+        public void Unload<T>() where T : ComponentSystemBase
+        {
+            var system = world.GetExistingSystem<T>();
+            if (system == null) return;
+            initGroup.RemoveSystemFromUpdateList(system);
+            updateGroup.RemoveSystemFromUpdateList(system);
+            presentGroup.RemoveSystemFromUpdateList(system);
+        }
+    }
+
+
+    int FlatSize => Size * Size * Size;
+
+    void GenerateChunk(int3 chunkPos, EntityManager em, Entity prefab)
+    {
+        var chunkPosComp = new ChunkPosition() {Position = chunkPos};
+        using (var array = new NativeArray<Entity>(FlatSize, Allocator.TempJob))
         {
             em.Instantiate(prefab, array);
             em.AddComponent<Static>(array);
@@ -39,17 +72,61 @@ public class WallE : MonoBehaviour
             {
                 var i = x + y * Size + z * Size * Size;
                 em.SetComponentData(array[i], new Translation() {Value = new float3(x, y, z)});
-
+                em.SetSharedComponentData(array[i], chunkPosComp);
                 if (x != 0 && y != 0 && z != 0 && x != Size - 1 && y != Size - 1 && z != Size - 1)
                 {
                     em.AddComponent<DontRenderTag>(array[i]);
                 }
+
+//                em.SetComponentData(array[i], new Rotation() {Value = Random.rotation});
             }
         }
-        em.DestroyEntity(prefab);
-        world.GetOrCreateSystem<RenderMeshSystemV3>();
-        disposable = world;
+    }
 
+    void GenerateUniverse(EntityManager em, Entity prefab)
+    {
+        for (var x = -UniverseSize; x <= UniverseSize; x++)
+        for (var y = -UniverseSize; y <= UniverseSize; y++)
+        for (var z = -UniverseSize; z <= UniverseSize; z++)
+        {
+            GenerateChunk(new int3(x, y, z), em, prefab);
+        }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        GameManager.MasterRegistry.Mesh.Register("Fallback", _defaultMesh);
+        GameManager.MasterRegistry.Material.Register("Fallback", _defaultMaterial);
+
+        var world = World.Active; //        new World("Real World");
+//        world.EntityManager.CompleteAllJobs();
+
+        var unloader = new SystemUnloader(world);
+
+        unloader.Unload<RenderMeshSystemV4>();
+        
+//        unloader.Unload<RenderMeshSystemV3>();
+//        unloader.Unload<LodRequirementsUpdateSystemV3>();
+        
+        
+        unloader.Unload<RenderMeshSystemV2>();
+        unloader.Unload<LodRequirementsUpdateSystem>();
+        
+        unloader.Unload<VoxelMeshSystemV1>();
+
+
+//        ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);
+        var em = world.EntityManager;
+        var prefab =
+            GameObjectConversionUtility.ConvertGameObjectHierarchy(Prefab,
+                new GameObjectConversionSettings(world, default));
+        GenerateUniverse(em, prefab);
+
+        em.DestroyEntity(prefab);
+//        world.GetOrCreateSystem<RenderMeshSystemV3>();
+//        world.GetOrCreateSystem<RenderMeshSystemV3>();
+        disposable = world;
     }
 
     private void OnApplicationQuit()

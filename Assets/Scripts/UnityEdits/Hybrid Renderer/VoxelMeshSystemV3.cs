@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,7 +12,7 @@ using UnityEngine.Rendering;
 
 namespace UnityEdits.Rendering
 {
-    public class VoxelMeshSystemV2 : JobComponentSystem
+    public class VoxelMeshSystemV3 : JobComponentSystem
     {
         const int batchCount = 255;
 
@@ -49,7 +50,20 @@ namespace UnityEdits.Rendering
             return gatherJob.Schedule(chunksCount, batchCount, inputDeps);
         }
 
+        public void ClearUpdateCache()
+        {
+            ChunkPositionCache.Clear();
+            foreach (var value in ChunkCombinerCache.Values)
+            {
+                _combinerPool.Enqueue(value);
+                value.Clear();
+            }
+            ChunkCombinerCache.Clear();
+        }
+
         private Dictionary<int, int3> ChunkPositionCache;
+        private Dictionary<int, List<CombineInstance>> ChunkCombinerCache;
+        private Dictionary<int3, Entity> ChunkEntityCache;
 
         private EntityQuery CombineMeshQuery;
         private EntityQuery SetupChunkComponentQuery;
@@ -127,6 +141,8 @@ namespace UnityEdits.Rendering
                 typeof(Rotation),
                 typeof(LocalToWorld)
             );
+            
+            _combinerPool = new Queue<List<CombineInstance>>();
         }
 
         public int3 GetPosition(int componentIndex)
@@ -144,27 +160,24 @@ namespace UnityEdits.Rendering
         }
 
 
-        CombineInstance[] CreateCombinersPerChunk(NativeArray<float4x4> matrixes, Mesh mesh)
+        void AddCombinersPerChunk(int chunkPosIndex, NativeArray<float4x4> matrixes, Mesh mesh)
         {
-            var combiners = new CombineInstance[matrixes.Length];
+            var list = ChunkCombinerCache[chunkPosIndex];
+            var offset = list.Count;
+            list.Capacity = offset + matrixes.Length;
             for (var i = 0; i < matrixes.Length; i++)
             {
-                combiners[i] = new CombineInstance()
+                list[i + offset] = new CombineInstance()
                 {
                     transform = matrixes[i],
                     mesh = mesh
                 };
             }
-
-            return combiners;
         }
 
-        CombineInstance[][] CreateCombiners(NativeArray<ArchetypeChunk> chunks,
-            NativeArraySharedValues<int> sortedRenderDataIds, out Material[] materials, out int[] meshSizes,
-            JobHandle inputDeps = default)
+        void AddCombiners(NativeArray<ArchetypeChunk> chunks, NativeArraySharedValues<int> sortedRenderDataIds, out Material[] materials, out int[] meshSizes)
         {
-            inputDeps.Complete();
-            var combiners = new CombineInstance[chunks.Length][];
+            
             materials = new Material[chunks.Length];
             meshSizes = new int[chunks.Length];
             //Gather Types to access Data
@@ -223,7 +236,6 @@ namespace UnityEdits.Rendering
                     if (!templateMeshFound)
                     {
                         meshSizes[chunkIndex] = 0;
-                        combiners[chunkIndex] = new CombineInstance[0];
                         continue;
                     }
 
@@ -232,7 +244,7 @@ namespace UnityEdits.Rendering
                     //Get the chunk
                     var chunk = chunks[chunkIndex];
                     var chunkCount = chunk.Count;
-                    combiners[chunkIndex] = new CombineInstance[chunkCount];
+                    
                     //Get the index to the Render Mesh from our chunk
 //                        var voxelRenderDataSharedComponentIndex = chunk;
                     var chunkPositionSharedComponentIndex = chunk.GetSharedComponentIndex(chunkPositionType);
@@ -244,8 +256,9 @@ namespace UnityEdits.Rendering
                     Profiler.EndSample();
 
 
+                    ChunkCombinerCache[chunkPositionSharedComponentIndex] = GetCombinerList();
                     Profiler.BeginSample("Create Combiner");
-                    combiners[chunkIndex] = CreateCombinersPerChunk(matrixes, templateMesh);
+                    AddCombinersPerChunk(chunkPositionSharedComponentIndex, matrixes, templateMesh);
                     Profiler.EndSample();
 
                     matrixes.Dispose();
@@ -257,9 +270,15 @@ namespace UnityEdits.Rendering
             }
 
             Profiler.EndSample();
-            return combiners;
         }
 
+        private Queue<List<CombineInstance>> _combinerPool;
+        private List<CombineInstance> GetCombinerList()
+        {
+            return _combinerPool.Count > 0 ? _combinerPool.Dequeue() : new List<CombineInstance>();
+        }
+
+        
         void UpdateMesh(ArchetypeChunk chunk, CombineInstance[] combiners, Material material, int meshSize)
         {
             var chunkEntity = chunk.GetChunkComponentData(GetArchetypeChunkComponentType<ChunkEntity>()).Entity;
@@ -353,7 +372,7 @@ namespace UnityEdits.Rendering
 
 
             Profiler.BeginSample("Gather Combiners");
-            var combiners = CreateCombiners(chunks, sortedRenderDataIds, out var materials, out var meshSizes);
+            AddCombiners(chunks, sortedRenderDataIds, out var materials, out var meshSizes);
             Profiler.EndSample();
 
             Profiler.BeginSample("Apply Combiners");
