@@ -17,4 +17,13 @@ namespace Univox.Entities.Data
         //TODO replace byte with ushort once game is playable
         public byte Value;
     }
+
+    public struct MeshIdentity : ISharedComponentData
+    {
+        public int Value;
+    }
+    public struct MaterialIdentity : ISharedComponentData
+    {
+        public int Value;
+    }
 }

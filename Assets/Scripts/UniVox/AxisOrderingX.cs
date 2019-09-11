@@ -5,6 +5,6 @@ namespace Univox
 {
     public static class AxisOrderingX
     {
-        public static IReadOnlyList<AxisOrdering> Values = (AxisOrdering[]) Enum.GetValues(typeof(AxisOrdering));
+        public static readonly IReadOnlyList<AxisOrdering> Values = (AxisOrdering[]) Enum.GetValues(typeof(AxisOrdering));
     }
 }

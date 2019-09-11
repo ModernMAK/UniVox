@@ -39,17 +39,23 @@ namespace InventorySystem
         }
 
         /// <summary>
-        /// Registers the value into the registry, overwrites previous registrations if present.
+        /// Registers the value into the registry
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public bool Register(TKey key, TValue value)
+        public bool Register(TKey key, TValue value) => Register(key, value, out _);
+        
+        public bool Register(TKey key, TValue value, out int id)
         {
-            if (ContainsKey(key)) return false;
+            if (ContainsKey(key))
+            {
+                id = default;
+                return false;
+            }
 
-            var nId = GetNextId();
-            _backingLookup[key] = nId;
-            _backingArray[nId] = value;
+            id = GetNextId();
+            _backingLookup[key] = id;
+            _backingArray[id] = value;
             return true;
         }
 
@@ -107,6 +113,19 @@ namespace InventorySystem
 
             value = default;
             return false;
+        }
+        public bool TryGetValue(int key, out TValue value)
+        {
+            if (_backingArray.Count > key && key >= 0)
+            {
+                value = _backingArray[key];
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
         }
 
         public bool TryGetIndex(TKey key, out int value)

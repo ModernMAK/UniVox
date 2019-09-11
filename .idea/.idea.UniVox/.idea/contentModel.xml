@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
-    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
+    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
-        <e p="ABTest.cs" t="Include" />
-        <e p="ChunkEngine.cs" t="Include" />
-        <e p="ChunkGenArgs.cs" t="Include" />
-        <e p="ChunkStreamer.cs" t="Include" />
-        <e p="DelegatePool.cs" t="Include" />
-        <e p="DisposableDelegatePool.cs" t="Include" />
         <e p="Editor" t="Include">
           <e p="CreateAssetBundles.cs" t="Include" />
         </e>
-        <e p="EntityTester.cs" t="Include" />
-        <e p="NativeChunkGenArgs.cs" t="Include" />
-        <e p="RenderGameObject.cs" t="Include" />
-        <e p="RenderingPool.cs" t="Include" />
         <e p="Scripts" t="Include">
+          <e p="ABTest.cs" t="Include" />
           <e p="Chunk.cs" t="Include" />
+          <e p="ChunkEngine.cs" t="Include" />
+          <e p="ChunkGenArgs.cs" t="Include" />
+          <e p="ChunkStreamer.cs" t="Include" />
+          <e p="DelegatePool.cs" t="Include" />
+          <e p="DisposableDelegatePool.cs" t="Include" />
           <e p="ECS" t="Include">
             <e p="system" t="Include">
               <e p="VoxelSpawnSystem.cs" t="Include" />
@@ -30,6 +26,7 @@
           <e p="Editor" t="Include">
             <e p="MaterialListDrawer.cs" t="Include" />
           </e>
+          <e p="EntityTester.cs" t="Include" />
           <e p="GenerationLogic.cs" t="Include" />
           <e p="GenerationPipeline.cs" t="Include" />
           <e p="InventorySystem" t="Include">
@@ -66,6 +63,8 @@
             <e p="GenerateBoxelMeshV3.cs" t="Include" />
             <e p="UpdateHiddenFacesJob.cs" t="Include" />
           </e>
+          <e p="NativeChunkGenArgs.cs" t="Include" />
+          <e p="RenderGameObject.cs" t="Include" />
           <e p="Rendering" t="Include">
             <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
@@ -76,6 +75,7 @@
             <e p="PipelineHandle.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
+          <e p="RenderingPool.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
@@ -111,6 +111,24 @@
             <e p="RenderModeFlags.cs" t="Include" />
             <e p="VoxelPos8.cs" t="Include" />
           </e>
+          <e p="UnityEdits" t="Include">
+            <e p="Hybrid Renderer" t="Include">
+              <e p="ChunkEntity.cs" t="Include" />
+              <e p="ChunkPosition.cs" t="Include" />
+              <e p="ChunkSize.cs" t="Include" />
+              <e p="GameManager.cs" t="Include" />
+              <e p="GatherVoxelChunkPosition.cs" t="Include" />
+              <e p="GatherVoxelRenderData.cs" t="Include" />
+              <e p="GatherVoxelRenderMatrixV1.cs" t="Include" />
+              <e p="GatherVoxelRenderMatrixV2.cs" t="Include" />
+              <e p="LodRequirementsUpdateSystemV3.cs" t="Include" />
+              <e p="RenderMeshSystemV3.cs" t="Include" />
+              <e p="VoxelMeshSystemV1.cs" t="Include" />
+              <e p="VoxelMeshSystemV2.cs" t="Include" />
+              <e p="VoxelPosition.cs" t="Include" />
+              <e p="VoxelRenderData.cs" t="Include" />
+            </e>
+          </e>
           <e p="UniVox" t="Include">
             <e p="AxisOrdering.cs" t="Include" />
             <e p="AxisOrderingX.cs" t="Include" />
@@ -125,6 +143,8 @@
                 <e p="BlockRenderSystem.cs" t="Include" />
                 <e p="FilteredBlockSystem.cs" t="Include" />
                 <e p="MasterRegistry.cs" t="Include" />
+                <e p="ModAssetBundle.cs" t="Include" />
+                <e p="ModAssets.cs" t="Include" />
                 <e p="ModInitializer.cs" t="Include" />
                 <e p="ModResources.cs" t="Include" />
               </e>
@@ -141,8 +161,9 @@
             <e p="VoxelUniverse.cs" t="Include" />
             <e p="VoxelWorld.cs" t="Include" />
           </e>
+          <e p="WorldBehaviour.cs" t="Include" />
         </e>
-        <e p="WorldBehaviour.cs" t="Include" />
+        <e p="WallE.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
