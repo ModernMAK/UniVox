@@ -7,7 +7,7 @@ using UnityEdits.Rendering;
 using UnityEngine;
 
 
-public class WallE : MonoBehaviour
+public class WallE2 : MonoBehaviour
 {
     public enum ChunkSize
     {
@@ -21,7 +21,7 @@ public class WallE : MonoBehaviour
 
     public int UniverseSize = 0;
 
-    public GameObject Prefab;
+//    public GameObject Prefab;
 
     [SerializeField] private Mesh _defaultMesh;
     [SerializeField] private Material _defaultMaterial;
@@ -56,37 +56,32 @@ public class WallE : MonoBehaviour
 
     int FlatSize => Size * Size * Size;
 
-    void GenerateChunk(int3 chunkPos, EntityManager em, Entity prefab)
+    void CreateChunk(int3 chunkPos, EntityManager em, EntityArchetype archetype)
     {
-        var chunkPosComp = new ChunkPosition() {Position = chunkPos};
-        using (var array = new NativeArray<Entity>(FlatSize, Allocator.TempJob))
-        {
-            em.Instantiate(prefab, array);
-            em.AddComponent<Static>(array);
-            for (var x = 0; x < Size; x++)
-            for (var y = 0; y < Size; y++)
-            for (var z = 0; z < Size; z++)
-            {
-                var i = x + y * Size + z * Size * Size;
-                em.SetComponentData(array[i], new Translation() {Value = new float3(x, y, z)});
-                em.SetSharedComponentData(array[i], chunkPosComp);
-                if (x != 0 && y != 0 && z != 0 && x != Size - 1 && y != Size - 1 && z != Size - 1)
-                {
-                    em.AddComponent<DontRenderTag>(array[i]);
-                }
+        var entity = em.CreateEntity(archetype);
+        em.SetComponentData(entity, new VoxelChunk(FlatSize));
+        var renderData = new VoxelRenderChunk(FlatSize);
+        em.SetComponentData(entity, renderData);
+        em.SetComponentData(entity, new VoxelChunkPosition() {Value = chunkPos});
 
-//                em.SetComponentData(array[i], new Rotation() {Value = Random.rotation});
-            }
+        //Iterate over all internal bits
+        for (var x = 1; x < Size - 1; x++)
+        for (var y = 1; x < Size - 1; y++)
+        for (var z = 1; x < Size - 1; z++)
+        {
+            var index = x + y * Size + z * Size * Size;
+            renderData.ShouldCullFlag[index] = true;
         }
     }
 
-    void GenerateUniverse(EntityManager em, Entity prefab)
+
+    void GenerateUniverse(EntityManager em, EntityArchetype archetype)
     {
         for (var x = -UniverseSize; x <= UniverseSize; x++)
         for (var y = -UniverseSize; y <= UniverseSize; y++)
         for (var z = -UniverseSize; z <= UniverseSize; z++)
         {
-            GenerateChunk(new int3(x, y, z), em, prefab);
+            CreateChunk(new int3(x, y, z), em, archetype);
         }
     }
 
@@ -95,6 +90,7 @@ public class WallE : MonoBehaviour
     {
         GameManager.MasterRegistry.Mesh.Register("Fallback", _defaultMesh);
         GameManager.MasterRegistry.Material.Register("Fallback", _defaultMaterial);
+
 
         var world = World.Active; //        new World("Real World");
 //        world.EntityManager.CompleteAllJobs();
@@ -113,12 +109,13 @@ public class WallE : MonoBehaviour
 
 //        ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);
         var em = world.EntityManager;
-        var prefab =
-            GameObjectConversionUtility.ConvertGameObjectHierarchy(Prefab,
-                new GameObjectConversionSettings(world, default));
-        GenerateUniverse(em, prefab);
+        var archetype = em.CreateArchetype(typeof(VoxelRenderChunk), typeof(VoxelChunk), typeof(ChunkPosition));
+//        var prefab =
+//            GameObjectConversionUtility.ConvertGameObjectHierarchy(Prefab,
+//                new GameObjectConversionSettings(world, default));
+        GenerateUniverse(em,archetype);
 
-        em.DestroyEntity(prefab);
+//        em.DestroyEntity(prefab);
 //        world.GetOrCreateSystem<RenderMeshSystemV3>();
 //        world.GetOrCreateSystem<RenderMeshSystemV3>();
         disposable = world;
@@ -129,8 +126,4 @@ public class WallE : MonoBehaviour
         disposable?.Dispose();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
 }

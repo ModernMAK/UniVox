@@ -9,24 +9,6 @@ using UnityEngine.Profiling;
 
 namespace UnityEdits.Rendering
 {
-//    public unsafe struct CullingStats
-//    {
-//        public const int kChunkTotal = 0;
-//        public const int kChunkCountAnyLod = 1;
-//        public const int kChunkCountInstancesProcessed = 2;
-//        public const int kChunkCountFullyIn = 3;
-//        public const int kInstanceTests = 4;
-//        public const int kLodTotal = 5;
-//        public const int kLodNoRequirements = 6;
-//        public const int kLodChanged = 7;
-//        public const int kLodChunksTested = 8;
-//        public const int kCountRootLodsSelected = 9;
-//        public const int kCountRootLodsFailed = 10;
-//        public const int kCount = 11;
-//        public fixed int Stats[kCount];
-//        public float CameraMoveDistance;
-//        public fixed int CacheLinePadding[15 - kCount];
-//    }
 
 
     /// <summary>

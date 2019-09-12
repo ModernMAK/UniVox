@@ -119,16 +119,11 @@
               <e p="DontRenderTag.cs" t="Include" />
               <e p="GameManager.cs" t="Include" />
               <e p="GatherChunkRenderers.cs" t="Include" />
-              <e p="GatherVoxelRenderData.cs" t="Include" />
-              <e p="GatherVoxelRenderMatrixV1.cs" t="Include" />
               <e p="GatherVoxelRenderMatrixV2.cs" t="Include" />
               <e p="LodRequirementsUpdateSystemV3.cs" t="Include" />
               <e p="RenderMeshSystemV3.cs" t="Include" />
               <e p="RenderMeshSystemV4.cs" t="Include" />
               <e p="SubSceneTagOrderVersion.cs" t="Include" />
-              <e p="VoxelMeshSystemV1.cs" t="Include" />
-              <e p="VoxelMeshSystemV2.cs" t="Include" />
-              <e p="VoxelMeshSystemV3.cs" t="Include" />
               <e p="VoxelMeshSystemV4.cs" t="Include" />
               <e p="VoxelPosition.cs" t="Include" />
               <e p="VoxelRenderData.cs" t="Include" />
@@ -169,7 +164,10 @@
           <e p="WorldBehaviour.cs" t="Include" />
         </e>
         <e p="VoxelAuthor.cs" t="Include" />
+        <e p="VoxelChunk.cs" t="Include" />
+        <e p="VoxelRenderChunk.cs" t="Include" />
         <e p="WallE.cs" t="Include" />
+        <e p="WallE2.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
