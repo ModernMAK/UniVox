@@ -7,7 +7,7 @@ using Unity.Transforms;
 namespace UnityEdits.Rendering
 {
     [BurstCompile]
-    struct GatherVoxelRenderMatrixV1 : IJobParallelFor
+    internal struct GatherVoxelRenderMatrixV1 : IJobParallelFor
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> LocalToWorlds;
         [ReadOnly] public NativeArray<int3> offsets;

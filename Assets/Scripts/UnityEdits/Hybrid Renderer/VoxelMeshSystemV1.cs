@@ -11,6 +11,7 @@ using UnityEngine.Profiling;
 
 namespace UnityEdits.Rendering
 {
+    [DisableAutoCreation]
     public class VoxelMeshSystemV1 : JobComponentSystem
     {
         int m_LastFrozenChunksOrderVersion = -1;

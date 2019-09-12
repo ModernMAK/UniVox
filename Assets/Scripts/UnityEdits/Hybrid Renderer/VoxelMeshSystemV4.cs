@@ -13,26 +13,23 @@ using UnityEngine.Rendering;
 
 namespace UnityEdits.Rendering
 {
-    
     //Oookay... We are getting 252 draw calls per mesh... So that's not normal
     //Instead of using combine instance i think i need to make my own mesh combiner, so.... Yay...
 
 
-
-    [DisableAutoCreation]
-    public class VoxelMeshSystemV3 : JobComponentSystem
+    public class VoxelMeshSystemV4 : JobComponentSystem
     {
         private class MergedRenderUtil
         {
             public MergedRenderUtil()
             {
-                CombineInstances = new List<CombineInstance>();
+                CombineInstances = new List<float4x4>();
             }
 
             public Material Material;
             public Mesh Mesh;
 
-            private List<CombineInstance> CombineInstances;
+            private readonly List<float4x4> CombineInstances;
             public int GetCombinedMeshSize() => CombineInstances.Count * (Mesh != null ? Mesh.vertexCount : 0);
             public bool IsMeshOverCapacity() => GetCombinedMeshSize() > ushort.MaxValue;
 
@@ -41,17 +38,12 @@ namespace UnityEdits.Rendering
                 CombineInstances.Capacity = math.max(CombineInstances.Capacity, CombineInstances.Count + count);
             }
 
-            public void AddCombiner(CombineInstance ci) => CombineInstances.Add(ci);
+            public void AddCombiner(float4x4 ci) => CombineInstances.Add(ci);
 
             public void AddCombiner(NativeArray<float4x4> matrixes)
             {
                 AddCapacity(matrixes.Length);
-                for (var i = 0; i < matrixes.Length; i++)
-                    AddCombiner(new CombineInstance()
-                    {
-                        mesh = Mesh,
-                        transform = matrixes[i],
-                    });
+                CombineInstances.AddRange(matrixes);
             }
 
             public void ClearCombiner() => CombineInstances.Clear();
@@ -66,9 +58,19 @@ namespace UnityEdits.Rendering
 
             public void MergeIntoMesh(Mesh target)
             {
-                target.Clear();
                 if (Mesh != null && CombineInstances.Count > 0)
-                    target.CombineMeshes(CombineInstances.ToArray(), true, true);
+                {
+                    var nm = GameManager.GetNativeMesh(Mesh, Allocator.TempJob);
+                    var temp = new NativeArray<float4x4>(CombineInstances.Count, Allocator.TempJob);
+                    for (var i = 0; i < temp.Length; i++)
+                        temp[i] = CombineInstances[i];
+
+
+                    GameManager.CreateMergeMeshJob(nm, temp, target);
+
+                    temp.Dispose();
+                    nm.Dispose();
+                }
             }
 
             public void Clear()
@@ -157,7 +159,7 @@ namespace UnityEdits.Rendering
         }
 
 
-        private const int batchCount = 255;
+        private const int batchCount = short.MaxValue;
 
         JobHandle GatherSharedComponentIndexesJob<T>(NativeArray<ArchetypeChunk> chunks,
             ArchetypeChunkSharedComponentType<T> componentType, out NativeArray<int> results,
@@ -219,135 +221,6 @@ namespace UnityEdits.Rendering
             return job.Schedule(inputDeps);
         }
 
-//
-//        struct MergeNativeArrayJob<T> : IJobParallelFor where T : struct
-//        {
-//            [ReadOnly] public NativeArray<T> First;
-//            [ReadOnly] public NativeArray<T> Second;
-//            [WriteOnly] public NativeArray<T> Result;
-//
-//
-//            public void Execute(int index)
-//            {
-//                var fLen = First.Length;
-//                if (index > fLen)
-//                    Result[index] = Second[index - fLen];
-//                else
-//                    Result[index] = First[index];
-//            }
-//
-//            public static MergeNativeArrayJob<T> Create(NativeArray<T> first, NativeArray<T> second,
-//                out NativeArray<T> result)
-//            {
-//                result = new NativeArray<T>(first.Length + second.Length, Allocator.TempJob,
-//                    NativeArrayOptions.UninitializedMemory);
-//                return new MergeNativeArrayJob<T>()
-//                {
-//                    First = first,
-//                    Second = second,
-//                    Result = result
-//                };
-//            }
-//        }
-//
-//        struct MergeNativeArrayJobDeallocateFirst<T> : IJobParallelFor where T : struct
-//        {
-//            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<T> First;
-//            [ReadOnly] public NativeArray<T> Second;
-//            [WriteOnly] public NativeArray<T> Result;
-//
-//
-//            public void Execute(int index)
-//            {
-//                var fLen = First.Length;
-//                if (index > fLen)
-//                    Result[index] = Second[index - fLen];
-//                else
-//                    Result[index] = First[index];
-//            }
-//
-//            public static MergeNativeArrayJob<T> Create(NativeArray<T> first, NativeArray<T> second,
-//                out NativeArray<T> result)
-//            {
-//                result = new NativeArray<T>(first.Length + second.Length, Allocator.TempJob,
-//                    NativeArrayOptions.UninitializedMemory);
-//                return new MergeNativeArrayJob<T>()
-//                {
-//                    First = first,
-//                    Second = second,
-//                    Result = result
-//                };
-//            }
-//        }
-//
-//        struct MergeNativeArrayJobDeallocateAll<T> : IJobParallelFor where T : struct
-//        {
-//            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<T> First;
-//            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<T> Second;
-//            [WriteOnly] public NativeArray<T> Result;
-//
-//
-//            public void Execute(int index)
-//            {
-//                var fLen = First.Length;
-//                if (index > fLen)
-//                    Result[index] = Second[index - fLen];
-//                else
-//                    Result[index] = First[index];
-//            }
-//
-//            public static MergeNativeArrayJob<T> Create(NativeArray<T> first, NativeArray<T> second,
-//                out NativeArray<T> result)
-//            {
-//                result = new NativeArray<T>(first.Length + second.Length, Allocator.TempJob,
-//                    NativeArrayOptions.UninitializedMemory);
-//                return new MergeNativeArrayJob<T>()
-//                {
-//                    First = first,
-//                    Second = second,
-//                    Result = result
-//                };
-//            }
-//        }
-//
-//        JobHandle MergeNativeArrays<T>(out NativeArray<T> result, JobHandle inputDeps = default,
-//            params NativeArray<T>[] array) where T : struct, IEquatable<T>
-//        {
-//            if (array.Length < 2)
-//                throw new Exception();
-//
-//
-//            var job = MergeNativeArrayJob<T>.Create(array[0], array[1], out result)
-//                .Schedule(result.Length, batchCount, inputDeps);
-//
-//            for (var i = 2; i < array.Length; i++)
-//            {
-//                job = MergeNativeArrayJobDeallocateFirst<T>.Create(result, array[i], out result)
-//                    .Schedule(result.Length, batchCount, job);
-//            }
-//
-//            return job;
-//        }
-//
-//        JobHandle MergeNativeArraysDeallocateAll<T>(out NativeArray<T> result, JobHandle inputDeps = default,
-//            params NativeArray<T>[] array) where T : struct, IEquatable<T>
-//        {
-//            if (array.Length < 2)
-//                throw new Exception();
-//
-//
-//            var job = MergeNativeArrayJobDeallocateAll<T>.Create(array[0], array[1], out result)
-//                .Schedule(result.Length, batchCount, inputDeps);
-//
-//            for (var i = 2; i < array.Length; i++)
-//            {
-//                job = MergeNativeArrayJobDeallocateAll<T>.Create(result, array[i], out result)
-//                    .Schedule(result.Length, batchCount, job);
-//            }
-//
-//            return job;
-//        }
-
         JobHandle GatherChunkMatrix(ArchetypeChunk chunk, ArchetypeChunkComponentType<LocalToWorld> componentType,
             out NativeArray<float4x4> matrix, float3 matrixOffset, JobHandle inputDeps = default)
         {
@@ -364,23 +237,6 @@ namespace UnityEdits.Rendering
             return gatherJob.Schedule(chunksCount, batchCount, inputDeps);
         }
 
-
-//        
-//        JobHandle GatherChunkMatrix(ArchetypeChunk chunk, out NativeArray<float4x4> matrix,
-//            float3 matrixOffset, JobHandle inputDeps = default)
-//        {
-//            var chunksCount = chunk.Count;
-//
-//            var gatherJob = new GatherVoxelRenderMatrixV2()
-//            {
-//                Matricies = matrix = new NativeArray<float4x4>(chunksCount, Allocator.TempJob,
-//                    NativeArrayOptions.UninitializedMemory),
-//                LocalToWorlds = chunk.GetNativeArray(GetArchetypeChunkComponentType<LocalToWorld>(true)),
-//                MatrixOffset = matrixOffset
-//            };
-//
-//            return gatherJob.Schedule(chunksCount, batchCount, inputDeps);
-//        }
 
         public void ClearUpdateCache()
         {
@@ -482,35 +338,6 @@ namespace UnityEdits.Rendering
             _combinerPool = new Queue<MergedRenderUtil>();
         }
 
-        public int3 GetPosition(int componentIndex)
-        {
-            Profiler.BeginSample("Fetch Chunk Position");
-            if (!ChunkPositionCache.TryGetValue(componentIndex, out var result))
-            {
-                result = ChunkPositionCache[componentIndex] =
-                    EntityManager.GetSharedComponentData<ChunkPosition>(componentIndex).Position;
-            }
-
-            Profiler.EndSample();
-            return result;
-        }
-
-
-        void AddCombinersPerChunk(MergedData chunkPosIndex, NativeArray<float4x4> matrixes)
-        {
-            var list = ChunkCombinerCache[chunkPosIndex];
-            list.AddCapacity(matrixes.Length);
-            for (var i = 0; i < matrixes.Length; i++)
-            {
-                var ci = new CombineInstance()
-                {
-                    transform = matrixes[i],
-                    mesh = list.Mesh
-                };
-                list.AddCombiner(ci);
-            }
-        }
-
 
         void GatherSortedIds<T>(NativeArray<ArchetypeChunk> chunks, ArchetypeChunkSharedComponentType<T> componentType,
             out NativeArray<int> results, out NativeArraySharedValues<int> sharedResults, JobHandle inputDeps = default)
@@ -521,24 +348,6 @@ namespace UnityEdits.Rendering
 
             var gatherJob = GatherSharedComponentIndexesJob(chunks, componentType, out var chunkResults);
 
-            //WOW I AM DUMB - Alot of extra work that slows us down because we do the same thing N times! Fixe withe the above line
-//            var chunkedResults = new NativeArray<int>[chunks.Length];
-//            
-//            
-//            
-//            for (var i = 0; i < chunks.Length; i++)
-//            {
-//                gatherJobs[i] = GatherSharedComponentIndexesJob(chunks, componentType, out var chunkResults);
-//                chunkedResults[i] = chunkResults;
-//            }
-//
-//            var gatherHandle = JobHandle.CombineDependencies(gatherJobs);
-
-
-            //This cleans up our chunkedResults, everything except for our final result is deallocated
-//            var mergeJob = MergeNativeArraysDeallocateAll(out var mergedResults, gatherHandle, chunkedResults);
-
-
             var sortedJob = SortSharedComponentIndexesJob(chunkResults, out var sharedChunkResults, gatherJob);
             sortedJob.Complete();
 //            gatherJobs.Dispose();
@@ -546,23 +355,6 @@ namespace UnityEdits.Rendering
 
             results = chunkResults;
             sharedResults = sharedChunkResults;
-        }
-
-        void GatherAllUniqueIds<T>(NativeArray<ArchetypeChunk> chunks,
-            ArchetypeChunkSharedComponentType<T> componentType, out NativeArray<int> results,
-            JobHandle inputDeps = default) where T : struct, ISharedComponentData
-        {
-            inputDeps.Complete();
-            GatherSortedIds(chunks, componentType, out var mergedResults, out var sharedResults);
-
-            //WE no longer need sorted or merge, deallocate them
-            var uniqueJob = GetUniqueSharedComponentIndexesJob(sharedResults, out results);
-
-            //WE need to copmlete uniqueJob before we can dispose
-            uniqueJob.Complete();
-
-            mergedResults.Dispose();
-            sharedResults.Dispose();
         }
 
 
@@ -578,14 +370,6 @@ namespace UnityEdits.Rendering
             uniqueJob.Complete();
         }
 
-
-        void GatherSharedComponentDataValues<T>(NativeArray<int> indexes, out NativeArray<T> results)
-            where T : struct, ISharedComponentData
-        {
-            results = new NativeArray<T>(indexes.Length, Allocator.TempJob);
-            for (var i = 0; i < indexes.Length; i++)
-                results[i] = EntityManager.GetSharedComponentData<T>(indexes[i]);
-        }
 
         void GatherSharedComponentDataValueLookup<T>(NativeArray<int> indexes, out NativeHashMap<int, T> results)
             where T : struct, ISharedComponentData
@@ -646,7 +430,6 @@ namespace UnityEdits.Rendering
             chunkPosTable.Dispose();
         }
 
-//        private MergedRenderUtil QuickGetCombinerFromCache(ArchetypeChunk chunk) => ChunkCombinerCache[];
 
         void AddCombiners(NativeArray<ArchetypeChunk> chunks)
         {
@@ -655,99 +438,6 @@ namespace UnityEdits.Rendering
                 AddCombinersPerChunk(chunks[i]);
             }
 
-//
-//                materials = new Material[chunks.Length];
-//            meshSizes = new int[chunks.Length];
-//            //Gather Types to access Data
-//            var voxelRenderDataType = GetArchetypeChunkSharedComponentType<VoxelRenderData>();
-//            var chunkPositionType = GetArchetypeChunkSharedComponentType<ChunkPosition>();
-//
-//            //Determine Unique Values
-//            var sharedRenderCount = sortedRenderDataIds.SharedValueCount;
-//            //Get Array of Count Per Unique Values
-//            var sharedRendererCounts = sortedRenderDataIds.GetSharedValueIndexCountArray();
-//            //Get Array of 'Grouped' Indexes based on their Unique Value
-//            var sortedChunkIndices = sortedRenderDataIds.GetSortedIndices();
-//
-//
-//            Profiler.BeginSample("Process Chunks");
-//
-//            //We have to keep an offset of what we have inspected
-//            var sortedChunkIndex = 0;
-//            for (var i = 0; i < sharedRenderCount; i++)
-//            {
-//                //The Range of the Sorted Chunk Indeces
-//                //These chunks share a MESH and MATERIAL
-//                var startSortedChunkIndex = sortedChunkIndex;
-//                var endSortedChunkIndex = startSortedChunkIndex + sharedRendererCounts[i];
-//
-//
-//                Profiler.BeginSample("Gather Template");
-//
-//                var templateChunk = chunks[sortedChunkIndices[sortedChunkIndex]];
-//
-//                var voxelRenderDataSharedComponentIndex =
-//                    templateChunk.GetSharedComponentIndex(voxelRenderDataType);
-//
-//                var voxelRenderData =
-//                    EntityManager.GetSharedComponentData<VoxelRenderData>(voxelRenderDataSharedComponentIndex);
-//
-//                var templateMeshFound =
-//                    MasterRegistry.Mesh.TryGetValue(voxelRenderData.MeshIdentity, out var templateMesh);
-//                var templateMaterialFound =
-//                    MasterRegistry.Material.TryGetValue(voxelRenderData.MaterialIdentity, out var templateMaterial);
-//
-//
-//                Profiler.EndSample();
-//
-//                Profiler.BeginSample("Process Batch");
-//                //For loop without a for
-//                while (sortedChunkIndex < endSortedChunkIndex)
-//                {
-//                    //Get the index from our sorted indexes
-//                    var chunkIndex = sortedChunkIndices[sortedChunkIndex];
-//
-//                    materials[chunkIndex] = templateMaterial;
-//
-//                    //If templateMesh Fails, we skip the batch
-//                    //We could also include failing to find mat, but i believe that is not fatal
-//                    if (!templateMeshFound)
-//                    {
-//                        meshSizes[chunkIndex] = 0;
-//                        continue;
-//                    }
-//
-//                    meshSizes[chunkIndex] = 0;
-//
-//                    //Get the chunk
-//                    var chunk = chunks[chunkIndex];
-//                    var chunkCount = chunk.Count;
-//
-//                    //Get the index to the Render Mesh from our chunk
-////                        var voxelRenderDataSharedComponentIndex = chunk;
-//                    var chunkPositionSharedComponentIndex = chunk.GetSharedComponentIndex(chunkPositionType);
-//
-//                    Profiler.BeginSample("Gather Matrixes");
-//                    var gatheredMatrix = GatherChunkMatrix(chunk, out var matrixes,
-//                        GetPosition(chunkPositionSharedComponentIndex));
-//                    gatheredMatrix.Complete();
-//                    Profiler.EndSample();
-//
-//
-//                    ChunkCombinerCache[chunkPositionSharedComponentIndex] = GetCombinerList();
-//                    Profiler.BeginSample("Create Combiner");
-//                    AddCombinersPerChunk(chunkPositionSharedComponentIndex, matrixes, templateMesh);
-//                    Profiler.EndSample();
-//
-//                    matrixes.Dispose();
-//
-//                    sortedChunkIndex++;
-//                }
-//
-//                Profiler.EndSample();
-//            }
-//
-//            Profiler.EndSample();
         }
 
         private void AddCombinersPerChunk(ArchetypeChunk chunk)
@@ -791,44 +481,13 @@ namespace UnityEdits.Rendering
                 UpdateMesh(chunks[i]);
         }
 
-        void UpdateMesh(ArchetypeChunk chunk, CombineInstance[] combiners, Material material, int meshSize)
-        {
-            var chunkEntity = chunk.GetChunkComponentData(GetArchetypeChunkComponentType<ChunkEntity>()).Entity;
-            var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(chunkEntity);
-
-            renderMesh.mesh.Clear(true); //TODO test for errors, assume it does not for now
-
-
-            if (combiners.Length > 0)
-            {
-                var mergedMeshSize = meshSize * combiners.Length;
-                var requiredMeshes = (int) math.ceil((float) mergedMeshSize / ushort.MaxValue);
-
-                if (requiredMeshes > 1)
-                    Debug.LogWarning("Mesh is too Big to be combined!");
-
-
-                renderMesh.mesh.CombineMeshes(combiners, true, true, false);
-            }
-
-            renderMesh.material = material;
-            EntityManager.SetSharedComponentData(chunkEntity, renderMesh);
-        }
-
-        void UpdateMeshes(NativeArray<ArchetypeChunk> chunks, CombineInstance[][] combiners, Material[] materials,
-            int[] meshSizes)
-        {
-            for (var i = 0; i < chunks.Length; i++)
-
-                UpdateMesh(chunks[i], combiners[i], materials[i], meshSizes[i]);
-        }
-
         private void SetupEntityChunk()
         {
             var query = SetupChunkComponentQuery;
             var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob);
             var count = chunks.Length;
 
+            
             EntityManager.AddChunkComponentData(query, new ChunkEntity());
             for (var i = 0; i < count; i++)
             {
@@ -884,7 +543,7 @@ namespace UnityEdits.Rendering
             Profiler.BeginSample("Generate Mesh");
             UpdateMeshes(chunks);
             Profiler.EndSample();
-            
+
             chunks.Dispose();
         }
 

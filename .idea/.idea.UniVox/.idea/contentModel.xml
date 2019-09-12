@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
-    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -119,7 +119,6 @@
               <e p="DontRenderTag.cs" t="Include" />
               <e p="GameManager.cs" t="Include" />
               <e p="GatherChunkRenderers.cs" t="Include" />
-              <e p="GatherVoxelChunkPosition.cs" t="Include" />
               <e p="GatherVoxelRenderData.cs" t="Include" />
               <e p="GatherVoxelRenderMatrixV1.cs" t="Include" />
               <e p="GatherVoxelRenderMatrixV2.cs" t="Include" />
@@ -130,6 +129,7 @@
               <e p="VoxelMeshSystemV1.cs" t="Include" />
               <e p="VoxelMeshSystemV2.cs" t="Include" />
               <e p="VoxelMeshSystemV3.cs" t="Include" />
+              <e p="VoxelMeshSystemV4.cs" t="Include" />
               <e p="VoxelPosition.cs" t="Include" />
               <e p="VoxelRenderData.cs" t="Include" />
             </e>

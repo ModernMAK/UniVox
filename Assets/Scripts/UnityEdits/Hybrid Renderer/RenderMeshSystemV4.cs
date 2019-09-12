@@ -14,6 +14,7 @@ namespace UnityEdits.Rendering
     /// Renders all Entities containing both RenderMesh & LocalToWorld components.
     /// </summary>
     [ExecuteAlways]
+    [DisableAutoCreation]
     //@TODO: Necessary due to empty component group. When Component group and archetype chunks are unified this should be removed
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(PresentationSystemGroup))]

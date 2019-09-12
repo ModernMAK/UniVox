@@ -114,6 +114,8 @@ public class WallE : MonoBehaviour
         unloader.Unload<LodRequirementsUpdateSystem>();
         
         unloader.Unload<VoxelMeshSystemV1>();
+        unloader.Unload<VoxelMeshSystemV2>();
+        unloader.Unload<VoxelMeshSystemV3>();
 
 
 //        ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);

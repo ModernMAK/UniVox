@@ -11,6 +11,7 @@ using UnityEngine.Rendering;
 
 namespace UnityEdits.Rendering
 {
+    [DisableAutoCreation]
     public class VoxelMeshSystemV2 : JobComponentSystem
     {
         const int batchCount = 255;
