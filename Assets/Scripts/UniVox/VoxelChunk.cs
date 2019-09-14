@@ -5,8 +5,11 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+
+
 namespace Univox
 {
+    [Obsolete]
     public class VoxelChunk : IReadOnlyDictionary<int3, Entity>, IDisposable
     {
         public const int AxisSize = 8;

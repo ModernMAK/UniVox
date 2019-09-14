@@ -2,7 +2,8 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 
-public struct VoxelChunk : IComponentData, IDisposable
+//TODO convert to Dynamic Buffer
+public struct VoxelChunk : IDisposable
 {
     /// <summary>
     /// Creates a Voxel Chunk, a container for Voxel Data
@@ -14,7 +15,7 @@ public struct VoxelChunk : IComponentData, IDisposable
         NativeArrayOptions options = NativeArrayOptions.ClearMemory)
     {
         Size = size;
-        
+
         Ids = new NativeArray<short>(size, allocator, options);
         VariantIds = new NativeArray<byte>(size, allocator, options);
 
@@ -22,10 +23,8 @@ public struct VoxelChunk : IComponentData, IDisposable
         _accessors = new NativeArray<Accessor>(size, allocator, NativeArrayOptions.UninitializedMemory);
         for (var i = 0; i < size; i++)
             _accessors[i] = new Accessor(this, i);
-
-
     }
-    
+
     public int Size { get; }
 
     /// <summary>
@@ -39,6 +38,7 @@ public struct VoxelChunk : IComponentData, IDisposable
     public NativeArray<byte> VariantIds;
 
     private NativeArray<Accessor> _accessors;
+
     /// <summary>
     /// A native array of accessors to this chunk. This NativeArray should never be written to. The accessors themselves can be written to.
     /// </summary>
@@ -106,8 +106,8 @@ public struct VoxelChunk : IComponentData, IDisposable
 
         public short Id { get; set; }
         public byte VariantId { get; set; }
-        
-        
+
+
 //        public VoxelChunkToRenderSystem.VoxelIdentity GetVoxelIdentity()
 //        {
 //            return new VoxelChunkToRenderSystem.VoxelIdentity(Id,VariantId);

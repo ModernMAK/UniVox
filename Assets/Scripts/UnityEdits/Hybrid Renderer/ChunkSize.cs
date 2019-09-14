@@ -7,7 +7,7 @@ namespace UnityEdits.Rendering
 
         private const int ByteAxisBits = 2;
         private const int ShortAxisBits = 5;
-        private const int AxisBits = ShortAxisBits;
+        private const int AxisBits = ByteAxisBits;
         public const int AxisSize = 1 << AxisBits;
         public const int SquareSize = AxisSize * AxisSize;
         public const int CubeSize = SquareSize * AxisSize;

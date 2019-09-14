@@ -7,15 +7,13 @@
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="ChunkRenderSystem.cs" t="Include" />
         <e p="Editor" t="Include">
           <e p="CreateAssetBundles.cs" t="Include" />
         </e>
         <e p="Scripts" t="Include">
-          <e p="ABTest.cs" t="Include" />
-          <e p="Chunk.cs" t="Include" />
-          <e p="ChunkEngine.cs" t="Include" />
           <e p="ChunkGenArgs.cs" t="Include" />
-          <e p="ChunkStreamer.cs" t="Include" />
+          <e p="ChunkOld.cs" t="Include" />
           <e p="DelegatePool.cs" t="Include" />
           <e p="DisposableDelegatePool.cs" t="Include" />
           <e p="ECS" t="Include">
@@ -26,9 +24,6 @@
           <e p="Editor" t="Include">
             <e p="MaterialListDrawer.cs" t="Include" />
           </e>
-          <e p="EntityTester.cs" t="Include" />
-          <e p="GenerationLogic.cs" t="Include" />
-          <e p="GenerationPipeline.cs" t="Include" />
           <e p="InventorySystem" t="Include">
             <e p="AbstractItemStack.cs" t="Include" />
             <e p="BlockReference.cs" t="Include" />
@@ -75,7 +70,6 @@
             <e p="PipelineHandle.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
-          <e p="RenderingPool.cs" t="Include" />
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
@@ -113,25 +107,39 @@
           </e>
           <e p="UnityEdits" t="Include">
             <e p="Hybrid Renderer" t="Include">
-              <e p="ChunkEntity.cs" t="Include" />
               <e p="ChunkPosition.cs" t="Include" />
               <e p="ChunkSize.cs" t="Include" />
               <e p="DontRenderTag.cs" t="Include" />
               <e p="GameManager.cs" t="Include" />
               <e p="GatherChunkRenderers.cs" t="Include" />
-              <e p="GatherVoxelRenderMatrixV2.cs" t="Include" />
+              <e p="LodRequirement.cs" t="Include" />
               <e p="LodRequirementsUpdateSystemV3.cs" t="Include" />
+              <e p="MergeMeshJob.cs" t="Include" />
+              <e p="NativeMesh.cs" t="Include" />
+              <e p="NativeMeshBuilder.cs" t="Include" />
+              <e p="NativeMeshUtil.cs" t="Include" />
               <e p="RenderMeshSystemV3.cs" t="Include" />
-              <e p="RenderMeshSystemV4.cs" t="Include" />
+              <e p="RootLodRequirement.cs" t="Include" />
               <e p="SubSceneTagOrderVersion.cs" t="Include" />
-              <e p="VoxelMeshSystemV4.cs" t="Include" />
-              <e p="VoxelPosition.cs" t="Include" />
-              <e p="VoxelRenderData.cs" t="Include" />
             </e>
           </e>
           <e p="UniVox" t="Include">
             <e p="AxisOrdering.cs" t="Include" />
             <e p="AxisOrderingX.cs" t="Include" />
+            <e p="ChunkReference.cs" t="Include" />
+            <e p="Core" t="Include">
+              <e p="Chunks" t="Include">
+                <e p="Chunk.Accessor.cs" t="Include" />
+                <e p="Chunk.cs" t="Include" />
+                <e p="Chunk.Data.cs" t="Include" />
+                <e p="RenderChunk.Accessor.cs" t="Include" />
+                <e p="RenderChunk.cs" t="Include" />
+                <e p="RenderChunk.Data.cs" t="Include" />
+              </e>
+              <e p="UniversalId.cs" t="Include" />
+              <e p="World.cs" t="Include" />
+              <e p="World.Record.cs" t="Include" />
+            </e>
             <e p="Entities" t="Include">
               <e p="Data" t="Include">
                 <e p="BlockIdentity.cs" t="Include" />
@@ -149,6 +157,7 @@
                 <e p="ModResources.cs" t="Include" />
               </e>
             </e>
+            <e p="IChunk.cs" t="Include" />
             <e p="Managers" t="Include">
               <e p="AutoRegistry.cs" t="Include" />
               <e p="IndexedRegistry.cs" t="Include" />
@@ -158,14 +167,15 @@
             </e>
             <e p="PositionUtil.cs" t="Include" />
             <e p="VoxelChunk.cs" t="Include" />
-            <e p="VoxelUniverse.cs" t="Include" />
             <e p="VoxelWorld.cs" t="Include" />
           </e>
-          <e p="WorldBehaviour.cs" t="Include" />
         </e>
         <e p="VoxelAuthor.cs" t="Include" />
         <e p="VoxelChunk.cs" t="Include" />
-        <e p="VoxelRenderChunk.cs" t="Include" />
+        <e p="VoxelChunkPosition.cs" t="Include" />
+        <e p="VoxelRenderChunkData.cs" t="Include" />
+        <e p="VoxelRenderChunkElement.cs" t="Include" />
+        <e p="VoxelRenderChunkOld.cs" t="Include" />
         <e p="WallE.cs" t="Include" />
         <e p="WallE2.cs" t="Include" />
       </e>

@@ -34,7 +34,7 @@ public class VoxelAuthor : MonoBehaviour, IConvertGameObjectToEntity
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
         
         
-        dstManager.AddSharedComponentData(entity, new VoxelRenderData(){MeshIdentity = 0, MaterialIdentity = 0});
+//        dstManager.AddSharedComponentData(entity, new VoxelRenderData(){MeshIdentity = 0, MaterialIdentity = 0});
         dstManager.AddSharedComponentData(entity,new ChunkPosition());
     }
 }
