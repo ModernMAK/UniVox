@@ -129,16 +129,22 @@
             <e p="ChunkReference.cs" t="Include" />
             <e p="Core" t="Include">
               <e p="Chunks" t="Include">
-                <e p="Chunk.Accessor.cs" t="Include" />
                 <e p="Chunk.cs" t="Include" />
-                <e p="Chunk.Data.cs" t="Include" />
+                <e p="CoreChunk.Accessor.cs" t="Include" />
+                <e p="CoreChunk.Data.cs" t="Include" />
                 <e p="RenderChunk.Accessor.cs" t="Include" />
-                <e p="RenderChunk.cs" t="Include" />
                 <e p="RenderChunk.Data.cs" t="Include" />
+                <e p="VoxelInfoArray.cs" t="Include" />
+                <e p="VoxelRenderInfoArray.cs" t="Include" />
               </e>
-              <e p="UniversalId.cs" t="Include" />
-              <e p="World.cs" t="Include" />
-              <e p="World.Record.cs" t="Include" />
+              <e p="UniversalVoxelId.cs" t="Include" />
+              <e p="Universe.cs" t="Include" />
+              <e p="World" t="Include">
+                <e p="ChunkMap.cs" t="Include" />
+                <e p="EntityWorldMap.cs" t="Include" />
+                <e p="World.Accessor.cs" t="Include" />
+                <e p="World.Data.cs" t="Include" />
+              </e>
             </e>
             <e p="Entities" t="Include">
               <e p="Data" t="Include">

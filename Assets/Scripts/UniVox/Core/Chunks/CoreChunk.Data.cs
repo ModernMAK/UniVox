@@ -1,13 +1,13 @@
-namespace Univox
+namespace UniVox.Core
 {
-    public partial class Chunk
+    public partial class VoxelInfoArray
     {
         public struct Data
         {
-            public Data(Chunk chunk, int index)
+            public Data(VoxelInfoArray voxelInfoArray, int index)
             {
-                Identity = chunk._identities[index];
-                Variant = chunk._variants[index];
+                Identity = voxelInfoArray._identities[index];
+                Variant = voxelInfoArray._variants[index];
             }
 
             public Data(Accessor accessor)

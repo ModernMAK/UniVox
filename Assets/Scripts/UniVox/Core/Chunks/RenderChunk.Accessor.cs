@@ -1,35 +1,35 @@
-namespace Univox
+namespace UniVox.Core
 {
-    public partial class RenderChunk
+    public partial class VoxelRenderInfoArray
     {
         public struct Accessor
         {
-            public Accessor(RenderChunk chunk, int index)
+            public Accessor(VoxelRenderInfoArray infoArray, int index)
             {
-                _chunk = chunk;
+                _infoArray = infoArray;
                 _index = index;
             }
 
-            private RenderChunk _chunk;
+            private VoxelRenderInfoArray _infoArray;
 
             private int _index;
 
             public int Mesh
             {
-                get => _chunk._meshes[_index];
-                set => _chunk._meshes[_index] = value;
+                get => _infoArray._meshes[_index];
+                set => _infoArray._meshes[_index] = value;
             }
 
             public int Material
             {
-                get => _chunk._materials[_index];
-                set => _chunk._materials[_index] = value;
+                get => _infoArray._materials[_index];
+                set => _infoArray._materials[_index] = value;
             }
 
             public bool CullFlag
             {
-                get => _chunk._cullFlags[_index];
-                set => _chunk._cullFlags[_index] = value;
+                get => _infoArray._cullFlags[_index];
+                set => _infoArray._cullFlags[_index] = value;
             }
         }
     }

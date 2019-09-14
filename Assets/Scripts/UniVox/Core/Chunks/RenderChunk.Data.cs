@@ -1,14 +1,14 @@
-namespace Univox
+namespace UniVox.Core
 {
-    public partial class RenderChunk
+    public partial class VoxelRenderInfoArray
     {
         public struct Data
         {
-            public Data(RenderChunk chunk, int index)
+            public Data(VoxelRenderInfoArray infoArray, int index)
             {
-                Mesh = chunk._meshes[index];
-                Material = chunk._materials[index];
-                CullFlag = chunk._cullFlags[index];
+                Mesh = infoArray._meshes[index];
+                Material = infoArray._materials[index];
+                CullFlag = infoArray._cullFlags[index];
             }
 
             public Data(Accessor accessor)

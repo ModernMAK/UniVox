@@ -1,11 +1,11 @@
 using System;
 using Unity.Collections;
 
-namespace Univox
+namespace UniVox.Core
 {
-    public partial class RenderChunk : IDisposable
+    public partial class VoxelRenderInfoArray : IDisposable
     {
-        public RenderChunk(int size = Chunk.CubeSize, Allocator allocator = Allocator.Persistent,
+        public VoxelRenderInfoArray(int size = VoxelInfoArray.CubeSize, Allocator allocator = Allocator.Persistent,
             NativeArrayOptions options = NativeArrayOptions.ClearMemory)
         {
             _materials = new NativeArray<int>(size, allocator, options);
@@ -27,6 +27,11 @@ namespace Univox
             _meshes.Dispose();
             _materials.Dispose();
             _cullFlags.Dispose();
+        }
+
+        public Accessor GetAccessor(int index)
+        {
+            return new Accessor(this, index);
         }
     }
 }

@@ -1,17 +1,18 @@
-namespace Univox
+namespace UniVox.Core
 {
-    public partial class Chunk
+    public partial class VoxelInfoArray
     {
+        
         public struct Accessor
         {
-            public Accessor(Chunk chunk, int index)
+            public Accessor(VoxelInfoArray voxelInfoArray, int index)
             {
-                _backing = chunk;
+                _backing = voxelInfoArray;
                 _index = index;
             }
 
 
-            private readonly Chunk _backing;
+            private readonly VoxelInfoArray _backing;
             private readonly int _index;
 
             public short Identity
@@ -32,6 +33,7 @@ namespace Univox
                 get => new Data(this);
                 set => _backing.SetData(_index, value);
             }
+            
 
             public static implicit operator Data(Accessor accessor)
             {

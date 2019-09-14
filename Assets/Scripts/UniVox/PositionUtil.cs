@@ -1,5 +1,6 @@
 using System;
 using Unity.Mathematics;
+using UniVox.Core;
 
 namespace Univox
 {
@@ -8,7 +9,7 @@ namespace Univox
         public static int3 GetLocalPosition(int3 worldPosition)
         {
             //TODO test that this gives expected results
-            return worldPosition % Chunk.AxisSize;
+            return worldPosition % VoxelInfoArray.AxisSize;
         }
 
         public static int3 GetChunkPosition(int3 worldPosition)
@@ -18,16 +19,16 @@ namespace Univox
             //THERFORE (15,-12,53) w/ AxisSize of 16; WE GET (0, -1, 3)
             //Without doing this, with integer truncation, we get (0, 0, 3)
             //We could get around this by using floats and flooring
-            const int truncationShift = Chunk.AxisSize - 1;
-            return (worldPosition - truncationShift) / Chunk.AxisSize;
+            const int truncationShift = VoxelInfoArray.AxisSize - 1;
+            return (worldPosition - truncationShift) / VoxelInfoArray.AxisSize;
         }
 
         public static void GetChunkAndLocalPosition(int3 worldPosition, out int3 chunkPosition,
             out int3 localPosition)
         {
-            const int truncationShift = Chunk.AxisSize - 1;
-            chunkPosition = (worldPosition - truncationShift) / Chunk.AxisSize;
-            localPosition = worldPosition % Chunk.AxisSize;
+            const int truncationShift = VoxelInfoArray.AxisSize - 1;
+            chunkPosition = (worldPosition - truncationShift) / VoxelInfoArray.AxisSize;
+            localPosition = worldPosition % VoxelInfoArray.AxisSize;
         }
 
         public static int3 GetWorldPosition(int3 chunkPosition, int3 offset = default)
