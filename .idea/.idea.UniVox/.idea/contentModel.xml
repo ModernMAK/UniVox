@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
-    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
+    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -109,6 +109,7 @@
             <e p="Hybrid Renderer" t="Include">
               <e p="ChunkPosition.cs" t="Include" />
               <e p="ChunkSize.cs" t="Include" />
+              <e p="CreateTransformsForChunk.cs" t="Include" />
               <e p="DontRenderTag.cs" t="Include" />
               <e p="GameManager.cs" t="Include" />
               <e p="GatherChunkRenderers.cs" t="Include" />
@@ -128,22 +129,31 @@
             <e p="AxisOrderingX.cs" t="Include" />
             <e p="ChunkReference.cs" t="Include" />
             <e p="Core" t="Include">
-              <e p="Chunks" t="Include">
-                <e p="Chunk.cs" t="Include" />
-                <e p="CoreChunk.Accessor.cs" t="Include" />
-                <e p="CoreChunk.Data.cs" t="Include" />
-                <e p="RenderChunk.Accessor.cs" t="Include" />
-                <e p="RenderChunk.Data.cs" t="Include" />
-                <e p="VoxelInfoArray.cs" t="Include" />
-                <e p="VoxelRenderInfoArray.cs" t="Include" />
-              </e>
-              <e p="UniversalVoxelId.cs" t="Include" />
-              <e p="Universe.cs" t="Include" />
-              <e p="World" t="Include">
-                <e p="ChunkMap.cs" t="Include" />
-                <e p="EntityWorldMap.cs" t="Include" />
-                <e p="World.Accessor.cs" t="Include" />
-                <e p="World.Data.cs" t="Include" />
+              <e p="Types" t="Include">
+                <e p="ChunkIdComponent.cs" t="Include" />
+                <e p="Chunks" t="Include">
+                  <e p="AccessorAndDataArrayX.cs" t="Include" />
+                  <e p="Chunk.cs" t="Include" />
+                  <e p="CoreChunk.Accessor.cs" t="Include" />
+                  <e p="CoreChunk.Data.cs" t="Include" />
+                  <e p="INativeAccessorArray.cs" t="Include" />
+                  <e p="INativeDataArray.cs" t="Include" />
+                  <e p="IVersioned.cs" t="Include" />
+                  <e p="RenderChunk.Accessor.cs" t="Include" />
+                  <e p="RenderChunk.Data.cs" t="Include" />
+                  <e p="Version.cs" t="Include" />
+                  <e p="VoxelInfoArray.cs" t="Include" />
+                  <e p="VoxelRenderInfoArray.cs" t="Include" />
+                </e>
+                <e p="UniversalChunkId.cs" t="Include" />
+                <e p="UniversalIdUtil.cs" t="Include" />
+                <e p="UniversalVoxelId.cs" t="Include" />
+                <e p="Universe" t="Include">
+                  <e p="Universe.cs" t="Include" />
+                </e>
+                <e p="World" t="Include">
+                  <e p="World.cs" t="Include" />
+                </e>
               </e>
             </e>
             <e p="Entities" t="Include">

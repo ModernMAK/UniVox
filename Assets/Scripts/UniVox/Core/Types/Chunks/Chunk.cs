@@ -1,7 +1,17 @@
+using System;
+using Unity.Collections;
+
 namespace UniVox.Core
 {
-    public class Chunk
+    public class Chunk : IDisposable, IAccessorArray<Chunk.Accessor>
     {
+        public Chunk(int size = VoxelInfoArray.CubeSize, Allocator allocator = Allocator.Persistent,
+            NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+        {
+            Info = new VoxelInfoArray(size, allocator, options);
+            Render = new VoxelRenderInfoArray(size, allocator, options);
+        }
+
         public VoxelInfoArray Info { get; }
         public VoxelRenderInfoArray Render { get; }
 
@@ -23,6 +33,21 @@ namespace UniVox.Core
 
             public VoxelInfoArray.Accessor Info => _coreAccessor;
             public VoxelRenderInfoArray.Accessor Render => _renderAccessor;
+        }
+
+        public void Dispose()
+        {
+            Info.Dispose();
+            Render.Dispose();
+        }
+
+        public int Length => Info.Length;
+
+        public Accessor this[int index] => new Accessor(this, index);
+
+        public Accessor GetAccessor(int index)
+        {
+            return new Accessor(this, index);
         }
     }
 }

@@ -26,6 +26,16 @@ namespace UniVox.Core
                 set => _infoArray._materials[_index] = value;
             }
 
+            public RenderGroup RenderGroup
+            {
+                get => new RenderGroup(Mesh,Material);
+                set
+                {
+                    Mesh = value.MeshIndex;
+                    Material = value.MaterialIndex;
+                }
+            }
+
             public bool CullFlag
             {
                 get => _infoArray._cullFlags[_index];
