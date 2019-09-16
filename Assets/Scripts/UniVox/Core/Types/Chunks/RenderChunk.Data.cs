@@ -1,3 +1,5 @@
+using Types;
+
 namespace UniVox.Core
 {
     public partial class VoxelRenderInfoArray
@@ -6,22 +8,28 @@ namespace UniVox.Core
         {
             public Data(VoxelRenderInfoArray infoArray, int index)
             {
-                Mesh = infoArray._meshes[index];
+                Shape = infoArray._blockShapes[index];
                 Material = infoArray._materials[index];
-                CullFlag = infoArray._cullFlags[index];
+                HiddenFaces = infoArray._blockFlags[index];
+                Shape = infoArray._blockShapes[index];
             }
 
             public Data(Accessor accessor)
             {
-                Mesh = accessor.Mesh;
+                Shape = accessor.Shape;
                 Material = accessor.Material;
-                CullFlag = accessor.CullFlag;
+                HiddenFaces = accessor.HiddenFaces;
+                Shape = accessor.Shape;
             }
 
-            public int Mesh { get; set; }
+
+            public BlockShape Shape { get; set; }
+            public Directions HiddenFaces { get; set; }
+
+            
             public int Material { get; set; }
 
-            public bool CullFlag { get; set; }
+            
         }
     }
 }

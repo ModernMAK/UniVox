@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Types;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -18,17 +19,67 @@ namespace UniVox.Core
         }
 
 
-        public bool Equals(RenderGroup other)
-        {
-            return MeshIndex == other.MeshIndex && MaterialIndex == other.MaterialIndex;
-        }
-
         public int CompareTo(RenderGroup other)
         {
             var delta = MeshIndex.CompareTo(other.MeshIndex);
             return delta != 0 ? delta : MaterialIndex.CompareTo(other.MaterialIndex);
         }
+
+        public bool Equals(RenderGroup other)
+        {
+            return MeshIndex == other.MeshIndex && MaterialIndex == other.MaterialIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is RenderGroup other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (MeshIndex * 397) ^ MaterialIndex;
+            }
+        }
     }
+    public struct BlockRenderGroup : IEquatable<BlockRenderGroup>, IComparable<BlockRenderGroup>
+    {
+        public BlockShape Shape;
+        public int MaterialIndex;
+
+        public BlockRenderGroup(BlockShape shape, int material)
+        {
+            Shape = shape;
+            MaterialIndex = material;
+        }
+
+
+        public int CompareTo(BlockRenderGroup other)
+        {
+            var delta = Shape.CompareTo(other.Shape);
+            return delta != 0 ? delta : MaterialIndex.CompareTo(other.MaterialIndex);
+        }
+
+        public bool Equals(BlockRenderGroup other)
+        {
+            return Shape == other.Shape && MaterialIndex == other.MaterialIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BlockRenderGroup other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Shape.GetHashCode() * 397) ^ MaterialIndex;
+            }
+        }
+    }
+
     public struct NativeArrayBuilder
     {
         public NativeArray<T> Create<T>() where T : struct
@@ -53,7 +104,7 @@ namespace UniVox.Core
         public Record GetOrCreate(int3 chunkId, NativeArrayBuilder args = default)
         {
             if (TryGetAccessor(chunkId, out var record)) return record;
-            
+
             var chunk = new Chunk(args.ArraySize, args.Allocator, args.Options);
             _records[chunkId] = record = new Record(chunk);
 

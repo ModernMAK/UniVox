@@ -1,11 +1,32 @@
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEdits.Rendering;
 using UnityEngine;
+using UniVox.Core;
 
 static internal class NativeMeshUtil
 {
+    public struct ChunkRenderBuffer : ISystemStateBufferElementData
+    {
+        public Entity RenderGroupEntity;
+    }
+
+
+    public static EntityArchetype CreateMeshRenderEntityArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(
+            ComponentType.ReadWrite<LocalToWorld>(),
+            ComponentType.ReadWrite<Rotation>(),
+            ComponentType.ReadWrite<Translation>(),
+            ComponentType.ReadWrite<RenderMesh>()
+        );
+    }
+
+
     public static NativeMesh GetNativeMesh(this Mesh mesh, Allocator allocator)
     {
         return new NativeMesh(mesh, allocator);

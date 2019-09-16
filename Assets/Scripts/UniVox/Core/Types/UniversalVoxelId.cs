@@ -60,5 +60,11 @@ namespace UniVox.Core
 
         public static implicit operator UniversalVoxelId(UniversalChunkId universalVoxelId) =>
             new UniversalVoxelId(universalVoxelId.WorldId, universalVoxelId.ChunkId, 0);
+        
+        
+        public UniversalChunkId CreateChunkId()
+        {
+            return new UniversalChunkId(WorldId, ChunkId);
+        }
     }
 }

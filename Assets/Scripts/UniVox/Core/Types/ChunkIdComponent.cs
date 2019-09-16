@@ -6,8 +6,8 @@ namespace UniVox.Core
     public struct ChunkIdComponent : IComponentData, IEquatable<ChunkIdComponent>, IComparable<ChunkIdComponent>
     {
         /*
-         * A not beause i keep thinking i need to do this. BECAUSE entities are stored on a per World Basis, we dont need to use a Shared Component To GRoup Them
-         * We do still need the WorldID since we dont store a reference to the World
+         * A note because i keep thinking i need to do this. BECAUSE entities are stored on a per World Basis, we dont need to use a Shared Component To GRoup Them
+         * We do still need the WorldID since we dont store a reference to the World (Even though we know the entity knows the EntityWorld their in)
          */
         public UniversalChunkId Value;
 
@@ -25,6 +25,11 @@ namespace UniVox.Core
         public static implicit operator UniversalChunkId(ChunkIdComponent component)
         {
             return component.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
 
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
-    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -106,23 +106,23 @@
             <e p="VoxelPos8.cs" t="Include" />
           </e>
           <e p="UnityEdits" t="Include">
+            <e p="ChunkPosition.cs" t="Include" />
+            <e p="ChunkSize.cs" t="Include" />
+            <e p="CreateTransformsForChunk.cs" t="Include" />
+            <e p="GameManager.cs" t="Include" />
+            <e p="GatherChunkRenderers.cs" t="Include" />
             <e p="Hybrid Renderer" t="Include">
-              <e p="ChunkPosition.cs" t="Include" />
-              <e p="ChunkSize.cs" t="Include" />
-              <e p="CreateTransformsForChunk.cs" t="Include" />
               <e p="DontRenderTag.cs" t="Include" />
-              <e p="GameManager.cs" t="Include" />
-              <e p="GatherChunkRenderers.cs" t="Include" />
               <e p="LodRequirement.cs" t="Include" />
               <e p="LodRequirementsUpdateSystemV3.cs" t="Include" />
               <e p="MergeMeshJob.cs" t="Include" />
-              <e p="NativeMesh.cs" t="Include" />
-              <e p="NativeMeshBuilder.cs" t="Include" />
-              <e p="NativeMeshUtil.cs" t="Include" />
               <e p="RenderMeshSystemV3.cs" t="Include" />
               <e p="RootLodRequirement.cs" t="Include" />
               <e p="SubSceneTagOrderVersion.cs" t="Include" />
             </e>
+            <e p="NativeMesh.cs" t="Include" />
+            <e p="NativeMeshBuilder.cs" t="Include" />
+            <e p="NativeMeshUtil.cs" t="Include" />
           </e>
           <e p="UniVox" t="Include">
             <e p="AxisOrdering.cs" t="Include" />
@@ -141,7 +141,6 @@
                   <e p="IVersioned.cs" t="Include" />
                   <e p="RenderChunk.Accessor.cs" t="Include" />
                   <e p="RenderChunk.Data.cs" t="Include" />
-                  <e p="Version.cs" t="Include" />
                   <e p="VoxelInfoArray.cs" t="Include" />
                   <e p="VoxelRenderInfoArray.cs" t="Include" />
                 </e>
@@ -151,6 +150,7 @@
                 <e p="Universe" t="Include">
                   <e p="Universe.cs" t="Include" />
                 </e>
+                <e p="Version.cs" t="Include" />
                 <e p="World" t="Include">
                   <e p="World.cs" t="Include" />
                 </e>

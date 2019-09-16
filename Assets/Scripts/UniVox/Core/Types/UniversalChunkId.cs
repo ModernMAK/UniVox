@@ -26,6 +26,8 @@ namespace UniVox.Core
                 delta = UniversalIdUtil.CompareTo(ChunkId, other.ChunkId, AxisOrdering.YXZ);
             return delta;
         }
+        
+        
 
 
         public bool Equals(UniversalChunkId other)
@@ -46,6 +48,11 @@ namespace UniVox.Core
                 hashCode = (hashCode * 397) ^ ChunkId.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public UniversalVoxelId CreateVoxelId(short voxelId)
+        {
+            return new UniversalVoxelId(WorldId, ChunkId, voxelId);
         }
     }
 }
