@@ -62,6 +62,7 @@ namespace UniVox.Core.Systems
 
         protected override void OnCreate()
         {
+            FrameCaches = new Queue<FrameCache>();
             _universe = GameManager.Universe;
             GameManager.MasterRegistry.Material.TryGetValue(0, out _material);
             SetupArchetype();
@@ -167,11 +168,21 @@ namespace UniVox.Core.Systems
                 EntityManager.SetComponentData(entity, new LocalToWorld() {Value = new float4x4(rotation, position)});
         }
 
+        private struct FrameCache
+        {
+            public UniversalChunkId Id;
+            public Mesh[] Meshes;
+        }
+
+        private Queue<FrameCache> FrameCaches;
+
         void RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
             var versionType = GetArchetypeChunkComponentType<ChunkRenderVersion>();
+
+
             foreach (var ecsChunk in chunkArray)
             {
                 var ids = ecsChunk.GetNativeArray(idType);
@@ -189,27 +200,37 @@ namespace UniVox.Core.Systems
                     versions[i] = ChunkRenderVersion.Create(voxelChunk);
 
                     var meshes = CommonRenderingJobs.GenerateBoxelMeshes(voxelChunk);
-                    var renderEntities = GetResizedCache(id.Value, meshes.Length);
-                    InitializeEntities(renderEntities, id.Value.ChunkId); //ChunkID doubles as position
-
-
-                    for (var j = 0; j < renderEntities.Length; j++)
-                    {
-                        var renderEntity = renderEntities[j];
-
-                        var meshData = EntityManager.GetSharedComponentData<RenderMesh>(renderEntity);
-
-                        meshData.mesh = meshes[j];
-                        meshData.material = _material;
-
-                        EntityManager.SetSharedComponentData(renderEntity, meshData);
-                    }
-
+                    FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Meshes = meshes});
                 }
             }
 
             chunkArray.Dispose();
+
+            while (FrameCaches.Count > 0)
+            {
+                var cached = FrameCaches.Dequeue();
+                var id = cached.Id;
+                var meshes = cached.Meshes;
+
+                var renderEntities = GetResizedCache(id, meshes.Length);
+                InitializeEntities(renderEntities,
+                    id.ChunkId * ChunkSize.AxisSize); //ChunkID doubles as unscaled position
+
+
+                for (var j = 0; j < renderEntities.Length; j++)
+                {
+                    var renderEntity = renderEntities[j];
+
+                    var meshData = EntityManager.GetSharedComponentData<RenderMesh>(renderEntity);
+
+                    meshData.mesh = meshes[j];
+                    meshData.material = _material;
+
+                    EntityManager.SetSharedComponentData(renderEntity, meshData);
+                }
+            }
         }
+
 
         void SetupPass()
         {
@@ -230,11 +251,12 @@ namespace UniVox.Core.Systems
 
             inputDeps.Complete();
 
-            CleanupPass();
-
             RenderPass();
 
+
+            CleanupPass();
             SetupPass();
+
 
             return new JobHandle();
         }
