@@ -56,11 +56,7 @@
           <e p="Rendering" t="Include">
             <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
-            <e p="IPipelineHandle.cs" t="Include" />
-            <e p="IPipelineJobX.cs" t="Include" />
-            <e p="JobHandlePipelineV2.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
-            <e p="PipelineHandle.cs" t="Include" />
             <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
           <e p="SimpleCameraController.cs" t="Include" />
@@ -84,7 +80,6 @@
             <e p="RenderModeFlags.cs" t="Include" />
           </e>
           <e p="UnityEdits" t="Include">
-            <e p="ChunkPosition.cs" t="Include" />
             <e p="ChunkSize.cs" t="Include" />
             <e p="CreateTransformsForChunk.cs" t="Include" />
             <e p="GameManager.cs" t="Include" />
@@ -106,6 +101,9 @@
             <e p="AxisOrdering.cs" t="Include" />
             <e p="AxisOrderingX.cs" t="Include" />
             <e p="Core" t="Include">
+              <e p="Systems" t="Include">
+                <e p="ChunkRenderSystem.cs" t="Include" />
+              </e>
               <e p="Types" t="Include">
                 <e p="ChunkIdComponent.cs" t="Include" />
                 <e p="Chunks" t="Include">
@@ -157,6 +155,7 @@
             <e p="PositionUtil.cs" t="Include" />
           </e>
         </e>
+        <e p="TestSystem.cs" t="Include" />
         <e p="WallE.cs" t="Include" />
         <e p="WallE2.cs" t="Include" />
       </e>

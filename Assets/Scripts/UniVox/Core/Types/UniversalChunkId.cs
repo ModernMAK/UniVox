@@ -4,7 +4,7 @@ using Unity.Mathematics;
 namespace UniVox.Core.Types
 {
     /// <summary>
-    ///     A Universal Id, capable of grabbing any Voxel, Chunk, or World in the Universe
+    ///     A Universal Id, capable of grabbing any Chunk, or World in the Universe
     /// </summary>
     public struct UniversalChunkId : IEquatable<UniversalChunkId>, IComparable<UniversalChunkId>
     {

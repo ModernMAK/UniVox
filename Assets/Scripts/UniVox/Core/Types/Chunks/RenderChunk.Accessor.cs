@@ -22,6 +22,12 @@ namespace UniVox.Core.Types
                 get => _infoArray._blockShapes[_index];
                 set => _infoArray._blockShapes[_index] = value;
             }
+            
+            public int Atlas
+            {
+                get => _infoArray._atlases[_index];
+                set => _infoArray._atlases[_index] = value;
+            }
 
             public Directions HiddenFaces
             {

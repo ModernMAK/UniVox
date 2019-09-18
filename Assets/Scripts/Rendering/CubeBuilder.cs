@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Types;
-using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -82,20 +81,6 @@ namespace Rendering
         {
             0, 3, 2, 2, 1, 0
         };
-
-        [Obsolete]
-        public static void GetNativeQuick(out NativeArray<float3> verts, out NativeArray<int> indexes,
-            out NativeArray<int> triOrder, out NativeArray<float3> normals, out NativeArray<float4> tangents,
-            out NativeArray<float2> uvs, Allocator allocator)
-        {
-            throw new NotImplementedException();
-//        verts = GetNativeCubeVertexes(allocator);
-//        indexes = GetNativeFaceIndexes(allocator);
-//        triOrder = GetNativeTriangleOrder(allocator);
-//        normals = GetNativeNormals(allocator);
-//        tangents = GetNativeTangents(allocator);
-//        uvs = GetNativeCubeUvs(allocator);
-        }
 
         public static float4 GetTangent(Direction dir)
         {
