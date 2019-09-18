@@ -10,6 +10,7 @@ namespace Types
         CornerOuter,
         Ramp,
         CubeBevel,
+        [Obsolete]
         Custom = byte.MaxValue,
     }
 }

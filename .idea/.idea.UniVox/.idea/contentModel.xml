@@ -16,11 +16,6 @@
           <e p="ChunkOld.cs" t="Include" />
           <e p="DelegatePool.cs" t="Include" />
           <e p="DisposableDelegatePool.cs" t="Include" />
-          <e p="ECS" t="Include">
-            <e p="system" t="Include">
-              <e p="VoxelSpawnSystem.cs" t="Include" />
-            </e>
-          </e>
           <e p="Editor" t="Include">
             <e p="MaterialListDrawer.cs" t="Include" />
           </e>
@@ -54,7 +49,6 @@
             <e p="CalculateActiveFromNoise.cs" t="Include" />
             <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
             <e p="DeallocateNativeArrayJob.cs" t="Include" />
-            <e p="GatherWorldPositions.cs" t="Include" />
             <e p="GenerateBoxelMeshV3.cs" t="Include" />
             <e p="UpdateHiddenFacesJob.cs" t="Include" />
           </e>
@@ -73,8 +67,6 @@
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
-            <e p="ChunkManagerV2.cs" t="Include" />
-            <e p="ChunkTableManager.cs" t="Include" />
             <e p="Colors" t="Include">
               <e p="Color16.cs" t="Include" />
               <e p="Color8.cs" t="Include" />
