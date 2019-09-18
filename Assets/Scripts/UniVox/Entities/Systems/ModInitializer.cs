@@ -1,9 +1,12 @@
-public class ModInitializer
+namespace UniVox.Entities.Systems
 {
-    public ModInitializer(MasterRegistry registries)
+    public class ModInitializer
     {
-        Registries = registries;
-    }
+        public ModInitializer(MasterRegistry registries)
+        {
+            Registries = registries;
+        }
 
-    public MasterRegistry Registries { get; }
+        public MasterRegistry Registries { get; }
+    }
 }

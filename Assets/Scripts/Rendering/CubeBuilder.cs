@@ -69,7 +69,7 @@ namespace Rendering
         };
 
 
-        private static readonly Vector3[] BackFaceVertexes = new Vector3[4]
+        private static readonly Vector3[] BackFaceVertexes =
         {
             CubeVertexes[1], //+X, -Y
             CubeVertexes[3], //+X, +Y
@@ -78,7 +78,7 @@ namespace Rendering
         };
 
 
-        private static readonly int[] _triangles = new int[6]
+        private static readonly int[] _triangles =
         {
             0, 3, 2, 2, 1, 0
         };

@@ -1,7 +1,7 @@
 using System;
 using Unity.Entities;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     public struct ChunkIdComponent : IComponentData, IEquatable<ChunkIdComponent>, IComparable<ChunkIdComponent>
     {
@@ -29,34 +29,46 @@ namespace UniVox.Core
 
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return Value.GetHashCode();
         }
 
 
         //Helper functions
-        public World GetWorld(Universe universe) => universe[Value.WorldId];
+        public World.World GetWorld(Universe.Universe universe)
+        {
+            return universe[Value.WorldId];
+        }
 
-        public bool TryGetWorld(Universe universe, out World record) =>
-            universe.TryGetValue(Value.WorldId, out record);
+        public bool TryGetWorld(Universe.Universe universe, out World.World record)
+        {
+            return universe.TryGetValue(Value.WorldId, out record);
+        }
 
 
-        public bool TryGetChunk(Universe universe, out World.Record record)
+        public bool TryGetChunk(Universe.Universe universe, out World.World.Record record)
         {
             if (universe.TryGetValue(Value.WorldId, out var universeRecord))
-            {
                 return TryGetChunkRecord(universeRecord, out record);
-            }
 
             record = default;
             return false;
         }
 
-        public World.Record GetChunk(Universe universe) => GetChunk(GetWorld(universe));
+        public World.World.Record GetChunk(Universe.Universe universe)
+        {
+            return GetChunk(GetWorld(universe));
+        }
 
 
-        public bool TryGetChunkRecord(World chunkMap, out World.Record record) =>
-            chunkMap.TryGetAccessor(Value.ChunkId, out record);
+        public bool TryGetChunkRecord(World.World chunkMap, out World.World.Record record)
+        {
+            return chunkMap.TryGetAccessor(Value.ChunkId, out record);
+        }
 
-        public World.Record GetChunk(World chunkMap) => chunkMap[Value.ChunkId];
+        public World.World.Record GetChunk(World.World chunkMap)
+        {
+            return chunkMap[Value.ChunkId];
+        }
     }
 }

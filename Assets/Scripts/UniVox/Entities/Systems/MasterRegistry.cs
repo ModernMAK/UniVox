@@ -1,16 +1,19 @@
-using InventorySystem;
 using UnityEngine;
+using UniVox.Managers;
 
-public class MasterRegistry
+namespace UniVox.Entities.Systems
 {
-    public MasterRegistry()
+    public class MasterRegistry
     {
-        Mesh = new NamedRegistry<Mesh>();
-        Material = new NamedRegistry<Material>();
-        Icon = new NamedRegistry<Sprite>();
-    }
+        public MasterRegistry()
+        {
+            Mesh = new NamedRegistry<Mesh>();
+            Material = new NamedRegistry<Material>();
+            Icon = new NamedRegistry<Sprite>();
+        }
 
-    public NamedRegistry<Mesh> Mesh { get; }
-    public NamedRegistry<Material> Material { get; }
-    public NamedRegistry<Sprite> Icon { get; }
+        public NamedRegistry<Mesh> Mesh { get; }
+        public NamedRegistry<Material> Material { get; }
+        public NamedRegistry<Sprite> Icon { get; }
+    }
 }

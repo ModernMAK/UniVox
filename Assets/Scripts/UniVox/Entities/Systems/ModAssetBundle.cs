@@ -2,32 +2,46 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class ModAssetBundle : IDisposable
+namespace UniVox.Entities.Systems
 {
-    public ModAssetBundle(AssetBundle assetBundle)
+    public class ModAssetBundle : IDisposable
     {
-        Handle = assetBundle;
-    }
+        public ModAssetBundle(AssetBundle assetBundle)
+        {
+            Handle = assetBundle;
+        }
 
-    private AssetBundle Handle { get; }
+        private AssetBundle Handle { get; }
 
-    public T LoadAsset<T>(string name) where T : Object => Handle.LoadAsset<T>(name);
-    public bool Contains(string name) => Handle.Contains(name);
-    public T[] LoadAllAssets<T>(string name) where T : Object => Handle.LoadAllAssets<T>();
+        public void Dispose()
+        {
+            Handle.Unload(false);
+        }
+
+        public T LoadAsset<T>(string name) where T : Object
+        {
+            return Handle.LoadAsset<T>(name);
+        }
+
+        public bool Contains(string name)
+        {
+            return Handle.Contains(name);
+        }
+
+        public T[] LoadAllAssets<T>(string name) where T : Object
+        {
+            return Handle.LoadAllAssets<T>();
+        }
 
 
-    public static implicit operator AssetBundle(ModAssetBundle assetBundle)
-    {
-        return assetBundle.Handle;
-    }
+        public static implicit operator AssetBundle(ModAssetBundle assetBundle)
+        {
+            return assetBundle.Handle;
+        }
 
-    public static explicit operator ModAssetBundle(AssetBundle assetBundle)
-    {
-        return new ModAssetBundle(assetBundle);
-    }
-
-    public void Dispose()
-    {
-        Handle.Unload(false);
+        public static explicit operator ModAssetBundle(AssetBundle assetBundle)
+        {
+            return new ModAssetBundle(assetBundle);
+        }
     }
 }

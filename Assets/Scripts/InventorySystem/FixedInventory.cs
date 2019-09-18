@@ -7,7 +7,7 @@ namespace InventorySystem
             Stacks = new IItemStack[size];
         }
 
-        private IItemStack[] Stacks { get; set; }
+        private IItemStack[] Stacks { get; }
 
         public IItemStack PeekStack(int index)
         {

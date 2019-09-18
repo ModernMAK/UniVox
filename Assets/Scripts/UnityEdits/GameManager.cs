@@ -1,11 +1,11 @@
-using UniVox.Core;
+using UniVox.Core.Types.Universe;
+using UniVox.Entities.Systems;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits
 {
     public static class GameManager
     {
         public static readonly MasterRegistry MasterRegistry = new MasterRegistry();
         public static readonly Universe Universe = new Universe();
-        
     }
 }

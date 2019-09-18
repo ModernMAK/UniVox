@@ -1,51 +1,53 @@
 using System;
 using Unity.Collections;
-using Univox;
+using UnityEdits;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
-    public partial class VoxelInfoArray : IChunk, IDisposable, IVersioned, INativeAccessorArray<VoxelInfoArray.Accessor>,
+    public partial class VoxelInfoArray : IDisposable, IVersioned,
+        INativeAccessorArray<VoxelInfoArray.Accessor>,
         INativeDataArray<VoxelInfoArray.Data>
     {
-#if ByteChunk
-        private const int AxisBits = 2;
-#else
-        private const int AxisBits = 5;
-#endif
-        public const int AxisSize = 1 << AxisBits;
-        public const int SquareSize = AxisSize * AxisSize;
-        public const int CubeSize = SquareSize * AxisSize;
+        [Obsolete("Use ChunkSize")] public const int AxisSize = -1;
+        [Obsolete("Use ChunkSize")] public const int CubeSize = -1;
+
+        private NativeArray<short> _identities;
+        private NativeArray<byte> _variants;
 
 
-        public VoxelInfoArray(int flatSize = CubeSize, Allocator allocator = Allocator.Persistent,
+        public VoxelInfoArray(int flatSize = ChunkSize.CubeSize, Allocator allocator = Allocator.Persistent,
             NativeArrayOptions options = NativeArrayOptions.ClearMemory)
         {
-            _versionId = new Version();
+            Version = new Version();
             Length = flatSize;
             _identities = new NativeArray<short>(flatSize, allocator, options);
             _variants = new NativeArray<byte>(flatSize, allocator, options);
         }
 
-        private NativeArray<short> _identities;
-        private NativeArray<byte> _variants;
-        private readonly Version _versionId;
-
-
-        public Version Version => _versionId;
-
-        public int Length { get; }
         public NativeArray<short> Identities => _identities;
         public NativeArray<byte> Variants => _variants;
 
-
-        public Accessor this[int index]
+        public void Dispose()
         {
-            get => GetAccessor(index);
+            Identities.Dispose();
+            Variants.Dispose();
         }
 
+        public int Length { get; }
 
-        public Accessor GetAccessor(int index) => new Accessor(this, index);
-        public Data GetData(int index) => new Data(this, index);
+
+        public Accessor this[int index] => GetAccessor(index);
+
+
+        public Accessor GetAccessor(int index)
+        {
+            return new Accessor(this, index);
+        }
+
+        public Data GetData(int index)
+        {
+            return new Data(this, index);
+        }
 
         public void SetData(int index, Data value)
         {
@@ -53,10 +55,7 @@ namespace UniVox.Core
             _variants[index] = value.Variant;
         }
 
-        public void Dispose()
-        {
-            Identities.Dispose();
-            Variants.Dispose();
-        }
+
+        public Version Version { get; }
     }
 }

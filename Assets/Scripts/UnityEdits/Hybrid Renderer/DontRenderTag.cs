@@ -1,6 +1,8 @@
 using Unity.Entities;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits.Hybrid_Renderer
 {
-    public struct DontRenderTag : IComponentData{}
+    public struct DontRenderTag : IComponentData
+    {
+    }
 }

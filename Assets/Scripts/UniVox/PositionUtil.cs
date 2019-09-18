@@ -1,15 +1,15 @@
 using System;
 using Unity.Mathematics;
-using UniVox.Core;
+using UnityEdits;
 
-namespace Univox
+namespace UniVox
 {
     public static class PositionUtil
     {
         public static int3 GetLocalPosition(int3 worldPosition)
         {
             //TODO test that this gives expected results
-            return worldPosition % VoxelInfoArray.AxisSize;
+            return worldPosition % ChunkSize.AxisSize;
         }
 
         public static int3 GetChunkPosition(int3 worldPosition)
@@ -19,21 +19,21 @@ namespace Univox
             //THERFORE (15,-12,53) w/ AxisSize of 16; WE GET (0, -1, 3)
             //Without doing this, with integer truncation, we get (0, 0, 3)
             //We could get around this by using floats and flooring
-            const int truncationShift = VoxelInfoArray.AxisSize - 1;
-            return (worldPosition - truncationShift) / VoxelInfoArray.AxisSize;
+            const int truncationShift = ChunkSize.AxisSize - 1;
+            return (worldPosition - truncationShift) / ChunkSize.AxisSize;
         }
 
         public static void GetChunkAndLocalPosition(int3 worldPosition, out int3 chunkPosition,
             out int3 localPosition)
         {
-            const int truncationShift = VoxelInfoArray.AxisSize - 1;
-            chunkPosition = (worldPosition - truncationShift) / VoxelInfoArray.AxisSize;
-            localPosition = worldPosition % VoxelInfoArray.AxisSize;
+            const int truncationShift = ChunkSize.AxisSize - 1;
+            chunkPosition = (worldPosition - truncationShift) / ChunkSize.AxisSize;
+            localPosition = worldPosition % ChunkSize.AxisSize;
         }
 
         public static int3 GetWorldPosition(int3 chunkPosition, int3 offset = default)
         {
-            return chunkPosition * VoxelChunk.AxisSize + offset;
+            return chunkPosition * ChunkSize.AxisSize + offset;
         }
 
         public static int3 GetLocalPosition(int index, AxisOrdering order = AxisOrdering.XYZ)
@@ -41,9 +41,9 @@ namespace Univox
             //Order is represented as
             //High - Mid - Low
             //If using the default, X = High, Y = Mid, Z = Low
-            var low = index % VoxelChunk.AxisSize;
-            var mid = (index / VoxelChunk.AxisSize) % VoxelChunk.AxisSize;
-            var high = index / VoxelChunk.SquareSize;
+            var low = index % ChunkSize.AxisSize;
+            var mid = index / ChunkSize.AxisSize % ChunkSize.AxisSize;
+            var high = index / ChunkSize.SquareSize;
             switch (order)
             {
                 case AxisOrdering.XYZ:
@@ -107,7 +107,7 @@ namespace Univox
                     throw new ArgumentOutOfRangeException(nameof(order), order, null);
             }
 
-            return high * VoxelChunk.SquareSize + mid * VoxelChunk.AxisSize + low;
+            return high * ChunkSize.SquareSize + mid * ChunkSize.AxisSize + low;
         }
     }
 }

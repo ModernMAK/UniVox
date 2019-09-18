@@ -1,7 +1,7 @@
 using System;
 using Unity.Collections;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     public static class AccessorAndDataArrayX
     {
@@ -37,6 +37,5 @@ namespace UniVox.Core
                 array[i] = nativeDataArray.GetData(i);
             return array;
         }
-
     }
 }

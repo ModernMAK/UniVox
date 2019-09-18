@@ -1,11 +1,10 @@
 using System;
 using Unity.Mathematics;
-using Univox;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     /// <summary>
-    /// A Universal Id, capable of grabbing any Voxel, Chunk, or World in the Universe
+    ///     A Universal Id, capable of grabbing any Voxel, Chunk, or World in the Universe
     /// </summary>
     public struct UniversalChunkId : IEquatable<UniversalChunkId>, IComparable<UniversalChunkId>
     {
@@ -26,8 +25,6 @@ namespace UniVox.Core
                 delta = UniversalIdUtil.CompareTo(ChunkId, other.ChunkId, AxisOrdering.YXZ);
             return delta;
         }
-        
-        
 
 
         public bool Equals(UniversalChunkId other)

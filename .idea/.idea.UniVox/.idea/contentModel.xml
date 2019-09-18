@@ -13,11 +13,21 @@
         </e>
         <e p="Scripts" t="Include">
           <e p="ChunkGenArgs.cs" t="Include" />
-          <e p="ChunkOld.cs" t="Include" />
-          <e p="DelegatePool.cs" t="Include" />
-          <e p="DisposableDelegatePool.cs" t="Include" />
           <e p="Editor" t="Include">
             <e p="MaterialListDrawer.cs" t="Include" />
+          </e>
+          <e p="FlowSystem" t="Include">
+            <e p="CollectionX.cs" t="Include" />
+            <e p="FlowExtensions.cs" t="Include" />
+            <e p="FlowNetwork.cs" t="Include" />
+            <e p="FlowNetworkEngine.cs" t="Include" />
+            <e p="IFlowBuffer.cs" t="Include" />
+            <e p="IFlowLimiter.cs" t="Include" />
+            <e p="IFlowNetwork.cs" t="Include" />
+            <e p="IFlowNetworkHandler.cs" t="Include" />
+            <e p="IFlowSink.cs" t="Include" />
+            <e p="IFlowSource.cs" t="Include" />
+            <e p="PowerFlowNetworkIdea.cs" t="Include" />
           </e>
           <e p="InventorySystem" t="Include">
             <e p="AbstractItemStack.cs" t="Include" />
@@ -30,30 +40,19 @@
             <e p="IInventory.cs" t="Include" />
             <e p="IItemStack.cs" t="Include" />
             <e p="IPowerProducer.cs" t="Include" />
-            <e p="Version2" t="Include">
-              <e p="CollectionX.cs" t="Include" />
-              <e p="FlowExtensions.cs" t="Include" />
-              <e p="FlowNetwork.cs" t="Include" />
-              <e p="FlowNetworkEngine.cs" t="Include" />
-              <e p="IFlowBuffer.cs" t="Include" />
-              <e p="IFlowLimiter.cs" t="Include" />
-              <e p="IFlowNetwork.cs" t="Include" />
-              <e p="IFlowNetworkHandler.cs" t="Include" />
-              <e p="IFlowSink.cs" t="Include" />
-              <e p="IFlowSource.cs" t="Include" />
-              <e p="PowerFlowNetworkIdea.cs" t="Include" />
-            </e>
             <e p="WaterMainBlock.cs" t="Include" />
           </e>
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
+            <e p="CalculateCubeSizeJob.cs" t="Include" />
+            <e p="CalculateIndexAndTotalSizeJob.cs" t="Include" />
             <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
+            <e p="CommonJobs.cs" t="Include" />
+            <e p="CommonRenderingJobs.cs" t="Include" />
             <e p="DeallocateNativeArrayJob.cs" t="Include" />
-            <e p="GenerateBoxelMeshV3.cs" t="Include" />
-            <e p="UpdateHiddenFacesJob.cs" t="Include" />
+            <e p="GenerateCubeBoxelMesh.cs" t="Include" />
           </e>
           <e p="NativeChunkGenArgs.cs" t="Include" />
-          <e p="RenderGameObject.cs" t="Include" />
           <e p="Rendering" t="Include">
             <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
@@ -67,10 +66,6 @@
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
             <e p="BlockShape.cs" t="Include" />
-            <e p="Colors" t="Include">
-              <e p="Color16.cs" t="Include" />
-              <e p="Color8.cs" t="Include" />
-            </e>
             <e p="Direction.cs" t="Include" />
             <e p="Directions.cs" t="Include" />
             <e p="DirectionsX.cs" t="Include" />
@@ -78,15 +73,6 @@
             <e p="MaterialList.cs" t="Include" />
             <e p="MeshList.cs" t="Include" />
             <e p="Native" t="Include">
-              <e p="BitArray" t="Include">
-                <e p="BitArray128.cs" t="Include" />
-                <e p="BitArray16.cs" t="Include" />
-                <e p="BitArray256.cs" t="Include" />
-                <e p="BitArray32.cs" t="Include" />
-                <e p="BitArray512.cs" t="Include" />
-                <e p="BitArray64.cs" t="Include" />
-                <e p="BitArray8.cs" t="Include" />
-              </e>
               <e p="DynamicNativeMesh.cs" t="Include" />
               <e p="FixedNativeMesh.cs" t="Include" />
               <e p="INativeMesh.cs" t="Include" />
@@ -94,8 +80,8 @@
               <e p="NativeValue.cs" t="Include" />
             </e>
             <e p="Orientation.cs" t="Include" />
+            <e p="PositionToIndexUtil.cs" t="Include" />
             <e p="RenderModeFlags.cs" t="Include" />
-            <e p="VoxelPos8.cs" t="Include" />
           </e>
           <e p="UnityEdits" t="Include">
             <e p="ChunkPosition.cs" t="Include" />
@@ -119,7 +105,6 @@
           <e p="UniVox" t="Include">
             <e p="AxisOrdering.cs" t="Include" />
             <e p="AxisOrderingX.cs" t="Include" />
-            <e p="ChunkReference.cs" t="Include" />
             <e p="Core" t="Include">
               <e p="Types" t="Include">
                 <e p="ChunkIdComponent.cs" t="Include" />
@@ -131,6 +116,7 @@
                   <e p="INativeAccessorArray.cs" t="Include" />
                   <e p="INativeDataArray.cs" t="Include" />
                   <e p="IVersioned.cs" t="Include" />
+                  <e p="ObsoleteException.cs" t="Include" />
                   <e p="RenderChunk.Accessor.cs" t="Include" />
                   <e p="RenderChunk.Data.cs" t="Include" />
                   <e p="VoxelInfoArray.cs" t="Include" />
@@ -144,20 +130,16 @@
                 </e>
                 <e p="Version.cs" t="Include" />
                 <e p="World" t="Include">
+                  <e p="NativeArrayBuilder.cs" t="Include" />
+                  <e p="RenderGroup.cs" t="Include" />
                   <e p="World.cs" t="Include" />
                 </e>
               </e>
             </e>
             <e p="Entities" t="Include">
-              <e p="Data" t="Include">
-                <e p="BlockIdentity.cs" t="Include" />
-                <e p="VariantIdentity.cs" t="Include" />
-              </e>
               <e p="Systems" t="Include">
                 <e p="AbstractMod.cs" t="Include" />
                 <e p="BaseGameMod.cs" t="Include" />
-                <e p="BlockRenderSystem.cs" t="Include" />
-                <e p="FilteredBlockSystem.cs" t="Include" />
                 <e p="MasterRegistry.cs" t="Include" />
                 <e p="ModAssetBundle.cs" t="Include" />
                 <e p="ModAssets.cs" t="Include" />
@@ -165,7 +147,6 @@
                 <e p="ModResources.cs" t="Include" />
               </e>
             </e>
-            <e p="IChunk.cs" t="Include" />
             <e p="Managers" t="Include">
               <e p="AutoRegistry.cs" t="Include" />
               <e p="IndexedRegistry.cs" t="Include" />
@@ -174,16 +155,8 @@
               <e p="Registry.cs" t="Include" />
             </e>
             <e p="PositionUtil.cs" t="Include" />
-            <e p="VoxelChunk.cs" t="Include" />
-            <e p="VoxelWorld.cs" t="Include" />
           </e>
         </e>
-        <e p="VoxelAuthor.cs" t="Include" />
-        <e p="VoxelChunk.cs" t="Include" />
-        <e p="VoxelChunkPosition.cs" t="Include" />
-        <e p="VoxelRenderChunkData.cs" t="Include" />
-        <e p="VoxelRenderChunkElement.cs" t="Include" />
-        <e p="VoxelRenderChunkOld.cs" t="Include" />
         <e p="WallE.cs" t="Include" />
         <e p="WallE2.cs" t="Include" />
       </e>

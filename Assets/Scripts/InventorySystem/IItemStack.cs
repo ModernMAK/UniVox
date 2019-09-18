@@ -4,8 +4,12 @@ namespace InventorySystem
 {
     public interface IItemStack
     {
+        Guid ItemId { get; }
+        int Count { get; }
+        int Capacity { get; }
+
         /// <summary>
-        /// Gets a new item stack by emptying this stack.
+        ///     Gets a new item stack by emptying this stack.
         /// </summary>
         /// <param name="requested">The requested size of the new stack.</param>
         /// <returns></returns>
@@ -14,8 +18,5 @@ namespace InventorySystem
 
 //        bool IsValid(IItemStack items);
         void AddItems(IItemStack items);
-        Guid ItemId { get; }
-        int Count { get; }
-        int Capacity { get; }
     }
 }

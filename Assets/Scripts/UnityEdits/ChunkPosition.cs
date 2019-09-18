@@ -1,9 +1,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits
 {
-    struct ChunkPosition : ISharedComponentData
+    internal struct ChunkPosition : ISharedComponentData
     {
         public int3 Position;
         public int3 WorldPosition => Position * ChunkSize.AxisSize;

@@ -1,4 +1,4 @@
-namespace InventorySystem
+namespace UniVox.Managers
 {
     /// <summary>
     /// Utility registry lookup via string

@@ -1,4 +1,7 @@
-public abstract class AbstractMod
+namespace UniVox.Entities.Systems
 {
-    public abstract void Initialize(ModInitializer initializer);
+    public abstract class AbstractMod
+    {
+        public abstract void Initialize(ModInitializer initializer);
+    }
 }

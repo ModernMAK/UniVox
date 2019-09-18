@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,7 +8,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits.Hybrid_Renderer
 {
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.EntitySceneOptimizations)]
@@ -15,12 +16,51 @@ namespace UnityEdits.Rendering
     [ExecuteAlways]
     public class LodRequirementsUpdateSystemV3 : JobComponentSystem
     {
-        EntityQuery m_Group;
-        EntityQuery m_MissingRootLodRequirement;
-        EntityQuery m_MissingLodRequirement;
+        private EntityQuery m_Group;
+        private EntityQuery m_MissingLodRequirement;
+        private EntityQuery m_MissingRootLodRequirement;
+
+        protected override void OnCreate()
+        {
+            m_MissingLodRequirement = GetEntityQuery(
+                typeof(MeshLODComponent),
+                ComponentType.Exclude<LodRequirement>(),
+                ComponentType.Exclude<Frozen>(),
+                ComponentType.Exclude<DontRenderTag>());
+
+            m_MissingRootLodRequirement = GetEntityQuery(
+                typeof(MeshLODComponent),
+                ComponentType.Exclude<RootLodRequirement>(),
+                ComponentType.Exclude<Frozen>(),
+                ComponentType.Exclude<DontRenderTag>());
+
+            m_Group = GetEntityQuery(
+                ComponentType.ReadOnly<LocalToWorld>(),
+                ComponentType.ReadOnly<MeshLODComponent>(),
+                typeof(LodRequirement),
+                typeof(RootLodRequirement),
+                ComponentType.Exclude<Frozen>(),
+                ComponentType.Exclude<DontRenderTag>());
+        }
+
+        protected override JobHandle OnUpdate(JobHandle dependency)
+        {
+            EntityManager.AddComponent(m_MissingLodRequirement, typeof(LodRequirement));
+            EntityManager.AddComponent(m_MissingRootLodRequirement, typeof(RootLodRequirement));
+
+            var updateLodJob = new UpdateLodRequirementsJob
+            {
+                MeshLODGroupComponent = GetComponentDataFromEntity<MeshLODGroupComponent>(true),
+                MeshLODComponent = GetArchetypeChunkComponentType<MeshLODComponent>(true),
+                LocalToWorldLookup = GetComponentDataFromEntity<LocalToWorld>(true),
+                LodRequirement = GetArchetypeChunkComponentType<LodRequirement>(),
+                RootLodRequirement = GetArchetypeChunkComponentType<RootLodRequirement>()
+            };
+            return updateLodJob.Schedule(m_Group, dependency);
+        }
 
         [BurstCompile]
-        struct UpdateLodRequirementsJob : IJobChunk
+        private struct UpdateLodRequirementsJob : IJobChunk
         {
             [ReadOnly] public ComponentDataFromEntity<MeshLODGroupComponent> MeshLODGroupComponent;
 
@@ -37,7 +77,7 @@ namespace UnityEdits.Rendering
                 var meshLods = chunk.GetNativeArray(MeshLODComponent);
                 var instanceCount = chunk.Count;
 
-                for (int i = 0; i < instanceCount; i++)
+                for (var i = 0; i < instanceCount; i++)
                 {
                     var meshLod = meshLods[i];
                     var lodGroupEntity = meshLod.Group;
@@ -52,7 +92,7 @@ namespace UnityEdits.Rendering
                 var lastLodRootMask = 0;
                 var lastLodRootGroupEntity = Entity.Null;
 
-                for (int i = 0; i < instanceCount; i++)
+                for (var i = 0; i < instanceCount; i++)
                 {
                     var meshLod = meshLods[i];
                     var lodGroupEntity = meshLod.Group;
@@ -84,7 +124,7 @@ namespace UnityEdits.Rendering
                             rootLod.InstanceCount = 1;
 
                             if (parentLodGroup.ParentGroup != Entity.Null)
-                                throw new System.NotImplementedException("Deep HLOD is not supported yet");
+                                throw new NotImplementedException("Deep HLOD is not supported yet");
                         }
 
                         rootLodRequirement[rootLodIndex] = rootLod;
@@ -113,45 +153,6 @@ namespace UnityEdits.Rendering
                 }
 */
             }
-        }
-
-        protected override void OnCreate()
-        {
-            m_MissingLodRequirement = GetEntityQuery(
-                typeof(MeshLODComponent),
-                ComponentType.Exclude<LodRequirement>(),
-                ComponentType.Exclude<Frozen>(),
-                ComponentType.Exclude<DontRenderTag>());
-            
-            m_MissingRootLodRequirement = GetEntityQuery(
-                typeof(MeshLODComponent),
-                ComponentType.Exclude<RootLodRequirement>(),
-                ComponentType.Exclude<Frozen>(),
-                ComponentType.Exclude<DontRenderTag>());
-            
-            m_Group = GetEntityQuery(
-                ComponentType.ReadOnly<LocalToWorld>(),
-                ComponentType.ReadOnly<MeshLODComponent>(),
-                typeof(LodRequirement),
-                typeof(RootLodRequirement),
-                ComponentType.Exclude<Frozen>(),
-                ComponentType.Exclude<DontRenderTag>());
-        }
-
-        protected override JobHandle OnUpdate(JobHandle dependency)
-        {
-            EntityManager.AddComponent(m_MissingLodRequirement, typeof(LodRequirement));
-            EntityManager.AddComponent(m_MissingRootLodRequirement, typeof(RootLodRequirement));
-
-            var updateLodJob = new UpdateLodRequirementsJob
-            {
-                MeshLODGroupComponent = GetComponentDataFromEntity<MeshLODGroupComponent>(true),
-                MeshLODComponent = GetArchetypeChunkComponentType<MeshLODComponent>(true),
-                LocalToWorldLookup = GetComponentDataFromEntity<LocalToWorld>(true),
-                LodRequirement = GetArchetypeChunkComponentType<LodRequirement>(),
-                RootLodRequirement = GetArchetypeChunkComponentType<RootLodRequirement>(),
-            };
-            return updateLodJob.Schedule(m_Group, dependency);
         }
     }
 }

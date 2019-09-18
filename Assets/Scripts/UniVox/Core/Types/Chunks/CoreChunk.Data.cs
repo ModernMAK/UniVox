@@ -1,4 +1,4 @@
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     public partial class VoxelInfoArray
     {

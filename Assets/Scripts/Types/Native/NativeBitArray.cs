@@ -1,7 +1,7 @@
 using System;
 using Unity.Collections;
 
-namespace Types
+namespace Types.Native
 {
     public struct NativeBitArray : IDisposable
     {

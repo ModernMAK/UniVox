@@ -4,9 +4,6 @@ namespace InventorySystem
 {
     public class AbstractItemStack : IItemStack
     {
-        public static AbstractItemStack EmptyStack => new AbstractItemStack();
-
-
         private AbstractItemStack() : this(Guid.Empty, 1, 1)
         {
         }
@@ -19,7 +16,6 @@ namespace InventorySystem
         public AbstractItemStack(Guid guid, int count, int capacity)
         {
 #if INVENTORY_SAFETY_CHECK
-
             if (capacity <= 0)
                 throw new ArgumentException($"Capacity ({capacity}) must be greater than 0!", nameof(capacity));
 
@@ -36,13 +32,15 @@ namespace InventorySystem
             Capacity = capacity;
         }
 
+        public static AbstractItemStack EmptyStack => new AbstractItemStack();
+
+
+        private int SpaceRemaining => Capacity - Count;
+
 
         public IItemStack GetItems(int requested)
         {
-            if (requested <= 0)
-            {
-                return EmptyStack;
-            }
+            if (requested <= 0) return EmptyStack;
 
             var removed = requested >= Count ? Count : requested;
 
@@ -64,9 +62,6 @@ namespace InventorySystem
         public Guid ItemId { get; }
 
         public int Count { get; private set; }
-
-
-        private int SpaceRemaining => Capacity - Count;
 
         public int Capacity { get; }
     }

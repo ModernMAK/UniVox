@@ -3,9 +3,9 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits.Hybrid_Renderer
 {
-    struct LodRequirement : IComponentData
+    internal struct LodRequirement : IComponentData
     {
         public float3 WorldReferencePosition;
         public float MinDist;
@@ -14,8 +14,8 @@ namespace UnityEdits.Rendering
         public LodRequirement(MeshLODGroupComponent lodGroup, LocalToWorld localToWorld, int lodMask)
         {
             var referencePoint = math.transform(localToWorld.Value, lodGroup.LocalReferencePoint);
-            float minDist = float.MaxValue;
-            float maxDist = 0.0F;
+            var minDist = float.MaxValue;
+            var maxDist = 0.0F;
             if ((lodMask & 0x01) == 0x01)
             {
                 minDist = 0.0f;

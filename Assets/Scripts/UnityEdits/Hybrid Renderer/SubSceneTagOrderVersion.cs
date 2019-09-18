@@ -1,8 +1,8 @@
 using Unity.Rendering;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits.Hybrid_Renderer
 {
-    struct SubSceneTagOrderVersion
+    internal struct SubSceneTagOrderVersion
     {
         public FrozenRenderSceneTag Scene;
         public int Version;

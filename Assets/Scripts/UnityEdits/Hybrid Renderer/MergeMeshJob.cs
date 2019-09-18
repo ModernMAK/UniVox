@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits.Hybrid_Renderer
 {
     public struct MergeMeshJob : IJobParallelFor
     {
@@ -77,10 +77,7 @@ namespace UnityEdits.Rendering
 
         public void CopyUv0(int index)
         {
-            for (var j = 0; j < MeshVertexCount; j++)
-            {
-                MergedUv[index * MeshVertexCount + j] = MeshUv[j];
-            }
+            for (var j = 0; j < MeshVertexCount; j++) MergedUv[index * MeshVertexCount + j] = MeshUv[j];
         }
 
 

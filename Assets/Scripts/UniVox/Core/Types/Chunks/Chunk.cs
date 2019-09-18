@@ -1,11 +1,15 @@
 using System;
 using Unity.Collections;
+using UnityEdits;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
+    //Seriously reconsider moving to Dynamic Buffers
+    //On the one hand, by having it outside the entity, its easy to manage
+    //On the other, we did all this work. Refactoring before it works is extra work, refactoring after is a chore. And for what benefit?
     public class Chunk : IDisposable, IAccessorArray<Chunk.Accessor>
     {
-        public Chunk(int size = VoxelInfoArray.CubeSize, Allocator allocator = Allocator.Persistent,
+        public Chunk(int size = ChunkSize.CubeSize, Allocator allocator = Allocator.Persistent,
             NativeArrayOptions options = NativeArrayOptions.ClearMemory)
         {
             Info = new VoxelInfoArray(size, allocator, options);
@@ -14,6 +18,21 @@ namespace UniVox.Core
 
         public VoxelInfoArray Info { get; }
         public VoxelRenderInfoArray Render { get; }
+
+        public int Length => Info.Length;
+
+        public Accessor this[int index] => new Accessor(this, index);
+
+        public Accessor GetAccessor(int index)
+        {
+            return new Accessor(this, index);
+        }
+
+        public void Dispose()
+        {
+            Info.Dispose();
+            Render.Dispose();
+        }
 
 
         public struct Accessor
@@ -24,30 +43,13 @@ namespace UniVox.Core
 
             public Accessor(VoxelInfoArray chunk, VoxelRenderInfoArray voxelRender, int index)
             {
-                _coreAccessor = chunk.GetAccessor(index);
-                _renderAccessor = voxelRender.GetAccessor(index);
+                Info = chunk.GetAccessor(index);
+                Render = voxelRender.GetAccessor(index);
             }
 
-            private readonly VoxelInfoArray.Accessor _coreAccessor;
-            private readonly VoxelRenderInfoArray.Accessor _renderAccessor;
+            public VoxelInfoArray.Accessor Info { get; }
 
-            public VoxelInfoArray.Accessor Info => _coreAccessor;
-            public VoxelRenderInfoArray.Accessor Render => _renderAccessor;
-        }
-
-        public void Dispose()
-        {
-            Info.Dispose();
-            Render.Dispose();
-        }
-
-        public int Length => Info.Length;
-
-        public Accessor this[int index] => new Accessor(this, index);
-
-        public Accessor GetAccessor(int index)
-        {
-            return new Accessor(this, index);
+            public VoxelRenderInfoArray.Accessor Render { get; }
         }
     }
 }

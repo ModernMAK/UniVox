@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits
 {
     public class NativeMeshBuilder : IDisposable
     {
@@ -20,6 +20,26 @@ namespace UnityEdits.Rendering
             Normals = CreateArray<float3>(Layout.HasNormal, vertCount, allocator);
             Tangents = CreateArray<float4>(Layout.HasTangent, vertCount, allocator);
             Uv0 = CreateArray<float4>(Layout.HasTexCoord0, vertCount, allocator);
+        }
+
+        public NativeMesh.LayoutInspector Layout { get; }
+
+        public int VertexCount { get; }
+        public int IndexCount { get; }
+
+        public NativeArray<int> Triangles { get; }
+        public NativeArray<float3> Vertexes { get; }
+        public NativeArray<float3> Normals { get; }
+        public NativeArray<float4> Tangents { get; }
+        public NativeArray<float4> Uv0 { get; }
+
+        public void Dispose()
+        {
+            Triangles.Dispose();
+            Vertexes.Dispose();
+            Normals.Dispose();
+            Tangents.Dispose();
+            Uv0.Dispose();
         }
 
         private static NativeArray<T> CreateArray<T>(bool shouldInit, int size, Allocator allocator) where T : struct
@@ -53,26 +73,6 @@ namespace UnityEdits.Rendering
         public void LoadIntoMesh(Mesh mesh, bool disposeAfter = false)
         {
             LoadIntoMesh(this, mesh, disposeAfter);
-        }
-
-        public NativeMesh.LayoutInspector Layout { get; }
-
-        public int VertexCount { get; }
-        public int IndexCount { get; }
-
-        public NativeArray<int> Triangles { get; }
-        public NativeArray<float3> Vertexes { get; }
-        public NativeArray<float3> Normals { get; }
-        public NativeArray<float4> Tangents { get; }
-        public NativeArray<float4> Uv0 { get; }
-
-        public void Dispose()
-        {
-            Triangles.Dispose();
-            Vertexes.Dispose();
-            Normals.Dispose();
-            Tangents.Dispose();
-            Uv0.Dispose();
         }
     }
 }

@@ -1,12 +1,29 @@
 using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types.Universe
 {
-    public partial class Universe : IDisposable, IAccessorMap<byte,World>
+    public class Universe : IDisposable, IAccessorMap<byte, World.World>
     {
-        private Dictionary<byte, World> _records;
+        private Dictionary<byte, World.World> _records;
+
+        public bool ContainsKey(byte key)
+        {
+            return _records.ContainsKey(key);
+        }
+
+
+        public World.World GetAccessor(byte index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetAccessor(byte key, out World.World accessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public World.World this[byte worldId] => _records[worldId];
 //
 //        public class Record : IDisposable
 //        {
@@ -48,38 +65,17 @@ namespace UniVox.Core
 //            {
 //                
 //            }
-            foreach (var record in _records.Values)
-            {
-                record.Dispose();
-            }
+            foreach (var record in _records.Values) record.Dispose();
         }
 
-        public bool ContainsKey(byte key)
+        public bool TryGetValue(byte worldId, out World.World record)
         {
-            return _records.ContainsKey(key);
+            return _records.TryGetValue(worldId, out record);
         }
 
-
-        public World GetAccessor(byte index)
+        public World.World GetOrCreate(byte worldId, string name = default)
         {
-            throw new NotImplementedException();
-        }
-
-        public bool TryGetAccessor(byte key, out World accessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public World this[byte worldId] => _records[worldId];
-
-        public bool TryGetValue(byte worldId, out World record) => _records.TryGetValue(worldId, out record);
-
-        public World GetOrCreate(byte worldId, string name = default)
-        {
-            if (!TryGetAccessor(worldId, out var world))
-            {
-                _records[worldId] = world = new World();
-            }
+            if (!TryGetAccessor(worldId, out var world)) _records[worldId] = world = new World.World();
 
             return world;
         }

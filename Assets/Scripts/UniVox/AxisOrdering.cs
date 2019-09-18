@@ -1,4 +1,4 @@
-namespace Univox
+namespace UniVox
 {
     public enum AxisOrdering : byte
     {
@@ -10,7 +10,8 @@ namespace Univox
         YZX,
 
         ZXY,
-        ZYX,
+
+        ZYX
         // ReSharper restore InconsistentNaming
     }
 }

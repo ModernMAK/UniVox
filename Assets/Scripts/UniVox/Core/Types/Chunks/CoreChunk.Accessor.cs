@@ -1,8 +1,7 @@
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     public partial class VoxelInfoArray
     {
-        
         public struct Accessor
         {
             public Accessor(VoxelInfoArray voxelInfoArray, int index)
@@ -33,7 +32,7 @@ namespace UniVox.Core
                 get => new Data(this);
                 set => _backing.SetData(_index, value);
             }
-            
+
 
             public static implicit operator Data(Accessor accessor)
             {

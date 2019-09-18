@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace InventorySystem
+namespace UniVox.Managers
 {
     /// <summary>
     /// Wrapper around a dictionary

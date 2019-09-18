@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-namespace Univox
+namespace UniVox
 {
     public static class AxisOrderingX
     {
@@ -11,8 +11,8 @@ namespace Univox
 
 
         /// <summary>
-        /// Reorders a 3d point based on the Axis Ordering.
-        /// E.G (1,2,3) with ZYX becomes (3,2,1)
+        ///     Reorders a 3d point based on the Axis Ordering.
+        ///     E.G (1,2,3) with ZYX becomes (3,2,1)
         /// </summary>
         /// <param name="value">The point to reodrder</param>
         /// <param name="ordering"></param>
@@ -42,8 +42,8 @@ namespace Univox
 
 
         /// <summary>
-        /// Reorders a 3d point based on the Axis Ordering.
-        /// E.G (1,2,3) with ZYX becomes (3,2,1)
+        ///     Reorders a 3d point based on the Axis Ordering.
+        ///     E.G (1,2,3) with ZYX becomes (3,2,1)
         /// </summary>
         /// <param name="value">The point to reodrder</param>
         /// <param name="ordering"></param>

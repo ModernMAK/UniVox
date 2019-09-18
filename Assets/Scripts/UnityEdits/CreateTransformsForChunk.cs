@@ -1,42 +1,33 @@
+using Types;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Univox;
+using UniVox;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits
 {
     [BurstCompile]
-    struct CreateTransformsForChunk : IJobParallelFor
+    internal struct CreateTransformsForChunk : IJobParallelFor
     {
-        [ReadOnly] public int3 ChunkPosition;
+        [ReadOnly] public float3 PositionOffset;
         [ReadOnly] public int3 ChunkSize;
         [ReadOnly] public AxisOrdering Ordering;
-        [WriteOnly] public NativeArray<float4x4> Transformers;
+        [WriteOnly] public NativeArray<float4x4> Transforms;
 
 
-        private int3 IndexToXyz(int index)
+        private int3 IndexToOrganized(int index)
         {
-            var xSize = ChunkSize.x;
-            var ySize = ChunkSize.y;
-            var zSize = ChunkSize.z;
-            var xySize = ySize * xSize;
-
-            var x = index % xSize;
-            var y = (index / xSize) % ySize;
-            var z = (index / xySize) % zSize;
-            return new int3(x, y, z);
+            return AxisOrderingX.Reorder(PositionToIndexUtil.ToPosition3(index, ChunkSize), Ordering);
         }
-
-        private int3 IndexToOrganized(int index) => AxisOrderingX.Reorder(IndexToXyz(index), Ordering);
 
         private static float3x3 CreateRotation()
         {
-            return new float3x3()
+            return new float3x3
             {
                 c0 = new float3(1, 0, 0),
                 c1 = new float3(0, 1, 0),
-                c2 = new float3(0, 0, 1),
+                c2 = new float3(0, 0, 1)
             };
         }
 
@@ -45,49 +36,27 @@ namespace UnityEdits.Rendering
             var positionFromIndex = IndexToOrganized(chunkIndex);
             var rotation = CreateRotation();
 
-            Transformers[chunkIndex] = new float4x4(rotation, positionFromIndex + ChunkPosition);
+            Transforms[chunkIndex] = new float4x4(rotation, positionFromIndex + PositionOffset);
         }
     }
+
     [BurstCompile]
-    struct CreateRenderGroupChunk : IJobParallelFor
+    internal struct CreatePositionsForChunk : IJobParallelFor
     {
-        [ReadOnly] public int3 ChunkPosition;
+        [ReadOnly] public float3 PositionOffset;
         [ReadOnly] public int3 ChunkSize;
         [ReadOnly] public AxisOrdering Ordering;
-        [WriteOnly] public NativeArray<float4x4> Transformers;
+        [WriteOnly] public NativeArray<float3> Positions;
 
 
-        private int3 IndexToXyz(int index)
+        private int3 IndexToOrganized(int index)
         {
-            var xSize = ChunkSize.x;
-            var ySize = ChunkSize.y;
-            var zSize = ChunkSize.z;
-            var xySize = ySize * xSize;
-
-            var x = index % xSize;
-            var y = (index / xSize) % ySize;
-            var z = (index / xySize) % zSize;
-            return new int3(x, y, z);
-        }
-
-        private int3 IndexToOrganized(int index) => AxisOrderingX.Reorder(IndexToXyz(index), Ordering);
-
-        private static float3x3 CreateRotation()
-        {
-            return new float3x3()
-            {
-                c0 = new float3(1, 0, 0),
-                c1 = new float3(0, 1, 0),
-                c2 = new float3(0, 0, 1),
-            };
+            return AxisOrderingX.Reorder(PositionToIndexUtil.ToPosition3(index, ChunkSize), Ordering);
         }
 
         public void Execute(int chunkIndex)
         {
-            var positionFromIndex = IndexToOrganized(chunkIndex);
-            var rotation = CreateRotation();
-
-            Transformers[chunkIndex] = new float4x4(rotation, positionFromIndex + ChunkPosition);
+            Positions[chunkIndex] = IndexToOrganized(chunkIndex);
         }
     }
 }

@@ -4,10 +4,10 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Rendering;
 
-namespace UnityEdits.Rendering
+namespace UnityEdits
 {
     [BurstCompile]
-    struct GatherChunkRenderers : IJobParallelFor
+    internal struct GatherChunkRenderers : IJobParallelFor
     {
         [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
         [ReadOnly] public ArchetypeChunkSharedComponentType<RenderMesh> RenderMeshType;

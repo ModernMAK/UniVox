@@ -1,11 +1,10 @@
 using System;
 using Unity.Mathematics;
-using Univox;
 
-namespace UniVox.Core
+namespace UniVox.Core.Types
 {
     /// <summary>
-    /// A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or World in the Universe
+    ///     A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or World in the Universe
     /// </summary>
     public struct UniversalVoxelId : IEquatable<UniversalVoxelId>, IComparable<UniversalVoxelId>
     {
@@ -55,13 +54,17 @@ namespace UniVox.Core
         }
 
 
-        public static implicit operator UniversalChunkId(UniversalVoxelId universalVoxelId) =>
-            new UniversalChunkId(universalVoxelId.WorldId, universalVoxelId.ChunkId);
+        public static implicit operator UniversalChunkId(UniversalVoxelId universalVoxelId)
+        {
+            return new UniversalChunkId(universalVoxelId.WorldId, universalVoxelId.ChunkId);
+        }
 
-        public static implicit operator UniversalVoxelId(UniversalChunkId universalVoxelId) =>
-            new UniversalVoxelId(universalVoxelId.WorldId, universalVoxelId.ChunkId, 0);
-        
-        
+        public static implicit operator UniversalVoxelId(UniversalChunkId universalVoxelId)
+        {
+            return new UniversalVoxelId(universalVoxelId.WorldId, universalVoxelId.ChunkId, 0);
+        }
+
+
         public UniversalChunkId CreateChunkId()
         {
             return new UniversalChunkId(WorldId, ChunkId);

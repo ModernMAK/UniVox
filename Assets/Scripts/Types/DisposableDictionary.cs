@@ -7,10 +7,7 @@ namespace Types
     {
         public void Dispose()
         {
-            foreach (var kvp in this)
-            {
-                kvp.Value.Dispose();
-            }
+            foreach (var kvp in this) kvp.Value.Dispose();
         }
     }
 }
