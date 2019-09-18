@@ -199,7 +199,7 @@ namespace UniVox.Core.Systems
                     //Update version
                     versions[i] = ChunkRenderVersion.Create(voxelChunk);
 
-                    var meshes = CommonRenderingJobs.GenerateBoxelMeshes(voxelChunk);
+                    var meshes = CommonRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
                     FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Meshes = meshes});
                 }
             }

@@ -1,4 +1,5 @@
 using System;
+using Types;
 using Unity.Collections;
 using UnityEdits;
 
@@ -8,11 +9,10 @@ namespace UniVox.Core.Types
         INativeAccessorArray<VoxelInfoArray.Accessor>,
         INativeDataArray<VoxelInfoArray.Data>
     {
-        [Obsolete("Use ChunkSize")] public const int AxisSize = -1;
-        [Obsolete("Use ChunkSize")] public const int CubeSize = -1;
 
         private NativeArray<short> _identities;
         private NativeArray<byte> _variants;
+//        private NativeArray<BlockShape> _shapes;
 
 
         public VoxelInfoArray(int flatSize = ChunkSize.CubeSize, Allocator allocator = Allocator.Persistent,
@@ -22,15 +22,19 @@ namespace UniVox.Core.Types
             Length = flatSize;
             _identities = new NativeArray<short>(flatSize, allocator, options);
             _variants = new NativeArray<byte>(flatSize, allocator, options);
+//            _shapes = new NativeArray<BlockShape>(flatSize, allocator, options);
         }
 
         public NativeArray<short> Identities => _identities;
         public NativeArray<byte> Variants => _variants;
 
+//        public NativeArray<BlockShape> Shapes => _shapes;
+
         public void Dispose()
         {
             Identities.Dispose();
             Variants.Dispose();
+//            _shapes.Dispose();
         }
 
         public int Length { get; }
@@ -53,6 +57,7 @@ namespace UniVox.Core.Types
         {
             _identities[index] = value.Identity;
             _variants[index] = value.Variant;
+//            _shapes[index] = 
         }
 
 

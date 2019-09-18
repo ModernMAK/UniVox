@@ -1,3 +1,5 @@
+using Types;
+
 namespace UniVox.Core.Types
 {
     public partial class VoxelInfoArray
@@ -26,7 +28,13 @@ namespace UniVox.Core.Types
                 set => _backing._variants[_index] = value;
             }
 
-
+//
+//            public BlockShape Shape
+//            {
+//                get => _backing._shapes[_index];
+//                set => _backing._shapes[_index] = value;
+//            }
+            
             public Data Data
             {
                 get => new Data(this);
