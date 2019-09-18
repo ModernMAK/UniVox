@@ -54,7 +54,7 @@ namespace Jobs
 
 
         private static CreatePositionsForChunk CreateBoxelPositionJob(float3 offset = default,
-            AxisOrdering ordering = AxisOrdering.YXZ)
+            AxisOrdering ordering = ChunkSize.Ordering)
         {
             return new CreatePositionsForChunk
             {

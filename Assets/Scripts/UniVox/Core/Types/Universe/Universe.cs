@@ -8,6 +8,11 @@ namespace UniVox.Core.Types.Universe
     {
         private Dictionary<byte, VoxelWorld> _records;
 
+        public Universe()
+        {
+            _records = new Dictionary<byte, VoxelWorld>();
+        }
+
         public bool ContainsKey(byte key)
         {
             return _records.ContainsKey(key);

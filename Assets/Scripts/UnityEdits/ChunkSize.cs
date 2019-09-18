@@ -1,3 +1,5 @@
+using UniVox;
+
 namespace UnityEdits
 {
     public static class ChunkSize
@@ -7,9 +9,10 @@ namespace UnityEdits
 
         private const int ByteAxisBits = 2;
         private const int ShortAxisBits = 5;
-        private const int AxisBits = ByteAxisBits;
+        private const int AxisBits = ShortAxisBits;
         public const int AxisSize = 1 << AxisBits;
         public const int SquareSize = AxisSize * AxisSize;
         public const int CubeSize = SquareSize * AxisSize;
+        public const AxisOrdering Ordering = AxisOrdering.YXZ;
     }
 }

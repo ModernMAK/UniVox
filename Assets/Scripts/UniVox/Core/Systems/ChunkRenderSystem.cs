@@ -9,6 +9,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits;
+using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
 using UniVox.Core.Types;
 using UniVox.Core.Types.Universe;
@@ -16,13 +17,20 @@ using UniVox.Entities.Systems;
 
 namespace UniVox.Core.Systems
 {
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
+    [UpdateBefore(typeof(RenderMeshSystemV2))]
+    [UpdateBefore(typeof(RenderMeshSystemV3))]
     public class ChunkRenderSystem : JobComponentSystem
     {
-        private struct ChunkRenderVersion : ISystemStateComponentData
+        public struct ChunkRenderVersion : ISystemStateComponentData
         {
-            public Version Info;
-            public Version Render;
-            public bool DidChange(Version info, Version render) => Info.DidChange(info) && Render.DidChange(render);
+            public uint Info;
+            public uint Render;
+
+//            public static bool DidChange(uint cacheVersion, uint currentVersion);
+            public bool DidChange(Version info, Version render) =>
+                ChangeVersionUtility.DidChange(info, Info) && ChangeVersionUtility.DidChange(render, Render);
+
             public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version, chunk.Render.Version);
 
             public static ChunkRenderVersion Create(Chunk chunk)
@@ -55,7 +63,7 @@ namespace UniVox.Core.Systems
         protected override void OnCreate()
         {
             _universe = GameManager.Universe;
-            _material = GameManager.MasterRegistry.Material[0];
+            GameManager.MasterRegistry.Material.TryGetValue(0, out _material);
             SetupArchetype();
             _renderQuery = GetEntityQuery(new EntityQueryDesc()
             {
@@ -177,6 +185,8 @@ namespace UniVox.Core.Systems
                     var voxelChunk = record.Chunk;
                     if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
 
+                    //Update version
+                    versions[i] = ChunkRenderVersion.Create(voxelChunk);
 
                     var meshes = CommonRenderingJobs.GenerateBoxelMeshes(voxelChunk);
                     var renderEntities = GetResizedCache(id.Value, meshes.Length);
@@ -195,10 +205,10 @@ namespace UniVox.Core.Systems
                         EntityManager.SetSharedComponentData(renderEntity, meshData);
                     }
 
-                    //Update version
-                    versions[i] = ChunkRenderVersion.Create(record.Chunk);
                 }
             }
+
+            chunkArray.Dispose();
         }
 
         void SetupPass()
@@ -214,11 +224,16 @@ namespace UniVox.Core.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            if (_material == null)
+                if (!GameManager.MasterRegistry.Material.TryGetValue(0, out _material))
+                    return inputDeps;
+
             inputDeps.Complete();
+
+            CleanupPass();
 
             RenderPass();
 
-            CleanupPass();
             SetupPass();
 
             return new JobHandle();

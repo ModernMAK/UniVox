@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEdits;
 
 namespace UniVox.Core.Types.World
 {
@@ -11,7 +12,11 @@ namespace UniVox.Core.Types.World
         public World(string name = default)
         {
             Records = new Dictionary<int3, Record>();
-            EntityWorld = new Unity.Entities.World(name);
+            
+            
+//            DefaultWorldInitialization.Initialize(name,false);
+            EntityWorld = Unity.Entities.World.Active;//TODO use custom world
+//            EntityWorld = new Unity.Entities.World(name);
         }
 
         public Dictionary<int3, Record> Records { get; }
@@ -46,11 +51,11 @@ namespace UniVox.Core.Types.World
             }
         }
 
-        public Record GetOrCreate(int3 chunkId, NativeArrayBuilder args = default)
+        public Record GetOrCreate(int3 chunkId)
         {
             if (TryGetAccessor(chunkId, out var record)) return record;
 
-            var chunk = new Chunk(args.ArraySize, args.Allocator, args.Options);
+            var chunk = new Chunk();//.ArraySize, args.Allocator, args.Options);
             Records[chunkId] = record = new Record(chunk);
 
             return record;

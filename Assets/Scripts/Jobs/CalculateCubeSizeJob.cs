@@ -26,12 +26,13 @@ namespace Jobs
         /// <summary>
         ///     The Vertex Sizes, should be the same length as Batch Indexes
         /// </summary>
-        [WriteOnly] public NativeArray<int> VertexSizes;
+        [WriteOnly] [NativeDisableParallelForRestriction]
+        public NativeArray<int> VertexSizes;
 
         /// <summary>
         ///     The INdex Sizes, should be the same length as Batch Indexes
         /// </summary>
-        [WriteOnly] public NativeArray<int> TriangleSizes;
+        [WriteOnly]  [NativeDisableParallelForRestriction] public NativeArray<int> TriangleSizes;
 
         /// <summary>
         ///     An array representing the six possible directions. Provided to avoid creating and destroying it over and over again
@@ -54,7 +55,7 @@ namespace Jobs
             var indexSize = 0;
             for (var i = 0; i < Directions.Length; i++)
             {
-                if (hidden.HasFlag(Directions[i])) continue;
+                if (hidden.HasDirection(Directions[i])) continue;
 
                 vertSize += QuadSize;
                 indexSize += QuadIndexSize;
@@ -82,8 +83,6 @@ namespace Jobs
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            throw new NotImplementedException();
         }
     }
 }
