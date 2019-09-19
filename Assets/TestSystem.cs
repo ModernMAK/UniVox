@@ -14,14 +14,14 @@ using VoxelWorld = UniVox.Core.Types.World.World;
 
 public class TestSystem : MonoBehaviour
 {
-    public Material Mat;
+    public Material mat;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        _Datas = new Queue<QueueData>();
-        GameManager.MasterRegistry.Material.Register("Default", Mat);
+        _datas = new Queue<QueueData>();
+        GameManager.MasterRegistry.Material.Register("Default", mat);
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 //        DefaultTinyWorldInitialization.InitializeSystems(world.EntityWorld);
 
@@ -33,7 +33,7 @@ public class TestSystem : MonoBehaviour
 //        world.EntityWorld.GetOrCreateSystem<UnityEdits.Hybrid_Renderer.RenderMeshSystemV3>();
 
 
-        const int wSize = 0 / 2;
+        const int wSize = 8 / 2;
         World.Active = world.EntityWorld;
         for (var x = -wSize; x <= wSize; x++)
         for (var y = -wSize; y <= wSize; y++)
@@ -48,19 +48,19 @@ public class TestSystem : MonoBehaviour
         public int3 ChunkPos;
     }
 
-    private Queue<QueueData> _Datas;
+    private Queue<QueueData> _datas;
 
     void QueueChunk(UniVox.Core.Types.World.World world, int3 chunkPos)
     {
-        _Datas.Enqueue(new QueueData() {World = world, ChunkPos = chunkPos});
+        _datas.Enqueue(new QueueData() {World = world, ChunkPos = chunkPos});
     }
 
 
     void ProcessQueue(int count)
     {
-        while (count > 0 && _Datas.Count > 0)
+        while (count > 0 && _datas.Count > 0)
         {
-            var data = _Datas.Dequeue();
+            var data = _datas.Dequeue();
             CreateChunk(data.World, data.ChunkPos);
             count--;
         }

@@ -49,8 +49,11 @@
             <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
             <e p="CommonJobs.cs" t="Include" />
             <e p="CommonRenderingJobs.cs" t="Include" />
+            <e p="CreateBatchChunk.cs" t="Include" />
             <e p="DeallocateNativeArrayJob.cs" t="Include" />
+            <e p="GatherPlanarJobV2.cs" t="Include" />
             <e p="GenerateCubeBoxelMesh.cs" t="Include" />
+            <e p="PlanarData.cs" t="Include" />
           </e>
           <e p="NativeChunkGenArgs.cs" t="Include" />
           <e p="Rendering" t="Include">
@@ -95,7 +98,6 @@
             </e>
             <e p="NativeMesh.cs" t="Include" />
             <e p="NativeMeshBuilder.cs" t="Include" />
-            <e p="NativeMeshUtil.cs" t="Include" />
           </e>
           <e p="UniVox" t="Include">
             <e p="AxisOrdering.cs" t="Include" />
