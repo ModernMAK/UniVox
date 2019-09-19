@@ -11,6 +11,7 @@ using Unity.Transforms;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UniVox.Core.Types;
 using UniVox.Core.Types.Universe;
 using UniVox.Entities.Systems;
@@ -183,6 +184,7 @@ namespace UniVox.Core.Systems
             var versionType = GetArchetypeChunkComponentType<ChunkRenderVersion>();
 
 
+            Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
                 var ids = ecsChunk.GetNativeArray(idType);
@@ -199,13 +201,17 @@ namespace UniVox.Core.Systems
                     //Update version
                     versions[i] = ChunkRenderVersion.Create(voxelChunk);
 
-                    var meshes = CommonRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
+                    Profiler.BeginSample("Process Render Chunk");
+                    var meshes = UnivoxRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
+                    Profiler.EndSample();
                     FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Meshes = meshes});
                 }
             }
+            Profiler.EndSample();
 
             chunkArray.Dispose();
 
+            Profiler.BeginSample("Create Mesh Entities");
             while (FrameCaches.Count > 0)
             {
                 var cached = FrameCaches.Dequeue();
@@ -229,6 +235,7 @@ namespace UniVox.Core.Systems
                     EntityManager.SetSharedComponentData(renderEntity, meshData);
                 }
             }
+            Profiler.EndSample();
         }
 
 

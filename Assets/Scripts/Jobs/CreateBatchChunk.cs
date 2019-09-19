@@ -1,9 +1,11 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
 namespace Jobs
 {
+    [BurstCompile]
     public struct CreateBatchChunk : IJob
     {
         public CreateBatchChunk(NativeArraySharedValues<int> values) : this(values.GetSharedValueIndexCountArray(),

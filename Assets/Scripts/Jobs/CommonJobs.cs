@@ -7,14 +7,22 @@ namespace Jobs
 {
     public static class CommonJobs
     {
+        public static JobHandle Sort<T>(NativeArray<T> source, out NativeArraySharedValues<T> sharedValues,
+            JobHandle dependencies = default)
+            where T : struct, IComparable<T>
+        {
+            sharedValues = new NativeArraySharedValues<T>(source, Allocator.TempJob);
+            return sharedValues.Schedule(dependencies);
+        }
+
         public static NativeArraySharedValues<T> Sort<T>(NativeArray<T> source, JobHandle dependencies = default)
             where T : struct, IComparable<T>
         {
-            var sharedValues = new NativeArraySharedValues<T>(source, Allocator.TempJob);
-            sharedValues.Schedule(dependencies).Complete();
+            Sort(source,out var sharedValues,dependencies).Complete();
             return sharedValues;
         }
 
+        //Helper function
         public static void GatherUnique<T>(NativeArraySharedValues<T> shared, out int uniqueCount,
             out NativeArray<int> uniqueOffsets, out NativeArray<int> lookupIndexes) where T : struct, IComparable<T>
         {
