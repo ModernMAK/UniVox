@@ -17,7 +17,7 @@ namespace Jobs
         /// </summary>
         [ReadOnly] public NativeArray<PlanarData> PlanarBatch;
 
-//        [ReadOnly] public NativeArray<float3> ReferencePositions;
+        [ReadOnly] public float3 Offset;
 
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> VertexOffsets;
 
@@ -55,41 +55,77 @@ namespace Jobs
         private const int TriSize = 3;
         private const int TriIndexSize = 3;
 
-        private int3 CalculateShift(Direction direction, int2 size, int vertex)
+        private float3 CalculateShift(Direction direction, int2 size, int vertex)
         {
-            switch (vertex % 4)
+            if (direction == Direction.Forward || direction == Direction.Left || direction == Direction.Up)
             {
-                case 0:
-                    return int3.zero;
-                case 1:
-                    size = new int2(size.x, 0);
-                    break;
-                case 2:
-                    size = new int2(size.x, size.y);
-                    break;
-                case 3:
-                    size = new int2(0, size.y);
-                    break;
+                
+                switch (vertex % 4)
+                {
+                    case 0:
+                        return int3.zero;
+                    case 1:
+                        size = new int2(size.x, 0);
+                        break;
+                    case 2:
+                        size = new int2(size.x, size.y);
+                        break;
+                    case 3:
+                        size = new int2(0, size.y);
+                        break;
+                }
+                
+                switch (direction)
+                {
+                    //Y, size is XZ
+                    case Direction.Up:
+                        return new int3(size.x, 0, size.y);
+                    //X, size is YZ
+                    case Direction.Left:
+                        return new int3(0, size.x, size.y);
+                    //Z, size is XY
+                    case Direction.Forward:
+                        return new int3(size.y, size.x, 0);
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                }
+            }
+            else
+            {
+                {
+                
+                    switch (vertex % 4)
+                    {
+                        case 3:
+                            return int3.zero;
+                        case 2:
+                            size = new int2(size.x, 0);
+                            break;
+                        case 1:
+                            size = new int2(size.x, size.y);
+                            break;
+                        case 0:
+                            size = new int2(0, size.y);
+                            break;
+                    }
+                
+                    switch (direction)
+                    {
+                        //Y, size is XZ
+                        case Direction.Down:
+                            return new int3(size.x, 0, size.y);
+                        //X, size is YZ
+                        case Direction.Right:
+                            return new int3(0, size.x, size.y);
+                        //Z, size is XY
+                        case Direction.Backward:
+                            return new int3(size.y, size.x, 0);
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                    }
+                }
             }
 
-            switch (direction)
-            {
-                //Y, size is XZ
-                case Direction.Up:
-                case Direction.Down:
-                    return new int3(size.x, 0, size.y);
-                //X, size is YZ
-                case Direction.Right:
-                    return new int3(0, size.y, size.x);
-                case Direction.Left:
-                    return new int3(0, size.x, size.y);
-                //Z, size is XY
-                case Direction.Forward:
-                case Direction.Backward:
-                    return new int3(size.x, size.y, 0);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-            }
         }
 
         private void GenerateCube(int index)
@@ -112,12 +148,12 @@ namespace Jobs
             var mergedVertOffset = blockVertOffset;
             for (var i = 0; i < QuadSize; i++)
             {
-                if (batch.Direction == Direction.Left || batch.Direction == Direction.Right)
+//                if (batch.Direction == Direction.Left || batch.Direction == Direction.Right)
 
-                    Vertexes[mergedVertOffset + i] =
-                        NativeCube.GetVertex(dir, i) + blockPos + CalculateShift(dir, batch.size, i);
-                else
-                    Vertexes[mergedVertOffset + i] = NativeCube.GetVertex(dir, i) + new int3(100,100,100);
+                Vertexes[mergedVertOffset + i] =
+                    NativeCube.GetVertex(dir, i) + blockPos + CalculateShift(dir, batch.size, i) + Offset;
+//                else
+//                    Vertexes[mergedVertOffset + i] = NativeCube.GetVertex(dir, i) + new int3(100,100,100);
                 Normals[mergedVertOffset + i] = n;
                 Tangents[mergedVertOffset + i] = t;
                 TextureMap0[mergedVertOffset + i] = NativeCube.Uvs[i];

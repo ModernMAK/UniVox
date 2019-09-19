@@ -8,7 +8,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
-using UniVox;
 using UniVox.Core.Types;
 
 namespace Jobs
@@ -34,14 +33,16 @@ namespace Jobs
 
         struct PlaneInfo : IDisposable
         {
-            public PlaneInfo(int level)
+            public PlaneInfo(int level, PlaneMode mode)
             {
                 PlaneLevel = level;
+                this.mode = mode;
                 Inspected = new NativeArray<bool>(ChunkSize.SquareSize, Allocator.Temp);
             }
 
             public int PlaneLevel;
             public NativeArray<bool> Inspected;
+            public PlaneMode mode;
 
             public void Dispose()
             {
@@ -49,7 +50,121 @@ namespace Jobs
             }
         }
 
+        private enum PlaneMode : byte
+        {
+            x,
+            y,
+            z
+        }
 
+        private Direction GetDir(PlaneMode mode, bool positive)
+        {
+            switch (mode)
+            {
+                case PlaneMode.x:
+                    return positive ? Direction.Right : Direction.Left;
+                case PlaneMode.y:
+                    return positive ? Direction.Up : Direction.Down;
+                case PlaneMode.z:
+                    return positive ? Direction.Forward : Direction.Backward;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+            }
+        }
+
+        private int GetChunkIndex(PlaneInfo plane, int major, int minor)
+        {
+            switch (plane.mode)
+            {
+                case PlaneMode.x:
+                    return ChunkSize.GetIndex(plane.PlaneLevel, minor, major);
+                case PlaneMode.y:
+                    return ChunkSize.GetIndex(minor, plane.PlaneLevel, major);
+                case PlaneMode.z:
+                    return ChunkSize.GetIndex(minor, major, plane.PlaneLevel);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void ProccessPlane(PlaneInfo plane, bool positiveDir)
+        {
+            var dir = GetDir(plane.mode, positiveDir);
+            for (var major = 0; major < ChunkSize.AxisSize; major++)
+            for (var minor = 0; minor < ChunkSize.AxisSize; minor++)
+            {
+                var planeIndex = ChunkSize.GetIndex(minor, major);
+                var chunkIndex = GetChunkIndex(plane, minor, major);
+
+                if (plane.Inspected[planeIndex])
+                    continue;
+//                plane.Inspected[yzIndex] = true;
+
+                var cache = new QuickCache(this, chunkIndex, dir);
+                if (cache.Culled || cache.Batch != BatchId)
+                {
+                    plane.Inspected[planeIndex] = true;
+                    continue;
+                }
+
+                //Size excludes it's own voxel
+                int2 size = int2.zero;
+                var cantMerge = false;
+                for (var majorSpan = 0; majorSpan < ChunkSize.AxisSize - major; majorSpan++)
+                {
+                    if (majorSpan == 0)
+                        for (var minorSpan = 1; minorSpan < ChunkSize.AxisSize - minor; minorSpan++)
+                        {
+                            var spanIndex = ChunkSize.GetIndex(minor + minorSpan, major + majorSpan);
+                            var chunkSpanIndex = GetChunkIndex(plane, minor + minorSpan, major + majorSpan);
+
+                            if (plane.Inspected[spanIndex] || Shapes[chunkSpanIndex] != cache.Shape ||
+                                CulledFaces[chunkSpanIndex].HasDirection(dir) ||
+                                BatchIdPerVoxel[chunkSpanIndex] != BatchId)
+                                break;
+                            size = new int2(minorSpan, 0);
+                        }
+                    else
+                    {
+                        for (var minorSpan = 0; minorSpan <= size.x; minorSpan++)
+                        {
+                            var spanIndex = ChunkSize.GetIndex(minor + minorSpan, major + majorSpan);
+                            var chunkSpanIndex = GetChunkIndex(plane, minor + minorSpan, major + majorSpan);
+
+                            if (plane.Inspected[spanIndex] || Shapes[chunkSpanIndex] != cache.Shape ||
+                                CulledFaces[chunkSpanIndex].HasDirection(dir) ||
+                                BatchIdPerVoxel[chunkSpanIndex] != BatchId)
+                            {
+                                cantMerge = true;
+                                break;
+                            }
+                        }
+
+                        if (cantMerge)
+                            break;
+
+                        size = new int2(size.x, majorSpan);
+                    }
+                }
+
+                for (var majorSpan = 0; majorSpan <= size.y; majorSpan++)
+                for (var minorSpan = 0; minorSpan <= size.x; minorSpan++)
+                {
+                    var spanIndex = ChunkSize.GetIndex(minor + minorSpan, major + majorSpan);
+                    plane.Inspected[spanIndex] = true;
+                }
+
+                Data.Add(new PlanarData()
+                {
+                    Direction = dir,
+                    Position = ChunkSize.GetPosition3(chunkIndex),
+                    Shape = cache.Shape,
+                    size = size
+                });
+            }
+        }
+
+        [Obsolete]
         private void ProccessPlaneYZ(PlaneInfo plane, bool positiveDir)
         {
             var dir = positiveDir ? Direction.Right : Direction.Left;
@@ -75,11 +190,10 @@ namespace Jobs
                 var cantMerge = false;
                 for (var zSpan = 0; zSpan < ChunkSize.AxisSize - z; zSpan++)
                 {
-
                     if (zSpan == 0)
                         for (var ySpan = 1; ySpan < ChunkSize.AxisSize - y; ySpan++)
                         {
-                            var yzSpanIndex = ChunkSize.GetIndex(y+ySpan, z+zSpan);
+                            var yzSpanIndex = ChunkSize.GetIndex(y + ySpan, z + zSpan);
                             var xyzSpanIndex = ChunkSize.GetIndex(plane.PlaneLevel, y + ySpan, z + zSpan);
 
                             if (plane.Inspected[yzSpanIndex] || Shapes[xyzSpanIndex] != cache.Shape ||
@@ -91,7 +205,7 @@ namespace Jobs
                     {
                         for (var ySpan = 0; ySpan <= size.x; ySpan++)
                         {
-                            var yzSpanIndex = ChunkSize.GetIndex(y+ySpan, z+zSpan);
+                            var yzSpanIndex = ChunkSize.GetIndex(y + ySpan, z + zSpan);
                             var xyzSpanIndex = ChunkSize.GetIndex(plane.PlaneLevel, y + ySpan, z + zSpan);
 
                             if (plane.Inspected[yzSpanIndex] || Shapes[xyzSpanIndex] != cache.Shape ||
@@ -106,15 +220,16 @@ namespace Jobs
                             break;
 
                         size = new int2(size.x, zSpan);
-                      
                     }
                 }
+
                 for (var zSpan = 0; zSpan <= size.y; zSpan++)
                 for (var ySpan = 0; ySpan <= size.x; ySpan++)
                 {
                     var xzSpanIndex = PositionToIndexUtil.ToIndex(y + ySpan, z + zSpan, ChunkSize.AxisSize);
                     plane.Inspected[xzSpanIndex] = true;
                 }
+
                 Data.Add(new PlanarData()
                 {
                     Direction = dir,
@@ -125,7 +240,7 @@ namespace Jobs
             }
         }
 
-
+        [Obsolete]
         private void ProccessPlaneXZ(PlaneInfo plane, bool positiveDir)
         {
             var dir = positiveDir ? Direction.Up : Direction.Down;
@@ -199,6 +314,7 @@ namespace Jobs
             }
         }
 
+        [Obsolete]
         private void ProccessPlaneXY(PlaneInfo plane, bool positiveDir)
         {
             var dir = positiveDir ? Direction.Forward : Direction.Backward;
@@ -327,340 +443,32 @@ namespace Jobs
             //Z (Minor) to Y
             for (var i = 0; i < ChunkSize.AxisSize; i++)
             {
-                var posX = new PlaneInfo(i);
-                ProccessPlaneYZ(posX, true);
+                var posX = new PlaneInfo(i, PlaneMode.x);
+                ProccessPlane(posX, true);
                 posX.Dispose();
 
-                var negX = new PlaneInfo(i);
-                ProccessPlaneYZ(negX, false);
+                var negX = new PlaneInfo(i, PlaneMode.x);
+                ProccessPlane(negX, false);
                 negX.Dispose();
 
-//
-//                var posY = new PlaneInfo(i);
-//                ProccessPlaneXZ(posY, true);
-//                posY.Dispose();
-//
-//                var negY = new PlaneInfo(i);
-//                ProccessPlaneXZ(negY, false);
-//                negY.Dispose();
-//
-//
-//                var posZ = new PlaneInfo(i);
-//                ProccessPlaneXY(posZ, true);
-//                posZ.Dispose();
-//
-//                var negZ = new PlaneInfo(i);
-//                ProccessPlaneXY(negZ, false);
-//                negZ.Dispose();
+
+                var posY = new PlaneInfo(i, PlaneMode.y);
+                ProccessPlane(posY, true);
+                posY.Dispose();
+
+                var negY = new PlaneInfo(i, PlaneMode.y);
+                ProccessPlane(negY, false);
+                negY.Dispose();
+
+
+                var posZ = new PlaneInfo(i, PlaneMode.z);
+                ProccessPlane(posZ, true);
+                posZ.Dispose();
+
+                var negZ = new PlaneInfo(i, PlaneMode.z);
+                ProccessPlane(negZ, false);
+                negZ.Dispose();
             }
-        }
-    }
-
-    [Obsolete]
-    struct GatherPlanarJob : IJob
-    {
-        public GatherPlanarJob(VoxelRenderInfoArray render, NativeArray<int> batchIdPerVoxel, int batchId)
-        {
-            Data = new NativeList<PlanarData>(render.Length, Allocator.TempJob);
-            BatchId = batchId;
-            Shapes = render.Shapes;
-            CulledFaces = render.HiddenFaces;
-            BatchIdPerVoxel = batchIdPerVoxel;
-        }
-
-        public int BatchId;
-        public NativeArray<int> BatchIdPerVoxel;
-        public NativeArray<BlockShape> Shapes;
-        public NativeArray<Directions> CulledFaces;
-        public NativeList<PlanarData> Data;
-
-
-        private struct QuickCache : IEquatable<QuickCache>
-        {
-            public QuickCache(GatherPlanarJob job, int index, Direction direction)
-            {
-                Shape = job.Shapes[index];
-                Culled = job.CulledFaces[index].HasDirection(direction);
-                Batch = job.BatchIdPerVoxel[index];
-            }
-
-            public BlockShape Shape;
-            public bool Culled;
-            public int Batch;
-
-            public bool Equals(QuickCache other)
-            {
-                return Shape == other.Shape
-                       && !(Culled || other.Culled)
-                       && Batch == other.Batch;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is QuickCache other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    var hashCode = (int) Shape;
-                    hashCode = (hashCode * 397) ^ Culled.GetHashCode();
-                    hashCode = (hashCode * 397) ^ Batch;
-                    return hashCode;
-                }
-            }
-        }
-
-        [Obsolete]
-        private void CalculateChunk(int planar, int major, int minor, out int3 position, out int index,
-            AxisOrdering order)
-        {
-            position = AxisOrderingX.Reorder(new int3(minor, major, planar), order);
-            index = PositionToIndexUtil.ToIndex(position, new int3(ChunkSize.AxisSize));
-        }
-        [Obsolete]
-        private void CalculateChunk(int planar, int major, int minor, out int3 position, out int index)
-        {
-            position = new int3(minor, major, planar);
-            index = PositionToIndexUtil.ToIndex(position, new int3(ChunkSize.AxisSize));
-        }
-        [Obsolete]
-
-        private void CalculatePlanar(int major, int minor, out int2 position, out int index, AxisOrdering order)
-        {
-            position = Reorder(new int2(minor, major), order);
-            index = PositionToIndexUtil.ToIndex(position, new int2(ChunkSize.AxisSize));
-        }
-        [Obsolete]
-        private void CalculatePlanar(int major, int minor, out int2 position, out int index)
-        {
-            position = new int2(minor, major);
-            index = PositionToIndexUtil.ToIndex(position, new int2(ChunkSize.AxisSize));
-        }
-
-        [Obsolete]
-        private int2 Reorder(int2 position, AxisOrdering order)
-        {
-            //We pretend Z doesnt exist
-            switch (order)
-            {
-                case AxisOrdering.ZXY:
-                case AxisOrdering.XYZ:
-                case AxisOrdering.XZY:
-                    return position;
-                case AxisOrdering.ZYX:
-                case AxisOrdering.YXZ:
-                case AxisOrdering.YZX:
-                    return position.yx;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(order), order, null);
-            }
-        }
-
-
-        [Obsolete]
-        public void GenericPlane(AxisOrdering order, Direction direction)
-        {
-            //What we want to do is iterate over all Planes on a given Axis in the Chunk, this gives us the planarValue
-            var size = new int3(ChunkSize.AxisSize);
-            for (var planarValue = 0; planarValue < ChunkSize.AxisSize; planarValue++)
-            {
-                //We then want to iterate over the remaining components; the major and minor to inspect the Voxel
-
-                //If the Voxel hasn't been processed on this plane, we want to process it
-                var cleared =
-                    new NativeArray<bool>(ChunkSize.SquareSize, Allocator.Temp);
-                for (var majorAxis = 0; majorAxis < ChunkSize.AxisSize; majorAxis++)
-                for (var minorAxis = 0; minorAxis < ChunkSize.AxisSize; minorAxis++)
-                {
-                    CalculatePlanar(majorAxis, minorAxis, out var planarPos, out var planarIndex, order);
-
-                    if (cleared[planarIndex])
-                        continue;
-
-                    CalculateChunk(planarValue, majorAxis, minorAxis, out var chunkPos, out var chunkIndex, order);
-
-                    if (BatchIdPerVoxel[chunkIndex] != BatchId)
-                    {
-                        cleared[planarIndex] = true;
-                        continue;
-                    }
-
-                    var cache = new QuickCache(this, chunkIndex, direction);
-                    if (cache.Culled)
-                    {
-                        cleared[planarIndex] = true;
-                        continue;
-                    }
-
-                    var height = 1;
-                    var width = 1;
-
-                    var escape = false;
-
-
-                    //Iterate over X
-                    for (var majorSize = 0; majorSize < ChunkSize.AxisSize - majorAxis; majorSize++)
-                    {
-                        if (escape)
-                            break;
-
-                        //Iterate over Y, stop if we are about to step outside our height
-                        for (var minorSize = 1;
-                            minorSize < ChunkSize.AxisSize - minorAxis && minorSize <= height;
-                            minorSize++)
-                        {
-                            CalculatePlanar(majorAxis + majorSize, minorAxis + minorSize, out _,
-                                out var spanPlanerIndex, order);
-                            CalculateChunk(planarValue, majorAxis + majorSize, minorAxis + minorSize, out _,
-                                out var spanChunkIndex, order);
-
-
-                            var spanCache = new QuickCache(this, spanChunkIndex, direction);
-
-
-                            //Search the Span
-                            if (cleared[spanPlanerIndex] || !cache.Equals(spanCache))
-                            {
-                                escape = true;
-                                break;
-                            }
-
-
-                            if (majorSize == 1)
-                                height = minorSize + 1;
-                        }
-
-                        width = majorSize + 1;
-                    }
-
-                    for (var w = 0; w < width; w++)
-                    for (var h = 0; h < height; h++)
-                    {
-                        CalculatePlanar(majorAxis + w, minorAxis + h, out _,
-                            out var spanPlanerIndex, order);
-
-                        cleared[spanPlanerIndex] = true;
-                    }
-
-                    cleared[planarIndex] = true;
-                    Data.Add(new PlanarData()
-                    {
-                        Shape = cache.Shape,
-                        Direction = direction,
-                        Position = chunkPos,
-                        size = new int2(width, height)
-                    });
-                }
-            }
-        }
-
-        [Obsolete]
-        public void ZPlane()
-        {
-            //We want to map...
-            //X (Planar) to Z
-            //Y (Major) to X
-            //Z (Minor) to Y
-            GenericPlane(AxisOrdering.ZXY, Direction.Forward);
-            GenericPlane(AxisOrdering.ZXY, Direction.Backward);
-//            
-//            for (var z = 0; z < ChunkSize.AxisSize; z++)
-//            {
-//                var cleared =
-//                    new NativeArray<bool>(ChunkSize.SquareSize, Allocator.Temp, NativeArrayOptions.ClearMemory);
-//                for (var x = 0; x < ChunkSize.AxisSize; x++)
-//                for (var y = 0; y < ChunkSize.AxisSize; y++)
-//                {
-//                    var frontierIndex = PositionToIndexUtil.ToIndex(x, y, ChunkSize.AxisSize);
-//
-//                    if (cleared[frontierIndex])
-//                        continue;
-//                    var position = PositionToIndexUtil.ToIndex(x, y, z, ChunkSize.AxisSize, ChunkSize.AxisSize);
-//                    var shape = Shapes[position];
-//                    var height = 1;
-//                    var width = 1;
-//
-//                    var escape = false;
-//
-//
-//                    //Iterate over X
-//                    for (var w = 0; w < ChunkSize.AxisSize - x; w++)
-//                    {
-//                        if (escape)
-//                            break;
-//
-//                        //Iterate over Y, stop if we are about to step outside our height
-//                        for (var h = 1; h < ChunkSize.AxisSize - y && h <= height; h++)
-//                        {
-//                            var spanIndex =
-//                                PositionToIndexUtil.ToIndex(x + w, y + h, z, ChunkSize.AxisSize, ChunkSize.AxisSize);
-//
-//
-//                            //Search the Span
-//                            if (cleared[spanIndex] || shape != Shapes[spanIndex] ||
-//                                !CulledFaces[spanIndex].HasDirection(Direction.Forward))
-//                            {
-//                                escape = true;
-//                                break;
-//                            }
-//
-//
-//                            if (w == 1)
-//                                height = h + 1;
-//                        }
-//
-//                        width = w + 1;
-//                    }
-//
-//                    for (var w = 0; w < width; w++)
-//                    for (var h = 0; h < height; h++)
-//                    {
-//                        var spanIndex =
-//                            PositionToIndexUtil.ToIndex(x + w, y + h, z, ChunkSize.AxisSize, ChunkSize.AxisSize);
-//
-//
-//                        cleared[spanIndex] = true;
-//                    }
-//
-//                    cleared[frontierIndex] = true;
-//                    Data.Add(new PlanarData()
-//                    {
-//                        Direction = Direction.Forward,
-//                        position = position,
-//                        size = new int2(width, height)
-//                    });
-//                }
-//            }
-        }
-
-        public void YPlane()
-        {
-            //We want to map...
-            //X (Planar) to Y
-            //Y (Major) to X
-            //Z (Minor) to Z
-            GenericPlane(AxisOrdering.YXZ, Direction.Up);
-            GenericPlane(AxisOrdering.YXZ, Direction.Down);
-        }
-
-        public void XPlane()
-        {
-            //We want to map...
-            //X (Planar) to X
-            //Y (Major) to Y
-            //Z (Minor) to Z
-            GenericPlane(AxisOrdering.XYZ, Direction.Forward);
-            GenericPlane(AxisOrdering.XYZ, Direction.Backward);
-        }
-
-
-        public void Execute()
-        {
-            XPlane();
-            YPlane();
-            ZPlane();
         }
     }
 
@@ -963,7 +771,8 @@ namespace Jobs
             };
         }
 
-        public static GenerateCubeBoxelMeshV2 CreateGenerateCubeBoxelMeshV2(NativeList<PlanarData> planarBatch,CalculateIndexAndTotalSizeJob indexAndSizeJob)
+        public static GenerateCubeBoxelMeshV2 CreateGenerateCubeBoxelMeshV2(NativeList<PlanarData> planarBatch,
+            CalculateIndexAndTotalSizeJob indexAndSizeJob)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
@@ -971,6 +780,7 @@ namespace Jobs
             {
                 PlanarBatch = planarBatch.AsDeferredJobArray(),
 
+                Offset = new float3(1f / 2f),
 
 //                Directions = DirectionsX.GetDirectionsNative(allocator),
 
