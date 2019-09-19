@@ -33,7 +33,7 @@ public class TestSystem : MonoBehaviour
 //        world.EntityWorld.GetOrCreateSystem<UnityEdits.Hybrid_Renderer.RenderMeshSystemV3>();
 
 
-        const int wSize = 16 / 2;
+        const int wSize = 0 / 2;
         World.Active = world.EntityWorld;
         for (var x = -wSize; x <= wSize; x++)
         for (var y = -wSize; y <= wSize; y++)
@@ -73,7 +73,7 @@ public class TestSystem : MonoBehaviour
         for (var i = 0; i < _chunk.Length; i++)
         {
             var pos = PositionToIndexUtil.ToPosition3(i, size);
-            pos = AxisOrderingX.Reorder(pos, ChunkSize.Ordering);
+//            pos = AxisOrderingX.Reorder(pos, ChunkSize.Ordering);
 
             var accessor = _chunk[i].Render;
             accessor.Atlas = 0;
@@ -123,6 +123,6 @@ public class TestSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ProcessQueue(ChunkSize.AxisSize);
+        ProcessQueue(1);
     }
 }

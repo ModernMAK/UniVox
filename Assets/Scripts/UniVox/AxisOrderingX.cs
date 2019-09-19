@@ -4,6 +4,7 @@ using Unity.Mathematics;
 
 namespace UniVox
 {
+    [Obsolete("Brings nothing but pain and misery")]
     public static class AxisOrderingX
     {
         public static readonly IReadOnlyList<AxisOrdering> Values =

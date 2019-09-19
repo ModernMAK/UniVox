@@ -57,7 +57,7 @@ namespace UniVox.Core.Types
         {
             _identities[index] = value.Identity;
             _variants[index] = value.Variant;
-//            _shapes[index] = 
+//            _shapes[position] = 
         }
 
 

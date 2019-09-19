@@ -74,10 +74,10 @@
 //        for (var y = trimOffset; y < Size - trimOffset; y++)
 //        for (var z = trimOffset; z < Size - trimOffset; z++)
 //        {
-//            var index = x + y * Size + z * Size * Size;
+//            var position = x + y * Size + z * Size * Size;
 //
 //            var culled = (x > 0 && x < Size - 1 && y > 0 && y < Size - 1 && z > 0 && z < Size - 1);
-//            temp[index] = new VoxelRenderChunkData()
+//            temp[position] = new VoxelRenderChunkData()
 //            {
 //                MeshId = 0,
 //                MaterialId = 0,
@@ -93,8 +93,8 @@
 ////        for (var y = 1; x < Size - 1; y++)
 ////        for (var z = 1; x < Size - 1; z++)
 ////        {
-////            var index = x + y * Size + z * Size * Size;
-////            renderData.ShouldCullFlag[index] = true;
+////            var position = x + y * Size + z * Size * Size;
+////            renderData.ShouldCullFlag[position] = true;
 ////        }
 //    }
 //

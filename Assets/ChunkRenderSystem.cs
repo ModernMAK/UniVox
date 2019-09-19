@@ -90,9 +90,9 @@
 //
 //        [WriteOnly] public NativeArray<VoxelRenderChunkData.GroupId> Groups;
 //
-//        public void Execute(int index)
+//        public void Execute(int position)
 //        {
-//            Groups[index] = new VoxelRenderChunkData.GroupId(Elements[index]);
+//            Groups[position] = new VoxelRenderChunkData.GroupId(Elements[position]);
 //        }
 //    }
 //
@@ -259,16 +259,16 @@
 //        return array;
 //    }
 //
-//    private NativeArray<float4x4> GatherTransformGroup(int index, NativeArray<VoxelRenderChunkElement> chunkElements,
+//    private NativeArray<float4x4> GatherTransformGroup(int position, NativeArray<VoxelRenderChunkElement> chunkElements,
 //        NativeArray<float4x4> transforms, NativeArraySharedValues<VoxelRenderChunkData.GroupId> sharedGroups,
 //        out int transformSize)
 //    {
 //        var sharedGroupSizes = sharedGroups.GetSharedValueIndexCountArray();
 //        var groupIndexes = sharedGroups.GetSortedIndices();
-//        var groupSize = sharedGroupSizes[index];
+//        var groupSize = sharedGroupSizes[position];
 //
 //        var groupStart = 0;
-//        for (var i = 0; i < index; i++)
+//        for (var i = 0; i < position; i++)
 //            groupStart += sharedGroupSizes[i];
 //
 //        var groupTransforms =

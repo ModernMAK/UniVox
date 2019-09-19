@@ -1,5 +1,8 @@
+using System;
+
 namespace UniVox
 {
+    [Obsolete("Brings nothing but pain and misery")]
     public enum AxisOrdering : byte
     {
         // ReSharper disable InconsistentNaming

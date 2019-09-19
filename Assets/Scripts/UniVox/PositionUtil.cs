@@ -36,6 +36,7 @@ namespace UniVox
             return chunkPosition * ChunkSize.AxisSize + offset;
         }
 
+        [Obsolete]
         public static int3 GetLocalPosition(int index, AxisOrdering order = AxisOrdering.XYZ)
         {
             //Order is represented as
@@ -63,11 +64,13 @@ namespace UniVox
             }
         }
 
+        [Obsolete]
         public static int GetIndex(int3 localPosition, AxisOrdering order = AxisOrdering.XYZ)
         {
             return GetIndex(localPosition.x, localPosition.y, localPosition.z, order);
         }
 
+        [Obsolete]
         public static int GetIndex(int x, int y, int z, AxisOrdering order = AxisOrdering.XYZ)
         {
             int low, mid, high;

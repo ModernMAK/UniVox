@@ -3,8 +3,8 @@ namespace UniVox.Core.Types
     public interface INativeAccessorArray<out TAccessor> : IAccessorArray<TAccessor> where TAccessor : struct
     {
 //        int Length { get; }
-//        TAccessor this[int index] { get; }
-//        TAccessor GetAccessor(int index);
+//        TAccessor this[int position] { get; }
+//        TAccessor GetAccessor(int position);
     }
 
     public interface IAccessorArray<out TAccessor>
@@ -17,8 +17,8 @@ namespace UniVox.Core.Types
     public interface INativeAccessorMap<in TKey, TAccessor> : IAccessorMap<TKey, TAccessor> where TAccessor : struct
     {
 //        int Length { get; }
-//        TAccessor this[int index] { get; }
-//        TAccessor GetAccessor(int index);
+//        TAccessor this[int position] { get; }
+//        TAccessor GetAccessor(int position);
     }
 
     public interface IAccessorMap<in TKey, TAccessor>
