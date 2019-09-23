@@ -1,45 +1,30 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using Types;
-using Unity.Entities;
 using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
-using UniVox;
-using UniVox.Core.Systems;
 using UniVox.Core.Types;
-using VoxelWorld = UniVox.Core.Types.World.World;
+using VoxelWorld = UniVox.Core.Types.World;
+using EntityWorld = Unity.Entities.World;
 
 public class TestSystem : MonoBehaviour
 {
     public Material mat;
 
-
+    public int wSize = 0;
     // Start is called before the first frame update
     void Start()
     {
         _datas = new Queue<QueueData>();
         GameManager.MasterRegistry.Material.Register("Default", mat);
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
-//        DefaultTinyWorldInitialization.InitializeSystems(world.EntityWorld);
 
-
-//        world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
-//        world.EntityWorld.GetOrCreateSystem<SimulationSystemGroup>();
-//        world.EntityWorld.GetOrCreateSystem<PresentationSystemGroup>();
-//        world.EntityWorld.GetOrCreateSystem<ChunkMeshGenerationSystem>();
-//        world.EntityWorld.GetOrCreateSystem<UnityEdits.Hybrid_Renderer.RenderMeshSystemV3>();
-
-
-        const int wSize = 8 / 2;
-        World.Active = world.EntityWorld;
+        
+        Unity.Entities.World.Active = world.EntityWorld;
         for (var x = -wSize; x <= wSize; x++)
         for (var y = -wSize; y <= wSize; y++)
         for (var z = -wSize; z <= wSize; z++)
             QueueChunk(world, new int3(x, y, z));
-//        ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world.EntityWorld);
     }
 
     private struct QueueData
@@ -50,7 +35,7 @@ public class TestSystem : MonoBehaviour
 
     private Queue<QueueData> _datas;
 
-    void QueueChunk(UniVox.Core.Types.World.World world, int3 chunkPos)
+    void QueueChunk(VoxelWorld world, int3 chunkPos)
     {
         _datas.Enqueue(new QueueData() {World = world, ChunkPos = chunkPos});
     }
@@ -66,7 +51,7 @@ public class TestSystem : MonoBehaviour
         }
     }
 
-    void CreateChunk(UniVox.Core.Types.World.World world, int3 chunkPos)
+    void CreateChunk(VoxelWorld world, int3 chunkPos)
     {
         var _chunk = world.GetOrCreate(chunkPos).Chunk;
         var size = new int3(ChunkSize.AxisSize);

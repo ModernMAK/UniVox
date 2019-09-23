@@ -11,6 +11,7 @@
         <e p="Editor" t="Include">
           <e p="CreateAssetBundles.cs" t="Include" />
         </e>
+        <e p="PhysicsRaycaster.cs" t="Include" />
         <e p="Scripts" t="Include">
           <e p="ChunkGenArgs.cs" t="Include" />
           <e p="Editor" t="Include">
@@ -59,10 +60,8 @@
           </e>
           <e p="NativeChunkGenArgs.cs" t="Include" />
           <e p="Rendering" t="Include">
-            <e p="ChunkRenderPipeline.cs" t="Include" />
             <e p="CubeBuilder.cs" t="Include" />
             <e p="NativeCubeBuilder.cs" t="Include" />
-            <e p="VoxelRenderingLogic.cs" t="Include" />
           </e>
           <e p="SimpleCameraController.cs" t="Include" />
           <e p="Types" t="Include">
@@ -86,7 +85,6 @@
           </e>
           <e p="UnityEdits" t="Include">
             <e p="ChunkSize.cs" t="Include" />
-            <e p="CreateTransformsForChunk.cs" t="Include" />
             <e p="GameManager.cs" t="Include" />
             <e p="GatherChunkRenderers.cs" t="Include" />
             <e p="Hybrid Renderer" t="Include">
@@ -103,11 +101,13 @@
           </e>
           <e p="UniVox" t="Include">
             <e p="Core" t="Include">
+              <e p="Components" t="Include">
+                <e p="ChunkIdComponent.cs" t="Include" />
+              </e>
               <e p="Systems" t="Include">
                 <e p="ChunkMeshGenerationSystem.cs" t="Include" />
               </e>
               <e p="Types" t="Include">
-                <e p="ChunkIdComponent.cs" t="Include" />
                 <e p="Chunks" t="Include">
                   <e p="AccessorAndDataArrayX.cs" t="Include" />
                   <e p="Chunk.cs" t="Include" />
@@ -125,13 +125,9 @@
                 <e p="UniversalChunkId.cs" t="Include" />
                 <e p="UniversalIdUtil.cs" t="Include" />
                 <e p="UniversalVoxelId.cs" t="Include" />
-                <e p="Universe" t="Include">
-                  <e p="Universe.cs" t="Include" />
-                </e>
+                <e p="Universe.cs" t="Include" />
                 <e p="Version.cs" t="Include" />
-                <e p="World" t="Include">
-                  <e p="World.cs" t="Include" />
-                </e>
+                <e p="World.cs" t="Include" />
               </e>
             </e>
             <e p="Entities" t="Include">

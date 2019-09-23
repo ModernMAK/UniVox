@@ -1,4 +1,4 @@
-using UniVox.Core.Types.Universe;
+using UniVox.Core.Types;
 using UniVox.Entities.Systems;
 
 namespace UnityEdits

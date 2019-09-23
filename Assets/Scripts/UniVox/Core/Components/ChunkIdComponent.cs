@@ -35,18 +35,18 @@ namespace UniVox.Core.Types
 
 
         //Helper functions
-        public World.World GetWorld(Universe.Universe universe)
+        public World GetWorld(Universe universe)
         {
             return universe[Value.WorldId];
         }
 
-        public bool TryGetWorld(Universe.Universe universe, out World.World record)
+        public bool TryGetWorld(Universe universe, out World record)
         {
             return universe.TryGetValue(Value.WorldId, out record);
         }
 
 
-        public bool TryGetChunk(Universe.Universe universe, out World.World.Record record)
+        public bool TryGetChunk(Universe universe, out World.Record record)
         {
             if (universe.TryGetValue(Value.WorldId, out var universeRecord))
                 return TryGetChunkRecord(universeRecord, out record);
@@ -55,18 +55,18 @@ namespace UniVox.Core.Types
             return false;
         }
 
-        public World.World.Record GetChunk(Universe.Universe universe)
+        public World.Record GetChunk(Universe universe)
         {
             return GetChunk(GetWorld(universe));
         }
 
 
-        public bool TryGetChunkRecord(World.World chunkMap, out World.World.Record record)
+        public bool TryGetChunkRecord(World chunkMap, out World.Record record)
         {
             return chunkMap.TryGetAccessor(Value.ChunkId, out record);
         }
 
-        public World.World.Record GetChunk(World.World chunkMap)
+        public World.Record GetChunk(World chunkMap)
         {
             return chunkMap[Value.ChunkId];
         }

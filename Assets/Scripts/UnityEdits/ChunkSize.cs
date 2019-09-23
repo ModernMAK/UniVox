@@ -1,5 +1,6 @@
 using Types;
 using Unity.Mathematics;
+using UnityEngine;
 using UniVox;
 
 namespace UnityEdits
@@ -40,7 +41,7 @@ namespace UnityEdits
         }
 
         private static readonly float3 VoxelSpaceOffset = new float3(1f / 2f);
-        private const float ReallySmallMultiplier = 1f / 1000f;
+        private const float ReallySmallMultiplier = 1f / 100f;
 
         public static int3 ToVoxelSpace(float3 position, float3 normal)
         {
@@ -49,12 +50,10 @@ namespace UnityEdits
             //We subtract the normal so we can move inward, towards 0.
             //We add the Voxel Space Offset, so our points become 0 to 1
             //
-            
-            var fixedPosition = position - normal + VoxelSpaceOffset;
-            
-            return new int3(fixedPosition);
 
-            
+            var fixedPosition = position - normal; // + VoxelSpaceOffset;
+
+            return new int3(math.floor(fixedPosition));
 
 
             //A negative -.5 should map to 0, or -1
@@ -65,11 +64,16 @@ namespace UnityEdits
         {
             return chunkPosition * ChunkSize.AxisSize + blockPosition;
         }
+
         public static void SplitPosition(int3 worldPosition, out int3 chunkPosition, out int3 blockPosition)
         {
             chunkPosition = worldPosition / ChunkSize.AxisSize;
             blockPosition = worldPosition % ChunkSize.AxisSize;
         }
-        
+
+        public static Vector3 ToUnitySpace(int3 voxelPosition)
+        {
+            return voxelPosition + VoxelSpaceOffset;
+        }
     }
 }

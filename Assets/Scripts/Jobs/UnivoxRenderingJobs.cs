@@ -4,9 +4,11 @@ using Rendering;
 using Types;
 using Types.Native;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UniVox.Core.Types;
 
 static internal class UnivoxRenderingJobs
@@ -25,19 +27,28 @@ static internal class UnivoxRenderingJobs
     }
 
     private static void CreateBatches<T>(NativeArray<T> batchInfo, out NativeSlice<int>[] batches,
-        out NativeArray<int> batchChunk)
+        out NativeArraySharedValues<T> sorted)
         where T : struct, IComparable<T>
     {
         //Sort And Gather RenderGroups
-        var sortedGroups = CommonJobs.Sort(batchInfo);
-        CommonJobs.GatherUnique(sortedGroups, out var uniqueCount, out var uniqueOffsets, out var lookupIndexes);
-
+        Profiler.BeginSample("Sort");
+        sorted = CommonJobs.Sort(batchInfo);
+        Profiler.EndSample();
+        Profiler.BeginSample("Gather");
+        CommonJobs.GatherUnique(sorted, out var uniqueCount, out var uniqueOffsets, out var lookupIndexes);
+        Profiler.EndSample();
         //Create Batches based on RenderGroups
+        Profiler.BeginSample("Create");
         batches = CommonJobs.CreateBatches(uniqueCount, uniqueOffsets, lookupIndexes);
-        var batchChunkJob = new CreateBatchChunk(uniqueOffsets, lookupIndexes, uniqueCount);
-        batchChunkJob.Schedule().Complete();
-        batchChunk = batchChunkJob.BatchIds;
-        sortedGroups.Dispose();
+        Profiler.EndSample();
+//        var batchChunkJob = new CreateBatchChunk(uniqueOffsets, lookupIndexes, uniqueCount);
+
+//        batchChunkJob.Schedule().Complete();
+//        batchChunk = batchChunkJob.BatchIds;
+//One Less Job To Perform
+//        batchChunk = new NativeArray<int>(sorted.SourceBuffer.Length, Allocator.TempJob);
+//        sortedGroups.GetSharedIndexArray().CopyTo(batchChunk);
+//        sortedGroups.Dispose();
     }
 
     public static Mesh[] GenerateBoxelMeshes(VoxelRenderInfoArray chunk, JobHandle handle = default)
@@ -45,16 +56,19 @@ static internal class UnivoxRenderingJobs
         const int MaxBatchSize = Byte.MaxValue;
         handle.Complete();
 
-        CreateBatches(chunk.Atlases, out var batches, out var batchChunk);
-
+        Profiler.BeginSample("Create Batches");
+        CreateBatches(chunk.Atlases, out var batches, out var sorted);
+        Profiler.EndSample();
         var meshes = new Mesh[batches.Length];
 //            var boxelPositionJob = CreateBoxelPositionJob();
 //            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
 
 //            var offsets = boxelPositionJob.Positions;
+        Profiler.BeginSample("Process Batches");
         for (var i = 0; i < batches.Length; i++)
         {
-            var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, batchChunk, i, out var queue);
+            Profiler.BeginSample($"Process Batch {i}");
+            var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, sorted.GetSharedIndexArray(), i, out var queue);
             var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, MaxBatchSize);
 
             var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
@@ -92,10 +106,13 @@ static internal class UnivoxRenderingJobs
             genMeshHandle.Complete();
             planarBatch.Dispose();
             meshes[i] = CreateMesh(genMeshJob);
+            Profiler.EndSample();
         }
 
+        Profiler.EndSample();
+
 //            offsets.Dispose();
-        batchChunk.Dispose();
+        sorted.Dispose();
         return meshes;
     }
 

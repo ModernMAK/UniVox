@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEdits;
 
-namespace UniVox.Core.Types.World
+namespace UniVox.Core.Types
 {
     public class World : IDisposable, IAccessorMap<int3, World.Record>
     {

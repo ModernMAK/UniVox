@@ -34,7 +34,7 @@ namespace Jobs
             //Recalculates the Mesh's Boundary
             mesh.RecalculateBounds();
             //Frees the mesh from CPU, but makes it unreadable.
-            mesh.UploadMeshData(true);
+//            mesh.UploadMeshData(true);
             return mesh;
         }
 

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using VoxelWorld = UniVox.Core.Types.World.World;
+using VoxelWorld = UniVox.Core.Types.World;
 
-namespace UniVox.Core.Types.Universe
+namespace UniVox.Core.Types
 {
-    public class Universe : IDisposable, IAccessorMap<byte, World.World>
+    public class Universe : IDisposable, IAccessorMap<byte, World>
     {
         private Dictionary<byte, VoxelWorld> _records;
 
@@ -19,14 +19,14 @@ namespace UniVox.Core.Types.Universe
         }
 
 
-        public World.World GetAccessor(byte index)
+        public VoxelWorld GetAccessor(byte index)
         {
             throw new NotImplementedException();
         }
 
         public bool TryGetAccessor(byte key, out VoxelWorld accessor) => TryGetValue(key, out accessor);
 
-        public World.World this[byte worldId] => _records[worldId];
+        public VoxelWorld this[byte worldId] => _records[worldId];
 
         public void Dispose()
         {
@@ -40,7 +40,7 @@ namespace UniVox.Core.Types.Universe
 
         public VoxelWorld GetOrCreate(byte worldId, string name = default)
         {
-            if (!TryGetValue(worldId, out var world)) _records[worldId] = world = new World.World();
+            if (!TryGetValue(worldId, out var world)) _records[worldId] = world = new VoxelWorld();
 
             return world;
         }

@@ -6,6 +6,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Physics;
+using Unity.Physics.Systems;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits;
@@ -13,8 +15,10 @@ using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
-using UniVox.Core.Types.Universe;
 using UniVox.Entities.Systems;
+using Collider = Unity.Physics.Collider;
+using Material = UnityEngine.Material;
+using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace UniVox.Core.Systems
 {
@@ -28,7 +32,6 @@ namespace UniVox.Core.Systems
             public uint Info;
             public uint Render;
 
-//            public static bool DidChange(uint cacheVersion, uint currentVersion);
             public bool DidChange(Version info, Version render) =>
                 ChangeVersionUtility.DidChange(info, Info) && ChangeVersionUtility.DidChange(render, Render);
 
@@ -57,8 +60,14 @@ namespace UniVox.Core.Systems
         private void SetupArchetype()
         {
             _archetype = EntityManager.CreateArchetype(
+                //Rendering
                 typeof(RenderMesh),
-                typeof(LocalToWorld));
+                typeof(LocalToWorld),
+//Physics
+                typeof(Translation),
+                typeof(Rotation),
+                
+                typeof(PhysicsCollider));
         }
 
         protected override void OnCreate()
@@ -166,7 +175,12 @@ namespace UniVox.Core.Systems
         {
             var rotation = new float3x3(new float3(1, 0, 0), new float3(0, 1, 0), new float3(0, 0, 1));
             foreach (var entity in entities)
+            {
+                EntityManager.SetComponentData(entity, new Translation(){Value = position});
+                EntityManager.SetComponentData(entity, new Rotation(){Value = quaternion.identity});
+                //Check if this is still necessary
                 EntityManager.SetComponentData(entity, new LocalToWorld() {Value = new float4x4(rotation, position)});
+            }
         }
 
         private struct FrameCache
@@ -207,6 +221,7 @@ namespace UniVox.Core.Systems
                     FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Meshes = meshes});
                 }
             }
+
             Profiler.EndSample();
 
             chunkArray.Dispose();
@@ -228,13 +243,53 @@ namespace UniVox.Core.Systems
                     var renderEntity = renderEntities[j];
 
                     var meshData = EntityManager.GetSharedComponentData<RenderMesh>(renderEntity);
+                    var mesh = meshes[j];
 
-                    meshData.mesh = meshes[j];
+                    var meshVerts = mesh.vertices;
+                    var nativeMeshVerts = new NativeArray<float3>(meshVerts.Length, Allocator.Temp,
+                        NativeArrayOptions.UninitializedMemory);
+                    for (var i = 0; i < meshVerts.Length; i++)
+                        nativeMeshVerts[i] = meshVerts[i];
+
+                    var meshTris = mesh.triangles;
+                    var nativeMeshTris = new NativeArray<int>(meshTris.Length, Allocator.Temp,
+                        NativeArrayOptions.UninitializedMemory);
+                    for (var i = 0; i < meshTris.Length; i++)
+                        nativeMeshTris[i] = meshTris[i];
+
+                    var collider = MeshCollider.Create(nativeMeshVerts, nativeMeshTris, CollisionFilter.Default);
+//                    var physSys = EntityManager.World.GetOrCreateSystem<BuildPhysicsWorld>();
+                    
+                    
+                    nativeMeshTris.Dispose();
+                    nativeMeshVerts.Dispose();
+
+//                    var physicsData = new PhysicsCollider()
+//                    {
+//                        Value = new BlobAssetReference<Collider>()
+//                    };
+//                    var temp = new BlobAssetReference<Collider>()
+//                    {
+//                        Value = new Collider()
+//                        {
+//                            Filter = new CollisionFilter()
+//                            {
+//                                
+//                            },
+//                        }
+//                    };
+
+
+                    mesh.UploadMeshData(true);
+                    meshData.mesh = mesh;
                     meshData.material = _material;
 
+
+                    EntityManager.SetComponentData(renderEntity, new PhysicsCollider() {Value = collider});
                     EntityManager.SetSharedComponentData(renderEntity, meshData);
                 }
             }
+
             Profiler.EndSample();
         }
 
