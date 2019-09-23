@@ -1,4 +1,3 @@
-using System;
 using Unity.Mathematics;
 using UnityEdits;
 
@@ -34,83 +33,6 @@ namespace UniVox
         public static int3 GetWorldPosition(int3 chunkPosition, int3 offset = default)
         {
             return chunkPosition * ChunkSize.AxisSize + offset;
-        }
-
-        [Obsolete]
-        public static int3 GetLocalPosition(int index, AxisOrdering order = AxisOrdering.XYZ)
-        {
-            //Order is represented as
-            //High - Mid - Low
-            //If using the default, X = High, Y = Mid, Z = Low
-            var low = index % ChunkSize.AxisSize;
-            var mid = index / ChunkSize.AxisSize % ChunkSize.AxisSize;
-            var high = index / ChunkSize.SquareSize;
-            switch (order)
-            {
-                case AxisOrdering.XYZ:
-                    return new int3(high, mid, low);
-                case AxisOrdering.XZY:
-                    return new int3(high, low, mid);
-                case AxisOrdering.YXZ:
-                    return new int3(mid, high, low);
-                case AxisOrdering.YZX:
-                    return new int3(low, high, mid);
-                case AxisOrdering.ZXY:
-                    return new int3(mid, low, high);
-                case AxisOrdering.ZYX:
-                    return new int3(low, mid, high);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(order), order, null);
-            }
-        }
-
-        [Obsolete]
-        public static int GetIndex(int3 localPosition, AxisOrdering order = AxisOrdering.XYZ)
-        {
-            return GetIndex(localPosition.x, localPosition.y, localPosition.z, order);
-        }
-
-        [Obsolete]
-        public static int GetIndex(int x, int y, int z, AxisOrdering order = AxisOrdering.XYZ)
-        {
-            int low, mid, high;
-            switch (order)
-            {
-                case AxisOrdering.XYZ:
-                    high = x;
-                    mid = y;
-                    low = z;
-                    break;
-                case AxisOrdering.XZY:
-                    high = x;
-                    mid = z;
-                    low = y;
-                    break;
-                case AxisOrdering.YXZ:
-                    high = y;
-                    mid = x;
-                    low = z;
-                    break;
-                case AxisOrdering.YZX:
-                    high = y;
-                    mid = z;
-                    low = x;
-                    break;
-                case AxisOrdering.ZXY:
-                    high = z;
-                    mid = x;
-                    low = y;
-                    break;
-                case AxisOrdering.ZYX:
-                    high = z;
-                    mid = y;
-                    low = x;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(order), order, null);
-            }
-
-            return high * ChunkSize.SquareSize + mid * ChunkSize.AxisSize + low;
         }
     }
 }

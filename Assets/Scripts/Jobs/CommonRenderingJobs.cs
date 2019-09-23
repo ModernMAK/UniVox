@@ -55,7 +55,7 @@ namespace Jobs
 
         public static Mesh[] GenerateBoxelMeshes(VoxelRenderInfoArray chunk, JobHandle handle = default)
         {
-            const int MaxBatchSize = byte.MaxValue;
+            const int maxBatchSize = byte.MaxValue;
             handle.Complete();
 
             //Sort And Gather RenderGroups
@@ -63,20 +63,18 @@ namespace Jobs
             CommonJobs.GatherUnique(sortedGroups, out var uniqueCount, out var uniqueOffsets, out var lookupIndexes);
 
             //Create Batches based on RenderGroups
-            var batches = CommonJobs.CreateBatches(uniqueCount, uniqueOffsets, lookupIndexes);
+//            CommonJobs.CreateBatches(uniqueCount, uniqueOffsets, lookupIndexes);
             var batchChunkJob = new CreateBatchChunk(uniqueOffsets, lookupIndexes, uniqueCount);
             batchChunkJob.Schedule().Complete();
 
 
-            var meshes = new Mesh[batches.Length];
+            var meshes = new Mesh[uniqueCount];
 //            var boxelPositionJob = CreateBoxelPositionJob();
 //            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
 
 //            var offsets = boxelPositionJob.Positions;
             for (var i = 0; i < uniqueCount; i++)
             {
-                var batch = batches[i];
-
                 var gatherPlanerJob = new GatherPlanarJobV2(chunk, batchChunkJob.BatchIds, i);
                 gatherPlanerJob.Schedule().Complete();
                 var planarBatch = gatherPlanerJob.Data;
@@ -89,7 +87,7 @@ namespace Jobs
                 //Calculate the Size of the Mesh and the position to write to per voxel
                 var indexAndSizeJob = CreateCalculateIndexAndTotalSizeJob(cubeSizeJob);
                 //Schedule the jobs
-                var cubeSizeJobHandle = cubeSizeJob.Schedule(planarBatch.Length, MaxBatchSize);
+                var cubeSizeJobHandle = cubeSizeJob.Schedule(planarBatch.Length, maxBatchSize);
                 var indexAndSizeJobHandle = indexAndSizeJob.Schedule(cubeSizeJobHandle);
                 //Complete these jobs
                 indexAndSizeJobHandle.Complete();
@@ -101,7 +99,7 @@ namespace Jobs
                 indexAndSizeJob.TriangleTotalSize.Dispose();
                 indexAndSizeJob.VertexTotalSize.Dispose();
                 //Schedule the generation
-                var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, MaxBatchSize, indexAndSizeJobHandle);
+                var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
 
                 //Finish and Create the Mesh
                 genMeshHandle.Complete();

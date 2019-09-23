@@ -29,7 +29,7 @@ public class TestSystem : MonoBehaviour
 //        world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
 //        world.EntityWorld.GetOrCreateSystem<SimulationSystemGroup>();
 //        world.EntityWorld.GetOrCreateSystem<PresentationSystemGroup>();
-//        world.EntityWorld.GetOrCreateSystem<ChunkRenderSystem>();
+//        world.EntityWorld.GetOrCreateSystem<ChunkMeshGenerationSystem>();
 //        world.EntityWorld.GetOrCreateSystem<UnityEdits.Hybrid_Renderer.RenderMeshSystemV3>();
 
 

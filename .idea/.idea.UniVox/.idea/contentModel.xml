@@ -100,11 +100,9 @@
             <e p="NativeMeshBuilder.cs" t="Include" />
           </e>
           <e p="UniVox" t="Include">
-            <e p="AxisOrdering.cs" t="Include" />
-            <e p="AxisOrderingX.cs" t="Include" />
             <e p="Core" t="Include">
               <e p="Systems" t="Include">
-                <e p="ChunkRenderSystem.cs" t="Include" />
+                <e p="ChunkMeshGenerationSystem.cs" t="Include" />
               </e>
               <e p="Types" t="Include">
                 <e p="ChunkIdComponent.cs" t="Include" />
@@ -130,8 +128,6 @@
                 </e>
                 <e p="Version.cs" t="Include" />
                 <e p="World" t="Include">
-                  <e p="NativeArrayBuilder.cs" t="Include" />
-                  <e p="RenderGroup.cs" t="Include" />
                   <e p="World.cs" t="Include" />
                 </e>
               </e>

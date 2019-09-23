@@ -17,7 +17,7 @@
 //[ExecuteAlways]
 //[AlwaysUpdateSystem]
 //[UpdateInGroup(typeof(PresentationSystemGroup))]
-//public class ChunkRenderSystem : JobComponentSystem
+//public class ChunkMeshGenerationSystem : JobComponentSystem
 //{
 //    public struct State : ISystemStateComponentData
 //    {

@@ -20,7 +20,7 @@ namespace UniVox.Core.Systems
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateBefore(typeof(RenderMeshSystemV2))]
     [UpdateBefore(typeof(RenderMeshSystemV3))]
-    public class ChunkRenderSystem : JobComponentSystem
+    public class ChunkMeshGenerationSystem : JobComponentSystem
     {
         public struct ChunkRenderVersion : ISystemStateComponentData
         {
@@ -51,11 +51,11 @@ namespace UniVox.Core.Systems
         private Material _material;
 
         private Dictionary<UniversalChunkId, NativeArray<Entity>> _entityCache;
-        private EntityArchetype archetype;
+        private EntityArchetype _archetype;
 
         private void SetupArchetype()
         {
-            archetype = EntityManager.CreateArchetype(
+            _archetype = EntityManager.CreateArchetype(
                 typeof(RenderMesh),
                 typeof(LocalToWorld));
         }
@@ -143,7 +143,7 @@ namespace UniVox.Core.Systems
 
 
                     NativeArray<Entity>.Copy(cached, temp, cached.Length);
-                    EntityManager.CreateEntity(archetype, requested);
+                    EntityManager.CreateEntity(_archetype, requested);
                     NativeArray<Entity>.Copy(requested, 0, temp, cached.Length, requested.Length);
 
                     requested.Dispose();
@@ -156,7 +156,7 @@ namespace UniVox.Core.Systems
             {
                 var requested = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
                     NativeArrayOptions.UninitializedMemory);
-                EntityManager.CreateEntity(archetype, requested);
+                EntityManager.CreateEntity(_archetype, requested);
                 _entityCache[id] = requested;
             }
         }

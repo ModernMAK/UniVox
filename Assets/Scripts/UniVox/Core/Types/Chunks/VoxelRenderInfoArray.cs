@@ -21,8 +21,6 @@ namespace UniVox.Core.Types
             Version = new Version();
             Length = size;
             _atlases = new NativeArray<int>(size, allocator, options);
-//            _meshes = new NativeArray<int>(size, allocator, options);
-//            _cullFlags = new NativeArray<bool>(size, allocator, options);
             _blockShapes = new NativeArray<BlockShape>(size, allocator, options);
             _blockFlags = new NativeArray<Directions>(size, allocator, options);
         }
