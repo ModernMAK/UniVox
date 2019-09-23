@@ -1,9 +1,11 @@
 using Types.Native;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
 namespace Jobs
 {
+    [BurstCompile]
     public struct CalculateIndexAndTotalSizeJob : IJob
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> VertexSizes;

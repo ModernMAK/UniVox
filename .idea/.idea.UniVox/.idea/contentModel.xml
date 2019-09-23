@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\ModernMAK\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.-1200194083.00" t="ExcludeRecursive" />
-    <e p="D:\GitHub\UniVox" t="IncludeRecursive">
+    <e p="C:\Users\moder\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\moder\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UniVox.1977303905.00" t="ExcludeRecursive" />
+    <e p="C:\Users\moder\Documents\GitHub\UniVox" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -45,6 +45,7 @@
           <e p="Jobs" t="Include">
             <e p="CalculateActiveFromNoise.cs" t="Include" />
             <e p="CalculateCubeSizeJob.cs" t="Include" />
+            <e p="CalculateCubeSizeJobV2.cs" t="Include" />
             <e p="CalculateIndexAndTotalSizeJob.cs" t="Include" />
             <e p="CalculateOctaveSNoiseJob.cs" t="Include" />
             <e p="CommonJobs.cs" t="Include" />
@@ -54,6 +55,7 @@
             <e p="GatherPlanarJobV2.cs" t="Include" />
             <e p="GenerateCubeBoxelMesh.cs" t="Include" />
             <e p="PlanarData.cs" t="Include" />
+            <e p="UnivoxRenderingJobs.cs" t="Include" />
           </e>
           <e p="NativeChunkGenArgs.cs" t="Include" />
           <e p="Rendering" t="Include">
