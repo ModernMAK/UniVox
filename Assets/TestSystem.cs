@@ -9,17 +9,22 @@ using EntityWorld = Unity.Entities.World;
 
 public class TestSystem : MonoBehaviour
 {
-    public Material mat;
+    public Material defaultMat;
+    public Material[] additionalMats;
 
     public int wSize = 0;
+
     // Start is called before the first frame update
     void Start()
     {
         _datas = new Queue<QueueData>();
-        GameManager.MasterRegistry.Material.Register("Default", mat);
+        var matReg = GameManager.MasterRegistry.Material;
+        matReg.Register("Default", defaultMat);
+        foreach (var mat in additionalMats)
+            matReg.Register(mat.name, mat);
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 
-        
+
         Unity.Entities.World.Active = world.EntityWorld;
         for (var x = -wSize; x <= wSize; x++)
         for (var y = -wSize; y <= wSize; y++)
@@ -61,7 +66,7 @@ public class TestSystem : MonoBehaviour
 //            pos = AxisOrderingX.Reorder(pos, ChunkSize.Ordering);
 
             var accessor = _chunk[i].Render;
-            accessor.Atlas = 0;
+            accessor.Material = 0;
             accessor.Shape = BlockShape.Cube;
 
             var hidden = DirectionsX.AllFlag;

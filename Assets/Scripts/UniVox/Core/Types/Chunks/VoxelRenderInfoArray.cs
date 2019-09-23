@@ -9,7 +9,7 @@ namespace UniVox.Core.Types
         INativeAccessorArray<VoxelRenderInfoArray.Accessor>,
         INativeDataArray<VoxelRenderInfoArray.Data>
     {
-        private NativeArray<int> _atlases;
+        private NativeArray<int> _materials;
         private NativeArray<Directions> _blockFlags;
 
         private NativeArray<BlockShape> _blockShapes;
@@ -20,15 +20,17 @@ namespace UniVox.Core.Types
         {
             Version = new Version();
             Length = size;
-            _atlases = new NativeArray<int>(size, allocator, options);
+            _materials = new NativeArray<int>(size, allocator, options);
             _blockShapes = new NativeArray<BlockShape>(size, allocator, options);
             _blockFlags = new NativeArray<Directions>(size, allocator, options);
         }
 
 
-        [Obsolete] public NativeArray<int> Materials => throw new ObsoleteException(nameof(Materials), nameof(Atlases));
+        public NativeArray<int> Materials =>  _materials;
 
-        public NativeArray<int> Atlases => _atlases;
+        //Id made sense to call them atlasses, but for all intents and purposes, the rendering system only cares about material ID's
+        
+        [Obsolete] public NativeArray<int> Atlases => throw new ObsoleteException(nameof(Atlases), nameof(Materials));
 
         public NativeArray<BlockShape> Shapes => _blockShapes;
         public NativeArray<Directions> HiddenFaces => _blockFlags;
@@ -37,7 +39,7 @@ namespace UniVox.Core.Types
         {
             _blockShapes.Dispose();
             _blockFlags.Dispose();
-            _atlases.Dispose();
+            _materials.Dispose();
         }
 
         public int Length { get; }

@@ -18,7 +18,7 @@ namespace Jobs
         public static NativeArraySharedValues<T> Sort<T>(NativeArray<T> source, JobHandle dependencies = default)
             where T : struct, IComparable<T>
         {
-            Sort(source,out var sharedValues,dependencies).Complete();
+            Sort(source, out var sharedValues, dependencies).Complete();
             return sharedValues;
         }
 
@@ -53,11 +53,10 @@ namespace Jobs
             NativeArray<int> lookupIndexes)
         {
             var batches = new NativeSlice<int>[batchCount];
-            var offset = 0;
             var start = 0;
             for (var i = 0; i < batchCount; i++)
             {
-                offset += uniqueOffsets[i];
+                var offset = uniqueOffsets[i];
                 batches[i] = new NativeSlice<int>(lookupIndexes, start, offset);
                 start += uniqueOffsets[i];
             }

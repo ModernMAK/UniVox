@@ -28,6 +28,27 @@ namespace Types
             return (Directions) direction.ToInternalFlag();
         }
 
+        public static Direction ToOpposite(this Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Up:
+                    return Direction.Down;
+                case Direction.Down:
+                    return Direction.Up;
+                case Direction.Right:
+                    return Direction.Left;
+                case Direction.Left:
+                    return Direction.Right;
+                case Direction.Forward:
+                    return Direction.Backward;
+                case Direction.Backward:
+                    return Direction.Forward;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
         private static int ToInternalFlag(this Direction flag)
         {
             return 1 << (byte) flag;

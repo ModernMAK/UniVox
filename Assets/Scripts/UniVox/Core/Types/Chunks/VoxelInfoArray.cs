@@ -10,8 +10,8 @@ namespace UniVox.Core.Types
         INativeDataArray<VoxelInfoArray.Data>
     {
 
-        private NativeArray<short> _identities;
-        private NativeArray<byte> _variants;
+        private NativeArray<BlockIdentity> _identities;
+//        private NativeArray<byte> _variants;
 //        private NativeArray<BlockShape> _shapes;
 
 
@@ -20,20 +20,20 @@ namespace UniVox.Core.Types
         {
             Version = new Version();
             Length = flatSize;
-            _identities = new NativeArray<short>(flatSize, allocator, options);
-            _variants = new NativeArray<byte>(flatSize, allocator, options);
+            _identities = new NativeArray<BlockIdentity>(flatSize, allocator, options);
+//            _variants = new NativeArray<byte>(flatSize, allocator, options);
 //            _shapes = new NativeArray<BlockShape>(flatSize, allocator, options);
         }
 
-        public NativeArray<short> Identities => _identities;
-        public NativeArray<byte> Variants => _variants;
+        public NativeArray<BlockIdentity> Identities => _identities;
+//        public NativeArray<byte> Variants => _variants;
 
 //        public NativeArray<BlockShape> Shapes => _shapes;
 
         public void Dispose()
         {
             Identities.Dispose();
-            Variants.Dispose();
+//            Variants.Dispose();
 //            _shapes.Dispose();
         }
 
@@ -56,7 +56,7 @@ namespace UniVox.Core.Types
         public void SetData(int index, Data value)
         {
             _identities[index] = value.Identity;
-            _variants[index] = value.Variant;
+//            _variants[index] = value.Variant;
 //            _shapes[position] = 
         }
 

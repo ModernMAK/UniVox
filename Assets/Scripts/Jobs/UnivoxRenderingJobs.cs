@@ -51,15 +51,22 @@ static internal class UnivoxRenderingJobs
 //        sortedGroups.Dispose();
     }
 
-    public static Mesh[] GenerateBoxelMeshes(VoxelRenderInfoArray chunk, JobHandle handle = default)
+
+    public struct RenderResult
+    {
+        public Mesh Mesh;
+        public int Material;
+    }
+
+    public static RenderResult[] GenerateBoxelMeshes(VoxelRenderInfoArray chunk, JobHandle handle = default)
     {
         const int MaxBatchSize = Byte.MaxValue;
         handle.Complete();
 
         Profiler.BeginSample("Create Batches");
-        CreateBatches(chunk.Atlases, out var batches, out var sorted);
+        CreateBatches(chunk.Materials, out var batches, out var sorted);
         Profiler.EndSample();
-        var meshes = new Mesh[batches.Length];
+        var meshes = new RenderResult[batches.Length];
 //            var boxelPositionJob = CreateBoxelPositionJob();
 //            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
 
@@ -67,6 +74,7 @@ static internal class UnivoxRenderingJobs
         Profiler.BeginSample("Process Batches");
         for (var i = 0; i < batches.Length; i++)
         {
+            var materialId = chunk.Materials[batches[i][0]];
             Profiler.BeginSample($"Process Batch {i}");
             var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, sorted.GetSharedIndexArray(), i, out var queue);
             var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, MaxBatchSize);
@@ -105,7 +113,11 @@ static internal class UnivoxRenderingJobs
             //Finish and Create the Mesh
             genMeshHandle.Complete();
             planarBatch.Dispose();
-            meshes[i] = CreateMesh(genMeshJob);
+            meshes[i] = new RenderResult()
+            {
+                Mesh = CreateMesh(genMeshJob),
+                Material = materialId
+            };
             Profiler.EndSample();
         }
 

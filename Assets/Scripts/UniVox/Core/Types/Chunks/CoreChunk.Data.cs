@@ -7,17 +7,17 @@ namespace UniVox.Core.Types
             public Data(VoxelInfoArray voxelInfoArray, int index)
             {
                 Identity = voxelInfoArray._identities[index];
-                Variant = voxelInfoArray._variants[index];
+//                Variant = voxelInfoArray._variants[index];
             }
 
             public Data(Accessor accessor)
             {
                 Identity = accessor.Identity;
-                Variant = accessor.Variant;
+//                Variant = accessor.Variant;
             }
 
-            public short Identity { get; set; }
-            public byte Variant { get; set; }
+            public BlockIdentity Identity { get; set; }
+//            public byte Variant { get; set; }
         }
     }
 }

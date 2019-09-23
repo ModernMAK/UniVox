@@ -1,23 +1,16 @@
 using System.Collections.Generic;
-using System.ComponentModel;
-using Jobs;
 using Types;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Physics.Systems;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
-using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
-using UniVox.Entities.Systems;
-using Collider = Unity.Physics.Collider;
-using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace UniVox.Core.Systems
@@ -33,7 +26,7 @@ namespace UniVox.Core.Systems
             public uint Render;
 
             public bool DidChange(Version info, Version render) =>
-                ChangeVersionUtility.DidChange(info, Info) && ChangeVersionUtility.DidChange(render, Render);
+                ChangeVersionUtility.DidChange(info, Info) || ChangeVersionUtility.DidChange(render, Render);
 
             public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version, chunk.Render.Version);
 
@@ -52,7 +45,7 @@ namespace UniVox.Core.Systems
         private EntityQuery _cleanupQuery;
 
         private Universe _universe;
-        private Material _material;
+//        private Material _material;
 
         private Dictionary<UniversalChunkId, NativeArray<Entity>> _entityCache;
         private EntityArchetype _archetype;
@@ -66,7 +59,6 @@ namespace UniVox.Core.Systems
 //Physics
                 typeof(Translation),
                 typeof(Rotation),
-                
                 typeof(PhysicsCollider));
         }
 
@@ -74,7 +66,7 @@ namespace UniVox.Core.Systems
         {
             FrameCaches = new Queue<FrameCache>();
             _universe = GameManager.Universe;
-            GameManager.MasterRegistry.Material.TryGetValue(0, out _material);
+//            GameManager.MasterRegistry.Material.TryGetValue(0, out _material);
             SetupArchetype();
             _renderQuery = GetEntityQuery(new EntityQueryDesc()
             {
@@ -176,8 +168,8 @@ namespace UniVox.Core.Systems
             var rotation = new float3x3(new float3(1, 0, 0), new float3(0, 1, 0), new float3(0, 0, 1));
             foreach (var entity in entities)
             {
-                EntityManager.SetComponentData(entity, new Translation(){Value = position});
-                EntityManager.SetComponentData(entity, new Rotation(){Value = quaternion.identity});
+                EntityManager.SetComponentData(entity, new Translation() {Value = position});
+                EntityManager.SetComponentData(entity, new Rotation() {Value = quaternion.identity});
                 //Check if this is still necessary
                 EntityManager.SetComponentData(entity, new LocalToWorld() {Value = new float4x4(rotation, position)});
             }
@@ -186,7 +178,7 @@ namespace UniVox.Core.Systems
         private struct FrameCache
         {
             public UniversalChunkId Id;
-            public Mesh[] Meshes;
+            public UnivoxRenderingJobs.RenderResult[] Results;
         }
 
         private Queue<FrameCache> FrameCaches;
@@ -216,9 +208,9 @@ namespace UniVox.Core.Systems
                     versions[i] = ChunkRenderVersion.Create(voxelChunk);
 
                     Profiler.BeginSample("Process Render Chunk");
-                    var meshes = UnivoxRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
+                    var results = UnivoxRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
                     Profiler.EndSample();
-                    FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Meshes = meshes});
+                    FrameCaches.Enqueue(new FrameCache() {Id = id.Value, Results = results});
                 }
             }
 
@@ -231,9 +223,9 @@ namespace UniVox.Core.Systems
             {
                 var cached = FrameCaches.Dequeue();
                 var id = cached.Id;
-                var meshes = cached.Meshes;
+                var results = cached.Results;
 
-                var renderEntities = GetResizedCache(id, meshes.Length);
+                var renderEntities = GetResizedCache(id, results.Length);
                 InitializeEntities(renderEntities,
                     id.ChunkId * ChunkSize.AxisSize); //ChunkID doubles as unscaled position
 
@@ -243,7 +235,8 @@ namespace UniVox.Core.Systems
                     var renderEntity = renderEntities[j];
 
                     var meshData = EntityManager.GetSharedComponentData<RenderMesh>(renderEntity);
-                    var mesh = meshes[j];
+                    var mesh = results[j].Mesh;
+                    var materialId = results[j].Material;
 
                     var meshVerts = mesh.vertices;
                     var nativeMeshVerts = new NativeArray<float3>(meshVerts.Length, Allocator.Temp,
@@ -259,8 +252,8 @@ namespace UniVox.Core.Systems
 
                     var collider = MeshCollider.Create(nativeMeshVerts, nativeMeshTris, CollisionFilter.Default);
 //                    var physSys = EntityManager.World.GetOrCreateSystem<BuildPhysicsWorld>();
-                    
-                    
+
+
                     nativeMeshTris.Dispose();
                     nativeMeshVerts.Dispose();
 
@@ -282,7 +275,9 @@ namespace UniVox.Core.Systems
 
                     mesh.UploadMeshData(true);
                     meshData.mesh = mesh;
-                    meshData.material = _material;
+
+                    GameManager.MasterRegistry.Material.TryGetValue(materialId, out var material);
+                    meshData.material = material;
 
 
                     EntityManager.SetComponentData(renderEntity, new PhysicsCollider() {Value = collider});
@@ -307,10 +302,6 @@ namespace UniVox.Core.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (_material == null)
-                if (!GameManager.MasterRegistry.Material.TryGetValue(0, out _material))
-                    return inputDeps;
-
             inputDeps.Complete();
 
             RenderPass();

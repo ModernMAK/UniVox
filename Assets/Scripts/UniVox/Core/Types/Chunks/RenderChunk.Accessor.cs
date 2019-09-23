@@ -6,34 +6,36 @@ namespace UniVox.Core.Types
     {
         public struct Accessor
         {
-            public Accessor(VoxelRenderInfoArray infoArray, int index)
+            public Accessor(VoxelRenderInfoArray backing, int index)
             {
-                _infoArray = infoArray;
+                _backing = backing;
                 _index = index;
             }
 
-            private readonly VoxelRenderInfoArray _infoArray;
+            private readonly VoxelRenderInfoArray _backing;
 
             private readonly int _index;
 
 
             public BlockShape Shape
             {
-                get => _infoArray._blockShapes[_index];
-                set => _infoArray._blockShapes[_index] = value;
+                get => _backing._blockShapes[_index];
+                set => _backing._blockShapes[_index] = value;
             }
             
-            public int Atlas
+            public int Material
             {
-                get => _infoArray._atlases[_index];
-                set => _infoArray._atlases[_index] = value;
+                get => _backing._materials[_index];
+                set => _backing._materials[_index] = value;
             }
 
             public Directions HiddenFaces
             {
-                get => _infoArray._blockFlags[_index];
-                set => _infoArray._blockFlags[_index] = value;
+                get => _backing._blockFlags[_index];
+                set => _backing._blockFlags[_index] = value;
             }
+
+            public Version Version => _backing.Version;
         }
     }
 }

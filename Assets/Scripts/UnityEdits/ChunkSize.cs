@@ -27,6 +27,18 @@ namespace UnityEdits
         public static int GetIndex(int x, int y) => PositionToIndexUtil.ToIndex(x, y, AxisSize);
         public static int3 GetPosition3(int index) => PositionToIndexUtil.ToPosition3(index, AxisSize, AxisSize);
         public static int2 GetPosition2(int index) => PositionToIndexUtil.ToPosition2(index, AxisSize);
+
+
+        public static bool IsValid(int3 blockPosition)
+        {
+            //True if valid
+            var min = blockPosition >= 0;
+            //True if valid
+            var max = blockPosition < AxisSize;
+
+
+            return math.all(min) && math.all(max);
+        }
     }
 
     public static class UnivoxDefine

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Slime
-  m_Shader: {fileID: -6465566751694194690, guid: 9fbac9938b45f2248a31483e7f0070a7,
+  m_Shader: {fileID: -6465566751694194690, guid: edccc7efb32cfaa41bcbea975ba32c0d,
     type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
