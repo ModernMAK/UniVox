@@ -74,17 +74,20 @@ static internal class UnivoxRenderingJobs
                     var temp = max;
                     max = min;
                     min = temp;
+//                    if (min < -1) //Allow -1, to insert at front
+//                        min = -1;
+//                    else if (min > Unique.Length - 1)
+//                        min = Unique.Length - 1;
+
+
                     var insertAt = min + 1;
 
 
                     //Add a placeholder
                     Unique.Add(default);
                     //Shift all elements down one
-                    for (var i = Unique.Length - 1; i > insertAt; i++)
-                    {
+                    for (var i = insertAt + 1; i < Unique.Length; i++)
                         Unique[i] = Unique[i - 1];
-                    }
-
                     //Insert the correct element
                     Unique[insertAt] = value;
                     return;
@@ -178,7 +181,7 @@ static internal class UnivoxRenderingJobs
         var batchData = chunk.Materials;
         var uniqueBatchData = GatherUnique(batchData);
         Profiler.EndSample();
-        
+
         var meshes = new RenderResult[uniqueBatchData.Length];
 //            var boxelPositionJob = CreateBoxelPositionJob();
 //            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
@@ -187,7 +190,7 @@ static internal class UnivoxRenderingJobs
         Profiler.BeginSample("Process Batches");
         for (var i = 0; i < uniqueBatchData.Length; i++)
         {
-            var materialId = chunk.Materials[uniqueBatchData[i]];
+            var materialId = uniqueBatchData[i];
             Profiler.BeginSample($"Process Batch {i}");
             var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, batchData, uniqueBatchData[i], out var queue);
             var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, MaxBatchSize);
