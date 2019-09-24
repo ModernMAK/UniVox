@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Jobs;
 using Rendering;
 using Types;
@@ -13,6 +14,102 @@ using UniVox.Core.Types;
 
 static internal class UnivoxRenderingJobs
 {
+    public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
+    {
+        public NativeArray<T> Source;
+        public NativeList<T> Unique;
+
+
+        public void Execute()
+        {
+            for (var i = 0; i < Source.Length; i++)
+            {
+                Insert(Source[i]);
+            }
+        }
+
+
+        #region UniqueList Helpers
+
+        private bool Find(T value)
+        {
+            return Find(value, 0, Source.Length - 1);
+        }
+
+        private bool Find(T value, int min, int max)
+        {
+            while (true)
+            {
+                if (min > max) return false;
+
+                var mid = (min + max) / 2;
+
+                var delta = value.CompareTo(Unique[mid]);
+
+                if (delta == 0)
+                    return true;
+                if (delta < 0) //-
+                {
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
+                }
+            }
+        }
+
+        private void Insert(T value)
+        {
+            Insert(value, 0, Unique.Length - 1);
+        }
+
+        private void Insert(T value, int min, int max)
+        {
+            while (true)
+            {
+                if (min > max)
+                {
+                    //Max is our min, and min is our max, so lets fix that real quick
+                    var temp = max;
+                    max = min;
+                    min = temp;
+                    var insertAt = min + 1;
+
+
+                    //Add a placeholder
+                    Unique.Add(default);
+                    //Shift all elements down one
+                    for (var i = Unique.Length - 1; i > insertAt; i++)
+                    {
+                        Unique[i] = Unique[i - 1];
+                    }
+
+                    //Insert the correct element
+                    Unique[insertAt] = value;
+                    return;
+                }
+
+                var mid = (min + max) / 2;
+
+                var delta = value.CompareTo(Unique[mid]);
+
+                if (delta == 0)
+                    return; //Value is Unique and present
+                if (delta < 0) //-
+                {
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
+                }
+            }
+        }
+
+        #endregion
+    }
+
     public static Mesh CreateMesh(GenerateCubeBoxelMeshV2 meshJob)
     {
         var mesh = CommonRenderingJobs.CreateMesh(meshJob.Vertexes, meshJob.Normals, meshJob.Tangents,
@@ -24,6 +121,20 @@ static internal class UnivoxRenderingJobs
         meshJob.TextureMap0.Dispose();
         meshJob.Triangles.Dispose();
         return mesh;
+    }
+
+    private static NativeList<T> GatherUnique<T>(NativeArray<T> batchInfo) where T : struct, IComparable<T>
+    {
+        var results = new NativeList<T>(Allocator.TempJob);
+        var job = new FindUniquesJob<T>()
+        {
+            Source = batchInfo,
+            Unique = results
+        };
+        Profiler.BeginSample("Gather Uniques");
+        job.Schedule().Complete();
+        Profiler.EndSample();
+        return results;
     }
 
     private static void CreateBatches<T>(NativeArray<T> batchInfo, out NativeSlice<int>[] batches,
@@ -64,19 +175,21 @@ static internal class UnivoxRenderingJobs
         handle.Complete();
 
         Profiler.BeginSample("Create Batches");
-        CreateBatches(chunk.Materials, out var batches, out var sorted);
+        var batchData = chunk.Materials;
+        var uniqueBatchData = GatherUnique(batchData);
         Profiler.EndSample();
-        var meshes = new RenderResult[batches.Length];
+        
+        var meshes = new RenderResult[uniqueBatchData.Length];
 //            var boxelPositionJob = CreateBoxelPositionJob();
 //            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
 
 //            var offsets = boxelPositionJob.Positions;
         Profiler.BeginSample("Process Batches");
-        for (var i = 0; i < batches.Length; i++)
+        for (var i = 0; i < uniqueBatchData.Length; i++)
         {
-            var materialId = chunk.Materials[batches[i][0]];
+            var materialId = chunk.Materials[uniqueBatchData[i]];
             Profiler.BeginSample($"Process Batch {i}");
-            var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, sorted.GetSharedIndexArray(), i, out var queue);
+            var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, batchData, uniqueBatchData[i], out var queue);
             var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, MaxBatchSize);
 
             var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
@@ -124,7 +237,7 @@ static internal class UnivoxRenderingJobs
         Profiler.EndSample();
 
 //            offsets.Dispose();
-        sorted.Dispose();
+        uniqueBatchData.Dispose();
         return meshes;
     }
 

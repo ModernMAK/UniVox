@@ -99,7 +99,7 @@ public class PhysicsRaycaster : MonoBehaviour
             id %= idLimit;
         }
 
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
             const float distance = ChunkSize.AxisSize * 8; //Raycast at least 8 chunks away
             var camRay = _camera.ScreenPointToRay(Input.mousePosition);
@@ -113,7 +113,7 @@ public class PhysicsRaycaster : MonoBehaviour
                 Filter = CollisionFilter.Default
             };
             _lastRay = input;
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetKeyDown(KeyCode.Z))
             {
                 _lastRay = input;
                 if (VoxelRaycast(input, out var hit, out var voxelInfo))
@@ -135,7 +135,7 @@ public class PhysicsRaycaster : MonoBehaviour
                 else
                     Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
             }
-            else if (Input.GetMouseButtonDown(1))
+            else if (Input.GetKeyDown(KeyCode.X))
             {
                 if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
