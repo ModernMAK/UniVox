@@ -35,8 +35,12 @@ namespace UniVox.Core.Types
         public NativeArray<BlockShape> Shapes => _blockShapes;
         public NativeArray<Directions> HiddenFaces => _blockFlags;
 
+        private bool _disposed;
         public void Dispose()
         {
+            if(_disposed)
+                return;
+            _disposed = true;
             _blockShapes.Dispose();
             _blockFlags.Dispose();
             _materials.Dispose();

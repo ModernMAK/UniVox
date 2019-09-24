@@ -25,6 +25,7 @@ public class PhysicsRaycaster : MonoBehaviour
     private Camera _camera;
     private RaycastInput? _lastRay;
     private int3? _lastVoxel;
+    private float3? _hitPoint;
 
     [SerializeField] private byte id = 0;
 
@@ -42,6 +43,7 @@ public class PhysicsRaycaster : MonoBehaviour
         public int3 BlockPosition;
         public int BlockIndex;
     }
+
 
     static bool VoxelRaycast(RaycastInput input, out Unity.Physics.RaycastHit hitinfo,
         out VoxelRaycastHit voxelInfo)
@@ -74,7 +76,6 @@ public class PhysicsRaycaster : MonoBehaviour
                 }
         }
 
-        hitinfo = default;
         voxelInfo = default;
         return false;
     }
@@ -82,6 +83,22 @@ public class PhysicsRaycaster : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            id++;
+
+
+            id %= idLimit;
+        }
+        else  if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            id--;
+            id += idLimit;
+
+
+            id %= idLimit;
+        }
+
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             const float distance = ChunkSize.AxisSize * 8; //Raycast at least 8 chunks away
@@ -98,25 +115,34 @@ public class PhysicsRaycaster : MonoBehaviour
             _lastRay = input;
             if (Input.GetMouseButtonDown(0))
             {
-                if (VoxelRaycast(input, out _, out var voxelInfo))
+                _lastRay = input;
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
                     var accessorInfo = voxelInfo.Block.Info;
                     var accessorRender = voxelInfo.Block.Render;
 
-                    id %= idLimit;
                     accessorInfo.Identity = new BlockIdentity() {PrimaryId = id};
                     accessorRender.Material = 1 + id;
 
                     accessorInfo.Version.WriteTo();
                     accessorRender.Version.WriteTo();
+
+                    _lastVoxel = voxelInfo.BlockPosition;
+                    _hitPoint = hit.Position;
+
+                    Debug.LogWarning($"Hit Destroy : {voxelInfo.BlockPosition}");
                 }
+                else
+                    Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
             }
             else if (Input.GetMouseButtonDown(1))
             {
-                if (VoxelRaycast(input, out _, out var voxelInfo))
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
                     var accessorRender = voxelInfo.Block.Render;
+                    var accessorInfo = voxelInfo.Block.Info;
 
+                    accessorInfo.Active = false;
                     accessorRender.HiddenFaces = DirectionsX.AllFlag;
 
                     var chunk = voxelInfo.Chunk;
@@ -131,25 +157,33 @@ public class PhysicsRaycaster : MonoBehaviour
 
                             var neighborRender = neighbor.Render;
                             //Reveal the opposite of this direction
-                            neighborRender.HiddenFaces &= ~dir.ToOpposite().ToFlag();
+                            if (neighbor.Info.Active)
+                                neighborRender.HiddenFaces &= ~dir.ToOpposite().ToFlag();
                             neighborRender.Version.WriteTo();
                         }
                     }
 
+                    _lastVoxel = voxelInfo.BlockPosition;
+                    _hitPoint = hit.Position;
 
+                    accessorInfo.Version.WriteTo();
                     accessorRender.Version.WriteTo();
+                    Debug.LogWarning($"Hit Destroy : {voxelInfo.BlockPosition}");
                 }
+                else
+                    Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
             }
         }
     }
 
     private void OnDrawGizmos()
     {
-        if (_lastRay == null || _lastVoxel == null)
+        if (_lastRay == null || _lastVoxel == null || _hitPoint == null)
             return;
 
         Gizmos.color = Color.white;
         Gizmos.DrawLine(_lastRay.Value.Start, _lastRay.Value.End);
         Gizmos.DrawWireCube(UnivoxPhysics.ToUnitySpace(_lastVoxel.Value), new Vector3(1f, 1f, 1f));
+        Gizmos.DrawSphere(_hitPoint.Value, 1f / 10);
     }
 }

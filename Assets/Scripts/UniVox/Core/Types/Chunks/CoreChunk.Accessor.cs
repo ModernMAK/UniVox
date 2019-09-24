@@ -30,6 +30,11 @@ namespace UniVox.Core.Types
                 get => _backing._identities[_index];
                 set => _backing._identities[_index] = value;
             }
+            public bool Active
+            {
+                get => _backing._active[_index];
+                set => _backing._active[_index] = value;
+            }
 
             public Version Version => _backing.Version;
 

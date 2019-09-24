@@ -65,9 +65,10 @@ public class TestSystem : MonoBehaviour
             var pos = PositionToIndexUtil.ToPosition3(i, size);
 //            pos = AxisOrderingX.Reorder(pos, ChunkSize.Ordering);
 
-            var accessor = _chunk[i].Render;
-            accessor.Material = 0;
-            accessor.Shape = BlockShape.Cube;
+            var infoAccessor = _chunk[i].Info;
+            var renderAccessor = _chunk[i].Render;
+            renderAccessor.Material = 0;
+            renderAccessor.Shape = BlockShape.Cube;
 
             var hidden = DirectionsX.AllFlag;
 //
@@ -76,6 +77,7 @@ public class TestSystem : MonoBehaviour
             else if (pos.x == size.x - 1)
                 hidden &= ~Directions.Right;
 
+            infoAccessor.Active = true;
 //
 
             if (pos.y == 0)
@@ -89,7 +91,7 @@ public class TestSystem : MonoBehaviour
                 hidden &= ~Directions.Forward;
 
 
-            accessor.HiddenFaces = hidden;
+            renderAccessor.HiddenFaces = hidden;
         }
 
         _chunk.Render.Version.WriteTo();

@@ -11,6 +11,7 @@ using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
+using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace UniVox.Core.Systems
@@ -182,6 +183,7 @@ namespace UniVox.Core.Systems
         }
 
         private Queue<FrameCache> FrameCaches;
+        private Material _defaultMaterial;
 
         void RenderPass()
         {
@@ -218,6 +220,13 @@ namespace UniVox.Core.Systems
 
             chunkArray.Dispose();
 
+            //We need to process everything we couldn't while chunk array was in use
+            ProcessFrameCache();
+        }
+
+        void ProcessFrameCache()
+        {
+            
             Profiler.BeginSample("Create Mesh Entities");
             while (FrameCaches.Count > 0)
             {
@@ -277,6 +286,8 @@ namespace UniVox.Core.Systems
                     meshData.mesh = mesh;
 
                     GameManager.MasterRegistry.Material.TryGetValue(materialId, out var material);
+                    if (material == null)
+                        material = _defaultMaterial;
                     meshData.material = material;
 
 
@@ -302,6 +313,10 @@ namespace UniVox.Core.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            if (_defaultMaterial == null)
+                if (!GameManager.MasterRegistry.Material.TryGetValue("Default", out _defaultMaterial))
+                    return inputDeps;
+
             inputDeps.Complete();
 
             RenderPass();

@@ -11,10 +11,6 @@ namespace Jobs
     {
 //        [ReadOnly] public NativeArray<Orientation> Rotations;
 
-        /// <summary>
-        ///     An array reperesenting the indexes to process
-        ///     This is useful for seperating blocks with different materials.
-        /// </summary>
         [ReadOnly] public NativeArray<PlanarData> PlanarBatch;
 
         [ReadOnly] public float3 Offset;
@@ -57,75 +53,49 @@ namespace Jobs
 
         private float3 CalculateShift(Direction direction, int2 size, int vertex)
         {
-            if (direction == Direction.Forward || direction == Direction.Left || direction == Direction.Up)
+            bool invertWindingOrder = (direction == Direction.Backward || direction == Direction.Down ||
+                                       direction == Direction.Right);
+            //Looks like we only flip Size if its not forward or backward
+            bool flipSize = !(direction == Direction.Forward || direction == Direction.Backward);
+            if (invertWindingOrder)
+                vertex = 3 - (vertex % 4);
+
+            if (flipSize)
+                size = size.yx;
+
+
+            switch (vertex % 4)
             {
-                
-                switch (vertex % 4)
-                {
-                    case 0:
-                        return int3.zero;
-                    case 1:
-                        size = new int2(size.x, 0);
-                        break;
-                    case 2:
-                        size = new int2(size.x, size.y);
-                        break;
-                    case 3:
-                        size = new int2(0, size.y);
-                        break;
-                }
-                
-                switch (direction)
-                {
-                    //Y, size is XZ
-                    case Direction.Up:
-                        return new int3(size.x, 0, size.y);
-                    //X, size is YZ
-                    case Direction.Left:
-                        return new int3(0, size.x, size.y);
-                    //Z, size is XY
-                    case Direction.Forward:
-                        return new int3(size.y, size.x, 0);
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
-            }
-            else
-            {
-                {
-                
-                    switch (vertex % 4)
-                    {
-                        case 3:
-                            return int3.zero;
-                        case 2:
-                            size = new int2(size.x, 0);
-                            break;
-                        case 1:
-                            size = new int2(size.x, size.y);
-                            break;
-                        case 0:
-                            size = new int2(0, size.y);
-                            break;
-                    }
-                
-                    switch (direction)
-                    {
-                        //Y, size is XZ
-                        case Direction.Down:
-                            return new int3(size.x, 0, size.y);
-                        //X, size is YZ
-                        case Direction.Right:
-                            return new int3(0, size.x, size.y);
-                        //Z, size is XY
-                        case Direction.Backward:
-                            return new int3(size.y, size.x, 0);
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                    }
-                }
+                case 0:
+                    return int3.zero;
+                case 1:
+                    size = new int2(size.x, 0);
+                    break;
+                case 2:
+                    size = new int2(size.x, size.y);
+                    break;
+                case 3:
+                    size = new int2(0, size.y);
+                    break;
             }
 
+            switch (direction)
+            {
+                //Y, size is XZ
+                case Direction.Down:
+                case Direction.Up:
+                    return new int3(size.x, 0, size.y);
+                //X, size is YZ
+                case Direction.Right:
+                case Direction.Left:
+                    return new int3(0, size.x, size.y);
+                //Z, size is XY
+                case Direction.Backward:
+                case Direction.Forward:
+                    return new int3(size.y, size.x, 0);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
         }
 
         private void GenerateCube(int index)
