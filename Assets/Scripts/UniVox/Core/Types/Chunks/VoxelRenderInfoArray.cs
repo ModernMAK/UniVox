@@ -2,6 +2,7 @@ using System;
 using Types;
 using Unity.Collections;
 using UnityEdits;
+using UnityEngine;
 
 namespace UniVox.Core.Types
 {
@@ -23,6 +24,7 @@ namespace UniVox.Core.Types
             _materials = new NativeArray<int>(size, allocator, options);
             _blockShapes = new NativeArray<BlockShape>(size, allocator, options);
             _blockFlags = new NativeArray<Directions>(size, allocator, options);
+            _regions = new NativeArray<Rect>(size*6, allocator, options);
         }
 
 
@@ -34,8 +36,11 @@ namespace UniVox.Core.Types
 
         public NativeArray<BlockShape> Shapes => _blockShapes;
         public NativeArray<Directions> HiddenFaces => _blockFlags;
+        public NativeArray<Rect> Regions => _regions;
 
         private bool _disposed;
+        private NativeArray<Rect> _regions;
+
         public void Dispose()
         {
             if(_disposed)

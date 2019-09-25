@@ -1,4 +1,6 @@
 using Types;
+using Unity.Collections;
+using UnityEngine;
 
 namespace UniVox.Core.Types
 {
@@ -22,7 +24,7 @@ namespace UniVox.Core.Types
                 get => _backing._blockShapes[_index];
                 set => _backing._blockShapes[_index] = value;
             }
-            
+
             public int Material
             {
                 get => _backing._materials[_index];
@@ -36,6 +38,21 @@ namespace UniVox.Core.Types
             }
 
             public Version Version => _backing.Version;
+
+            public NativeSlice<Rect> GetRegions()
+            {
+                return new NativeSlice<Rect>(_backing._regions, _index * 6, (_index + 1) * 6);
+            }
+
+            public Rect GetRegion(Direction direction)
+            {
+                return _backing._regions[_index * 6 + (int) direction];
+            }
+
+            public void SetRegion(Direction direction, Rect region)
+            {
+                _backing._regions[_index * 6 + (int) direction] = region;
+            }
         }
     }
 }
