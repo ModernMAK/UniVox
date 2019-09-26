@@ -8,7 +8,7 @@ namespace UniVox.Managers
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class AutoRegistry<TKey, TValue> : IReadOnlyList<TValue>, IReadOnlyDictionary<TKey, TValue>,
+    public class AutoRegistry<TKey, TValue> : IReadOnlyList<TValue>, IReadOnlyDictionary<TKey, TValue>, IIndexedRegistry<TKey,TValue>,
         IRegistry<TKey, TValue>
     {
         private readonly List<TValue> _backingArray;
@@ -145,6 +145,11 @@ namespace UniVox.Managers
         public bool TryGetIndex(TKey key, out int value)
         {
             return _backingLookup.TryGetValue(key, out value);
+        }
+
+        public bool IsRegistered(int index)
+        {
+            return (index >= 0 && index < _backingArray.Count);
         }
     }
 }

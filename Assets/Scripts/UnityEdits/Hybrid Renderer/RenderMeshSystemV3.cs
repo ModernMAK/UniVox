@@ -18,6 +18,8 @@ namespace UnityEdits.Hybrid_Renderer
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateAfter(typeof(LodRequirementsUpdateSystemV3))]
+    //TODO make this replace V2
+    [DisableAutoCreation]
     public class RenderMeshSystemV3 : JobComponentSystem
     {
         private int m_LastFrozenChunksOrderVersion = -1;

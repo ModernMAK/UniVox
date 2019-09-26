@@ -8,11 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassDirt
-  m_Shader: {fileID: -6465566751694194690, guid: aa504a29c6af9ef4c828e97227b34a0a,
+  m_Shader: {fileID: -6465566751694194690, guid: 90f041015b6dfc04a80b5145f7526797,
     type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -21,7 +21,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AlbedoTex:
-        m_Texture: {fileID: 2800000, guid: ea9397e0e5436d448a9b471a0a569f22, type: 3}
+        m_Texture: {fileID: 18700000, guid: a4073d081c022ad4480a9a13a5d9359f, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -44,7 +44,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskTex:
+        m_Texture: {fileID: 2800000, guid: 450bef40cbe40a34d80c8ee89a9edd02, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -59,7 +67,9 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Blend: 0
+    - _BlendStrength: 1
     - _BumpScale: 1
+    - _CellSize: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
@@ -68,6 +78,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
+    - _NoiseScale: 1024
+    - _NoiseSensitivity: 0.2
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1

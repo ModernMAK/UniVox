@@ -14,6 +14,8 @@ namespace UnityEdits.Hybrid_Renderer
     [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.EntitySceneOptimizations)]
     [UpdateAfter(typeof(RenderBoundsUpdateSystem))]
     [ExecuteAlways]
+    //TODO make this replace V2
+    [DisableAutoCreation]
     public class LodRequirementsUpdateSystemV3 : JobComponentSystem
     {
         private EntityQuery m_Group;
