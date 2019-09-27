@@ -110,7 +110,7 @@ public class PhysicsRaycaster : MonoBehaviour
             id %= idLimit;
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.C))
         {
             const float distance = UnivoxDefine.AxisSize * 8; //Raycast at least 8 chunks away
             var camRay = _camera.ScreenPointToRay(Input.mousePosition);
@@ -148,6 +148,81 @@ public class PhysicsRaycaster : MonoBehaviour
                 }
                 else
                     Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
+                {
+                    var em = voxelInfo.World.EntityManager;
+
+                    var blockPos = voxelInfo.BlockPosition + new int3(hit.SurfaceNormal);
+                    var blockIndex = UnivoxUtil.GetIndex(blockPos);
+
+                    if (UnivoxUtil.IsValid(blockPos))
+                    {
+                        var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
+                        var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
+                        var culledFaceArray = em.GetBuffer<BlockCulledFacesComponent>(voxelInfo.ChunkEntity);
+
+
+                        blockActiveArray[blockIndex] = new BlockActiveComponent() {Value = true};
+
+
+//                    var accessorRender = voxelInfo.Block.Render;
+//                    var accessorInfo = voxelInfo.Block.Info;
+//
+//                    accessorInfo.Active = false;
+//                    culledFaceArray[voxelInfo.BlockIndex] = DirectionsX.AllFlag;
+
+//                    var chunk = voxelInfo.Chunk;
+
+
+                        var revealed = DirectionsX.NoneFlag;
+                        foreach (var dir in DirectionsX.AllDirections)
+                        {
+                            var neighborPos = blockPos + dir.ToInt3();
+                            if (UnivoxUtil.IsValid(neighborPos))
+                            {
+                                var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
+                                var neighborHidden = culledFaceArray[neighborIndex];
+                                var neighborActive = blockActiveArray[neighborIndex];
+
+                                culledFaceArray[neighborIndex] = neighborHidden | dir.ToOpposite().ToFlag();
+
+
+                                if (!neighborActive)
+                                {
+                                    //
+                                    revealed |= dir.ToFlag();
+                                }
+
+//                            neighborRender.Version.Dirty();
+//                            BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
+//                                (short) neighborIndex);
+                            }
+                            else
+                            {
+                                revealed |= dir.ToFlag();
+                            }
+                        }
+
+                        culledFaceArray[blockIndex] = ~revealed;
+                        blockIdentityArray[blockIndex] = new BlockIdentity() {Mod = 0, Block = id};
+
+                        _lastVoxel = blockPos;
+                        _hitPoint = hit.Position;
+
+//                    accessorInfo.Version.Dirty();
+//                    accessorRender.Version.Dirty();
+//                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
+//                        (short) voxelInfo.BlockIndex);
+                        Debug.Log($"Hit Create : {blockPos}");
+                    }
+                    else
+                        Debug.Log($"OOB Create : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
+                }
+                else
+                    Debug.Log($"Missed Create : {hit.Position} -> {hit.SurfaceNormal}");
             }
             else if (Input.GetKeyDown(KeyCode.X))
             {
