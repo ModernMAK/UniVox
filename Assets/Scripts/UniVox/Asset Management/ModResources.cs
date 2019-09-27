@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Asset_Management
 {
     public static class ModResources
     {

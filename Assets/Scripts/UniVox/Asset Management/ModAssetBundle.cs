@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Asset_Management
 {
     public class ModAssetBundle : IDisposable
     {

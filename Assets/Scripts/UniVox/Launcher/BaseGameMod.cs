@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Types;
 using Unity.Mathematics;
 using UnityEngine;
+using UniVox.Asset_Management;
 using UniVox.Core.Types;
 using UniVox.Entities.Systems.Registry;
 using UniVox.Entities.Systems.Surrogate;
