@@ -29,6 +29,8 @@ namespace UniVox.Rendering.ChunkGen
     {
         public struct SystemVersion : ISystemStateComponentData
         {
+            public uint CulledFaces;
+            public uint BlockShape;
             public uint Material;
             public uint SubMaterial;
         }
@@ -189,6 +191,8 @@ namespace UniVox.Rendering.ChunkGen
 
             var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
             var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
+            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
+            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
 
 
             var chunkArchetype = GetArchetypeChunkEntityType();
@@ -206,7 +210,9 @@ namespace UniVox.Rendering.ChunkGen
 //                    var subMatVersion = 
 
                     if (ecsChunk.DidChange(materialType, version.Material) ||
-                        ecsChunk.DidChange(subMaterialType, version.SubMaterial))
+                        ecsChunk.DidChange(subMaterialType, version.SubMaterial) ||
+                        ecsChunk.DidChange(culledFaceType, version.CulledFaces) ||
+                        ecsChunk.DidChange(blockShapeType, version.BlockShape))
                     {
                         var id = ids[i];
                         Profiler.BeginSample("Process Render Chunk");
@@ -217,7 +223,9 @@ namespace UniVox.Rendering.ChunkGen
                         versions[i] = new SystemVersion()
                         {
                             Material = ecsChunk.GetComponentVersion(materialType),
-                            SubMaterial = ecsChunk.GetComponentVersion(subMaterialType)
+                            SubMaterial = ecsChunk.GetComponentVersion(subMaterialType),
+                            BlockShape = ecsChunk.GetComponentVersion(blockShapeType),
+                            CulledFaces = ecsChunk.GetComponentVersion(culledFaceType),
                         };
                     }
 
@@ -256,10 +264,10 @@ namespace UniVox.Rendering.ChunkGen
 
         UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle = default)
         {
-            var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
-            var subMaterialLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
-            var blockShapeLookup = GetBufferFromEntity<BlockShapeComponent>();
-            var culledFaceLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
+            var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>(true);
+            var subMaterialLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>(true);
+            var blockShapeLookup = GetBufferFromEntity<BlockShapeComponent>(true);
+            var culledFaceLookup = GetBufferFromEntity<BlockCulledFacesComponent>(true);
 
 
             var materials = materialLookup[chunk].AsNativeArray();

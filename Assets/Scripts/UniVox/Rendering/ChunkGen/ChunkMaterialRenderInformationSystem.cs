@@ -6,6 +6,7 @@ using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
+using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
 
 namespace UniVox.Rendering.ChunkGen
@@ -91,7 +92,7 @@ namespace UniVox.Rendering.ChunkGen
         void RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-            var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
+            var idType = GetArchetypeChunkBufferType<BlockIdentityComponent>(true);
             var versionType = GetArchetypeChunkComponentType<SystemVersion>();
 //            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
@@ -175,7 +176,8 @@ namespace UniVox.Rendering.ChunkGen
                 }
                 else
                 {
-//                    blockMatArray[blockIndex].
+                    blockMatArray[blockIndex] = new MaterialId(-1, -1);
+                    blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
 
                 Profiler.EndSample();
