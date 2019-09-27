@@ -32,6 +32,9 @@ public class PhysicsRaycaster : MonoBehaviour
 
     [SerializeField] private byte id = 0;
 
+
+    public void SetBlockId(int id) => this.id = (byte)id;
+    
     private const byte idLimit = 4;
 
     // Update is called once per frame
