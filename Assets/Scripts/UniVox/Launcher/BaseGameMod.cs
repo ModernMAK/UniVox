@@ -20,7 +20,8 @@ namespace UniVox.Entities.Systems
 
         public override void Initialize(ModInitializer initializer)
         {
-            var modRegistry = initializer.Registries.Register(ModPath, out int modId);
+            var modReference = initializer.Registries.Register(ModPath);
+            var modRegistry = modReference.Value;
             var surrogate = ModResources.Load<ModSurrogate>(ModPath, "").Values;
 
             //For now we use a proxy to register
@@ -29,39 +30,40 @@ namespace UniVox.Entities.Systems
 
 
             //YEah, this is a cluster, need to think of a better way to orgnaize data
-            if (!modRegistry.Materials.TryGetIndex("DirtGrass", out var matIndex))
+            if (!modRegistry.Materials.TryGetReference("DirtGrass", out var matReference))
                 throw new Exception("Asset not found!");
-            var matId = new MaterialId(modId,matIndex);
-            
-            if (!modRegistry.Materials[matIndex].SubMaterials.TryGetValue("Grass", out var grassRect))
+            var matId = new MaterialId(modReference.Id, matReference.Id);
+            var matReg = matReference.Value;
+
+            if (!matReg.SubMaterials.TryGetReference("Grass", out var grassRef))
                 throw new Exception("Asset not found!");
-            if (!modRegistry.Materials[matIndex].SubMaterials.TryGetValue("Side", out var sideRect))
+            if (!matReg.SubMaterials.TryGetReference("Side", out var sideRef))
                 throw new Exception("Asset not found!");
-            if (!modRegistry.Materials[matIndex].SubMaterials.TryGetValue("Dirt", out var dirtRect))
+            if (!matReg.SubMaterials.TryGetReference("Dirt", out var dirtRef))
                 throw new Exception("Asset not found!");
 
             ;
-            modRegistry.Blocks.Register("Grass", new GrassBlockRef(matId, grassRect, sideRect, dirtRect));
+            modRegistry.Blocks.Register("Grass", new GrassBlockRef(matId, grassRef.Id, sideRef.Id, dirtRef.Id));
 
 
-            modRegistry.Blocks.Register("Dirt", new RegularAtlasBlockRef(matId, dirtRect));
+            modRegistry.Blocks.Register("Dirt", new RegularAtlasBlockRef(matId, dirtRef.Id));
 
-            if (!modRegistry.Materials.TryGetIndex("Stone", out var stoneIndex))
+            if (!modRegistry.Materials.TryGetReference("Stone", out var stoneReference))
                 throw new Exception("Asset not found!");
-            var stoneId = new MaterialId(modId,stoneIndex);
+            var stoneId = new MaterialId(modReference.Id, stoneReference.Id);
             modRegistry.Blocks.Register("Stone", new RegularBlockRef(stoneId));
 
 
-            if (!modRegistry.Materials.TryGetIndex("Sand", out var sandIndex))
+            if (!modRegistry.Materials.TryGetReference("Sand", out var sandReference))
                 throw new Exception("Asset not found!");
-            var sandId = new MaterialId(modId,sandIndex);
+            var sandId = new MaterialId(modReference.Id, sandReference.Id);
             modRegistry.Blocks.Register("Sand", new RegularBlockRef(sandId));
 //            modRegistry.Atlases.Register("Grass",);
         }
 
         public class RegularBlockRef : BaseBlockReference
         {
-            private static readonly int _defaultSubMat = 0;//Rect _fullRect = new Rect(0, 0, 1, 1);
+            private static readonly int _defaultSubMat = 0; //Rect _fullRect = new Rect(0, 0, 1, 1);
 
             public RegularBlockRef(MaterialId materialId)
             {
@@ -168,24 +170,22 @@ namespace UniVox.Entities.Systems
                 var mat = matSur.Value;
                 var regions = matSur.Regions;
 
-                modRegistry.Atlases.Register(matSur.Name, mat, out var atlasId);
+                var atlasMaterialRef = modRegistry.Atlases.Register(matSur.Name, mat);
                 foreach (var region in regions)
                 {
-                    modRegistry.Atlases[atlasId].Regions.Register(region.Name, region.Value);
+                    atlasMaterialRef.Value.Regions.Register(region.Name, region.Value);
                 }
-                
             }
-            
+
             foreach (var matSur in surrogate.Materials)
             {
                 var mat = matSur.Value;
                 var subMats = matSur.SubMaterials;
 
-                modRegistry.Materials.Register(matSur.Name, mat, out var matId);
+                var arrayMaterialRef = modRegistry.Materials.Register(matSur.Name, mat);
                 foreach (var subMat in subMats)
                 {
-                    modRegistry.Materials[matId].SubMaterials
-                        .Register(subMat.Name, subMat.Value);
+                    arrayMaterialRef.Value.SubMaterials.Register(subMat.Name, subMat.Value);
                 }
             }
         }

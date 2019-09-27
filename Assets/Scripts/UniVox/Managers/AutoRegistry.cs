@@ -14,6 +14,8 @@ namespace UniVox.Managers
         private readonly List<TValue> _backingArray;
         private readonly Dictionary<TKey, int> _backingLookup;
         private int _nextId;
+        
+        
 
         public AutoRegistry(int initialSize = 0)
         {

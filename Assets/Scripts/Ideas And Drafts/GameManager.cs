@@ -12,4 +12,5 @@ namespace UnityEdits
         public static readonly ModRegistry Registry = new ModRegistry();
         public static readonly Universe Universe = new Universe();
     }
+
 }

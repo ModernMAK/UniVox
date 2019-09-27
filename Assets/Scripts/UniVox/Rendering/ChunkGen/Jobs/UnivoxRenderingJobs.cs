@@ -1,7 +1,6 @@
 using System;
 using Jobs;
 using Rendering;
-using Types;
 using Types.Native;
 using Unity.Collections;
 using Unity.Jobs;
@@ -9,17 +8,19 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
+using UniVox.Entities.Systems.Registry;
+using UniVox.Managers;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {
     public struct MaterialId : IComparable<MaterialId>, IEquatable<MaterialId>
     {
-        public byte Mod;
+        public int Mod;
         public int Material;
 
         public MaterialId(int modId, int matIndex)
         {
-            Mod = (byte)modId;
+            Mod = (byte) modId;
             Material = matIndex;
         }
 
@@ -47,7 +48,14 @@ namespace UniVox.Rendering.ChunkGen.Jobs
                 return (Mod.GetHashCode() * 397) ^ Material;
             }
         }
+
+        public bool TryGetMaterialReference(ModRegistry modRegistry,
+            out IAutoReference<string, ArrayMaterial> materialReference)
+        {
+            return modRegistry.TryGetMaterialReference(Mod, Material, out materialReference);
+        }
     }
+
     public static class UnivoxRenderingJobs
     {
         public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
@@ -256,24 +264,6 @@ namespace UniVox.Rendering.ChunkGen.Jobs
 //            offsets.Dispose();
             uniqueBatchData.Dispose();
             return meshes;
-        }
-
-        public static CalculateCubeSizeJob CreateCalculateCubeSizeJob(NativeSlice<int> batch,
-            VoxelRenderInfoArray chunk)
-        {
-            const Allocator allocator = Allocator.TempJob;
-            const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
-            return new CalculateCubeSizeJob
-            {
-                BatchIndexes = batch,
-                Shapes = chunk.Shapes,
-                HiddenFaces = chunk.HiddenFaces,
-
-                VertexSizes = new NativeArray<int>(batch.Length, allocator, options),
-                TriangleSizes = new NativeArray<int>(batch.Length, allocator, options),
-
-                Directions = DirectionsX.GetDirectionsNative(allocator)
-            };
         }
 
         public static CalculateCubeSizeJobV2 CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)

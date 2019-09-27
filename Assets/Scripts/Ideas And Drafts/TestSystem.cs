@@ -6,7 +6,6 @@ using UnityEngine;
 using UniVox;
 using UniVox.Core.Types;
 using UniVox.Entities.Systems;
-using UniVox.Entities.Systems.Surrogate;
 using UniVox.Launcher;
 using UniVox.Rendering.ChunkGen;
 using UniVox.Rendering.ChunkGen.Jobs;
@@ -32,7 +31,7 @@ public class TestSystem : MonoBehaviour
         temp.Initialize(new ModInitializer(GameManager.Registry));
 
 
-        var matReg = GameManager.Registry[0].Atlases;
+        var matReg = GameManager.Registry[0].Value.Materials;
         matReg.Register("Default", defaultMat);
         foreach (var mat in additionalMats)
             matReg.Register(mat.name, mat);
@@ -72,10 +71,11 @@ public class TestSystem : MonoBehaviour
 
     void CreateChunk(VoxelWorld world, int3 chunkPos)
     {
-        GameManager.Registry[0].Blocks.TryGetIndex("Grass", out var grass);
-        GameManager.Registry[0].Blocks.TryGetIndex("Dirt", out var dirt);
-        GameManager.Registry[0].Blocks.TryGetIndex("Stone", out var stone);
-        GameManager.Registry[0].Blocks.TryGetIndex("Sand", out var sand);
+        var blockReg = GameManager.Registry[0].Value.Blocks;
+        blockReg.TryGetReference("Grass", out var grass);
+        blockReg.TryGetReference("Dirt", out var dirt);
+        blockReg.TryGetReference("Stone", out var stone);
+        blockReg.TryGetReference("Sand", out var sand);
 
         var entity = world.EntityManager.CreateEntity(typeof(ChunkIdComponent), typeof(BlockChanged));
         world.EntityManager.SetComponentData(entity,
@@ -95,7 +95,7 @@ public class TestSystem : MonoBehaviour
             var infoAccessor = chunk[i].Info;
             var renderAccessor = chunk[i].Render;
             infoAccessor.Identity =
-                (pos.y == UnivoxDefine.AxisSize - 1) ? new BlockIdentity(0, grass) : new BlockIdentity(0, dirt);
+                (pos.y == UnivoxDefine.AxisSize - 1) ? new BlockIdentity(0, grass.Id) : new BlockIdentity(0, dirt.Id);
 
 
             renderAccessor.Material = new MaterialId(-1, -1);
@@ -106,7 +106,7 @@ public class TestSystem : MonoBehaviour
 
             if (xTop && !yTop && !zTop)
             {
-                infoAccessor.Identity = new BlockIdentity(0, stone);
+                infoAccessor.Identity = new BlockIdentity(0, stone.Id);
             }
 //            else if (!xTop && yTop && !zTop)
 //            {
@@ -114,7 +114,7 @@ public class TestSystem : MonoBehaviour
 //            }
             else if (!xTop && !yTop && zTop)
             {
-                infoAccessor.Identity = new BlockIdentity(0, sand);
+                infoAccessor.Identity = new BlockIdentity(0, sand.Id);
             }
 
 

@@ -1,20 +1,12 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Rendering;
-using Unity.Transforms;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
-using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
-using UniVox.Utility;
-using Material = UnityEngine.Material;
-using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace UniVox.Rendering.ChunkGen
 {
@@ -157,16 +149,15 @@ namespace UniVox.Rendering.ChunkGen
                 var blockIndex = changed[i];
                 var block = voxelChunk[blockIndex];
                 var blockId = block.Info.Identity;
-                if (GameManager.Registry.TryGetValue(blockId.Mod, out var modReg))
-                    if (modReg.Blocks.TryGetValue(blockId.Block, out var blockRef))
-                    {
-                        Profiler.BeginSample("Perform Pass");
-                        blockRef.RenderPass(block);
-                        Profiler.EndSample();
-                        Profiler.BeginSample("Dirty");
-                        block.Render.Version.Dirty();
-                        Profiler.EndSample();
-                    }
+                if (blockId.TryGetBlockReference(GameManager.Registry, out var blockRef))
+                {
+                    Profiler.BeginSample("Perform Pass");
+                    blockRef.Value.RenderPass(block);
+                    Profiler.EndSample();
+                    Profiler.BeginSample("Dirty");
+                    block.Render.Version.Dirty();
+                    Profiler.EndSample();
+                }
 
                 Profiler.EndSample();
             }

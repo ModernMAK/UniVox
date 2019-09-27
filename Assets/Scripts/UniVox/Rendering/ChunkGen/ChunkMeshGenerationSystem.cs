@@ -19,8 +19,6 @@ using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace UniVox.Rendering.ChunkGen
 {
-
-
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateBefore(typeof(RenderMeshSystemV2))]
     [UpdateBefore(typeof(RenderMeshSystemV3))]
@@ -281,23 +279,15 @@ namespace UniVox.Rendering.ChunkGen
 //                    };
 
 
-
                     meshData.castShadows = ShadowCastingMode.On;
                     meshData.receiveShadows = true;
 //                    meshData.layer = VoxelLayer //TODO
                     mesh.UploadMeshData(true);
                     meshData.mesh = mesh;
 
-                    if (GameManager.Registry.TryGetValue(materialId.Mod, out var modReg))
+                    if (materialId.TryGetMaterialReference(GameManager.Registry, out var materialReference))
                     {
-                        if (modReg.Materials.TryGetValue(materialId.Material, out var material))
-                        {
-                            meshData.material = material;
-                        }
-                        else
-                        {
-                            meshData.material = _defaultMaterial;
-                        }
+                        meshData.material = materialReference.Value;
                     }
                     else
                     {
@@ -329,10 +319,10 @@ namespace UniVox.Rendering.ChunkGen
         {
             if (_defaultMaterial == null)
             {
-                if (!GameManager.Registry[0].Atlases.TryGetValue("Default", out var defaultAtlas))
+                if (!GameManager.Registry[0].Value.Materials.TryGetReference("Default", out var defaultAtlas))
                     return inputDeps;
                 else
-                    _defaultMaterial = defaultAtlas.Material;
+                    _defaultMaterial = defaultAtlas.Value.Material;
             }
 
             inputDeps.Complete();

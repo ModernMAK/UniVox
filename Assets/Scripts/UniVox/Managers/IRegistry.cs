@@ -18,10 +18,4 @@ namespace UniVox.Managers
         bool TryGetIndex(TKey key, out int index);
         bool IsRegistered(int index);
     }
-    public interface IIndexedRegistryKey<out TValue> 
-    {
-        int Index { get; }
-        TValue Value { get; }
-    }
-
 }

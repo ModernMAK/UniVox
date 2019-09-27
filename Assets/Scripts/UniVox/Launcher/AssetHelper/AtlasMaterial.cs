@@ -8,11 +8,11 @@ namespace UniVox.Entities.Systems.Registry
         public AtlasMaterial(Material material)
         {
             Material = material;
-            Regions = new NamedRegistry<Rect>();
+            Regions = new NamedRegistryV2<Rect>();
         }
 
         public Material Material { get; }
-        public NamedRegistry<Rect> Regions { get; }
+        public NamedRegistryV2<Rect> Regions { get; }
 
         public static implicit operator Material(AtlasMaterial record)
         {
