@@ -42,9 +42,11 @@ public class PhysicsRaycaster : MonoBehaviour
     struct VoxelRaycastHit
     {
         public UniVox.Core.Types.World World;
-        public Chunk Chunk;
+//        [Obsolete]
+//        public Chunk Chunk;
         public Entity ChunkEntity;
-        public Chunk.Accessor Block;
+//        [Obsolete]
+//        public Chunk.Accessor Block;
 
         public int3 ChunkPosition;
         public int3 BlockPosition;
@@ -67,18 +69,18 @@ public class PhysicsRaycaster : MonoBehaviour
             if (GameManager.Universe.TryGetValue(0, out var world))
                 if (world.TryGetAccessor(cPos, out var chunkRecord))
                 {
-                    var chunk = chunkRecord.Chunk;
-                    var block = chunk.GetAccessor(bIndex);
+//                    var chunk = chunkRecord.Chunk;
+//                    var block = chunk.GetAccessor(bIndex);
 
                     voxelInfo = new VoxelRaycastHit()
                     {
                         World = world,
-                        Chunk = chunk,
-                        Block = block,
+//                        Chunk = chunk,
+//                        Block = block,
                         BlockPosition = bPos,
                         BlockIndex = bIndex,
                         ChunkPosition = cPos,
-                        ChunkEntity = chunkRecord.Entity
+                        ChunkEntity = chunkRecord
                     };
                     return true;
                 }
@@ -121,71 +123,71 @@ public class PhysicsRaycaster : MonoBehaviour
                 Filter = CollisionFilter.Default
             };
             _lastRay = input;
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                _lastRay = input;
-                if (VoxelRaycast(input, out var hit, out var voxelInfo))
-                {
-                    var accessorInfo = voxelInfo.Block.Info;
-                    var accessorRender = voxelInfo.Block.Render;
-
-                    accessorInfo.Identity = new BlockIdentity() {Mod = 0, Block = id};
-
-                    accessorInfo.Version.Dirty();
-                    accessorRender.Version.Dirty();
-                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
-                        (short) voxelInfo.BlockIndex);
-
-                    _lastVoxel = voxelInfo.BlockPosition;
-                    _hitPoint = hit.Position;
-
-                    Debug.Log($"Hit Alter : {voxelInfo.BlockPosition}");
-                }
-                else
-                    Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
-            }
-            else if (Input.GetKeyDown(KeyCode.X))
-            {
-                if (VoxelRaycast(input, out var hit, out var voxelInfo))
-                {
-                    var accessorRender = voxelInfo.Block.Render;
-                    var accessorInfo = voxelInfo.Block.Info;
-
-                    accessorInfo.Active = false;
-                    accessorRender.HiddenFaces = DirectionsX.AllFlag;
-
-                    var chunk = voxelInfo.Chunk;
-
-                    foreach (var dir in DirectionsX.AllDirections)
-                    {
-                        var neighborPos = voxelInfo.BlockPosition + dir.ToInt3();
-                        if (UnivoxUtil.IsValid(neighborPos))
-                        {
-                            var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
-                            var neighbor = chunk.GetAccessor(neighborIndex);
-
-                            var neighborRender = neighbor.Render;
-                            //Reveal the opposite of this direction
-                            if (neighbor.Info.Active)
-                                neighborRender.HiddenFaces &= ~dir.ToOpposite().ToFlag();
-                            neighborRender.Version.Dirty();
-                            BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
-                                (short) neighborIndex);
-                        }
-                    }
-
-                    _lastVoxel = voxelInfo.BlockPosition;
-                    _hitPoint = hit.Position;
-
-                    accessorInfo.Version.Dirty();
-                    accessorRender.Version.Dirty();
-                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
-                        (short) voxelInfo.BlockIndex);
-                    Debug.Log($"Hit Destroy : {voxelInfo.BlockPosition}");
-                }
-                else
-                    Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
-            }
+//            if (Input.GetKeyDown(KeyCode.Z))
+//            {
+//                _lastRay = input;
+//                if (VoxelRaycast(input, out var hit, out var voxelInfo))
+//                {
+//                    var accessorInfo = voxelInfo.Block.Info;
+//                    var accessorRender = voxelInfo.Block.Render;
+//
+//                    accessorInfo.Identity = new BlockIdentity() {Mod = 0, Block = id};
+//
+//                    accessorInfo.Version.Dirty();
+//                    accessorRender.Version.Dirty();
+//                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
+//                        (short) voxelInfo.BlockIndex);
+//
+//                    _lastVoxel = voxelInfo.BlockPosition;
+//                    _hitPoint = hit.Position;
+//
+//                    Debug.Log($"Hit Alter : {voxelInfo.BlockPosition}");
+//                }
+//                else
+//                    Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
+//            }
+//            else if (Input.GetKeyDown(KeyCode.X))
+//            {
+//                if (VoxelRaycast(input, out var hit, out var voxelInfo))
+//                {
+//                    var accessorRender = voxelInfo.Block.Render;
+//                    var accessorInfo = voxelInfo.Block.Info;
+//
+//                    accessorInfo.Active = false;
+//                    accessorRender.HiddenFaces = DirectionsX.AllFlag;
+//
+//                    var chunk = voxelInfo.Chunk;
+//
+//                    foreach (var dir in DirectionsX.AllDirections)
+//                    {
+//                        var neighborPos = voxelInfo.BlockPosition + dir.ToInt3();
+//                        if (UnivoxUtil.IsValid(neighborPos))
+//                        {
+//                            var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
+//                            var neighbor = chunk.GetAccessor(neighborIndex);
+//
+//                            var neighborRender = neighbor.Render;
+//                            //Reveal the opposite of this direction
+//                            if (neighbor.Info.Active)
+//                                neighborRender.HiddenFaces &= ~dir.ToOpposite().ToFlag();
+//                            neighborRender.Version.Dirty();
+//                            BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
+//                                (short) neighborIndex);
+//                        }
+//                    }
+//
+//                    _lastVoxel = voxelInfo.BlockPosition;
+//                    _hitPoint = hit.Position;
+//
+//                    accessorInfo.Version.Dirty();
+//                    accessorRender.Version.Dirty();
+//                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
+//                        (short) voxelInfo.BlockIndex);
+//                    Debug.Log($"Hit Destroy : {voxelInfo.BlockPosition}");
+//                }
+//                else
+//                    Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
+//            }
         }
     }
 

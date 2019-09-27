@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -8,6 +9,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
+using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox.Core.Types;
@@ -16,6 +18,7 @@ using UniVox.Types;
 using UniVox.Utility;
 using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
+using Version = UniVox.Types.Version;
 
 namespace UniVox.Rendering.ChunkGen
 {
@@ -24,21 +27,10 @@ namespace UniVox.Rendering.ChunkGen
     [UpdateBefore(typeof(RenderMeshSystemV3))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
-        public struct ChunkRenderVersion : ISystemStateComponentData
+        public struct SystemVersion : ISystemStateComponentData
         {
-            public uint Render;
-
-            public bool DidChange(Version render) => ChangeVersionUtility.DidChange(render, Render);
-
-            public bool DidChange(Chunk chunk) => DidChange(chunk.Render.Version);
-
-            public static ChunkRenderVersion Create(Chunk chunk)
-            {
-                return new ChunkRenderVersion()
-                {
-                    Render = chunk.Render.Version
-                };
-            }
+            public uint Material;
+            public uint SubMaterial;
         }
 
         private EntityQuery _renderQuery;
@@ -72,7 +64,9 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<ChunkRenderVersion>()
+                    ComponentType.ReadWrite<SystemVersion>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -80,10 +74,12 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
                 },
                 None = new[]
                 {
-                    ComponentType.ReadWrite<ChunkRenderVersion>()
+                    ComponentType.ReadWrite<SystemVersion>()
                 }
             });
             _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -91,10 +87,12 @@ namespace UniVox.Rendering.ChunkGen
                 None = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
                 },
                 All = new[]
                 {
-                    ComponentType.ReadWrite<ChunkRenderVersion>()
+                    ComponentType.ReadWrite<SystemVersion>(),
                 }
             });
 
@@ -187,32 +185,64 @@ namespace UniVox.Rendering.ChunkGen
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
-            var versionType = GetArchetypeChunkComponentType<ChunkRenderVersion>();
+            var versionType = GetArchetypeChunkComponentType<SystemVersion>();
+
+            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
+            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
 
 
+            var chunkArchetype = GetArchetypeChunkEntityType();
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
                 var ids = ecsChunk.GetNativeArray(idType);
                 var versions = ecsChunk.GetNativeArray(versionType);
-                for (var i = 0; i < ecsChunk.Count; i++)
+                var voxelChunkEntityArray = ecsChunk.GetNativeArray(chunkArchetype);
+                var i = 0;
+                foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
-                    var id = ids[i];
                     var version = versions[i];
-                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
-                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
-                    var voxelChunk = record.Chunk;
-                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
+//                    var matVersion = 
+//                    var subMatVersion = 
 
-                    //Update version
-                    versions[i] = ChunkRenderVersion.Create(voxelChunk);
+                    if (ecsChunk.DidChange(materialType, version.Material) ||
+                        ecsChunk.DidChange(subMaterialType, version.SubMaterial))
+                    {
+                        var id = ids[i];
+                        Profiler.BeginSample("Process Render Chunk");
+                        var results = GenerateBoxelMeshes(voxelChunkEntity);
+                        Profiler.EndSample();
+                        _frameCaches.Enqueue(new FrameCache() {Id = id, Results = results});
 
-                    Profiler.BeginSample("Process Render Chunk");
-                    var results = UnivoxRenderingJobs.GenerateBoxelMeshes(voxelChunk.Render);
-                    Profiler.EndSample();
-                    _frameCaches.Enqueue(new FrameCache() {Id = id.Value, Results = results});
+                        versions[i] = new SystemVersion()
+                        {
+                            Material = ecsChunk.GetComponentVersion(materialType),
+                            SubMaterial = ecsChunk.GetComponentVersion(subMaterialType)
+                        };
+                    }
+
+
+                    i++;
                 }
+
+////                var ids = ecsChunk.GetNativeArray(idType);
+////                var versions = ecsChunk.GetNativeArray(versionType);
+//                for (var i = 0; i < ecsChunk.Count; i++)
+//                {
+////                    var id = ids[i];
+////                    var version = versions[i];
+////                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
+////                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
+////                    var voxelChunk = record.Chunk;
+////                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
+//
+//                    //Update version
+////                    versions[i] = ChunkRenderVersion.Create(voxelChunk);
+//
+//
+//                }
             }
+
 
             Profiler.EndSample();
 
@@ -220,6 +250,91 @@ namespace UniVox.Rendering.ChunkGen
 
             //We need to process everything we couldn't while chunk array was in use
             ProcessFrameCache();
+
+//            Debug.Break();
+        }
+
+        UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle = default)
+        {
+            var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
+            var subMaterialLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
+            var blockShapeLookup = GetBufferFromEntity<BlockShapeComponent>();
+            var culledFaceLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
+
+
+            var materials = materialLookup[chunk].AsNativeArray();
+            var blockShapes = blockShapeLookup[chunk].AsNativeArray();
+            var subMaterials = subMaterialLookup[chunk].AsNativeArray();
+            var culledFaces = culledFaceLookup[chunk].AsNativeArray();
+
+            const int maxBatchSize = Byte.MaxValue;
+            handle.Complete();
+
+            Profiler.BeginSample("Create Batches");
+            var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
+            Profiler.EndSample();
+
+            var meshes = new UnivoxRenderingJobs.RenderResult[uniqueBatchData.Length];
+//            var boxelPositionJob = CreateBoxelPositionJob();
+//            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
+
+//            var offsets = boxelPositionJob.Positions;
+            Profiler.BeginSample("Process Batches");
+            for (var i = 0; i < uniqueBatchData.Length; i++)
+            {
+                var materialId = uniqueBatchData[i];
+                Profiler.BeginSample($"Process Batch {i}");
+                var gatherPlanerJob = GatherPlanarJobV3.Create(blockShapes, culledFaces, subMaterials, materials,
+                    uniqueBatchData[i], out var queue);
+                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, maxBatchSize);
+
+                var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
+                {
+                    out_list = new NativeList<PlanarData>(Allocator.TempJob),
+                    queue = queue
+                };
+                writerToReaderJob.Schedule(gatherPlanerJobHandle).Complete();
+                queue.Dispose();
+                var planarBatch = writerToReaderJob.out_list;
+
+                //Calculate the Size Each Voxel Will Use
+//                var cubeSizeJob = CreateCalculateCubeSizeJob(batch, chunk);
+                var cubeSizeJob = UnivoxRenderingJobs.CreateCalculateCubeSizeJobV2(planarBatch);
+
+                //Calculate the Size of the Mesh and the position to write to per voxel
+                var indexAndSizeJob = UnivoxRenderingJobs.CreateCalculateIndexAndTotalSizeJob(cubeSizeJob);
+                //Schedule the jobs
+                var cubeSizeJobHandle = cubeSizeJob.Schedule(planarBatch.Length, maxBatchSize);
+                var indexAndSizeJobHandle = indexAndSizeJob.Schedule(cubeSizeJobHandle);
+                //Complete these jobs
+                indexAndSizeJobHandle.Complete();
+
+                //GEnerate the mesh
+//                var genMeshJob = CreateGenerateCubeBoxelMeshV2(planarBatch, offsets, indexAndSizeJob);
+                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMeshV2(planarBatch, indexAndSizeJob);
+                //Dispose unneccessary native arrays
+                indexAndSizeJob.TriangleTotalSize.Dispose();
+                indexAndSizeJob.VertexTotalSize.Dispose();
+                //Schedule the generation
+                var genMeshHandle =
+                    genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
+
+                //Finish and Create the Mesh
+                genMeshHandle.Complete();
+                planarBatch.Dispose();
+                meshes[i] = new UnivoxRenderingJobs.RenderResult()
+                {
+                    Mesh = UnivoxRenderingJobs.CreateMesh(genMeshJob),
+                    Material = materialId
+                };
+                Profiler.EndSample();
+            }
+
+            Profiler.EndSample();
+
+//            offsets.Dispose();
+            uniqueBatchData.Dispose();
+            return meshes;
         }
 
         void ProcessFrameCache()
@@ -306,12 +421,12 @@ namespace UniVox.Rendering.ChunkGen
 
         void SetupPass()
         {
-            EntityManager.AddComponent<ChunkRenderVersion>(_setupQuery);
+            EntityManager.AddComponent<SystemVersion>(_setupQuery);
         }
 
         void CleanupPass()
         {
-            EntityManager.RemoveComponent<ChunkRenderVersion>(_cleanupQuery);
+            EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 

@@ -127,14 +127,16 @@ namespace UniVox.Rendering.ChunkGen.Jobs
 
         private bool DetermineFlip(Direction direction)
         {
+//            return false;
             //Looks like we only flip Size if its not forward or backward
-            return !(direction == Direction.Forward || direction == Direction.Backward);
+//            return !(direction == Direction.Forward || direction == Direction.Backward);
+            return !DetermineUvFlip(direction);
         }
 
         private bool DetermineUvFlip(Direction direction)
         {
             //Looks like we only flip Size if its not forward or backward
-            return !(direction == Direction.Left || direction == Direction.Right);
+            return !(direction == Direction.Left || direction == Direction.Right || direction == Direction.Up || direction == Direction.Down);
         }
 
         private int2 FixSize(Direction direction, int2 size)

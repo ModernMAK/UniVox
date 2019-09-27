@@ -10,29 +10,6 @@ using UniVox.Types;
 
 namespace UniVox.Rendering.ChunkGen
 {
-    [InternalBufferCapacity(UnivoxDefine.AxisSize)]
-    public struct BlockChanged : IBufferElementData
-    {
-        public short BlockIndex;
-
-        //Helper function
-        public static void NotifyEntity(Entity entity, EntityManager entityManager, short blockIndex)
-        {
-            entityManager.GetBuffer<BlockChanged>(entity).Add(new BlockChanged(blockIndex));
-        }
-
-        private BlockChanged(short blockIndex)
-        {
-            BlockIndex = blockIndex;
-        }
-
-        public static implicit operator short(BlockChanged blockChanged)
-        {
-            return blockChanged.BlockIndex;
-        }
-    }
-
-
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateBefore(typeof(RenderMeshSystemV2))]
     [UpdateBefore(typeof(RenderMeshSystemV3))]
@@ -41,20 +18,18 @@ namespace UniVox.Rendering.ChunkGen
     {
         public struct SystemVersion : ISystemStateComponentData
         {
-            public uint Info;
+            public uint IdentityVersion;
 
-            public bool DidChange(Version info) =>
-                ChangeVersionUtility.DidChange(info, Info);
 
-            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
+//            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
 
-            public static SystemVersion Create(Chunk chunk)
-            {
-                return new SystemVersion()
-                {
-                    Info = chunk.Info.Version,
-                };
-            }
+//            public static SystemVersion Create(Chunk chunk)
+//            {
+//                return new SystemVersion()
+//                {
+//                    Info = chunk.Info.Version,
+//                };
+//            }
         }
 
 
@@ -62,19 +37,21 @@ namespace UniVox.Rendering.ChunkGen
         private EntityQuery _setupQuery;
         private EntityQuery _cleanupQuery;
 
-        private Universe _universe;
-
 
         protected override void OnCreate()
         {
-            _universe = GameManager.Universe;
             _renderQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<BlockChanged>(),
-                    ComponentType.ReadWrite<SystemVersion>()
+//                    ComponentType.ReadWrite<BlockChanged>(),
+                    ComponentType.ReadWrite<SystemVersion>(),
+
+                    ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
+
+                    ComponentType.ReadOnly<BlockIdentityComponent>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -82,7 +59,11 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<BlockChanged>(),
+//                    ComponentType.ReadWrite<BlockChanged>(),
+                    ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
+
+                    ComponentType.ReadOnly<BlockIdentityComponent>(),
                 },
                 None = new[]
                 {
@@ -94,7 +75,11 @@ namespace UniVox.Rendering.ChunkGen
                 None = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<BlockChanged>(),
+
+                    ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
+
+                    ComponentType.ReadOnly<BlockIdentityComponent>(),
                 },
                 All = new[]
                 {
@@ -108,32 +93,56 @@ namespace UniVox.Rendering.ChunkGen
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
             var versionType = GetArchetypeChunkComponentType<SystemVersion>();
-            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
+//            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
+
+            var VoxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
 
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
-                var ids = ecsChunk.GetNativeArray(idType);
                 var versions = ecsChunk.GetNativeArray(versionType);
-                var changedAccessor = ecsChunk.GetBufferAccessor(changedType);
-                for (var i = 0; i < ecsChunk.Count; i++)
+                var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetpye);
+
+                var i = 0;
+                foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
-                    var id = ids[i];
                     var version = versions[i];
-                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
-                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
-                    var voxelChunk = record.Chunk;
-                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
+                    if (ecsChunk.DidChange(idType, version.IdentityVersion))
+                    {
+                        Profiler.BeginSample("Update Chunk");
+                        UpdateVoxelChunk(voxelChunkEntity);
 
-                    Profiler.BeginSample("Update Chunk");
-                    UpdateChunk(voxelChunk, changedAccessor[i]);
+                        Profiler.EndSample();
+                        versions[i] = new SystemVersion()
+                        {
+                            IdentityVersion = ecsChunk.GetComponentVersion(idType)
+                        };
+                    }
 
-                    Profiler.EndSample();
-
-                    //Update version
-                    versions[i] = SystemVersion.Create(voxelChunk);
+                    i++;
                 }
+
+//                var ids = ecsChunk.GetNativeArray(idType);
+//                var versions = ecsChunk.GetNativeArray(versionType);
+//                var changedAccessor = ecsChunk.GetBufferAccessor(changedType);
+//                for (var i = 0; i < ecsChunk.Count; i++)
+//                {
+////                    var id = ids[i];
+////                    var version = versions[i];
+////                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
+////                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
+////                    var voxelChunk = record.Chunk;
+////                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
+//
+//                    Profiler.BeginSample("Update Chunk");
+//                    UpdateChunk(ecsChunk[i]);
+//
+//                    Profiler.EndSample();
+//
+//                    //Update version
+////                    versions[i] = SystemVersion.Create(voxelChunk);
+//                }
             }
 
             Profiler.EndSample();
@@ -141,28 +150,38 @@ namespace UniVox.Rendering.ChunkGen
             chunkArray.Dispose();
         }
 
-        private void UpdateChunk(Chunk voxelChunk, DynamicBuffer<BlockChanged> changed)
+        private void UpdateVoxelChunk(Entity voxelChunk)
         {
-            for (var i = 0; i < changed.Length; i++)
+            var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
+            var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
+            var blockSubMatLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
+            var blockIdArray = blockIdLookup[voxelChunk];
+            var blockMatArray = blockMatLookup[voxelChunk];
+            var blockSubMatArray = blockSubMatLookup[voxelChunk];
+            for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
                 Profiler.BeginSample("Process Block");
-                var blockIndex = changed[i];
-                var block = voxelChunk[blockIndex];
-                var blockId = block.Info.Identity;
-                if (blockId.TryGetBlockReference(GameManager.Registry, out var blockRef))
+                var blockId = blockIdArray[blockIndex];
+                if (blockId.Value.TryGetBlockReference(GameManager.Registry, out var blockRef))
                 {
+                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
+
                     Profiler.BeginSample("Perform Pass");
-                    blockRef.Value.RenderPass(block);
+                    blockRef.Value.RenderPass(blockAccessor);
                     Profiler.EndSample();
-                    Profiler.BeginSample("Dirty");
-                    block.Render.Version.Dirty();
-                    Profiler.EndSample();
+//                    Profiler.BeginSample("Dirty");
+////                    block.Render.Version.Dirty();
+//                    Profiler.EndSample();
+                }
+                else
+                {
+//                    blockMatArray[blockIndex].
                 }
 
                 Profiler.EndSample();
             }
 
-            changed.Clear();
+//            changed.Clear();
         }
 
 

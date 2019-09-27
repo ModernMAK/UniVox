@@ -1,10 +1,11 @@
+using System;
 using UniVox.Entities.Systems;
 using UniVox.Entities.Systems.Registry;
 using UniVox.Managers;
 
 namespace UniVox.Core.Types
 {
-    public struct BlockIdentity
+    public struct BlockIdentity : IEquatable<BlockIdentity>, IComparable<BlockIdentity>
     {
         public BlockIdentity(int mod, int block)
         {
@@ -23,6 +24,30 @@ namespace UniVox.Core.Types
             return modRegistry.TryGetBlockReference(Mod, Block, out reference);
         }
 
-//        public byte VariantId;
+
+        public bool Equals(BlockIdentity other)
+        {
+            return Mod == other.Mod && Block == other.Block;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BlockIdentity other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Mod * 397) ^ Block;
+            }
+        }
+
+        public int CompareTo(BlockIdentity other)
+        {
+            var modComparison = Mod.CompareTo(other.Mod);
+            if (modComparison != 0) return modComparison;
+            return Block.CompareTo(other.Block);
+        }
     }
 }
