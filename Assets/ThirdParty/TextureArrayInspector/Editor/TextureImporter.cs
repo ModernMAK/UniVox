@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using ThirdParty.TextureArrayInspector.Extensions;
+using ThirdParty.TextureArrayInspector.Main;
 
 namespace TextureArrayInspector
 {

@@ -1,8 +1,7 @@
-using UniVox.Core.Types;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Rendering.ChunkGen.Jobs;
+using UniVox.Managers.Game;
+using UniVox.VoxelData;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
     public class RegularBlockRef : BaseBlockReference
     {

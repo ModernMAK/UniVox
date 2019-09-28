@@ -1,9 +1,7 @@
 using System;
-using UniVox.Entities.Systems;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Managers;
+using UniVox.Managers.Game;
 
-namespace UniVox.Core.Types
+namespace UniVox.Types
 {
     public struct BlockIdentity : IEquatable<BlockIdentity>, IComparable<BlockIdentity>
     {

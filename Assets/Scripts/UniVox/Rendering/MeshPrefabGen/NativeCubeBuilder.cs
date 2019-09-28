@@ -1,10 +1,9 @@
 using System;
-using Types;
 using Unity.Collections;
 using Unity.Mathematics;
 using UniVox.Types;
 
-namespace Rendering
+namespace UniVox.Rendering.MeshPrefabGen
 {
     public struct NativeCubeBuilder : IDisposable
     {

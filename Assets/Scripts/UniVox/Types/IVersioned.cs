@@ -1,6 +1,4 @@
-using UniVox.Types;
-
-namespace UniVox.Core.Types
+namespace UniVox.Types
 {
     public interface IVersioned
     {

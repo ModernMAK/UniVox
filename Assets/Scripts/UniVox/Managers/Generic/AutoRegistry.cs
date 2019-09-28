@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UniVox.Managers
+namespace UniVox.Managers.Generic
 {
     /// <summary>
     ///     Wrapper around a dictionary, automatically assigns an integer id to each item in the registry

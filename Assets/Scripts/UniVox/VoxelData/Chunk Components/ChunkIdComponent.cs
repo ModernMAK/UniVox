@@ -2,7 +2,7 @@ using System;
 using Unity.Entities;
 using UniVox.Types;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData.Chunk_Components
 {
     public struct ChunkIdComponent : IComponentData, IEquatable<ChunkIdComponent>, IComparable<ChunkIdComponent>
     {

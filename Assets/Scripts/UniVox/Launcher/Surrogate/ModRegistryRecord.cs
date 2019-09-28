@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using UnityEngine;
-using UniVox.Entities.Systems.Registry;
 
-namespace UniVox.Entities.Systems.Surrogate
+namespace UniVox.Launcher.Surrogate
 {
     [Serializable]
     public class ModRegistryRecordSurrogate

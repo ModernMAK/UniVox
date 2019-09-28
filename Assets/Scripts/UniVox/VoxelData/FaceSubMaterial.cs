@@ -1,7 +1,7 @@
 using System;
 using UniVox.Types;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData
 {
     public struct FaceSubMaterial : IComparable<FaceSubMaterial>, IEquatable<FaceSubMaterial>
     {

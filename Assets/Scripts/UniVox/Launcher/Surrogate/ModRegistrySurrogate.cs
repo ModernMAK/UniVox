@@ -1,7 +1,6 @@
 using UnityEngine;
-using UniVox.Entities.Systems.Registry;
 
-namespace UniVox.Entities.Systems.Surrogate
+namespace UniVox.Launcher.Surrogate
 {
     [CreateAssetMenu(menuName = "Custom Assets/Mod List Proxy")]
     public class ModRegistrySurrogate : ScriptableObject

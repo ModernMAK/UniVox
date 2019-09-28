@@ -1,8 +1,8 @@
 using System;
-using Rendering;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types;
 
 namespace UniVox.Rendering.ChunkGen.Jobs

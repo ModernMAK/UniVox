@@ -1,6 +1,4 @@
-using UniVox.Launcher;
-
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
     public abstract class AbstractMod
     {

@@ -1,10 +1,10 @@
-using UnityEngine;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection; //to copy properties
+using ThirdParty.TextureArrayInspector.Scripts;
+using UnityEngine;
 
-namespace TextureArrayInspector
+//to copy properties
+
+namespace ThirdParty.TextureArrayInspector.Extensions
 {
 	static public class CoordinatesExtensions
 	{

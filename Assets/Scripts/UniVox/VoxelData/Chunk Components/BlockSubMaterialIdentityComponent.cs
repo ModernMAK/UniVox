@@ -1,7 +1,7 @@
 using System;
 using Unity.Entities;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData.Chunk_Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
     public struct BlockSubMaterialIdentityComponent : IBufferElementData,

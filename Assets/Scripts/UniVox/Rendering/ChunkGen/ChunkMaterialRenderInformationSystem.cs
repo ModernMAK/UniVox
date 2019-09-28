@@ -5,16 +5,16 @@ using Unity.Rendering;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
-using UniVox.Core.Types;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Managers.Game;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
+using UniVox.VoxelData;
+using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateBefore(typeof(RenderMeshSystemV2))]
-    [UpdateBefore(typeof(RenderMeshSystemV3))]
+
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialRenderInformationSystem : JobComponentSystem
     {

@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData
 {
     public class BufferAccessor<TComponent> where TComponent : struct, IBufferElementData
     {

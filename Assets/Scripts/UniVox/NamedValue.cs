@@ -1,11 +1,14 @@
 using System;
 using UnityEngine;
 
-[Serializable]
-public class NamedValue<T>
+namespace UniVox
 {
-    [SerializeField]
-    public string Name;
-    [SerializeField]
-    public T Value;
+    [Serializable]
+    public class NamedValue<T>
+    {
+        [SerializeField]
+        public string Name;
+        [SerializeField]
+        public T Value;
+    }
 }

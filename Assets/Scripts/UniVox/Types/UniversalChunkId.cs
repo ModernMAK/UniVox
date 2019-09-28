@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using UniVox.Core.Types;
+using UniVox.Utility;
 
 namespace UniVox.Types
 {

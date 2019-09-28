@@ -11,12 +11,13 @@ using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
-using UniVox.Core.Types;
-using UniVox.Entities.Systems;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Launcher;
+using UniVox.Managers.Game;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
 using UniVox.Utility;
+using UniVox.VoxelData;
+using UniVox.VoxelData.Chunk_Components;
 using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
 

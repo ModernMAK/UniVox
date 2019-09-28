@@ -1,23 +1,10 @@
-using System;
 using UniVox.Asset_Management;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Entities.Systems.Surrogate;
-using UniVox.Launcher;
+using UniVox.Launcher.Surrogate;
+using UniVox.Managers.Game;
+using UniVox.Managers.Game.Accessor;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
-    public class AssetNotFoundException : Exception
-    {
-        public AssetNotFoundException(string assetName) : base($"'{assetName}' was not found!")
-        {
-        }
-
-        public AssetNotFoundException(string variableName, string assetName) : base(
-            $"{variableName} - '{assetName}' was not found!")
-        {
-        }
-    }
-
     public class BaseGameMod : AbstractMod
     {
         public const string ModPath = "BaseGame";

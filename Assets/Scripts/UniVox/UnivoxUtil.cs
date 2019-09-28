@@ -1,8 +1,8 @@
-using Types;
 using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
 using UniVox.Types;
+using UniVox.Utility;
 
 namespace UniVox
 {

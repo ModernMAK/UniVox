@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TextureArrayInspector
+namespace ThirdParty.TextureArrayInspector.Scripts
 {
 	//surprisingly Unity's ArrayUtility is an Editor calss
 	//so this is it's analog to use in builds

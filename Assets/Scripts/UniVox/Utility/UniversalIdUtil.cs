@@ -1,6 +1,6 @@
 using Unity.Mathematics;
 
-namespace UniVox.Core.Types
+namespace UniVox.Utility
 {
     public static class UniversalIdUtil
     {

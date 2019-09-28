@@ -1,6 +1,6 @@
 using Unity.Mathematics;
 
-namespace Types
+namespace UniVox.Utility
 {
     public static class IndexMapUtil
     {

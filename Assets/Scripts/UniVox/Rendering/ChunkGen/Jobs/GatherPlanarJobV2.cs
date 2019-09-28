@@ -1,5 +1,4 @@
 using System;
-using Types;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -7,9 +6,9 @@ using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
 using UnityEngine.AI;
-using UniVox.Core.Types;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Managers.Game;
 using UniVox.Types;
+using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {

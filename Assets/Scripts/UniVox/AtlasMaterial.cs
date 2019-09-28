@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UniVox.Managers;
 
+namespace UniVox
+{
 //[CreateAssetMenu(menuName = "Custom Assets/AtlasMaterial",fileName= "AtlasMaterial")]
 //[Serializable]
 //public class AtlasAsset : ScriptableObject
@@ -15,15 +17,16 @@ using UniVox.Managers;
 //}
 
 
-[Serializable]
-public class NamedRect : NamedValue<Rect>
-{
-}
+    [Serializable]
+    public class NamedRect : NamedValue<Rect>
+    {
+    }
 
-[Serializable]
-public struct AtlasMaterial
-{
-    public Material Material;
+    [Serializable]
+    public struct AtlasMaterial
+    {
+        public Material Material;
 
-    public NamedRect[] Rectangles;
+        public NamedRect[] Rectangles;
+    }
 }

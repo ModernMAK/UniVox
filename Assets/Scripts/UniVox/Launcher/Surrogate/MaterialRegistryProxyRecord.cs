@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UniVox.Entities.Systems.Surrogate
+namespace UniVox.Launcher.Surrogate
 {
     [Serializable]
     public class NamedAtlasMaterial

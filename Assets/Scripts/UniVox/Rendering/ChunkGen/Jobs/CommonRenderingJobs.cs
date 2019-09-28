@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Jobs
+namespace UniVox.Rendering.ChunkGen.Jobs
 {
     public static class CommonRenderingJobs
     {

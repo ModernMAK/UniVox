@@ -1,4 +1,3 @@
-using Types;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -8,9 +7,9 @@ using Unity.Rendering;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
-using UniVox.Core.Types;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
+using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen
 {

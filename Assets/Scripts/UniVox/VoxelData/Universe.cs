@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using VoxelWorld = UniVox.Core.Types.World;
+using VoxelWorld = UniVox.VoxelData.World;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData
 {
     public class Universe : IDisposable, IReadOnlyDictionary<byte, World>
     {

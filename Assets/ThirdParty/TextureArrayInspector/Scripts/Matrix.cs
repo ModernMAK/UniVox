@@ -1,9 +1,8 @@
-using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using ThirdParty.TextureArrayInspector.Extensions;
+using UnityEngine;
 
-namespace TextureArrayInspector 
+namespace ThirdParty.TextureArrayInspector.Scripts 
 {
 
 	[System.Serializable]

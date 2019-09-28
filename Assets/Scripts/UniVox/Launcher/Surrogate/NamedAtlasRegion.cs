@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Managers.Game.Structure;
 
-namespace UniVox.Entities.Systems.Surrogate
+namespace UniVox.Launcher.Surrogate
 {
     [Serializable]
     public class NamedAtlasRegion : NamedValue<Rect>

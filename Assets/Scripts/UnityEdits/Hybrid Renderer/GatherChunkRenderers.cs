@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Rendering;
 
-namespace UnityEdits
+namespace UnityEdits.Hybrid_Renderer
 {
     [BurstCompile]
     internal struct GatherChunkRenderers : IJobParallelFor

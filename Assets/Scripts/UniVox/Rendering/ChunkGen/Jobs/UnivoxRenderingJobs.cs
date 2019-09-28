@@ -1,68 +1,16 @@
 using System;
-using Jobs;
-using Rendering;
-using Types.Native;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UniVox.Core.Types;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Managers;
+using UniVox.Managers.Game;
+using UniVox.Rendering.MeshPrefabGen;
+using UniVox.Types.Native;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {
-    [Obsolete("Use ArrayMaterialId")]
-    public struct MaterialId : IComparable<MaterialId>, IEquatable<MaterialId>
-    {
-        public int Mod;
-        public int Material;
-
-        public MaterialId(int modId, int matIndex)
-        {
-            Mod = (byte) modId;
-            Material = matIndex;
-        }
-
-        public static implicit operator ArrayMaterialId(MaterialId id)
-        {
-            return new ArrayMaterialId((ModId) id.Mod, id.Material);
-        }
-
-        public int CompareTo(MaterialId other)
-        {
-            var modComparison = Mod.CompareTo(other.Mod);
-            if (modComparison != 0) return modComparison;
-            return Material.CompareTo(other.Material);
-        }
-
-        public bool Equals(MaterialId other)
-        {
-            return Mod == other.Mod && Material == other.Material;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is MaterialId other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Mod.GetHashCode() * 397) ^ Material;
-            }
-        }
-
-        public bool TryGetMaterialReference(ModRegistry modRegistry,
-            out IAutoReference<string, ArrayMaterial> materialReference)
-        {
-            return modRegistry.TryGetMaterialReference(Mod, Material, out materialReference);
-        }
-    }
-
     public static class UnivoxRenderingJobs
     {
         public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>

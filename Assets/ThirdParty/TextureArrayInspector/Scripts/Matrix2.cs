@@ -1,9 +1,7 @@
-using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
-namespace TextureArrayInspector 
+namespace ThirdParty.TextureArrayInspector.Scripts 
 {
 
 	public class Matrix2<T> : ICloneable

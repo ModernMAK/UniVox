@@ -5,6 +5,9 @@ using UnityEditor;
 
 using System.Reflection;
 using System;
+using ThirdParty.TextureArrayInspector.Extensions;
+using ThirdParty.TextureArrayInspector.Layout;
+using ThirdParty.TextureArrayInspector.Main;
 
 namespace TextureArrayInspector 
 {

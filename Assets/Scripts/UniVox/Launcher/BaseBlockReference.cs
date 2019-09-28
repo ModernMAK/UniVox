@@ -1,6 +1,6 @@
-using UniVox.Core.Types;
+using UniVox.VoxelData;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
     public abstract class BaseBlockReference
     {

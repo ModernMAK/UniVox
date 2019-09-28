@@ -1,7 +1,7 @@
-using Types.Native;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
+using UniVox.Types.Native;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {

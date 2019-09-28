@@ -1,12 +1,11 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Xml.Serialization;
-using System.IO;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using ThirdParty.TextureArrayInspector.Extensions;
+using UnityEngine;
 
-namespace TextureArrayInspector
+namespace ThirdParty.TextureArrayInspector.Scripts
 {
 
 	public static class CustomSerialization 

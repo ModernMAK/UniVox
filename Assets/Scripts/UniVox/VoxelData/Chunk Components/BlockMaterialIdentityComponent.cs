@@ -1,9 +1,8 @@
 using System;
 using Unity.Entities;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Rendering.ChunkGen.Jobs;
+using UniVox.Managers.Game;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData.Chunk_Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
     public struct BlockMaterialIdentityComponent : IBufferElementData,

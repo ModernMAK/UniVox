@@ -1,7 +1,7 @@
 using System;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Managers.Game;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
     public struct SubArrayMaterialKey : IEquatable<SubArrayMaterialKey>, IComparable<SubArrayMaterialKey>
     {

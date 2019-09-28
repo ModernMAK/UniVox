@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData
 {
     public class World : IDisposable, IReadOnlyDictionary<int3, Entity>
     {
@@ -51,8 +51,12 @@ namespace UniVox.Core.Types
             return Records.TryGetValue(key, out accessor);
         }
 
+        private bool disposed;
         public void Dispose()
         {
+            if(disposed)
+                return;
+            disposed = true;
             foreach (var recordValue in Records.Values)
             {
                 EntityManager.DestroyEntity(recordValue);

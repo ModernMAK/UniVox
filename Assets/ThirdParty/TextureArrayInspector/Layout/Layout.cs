@@ -1,9 +1,10 @@
-using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using ThirdParty.TextureArrayInspector.Extensions;
+using ThirdParty.TextureArrayInspector.Scripts;
+using UnityEngine;
 
-namespace TextureArrayInspector
+namespace ThirdParty.TextureArrayInspector.Layout
 {
 	public partial class Layout
 	{

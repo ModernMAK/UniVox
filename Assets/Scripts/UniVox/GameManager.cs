@@ -1,9 +1,7 @@
-using System;
-using UniVox.Core.Types;
-using UniVox.Entities.Systems;
-using UniVox.Entities.Systems.Registry;
+using UniVox.Managers.Game.Structure;
+using UniVox.VoxelData;
 
-namespace UnityEdits
+namespace UniVox
 {
     public static class GameManager
     {

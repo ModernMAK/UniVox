@@ -1,9 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using ThirdParty.TextureArrayInspector.Scripts;
 using UnityEngine;
 
-namespace TextureArrayInspector
+namespace ThirdParty.TextureArrayInspector.Extensions
 {
 	public static class TextureExtensions
 	{

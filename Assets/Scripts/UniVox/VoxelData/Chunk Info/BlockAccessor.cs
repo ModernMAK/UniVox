@@ -1,6 +1,7 @@
 using Unity.Entities;
+using UniVox.VoxelData.Chunk_Components;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData
 {
     /// <summary>
     /// This is an accessor, which can pass block info without passing an entity

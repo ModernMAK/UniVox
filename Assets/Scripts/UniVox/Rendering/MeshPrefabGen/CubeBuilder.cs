@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Types;
 using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Types;
 
-namespace Rendering
+namespace UniVox.Rendering.MeshPrefabGen
 {
     public static class CubeBuilder
     {

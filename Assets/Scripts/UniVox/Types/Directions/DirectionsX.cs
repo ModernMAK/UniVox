@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UniVox.Types;
 
-namespace Types
+namespace UniVox.Types
 {
     public static class DirectionsX
     {

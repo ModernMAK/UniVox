@@ -2,7 +2,7 @@ using System;
 using Unity.Entities;
 using UniVox.Types;
 
-namespace UniVox.Core.Types
+namespace UniVox.VoxelData.Chunk_Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
     public struct BlockCulledFacesComponent : IBufferElementData,

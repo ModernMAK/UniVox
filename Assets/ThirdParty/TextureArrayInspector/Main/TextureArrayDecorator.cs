@@ -1,7 +1,9 @@
 using System;
+using ThirdParty.TextureArrayInspector.Extensions;
+using ThirdParty.TextureArrayInspector.Scripts;
 using UnityEngine;
 
-namespace TextureArrayInspector {
+namespace ThirdParty.TextureArrayInspector.Main {
 
 	public class TextureArrayDecorator 
 	{

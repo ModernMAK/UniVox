@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using UniVox.Entities.Systems.Registry;
-using UniVox.Entities.Systems.Surrogate;
+using UniVox.Launcher.Surrogate;
+using UniVox.Managers.Game;
+using UniVox.Managers.Game.Structure;
 
-namespace UniVox.Entities.Systems
+namespace UniVox.Launcher
 {
     public static class SurrogateProxyModHelpers
     {
@@ -20,10 +21,10 @@ namespace UniVox.Entities.Systems
                 var mat = matSur.Value;
                 var regions = matSur.Regions;
 
-                var atlasMaterialRef = modRegistry.Atlases.Register(matSur.Name, mat);
+                var atlasMaterialIndex = modRegistry.Atlases.Register(matSur.Name, mat);
                 foreach (var region in regions)
                 {
-                    atlasMaterialRef.Value.Regions.Register(region.Name, region.Value);
+                    modRegistry.Atlases[atlasMaterialIndex].Regions.Register(region.Name, region.Value);
                 }
             }
 
@@ -32,10 +33,10 @@ namespace UniVox.Entities.Systems
                 var mat = matSur.Value;
                 var subMats = matSur.SubMaterials;
 
-                var arrayMaterialRef = modRegistry.Materials.Register(matSur.Name, mat);
+                var arrayMaterialIndex = modRegistry.Materials.Register(matSur.Name, mat);
                 foreach (var subMat in subMats)
                 {
-                    modRegistry.Materials[arrayMaterialRef].SubMaterials.Register(subMat.Name, subMat.Value);
+                    modRegistry.Materials[arrayMaterialIndex].SubMaterials.Register(subMat.Name, subMat.Value);
                 }
             }
         }
