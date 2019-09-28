@@ -47,7 +47,7 @@ namespace UniVox.Entities.Systems
             modRegistry.Blocks.Register("Grass", new GrassBlockRef(matId, grassRef.Id, sideRef.Id, dirtRef.Id));
 
 
-            modRegistry.Blocks.Register("Dirt", new RegularAtlasBlockRef(matId, dirtRef.Id));
+            modRegistry.Blocks.Register("Dirt", new RegularBlockRef(matId, dirtRef.Id));
 
             if (!modRegistry.Materials.TryGetReference("Stone", out var stoneReference))
                 throw new Exception("Asset not found!");
@@ -62,62 +62,23 @@ namespace UniVox.Entities.Systems
 //            modRegistry.Atlases.Register("Grass",);
         }
 
+
         public class RegularBlockRef : BaseBlockReference
         {
-            private static readonly int _defaultSubMat = 0; //Rect _fullRect = new Rect(0, 0, 1, 1);
-
-            public RegularBlockRef(MaterialId materialId)
+            public RegularBlockRef(MaterialId materialId, int subMat = 0)
             {
                 _material = materialId;
+                _subMat = FaceSubMaterial.CreateAll(subMat);
             }
 
             private readonly MaterialId _material;
+            private readonly FaceSubMaterial _subMat;
 
 
-            public override void RenderPass(VoxelInfoArray.Accessor blockData, VoxelRenderInfoArray.Accessor renderData)
+            public override void RenderPass(BlockAccessor blockData)
             {
-                renderData.Material = _material;
-
-                renderData.SetSubMaterial(Direction.Up, _defaultSubMat);
-
-                renderData.SetSubMaterial(Direction.Down, _defaultSubMat);
-
-                renderData.SetSubMaterial(Direction.Left, _defaultSubMat);
-                renderData.SetSubMaterial(Direction.Right, _defaultSubMat);
-                renderData.SetSubMaterial(Direction.Forward, _defaultSubMat);
-                renderData.SetSubMaterial(Direction.Backward, _defaultSubMat);
-
-//                renderData.Version.Dirty();
-            }
-        }
-
-        public class RegularAtlasBlockRef : BaseBlockReference
-        {
-            public RegularAtlasBlockRef(MaterialId materialId, int subMat)
-            {
-                _material = materialId;
-                _subMat = subMat;
-            }
-
-            private readonly MaterialId _material;
-            private readonly int _subMat;
-
-
-            public override void RenderPass(VoxelInfoArray.Accessor blockData, VoxelRenderInfoArray.Accessor renderData)
-            {
-                renderData.Material = _material;
-
-
-                renderData.SetSubMaterial(Direction.Up, _subMat);
-
-                renderData.SetSubMaterial(Direction.Down, _subMat);
-
-                renderData.SetSubMaterial(Direction.Left, _subMat);
-                renderData.SetSubMaterial(Direction.Right, _subMat);
-                renderData.SetSubMaterial(Direction.Forward, _subMat);
-                renderData.SetSubMaterial(Direction.Backward, _subMat);
-
-//                renderData.Version.Dirty();
+                blockData.Material.Value = _material;
+                blockData.SubMaterial.Value = _subMat;
             }
         }
 
@@ -126,30 +87,32 @@ namespace UniVox.Entities.Systems
             public GrassBlockRef(MaterialId materialId, int grass, int sideSub, int dirtSub)
             {
                 _material = materialId;
-                _grassSubMat = grass;
-                _grassSideSubMat = sideSub;
-                _dirtSubMat = dirtSub;
+                _subMaterial = FaceSubMaterial.CreateTopSideBot(grass, sideSub, dirtSub);
+//                _grassSubMat = grass;
+//                _grassSideSubMat = sideSub;
+//                _dirtSubMat = dirtSub;
             }
 
             private readonly MaterialId _material;
+            private FaceSubMaterial _subMaterial;
 
             //Cache to avoid dictionary lookups
-            private readonly int _grassSubMat;
-            private readonly int _grassSideSubMat;
-            private readonly int _dirtSubMat;
+//            private readonly int _grassSubMat;
+//            private readonly int _grassSideSubMat;
+//            private readonly int _dirtSubMat;
 
-            public override void RenderPass(VoxelInfoArray.Accessor blockData, VoxelRenderInfoArray.Accessor renderData)
+            public override void RenderPass(BlockAccessor blockData)
             {
-                renderData.Material = _material;
+                blockData.Material.Value = _material;
 
-                renderData.SetSubMaterial(Direction.Up, _grassSubMat);
+                blockData.SubMaterial.Value = _subMaterial;
 
-                renderData.SetSubMaterial(Direction.Down, _dirtSubMat);
-
-                renderData.SetSubMaterial(Direction.Left, _grassSideSubMat);
-                renderData.SetSubMaterial(Direction.Right, _grassSideSubMat);
-                renderData.SetSubMaterial(Direction.Forward, _grassSideSubMat);
-                renderData.SetSubMaterial(Direction.Backward, _grassSideSubMat);
+//                renderData.SetSubMaterial(Direction.Down, _dirtSubMat);
+//
+//                renderData.SetSubMaterial(Direction.Left, _grassSideSubMat);
+//                renderData.SetSubMaterial(Direction.Right, _grassSideSubMat);
+//                renderData.SetSubMaterial(Direction.Forward, _grassSideSubMat);
+//                renderData.SetSubMaterial(Direction.Backward, _grassSideSubMat);
 
 //                renderData.Version.Dirty();
             }
@@ -158,8 +121,7 @@ namespace UniVox.Entities.Systems
 
     public abstract class BaseBlockReference
     {
-        public abstract void RenderPass(VoxelInfoArray.Accessor blockData, VoxelRenderInfoArray.Accessor renderData);
-        public void RenderPass(Chunk.Accessor chunk) => RenderPass(chunk.Info, chunk.Render);
+        public abstract void RenderPass(BlockAccessor blockData);
     }
 
     public static class SurrogateProxyModHelpers

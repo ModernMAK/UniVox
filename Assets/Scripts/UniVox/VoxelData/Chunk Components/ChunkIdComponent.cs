@@ -28,6 +28,11 @@ namespace UniVox.Core.Types
             return component.Value;
         }
 
+        public static implicit operator ChunkIdComponent(UniversalChunkId value)
+        {
+            return new ChunkIdComponent() {Value = value};
+        }
+
         public override int GetHashCode()
         {
             // ReSharper disable once NonReadonlyMemberInGetHashCode
@@ -47,27 +52,27 @@ namespace UniVox.Core.Types
         }
 
 
-        public bool TryGetChunk(Universe universe, out World.Record record)
+        public bool TryGetChunkEntity(Universe universe, out Entity record)
         {
             if (universe.TryGetValue(Value.WorldId, out var universeRecord))
-                return TryGetChunkRecord(universeRecord, out record);
+                return TryGetChunkEntity(universeRecord, out record);
 
             record = default;
             return false;
         }
 
-        public World.Record GetChunk(Universe universe)
+        public Entity GetChunkEntity(Universe universe)
         {
-            return GetChunk(GetWorld(universe));
+            return GetChunkEntity(GetWorld(universe));
         }
 
 
-        public bool TryGetChunkRecord(World chunkMap, out World.Record record)
+        public bool TryGetChunkEntity(World chunkMap, out Entity record)
         {
             return chunkMap.TryGetAccessor(Value.ChunkId, out record);
         }
 
-        public World.Record GetChunk(World chunkMap)
+        public Entity GetChunkEntity(World chunkMap)
         {
             return chunkMap[Value.ChunkId];
         }

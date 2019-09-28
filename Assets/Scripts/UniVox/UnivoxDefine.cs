@@ -10,8 +10,15 @@ namespace UniVox
         private const int ByteAxisBits = 2;
         private const int ShortAxisBits = 5;
         private const int AxisBits = ShortAxisBits;
+        
+        
         public const int AxisSize = 1 << AxisBits;
         public const int SquareSize = AxisSize * AxisSize;
         public const int CubeSize = SquareSize * AxisSize;
+
+        //Why define these? Well, we assume that Dynamic Buffers can store enough elements for a ByteCube
+        public const byte ByteAxisSize = 1 << ByteAxisBits;
+        public const byte ByteSquareSize = ByteAxisSize * ByteAxisSize;
+        public const byte ByteCubeSize = ByteSquareSize * ByteAxisSize;
     }
 }

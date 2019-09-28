@@ -6,6 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
+using UnityEngine.AI;
 using UniVox.Core.Types;
 using UniVox.Types;
 
@@ -14,7 +15,10 @@ namespace UniVox.Rendering.ChunkGen.Jobs
     [BurstCompile]
     struct GatherPlanarJobV3 : IJobParallelFor
     {
-        public static GatherPlanarJobV3 Create(VoxelRenderInfoArray render, NativeArray<MaterialId> batchIdPerVoxel,
+        public static GatherPlanarJobV3 Create(NativeArray<BlockShapeComponent> shapes,
+            NativeArray<BlockCulledFacesComponent> culled,
+            NativeArray<BlockSubMaterialIdentityComponent> subMaterials,
+            NativeArray<BlockMaterialIdentityComponent> materialIdentities,
             MaterialId batchId, out NativeQueue<PlanarData> data)
         {
             data = new NativeQueue<PlanarData>(Allocator.TempJob);
@@ -22,10 +26,10 @@ namespace UniVox.Rendering.ChunkGen.Jobs
             {
                 Data = data.AsParallelWriter(),
                 BatchId = batchId,
-                Shapes = render.Shapes,
-                CulledFaces = render.HiddenFaces,
-                BatchIdPerVoxel = batchIdPerVoxel,
-                SubMaterials = render.SubMaterials
+                Shapes = shapes,
+                CulledFaces = culled,
+                Materials = materialIdentities,
+                SubMaterials = subMaterials
             };
         }
 
@@ -100,6 +104,16 @@ namespace UniVox.Rendering.ChunkGen.Jobs
 
         public const int JobLength = UnivoxDefine.AxisSize * 3 * 2;
 
+        private bool ShouldBreakPlane(PlaneInfo plane, int spanIndex, int chunkSpanIndex, int chunkIndex,
+            int subMaterial)
+        {
+            return plane.Inspected[spanIndex] ||
+                   Shapes[chunkSpanIndex].Value != Shapes[chunkIndex].Value ||
+                   CulledFaces[chunkSpanIndex].Value.HasDirection(plane.direction) ||
+                   !Materials[chunkSpanIndex].Equals(BatchId) ||
+                   SubMaterials[chunkSpanIndex].Value[plane.direction] != subMaterial;
+        }
+
         private void ProccessPlane(PlaneInfo plane)
         {
             for (var major = 0; major < UnivoxDefine.AxisSize; major++)
@@ -112,7 +126,8 @@ namespace UniVox.Rendering.ChunkGen.Jobs
                     continue;
 //                plane.Inspected[yzIndex] = true;
 
-                if (CulledFaces[chunkIndex].HasDirection(plane.direction) || !BatchIdPerVoxel[chunkIndex].Equals(BatchId))
+                if (CulledFaces[chunkIndex].Value.HasDirection(plane.direction) ||
+                    !Materials[chunkIndex].Equals(BatchId))
                 {
                     plane.Inspected[planeIndex] = true;
                     continue;
@@ -120,7 +135,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
 
                 //Size excludes it's own voxel
                 int2 size = int2.zero;
-                int subMat = SubMaterials[chunkIndex * 6 + (int) plane.direction];
+                int subMat = SubMaterials[chunkIndex].Value[plane.direction];
                 var cantMerge = false;
                 for (var majorSpan = 0; majorSpan < UnivoxDefine.AxisSize - major; majorSpan++)
                 {
@@ -130,10 +145,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
                             var spanIndex = UnivoxUtil.GetIndex(minor + minorSpan, major + majorSpan);
                             var chunkSpanIndex = GetChunkIndex(plane, minor + minorSpan, major + majorSpan);
 
-                            if (plane.Inspected[spanIndex] || Shapes[chunkSpanIndex] != Shapes[chunkIndex] ||
-                                CulledFaces[chunkSpanIndex].HasDirection(plane.direction) ||
-                                !BatchIdPerVoxel[chunkSpanIndex].Equals(BatchId) ||
-                                SubMaterials[chunkSpanIndex * 6 + (int) plane.direction] != subMat)
+                            if (ShouldBreakPlane(plane, spanIndex, chunkSpanIndex, chunkIndex, subMat))
                                 break;
                             size = new int2(minorSpan, 0);
                         }
@@ -144,10 +156,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
                             var spanIndex = UnivoxUtil.GetIndex(minor + minorSpan, major + majorSpan);
                             var chunkSpanIndex = GetChunkIndex(plane, minor + minorSpan, major + majorSpan);
 
-                            if (plane.Inspected[spanIndex] || Shapes[chunkSpanIndex] != Shapes[chunkIndex] ||
-                                CulledFaces[chunkSpanIndex].HasDirection(plane.direction) ||
-                                !BatchIdPerVoxel[chunkSpanIndex].Equals(BatchId) ||
-                                SubMaterials[chunkSpanIndex * 6 + (int) plane.direction] != subMat)
+                            if (ShouldBreakPlane(plane, spanIndex, chunkSpanIndex, chunkIndex, subMat))
                             {
                                 cantMerge = true;
                                 break;
@@ -180,10 +189,10 @@ namespace UniVox.Rendering.ChunkGen.Jobs
         }
 
         [ReadOnly] public MaterialId BatchId;
-        [ReadOnly] public NativeArray<MaterialId> BatchIdPerVoxel;
-        [ReadOnly] public NativeArray<int> SubMaterials;
-        [ReadOnly] public NativeArray<BlockShape> Shapes;
-        [ReadOnly] public NativeArray<Directions> CulledFaces;
+        [ReadOnly] public NativeArray<BlockMaterialIdentityComponent> Materials;
+        [ReadOnly] public NativeArray<BlockSubMaterialIdentityComponent> SubMaterials;
+        [ReadOnly] public NativeArray<BlockShapeComponent> Shapes;
+        [ReadOnly] public NativeArray<BlockCulledFacesComponent> CulledFaces;
         [WriteOnly] public NativeQueue<PlanarData>.ParallelWriter Data;
 
 

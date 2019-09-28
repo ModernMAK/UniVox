@@ -3,6 +3,7 @@ using Jobs;
 using Rendering;
 using Types.Native;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -172,7 +173,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
             return mesh;
         }
 
-        private static NativeList<T> GatherUnique<T>(NativeArray<T> batchInfo) where T : struct, IComparable<T>
+        public static NativeList<T> GatherUnique<T>(NativeArray<T> batchInfo) where T : struct, IComparable<T>
         {
             var results = new NativeList<T>(Allocator.TempJob);
             var job = new FindUniquesJob<T>()
@@ -194,77 +195,6 @@ namespace UniVox.Rendering.ChunkGen.Jobs
         }
 
 
-        public static RenderResult[] GenerateBoxelMeshes(VoxelRenderInfoArray chunk, JobHandle handle = default)
-        {
-            const int maxBatchSize = Byte.MaxValue;
-            handle.Complete();
-
-            Profiler.BeginSample("Create Batches");
-            var batchData = chunk.Materials;
-            var uniqueBatchData = GatherUnique(batchData);
-            Profiler.EndSample();
-
-            var meshes = new RenderResult[uniqueBatchData.Length];
-//            var boxelPositionJob = CreateBoxelPositionJob();
-//            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
-
-//            var offsets = boxelPositionJob.Positions;
-            Profiler.BeginSample("Process Batches");
-            for (var i = 0; i < uniqueBatchData.Length; i++)
-            {
-                var materialId = uniqueBatchData[i];
-                Profiler.BeginSample($"Process Batch {i}");
-                var gatherPlanerJob = GatherPlanarJobV3.Create(chunk, batchData, uniqueBatchData[i], out var queue);
-                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, maxBatchSize);
-
-                var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
-                {
-                    out_list = new NativeList<PlanarData>(Allocator.TempJob),
-                    queue = queue
-                };
-                writerToReaderJob.Schedule(gatherPlanerJobHandle).Complete();
-                queue.Dispose();
-                var planarBatch = writerToReaderJob.out_list;
-
-                //Calculate the Size Each Voxel Will Use
-//                var cubeSizeJob = CreateCalculateCubeSizeJob(batch, chunk);
-                var cubeSizeJob = CreateCalculateCubeSizeJobV2(planarBatch);
-
-                //Calculate the Size of the Mesh and the position to write to per voxel
-                var indexAndSizeJob = CreateCalculateIndexAndTotalSizeJob(cubeSizeJob);
-                //Schedule the jobs
-                var cubeSizeJobHandle = cubeSizeJob.Schedule(planarBatch.Length, maxBatchSize);
-                var indexAndSizeJobHandle = indexAndSizeJob.Schedule(cubeSizeJobHandle);
-                //Complete these jobs
-                indexAndSizeJobHandle.Complete();
-
-                //GEnerate the mesh
-//                var genMeshJob = CreateGenerateCubeBoxelMeshV2(planarBatch, offsets, indexAndSizeJob);
-                var genMeshJob = CreateGenerateCubeBoxelMeshV2(planarBatch, indexAndSizeJob);
-                //Dispose unneccessary native arrays
-                indexAndSizeJob.TriangleTotalSize.Dispose();
-                indexAndSizeJob.VertexTotalSize.Dispose();
-                //Schedule the generation
-                var genMeshHandle =
-                    genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
-
-                //Finish and Create the Mesh
-                genMeshHandle.Complete();
-                planarBatch.Dispose();
-                meshes[i] = new RenderResult()
-                {
-                    Mesh = CreateMesh(genMeshJob),
-                    Material = materialId
-                };
-                Profiler.EndSample();
-            }
-
-            Profiler.EndSample();
-
-//            offsets.Dispose();
-            uniqueBatchData.Dispose();
-            return meshes;
-        }
 
         public static CalculateCubeSizeJobV2 CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)
         {
