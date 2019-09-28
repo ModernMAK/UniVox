@@ -12,14 +12,4 @@ namespace UniVox.Entities.Systems.Registry
             return reference;
         }
     }
-    public class ArrayMaterialRegistry : NamedRegistryV2<ArrayMaterial>
-    {
-        //Helper Function
-        public IAutoReference<string, ArrayMaterial> Register(string name, Material material)
-        {
-            base.Register(name, new ArrayMaterial(material), out var reference);
-            return reference;
-        }
-
-    }
 }

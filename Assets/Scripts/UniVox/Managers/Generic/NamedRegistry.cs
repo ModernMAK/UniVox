@@ -13,5 +13,11 @@ namespace UniVox.Managers
     public class NamedRegistryV2<TValue> : AutoRegistryV2<string, TValue>
     {
     }
+    /// <summary>
+    /// Utility registry lookup via string
+    /// </summary>
+//    public class NamedRegistryV3<TValue> : AutoRegistryV3<string, TValue>
+//    {
+//    }
 
 }

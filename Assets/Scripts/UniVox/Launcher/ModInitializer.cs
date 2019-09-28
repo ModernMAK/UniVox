@@ -4,11 +4,11 @@ namespace UniVox.Launcher
 {
     public class ModInitializer
     {
-        public ModInitializer(ModRegistry registries)
+        public ModInitializer(GameRegistry registry)
         {
-            Registries = registries;
+            Registry = registry;
         }
 
-        public ModRegistry Registries { get; }
+        public GameRegistry Registry { get; }
     }
 }

@@ -27,6 +27,10 @@ namespace UniVox.Core.Types
         public ObsoleteException(string substitution) : base(Format(substitution))
         {
         }
+        
+        public ObsoleteException() : base("This has been marked obsolete!")
+        {
+        }
 
         private static string Format(string substitution)
         {

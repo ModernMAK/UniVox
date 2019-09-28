@@ -7,10 +7,7 @@ namespace UnityEdits
 {
     public static class GameManager
     {
-        [Obsolete]
-        public static readonly MasterRegistry MasterRegistry = new MasterRegistry();
-        public static readonly ModRegistry Registry = new ModRegistry();
+        public static readonly GameRegistry Registry = new GameRegistry();
         public static readonly Universe Universe = new Universe();
     }
-
 }

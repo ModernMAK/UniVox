@@ -1,9 +1,16 @@
 using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UniVox.Core.Types;
 
 namespace UniVox.Types
 {
+    public interface IDictionaryReferencer<TKey, TValue>
+    {
+        TValue Dereference(IDictionary<TKey, TValue> dictionary);
+        
+    }
+
     /// <summary>
     ///     A Universal Id, capable of grabbing any Chunk, or World in the Universe
     /// </summary>

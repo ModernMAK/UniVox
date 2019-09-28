@@ -19,6 +19,16 @@ SOLUTIONS
 6) Use scriptable objects? The biggest part of prototyping is Blocks, making creating those easy makes most everything else easier.
 
 ---
-Alright, lets try this out 
+Alright, lets try this out...
 ---
-# Thoughts 
+# Looking at our ID Types, it would be nice if they weren't arbitrary, and actually were the keys into the lookup table this complicated things though.
+
+In our current system, by registering a mod, we reserve a dictionary for each of our types. This is nice since we use arrays to index our types... But I suppose I should start by specifying how our current system works.
+
+Our current system we have a mod registry class, which is a dictionary accepting the ModID or the ModKey. The ModKey will be lookedup for the ModID. The ModID than is used to index an array and get a ModRecord, which stores all the references for the given mod in seperate dictinoaries.
+
+This is nice and organized, but it's hard to use, since we have to either assume our IDS are valid, or nest somes checks to get to them.
+
+So... How do we resolve this? as obtuse as it is, I think I create a class which encapsulates a ModRegistry and makes it easier to use elsewhere.
+
+I kinda like this, we solve the problem of organizing data in an obvious way, and accessing data in a user friendly way.

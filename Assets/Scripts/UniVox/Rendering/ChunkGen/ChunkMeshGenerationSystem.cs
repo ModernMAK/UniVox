@@ -9,7 +9,6 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
-using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox.Core.Types;
@@ -18,13 +17,10 @@ using UniVox.Types;
 using UniVox.Utility;
 using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
-using Version = UniVox.Types.Version;
 
 namespace UniVox.Rendering.ChunkGen
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateBefore(typeof(RenderMeshSystemV2))]
-    [UpdateBefore(typeof(RenderMeshSystemV3))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
         public struct SystemVersion : ISystemStateComponentData
@@ -232,23 +228,6 @@ namespace UniVox.Rendering.ChunkGen
 
                     i++;
                 }
-
-////                var ids = ecsChunk.GetNativeArray(idType);
-////                var versions = ecsChunk.GetNativeArray(versionType);
-//                for (var i = 0; i < ecsChunk.Count; i++)
-//                {
-////                    var id = ids[i];
-////                    var version = versions[i];
-////                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
-////                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
-////                    var voxelChunk = record.Chunk;
-////                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
-//
-//                    //Update version
-////                    versions[i] = ChunkRenderVersion.Create(voxelChunk);
-//
-//
-//                }
             }
 
 
@@ -258,8 +237,6 @@ namespace UniVox.Rendering.ChunkGen
 
             //We need to process everything we couldn't while chunk array was in use
             ProcessFrameCache();
-
-//            Debug.Break();
         }
 
         UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle = default)
@@ -283,10 +260,6 @@ namespace UniVox.Rendering.ChunkGen
             Profiler.EndSample();
 
             var meshes = new UnivoxRenderingJobs.RenderResult[uniqueBatchData.Length];
-//            var boxelPositionJob = CreateBoxelPositionJob();
-//            boxelPositionJob.Schedule(ChunkSize.CubeSize, MaxBatchSize).Complete();
-
-//            var offsets = boxelPositionJob.Positions;
             Profiler.BeginSample("Process Batches");
             for (var i = 0; i < uniqueBatchData.Length; i++)
             {
@@ -442,7 +415,7 @@ namespace UniVox.Rendering.ChunkGen
         {
             if (_defaultMaterial == null)
             {
-                if (!GameManager.Registry[0].Value.Materials.TryGetReference("Default", out var defaultAtlas))
+                if (!GameManager.Registry[0].Materials.TryGetReference("Default", out var defaultAtlas))
                     return inputDeps;
                 else
                     _defaultMaterial = defaultAtlas.Value.Material;

@@ -7,13 +7,13 @@ namespace UniVox.Core.Types
 {
     public struct BlockIdentity : IEquatable<BlockIdentity>, IComparable<BlockIdentity>
     {
-        public BlockIdentity(int mod, int block)
+        public BlockIdentity(ModId mod, int block)
         {
             Mod = mod;
             Block = block;
         }
 
-        public int Mod;
+        public ModId Mod;
 
         public int Block;
 

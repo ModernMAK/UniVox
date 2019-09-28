@@ -163,6 +163,7 @@ namespace UniVox.Rendering.ChunkGen
             {
                 Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
+                GameManager.Registry.Blocks
                 if (blockId.Value.TryGetBlockReference(GameManager.Registry, out var blockRef))
                 {
                     var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);

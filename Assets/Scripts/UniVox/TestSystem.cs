@@ -31,7 +31,7 @@ public class TestSystem : MonoBehaviour
         temp.Initialize(new ModInitializer(GameManager.Registry));
 
 
-        var matReg = GameManager.Registry[0].Value.Materials;
+        var matReg = GameManager.Registry[0].Materials;
         matReg.Register("Default", defaultMat);
 
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
@@ -81,7 +81,7 @@ public class TestSystem : MonoBehaviour
 
     void CreateChunk(VoxelWorld world, int3 chunkPos)
     {
-        var blockReg = GameManager.Registry[0].Value.Blocks;
+        var blockReg = GameManager.Registry[0].Blocks;
 
 
         blockReg.TryGetReference("Grass", out var grass);
