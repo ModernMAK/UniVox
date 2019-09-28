@@ -190,7 +190,7 @@ namespace UniVox
 //
 ////                            neighborRender.Version.Dirty();
 ////                            BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
-////                                (short) neighborIndex);
+////                                (short) neighborIndex);.
 //                            }
 //                            else
 //                            {

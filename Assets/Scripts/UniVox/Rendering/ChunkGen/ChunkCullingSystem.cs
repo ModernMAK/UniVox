@@ -50,8 +50,6 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadWrite<SystemVersion>(),
 
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
-//                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
-
                     ComponentType.ReadOnly<BlockActiveComponent>(),
                 }
             });
@@ -60,9 +58,8 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
-//                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
+                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
                 },
                 None = new[]
@@ -76,10 +73,10 @@ namespace UniVox.Rendering.ChunkGen
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
 
-                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
-//                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
+                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
+
                     ComponentType.ReadOnly<BlockIdentityComponent>(),
                 },
                 All = new[]
@@ -89,7 +86,7 @@ namespace UniVox.Rendering.ChunkGen
             });
         }
 
-        JobHandle RenderPass()
+        JobHandle RenderPass(JobHandle dependencies = default)
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var activeType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
@@ -99,7 +96,7 @@ namespace UniVox.Rendering.ChunkGen
 
             var VoxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
 
-            var merged = new JobHandle();
+//            var merged = new JobHandle();
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
@@ -113,8 +110,11 @@ namespace UniVox.Rendering.ChunkGen
                     if (ecsChunk.DidChange(activeType, version.ActiveVersion))
                     {
                         Profiler.BeginSample("Update Chunk");
-                        var job = UpdateVoxelChunkV2(voxelChunkEntity);
-                        merged = JobHandle.CombineDependencies(merged, job);
+//                        var job
+                        var job = UpdateVoxelChunkV2(voxelChunkEntity, dependencies);
+//
+                        job.Complete();
+// merged = JobHandle.CombineDependencies(merged, job);
                         Profiler.EndSample();
                         versions[i] = new SystemVersion()
                         {
@@ -130,7 +130,8 @@ namespace UniVox.Rendering.ChunkGen
             Profiler.EndSample();
 
             chunkArray.Dispose();
-            return merged;
+//            return merged;
+            return dependencies;
         }
 
         [BurstCompile]
@@ -188,7 +189,7 @@ namespace UniVox.Rendering.ChunkGen
             }
         }
 
-        private JobHandle UpdateVoxelChunkV2(Entity voxelChunk)
+        private JobHandle UpdateVoxelChunkV2(Entity voxelChunk, JobHandle dependencies = default)
         {
             var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
             var blockCulledLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
@@ -200,125 +201,7 @@ namespace UniVox.Rendering.ChunkGen
                 BlockActive = blockActive.AsNativeArray(),
                 CulledFaces = blockCulled.AsNativeArray(),
             };
-            return job.Schedule(UnivoxDefine.CubeSize, UnivoxDefine.SquareSize);
-        }
-
-        private void UpdateVoxelChunk(Entity voxelChunk)
-        {
-            var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
-            var blockCulledLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
-            var blockActive = blockActiveLookup[voxelChunk];
-            var blockCulled = blockCulledLookup[voxelChunk];
-            for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
-            {
-                var blockPos = UnivoxUtil.GetPosition3(blockIndex);
-                Profiler.BeginSample("Process Block");
-
-                var primaryActive = blockActive[blockIndex];
-                blockCulled[blockIndex] = DirectionsX.AllFlag;
-
-                /*
-                    Block & Neighbor Active
-                        Hide Both
-                    Block Active, Neighbor Not
-                        Reveal Block, Hide Neighbor
-                    Neighbor Active, Block Not
-                        Reveal Neighbor, Hide Block
-                    Block & Neighbor Inactive
-                        Hide Both
-
-
-                 */
-
-
-                foreach (var direction in DirectionsX.AllDirections)
-                {
-                    var neighborPos = blockPos + direction.ToInt3();
-                    var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
-                    bool neighborActive = false;
-                    bool neighborValid = false;
-                    if (UnivoxUtil.IsPositionValid(neighborPos))
-                    {
-                        neighborValid = true;
-                        neighborActive = blockActive[neighborIndex];
-                    }
-
-                    if (neighborActive == primaryActive)
-                    {
-                        if (neighborValid)
-                            blockCulled[neighborIndex] |= direction.ToOpposite().ToFlag();
-                        blockCulled[blockIndex] |= direction.ToFlag();
-                    }
-                    else if (neighborActive)
-                    {
-                        if (neighborValid)
-                            blockCulled[neighborIndex] &= ~direction.ToOpposite().ToFlag();
-                        blockCulled[blockIndex] |= direction.ToFlag();
-                    }
-                    else if (primaryActive)
-                    {
-                        if (neighborValid)
-                            blockCulled[neighborIndex] |= direction.ToOpposite().ToFlag();
-                        blockCulled[blockIndex] &= ~direction.ToFlag();
-                    }
-                }
-
-
-//                if (blockActive[blockIndex])
-//                {
-//                    var revealed = DirectionsX.NoneFlag;
-//
-//                    foreach (var direction in DirectionsX.AllDirections)
-//                    {
-//                        var neighborIndex = UnivoxUtil.GetNeighborIndex(blockIndex, direction);
-//
-//                        //If Valid
-//                        if (UnivoxUtil.IsValid(neighborIndex))
-//                        {
-//                            //Always hide the neighbor's face
-//                            blockCulled[neighborIndex] &= ~direction.ToOpposite().ToFlag();
-//                            //neighbor is not active, reveal ourselves
-//                            if (!blockActive[neighborIndex])
-//                            {
-//                                revealed |= direction.ToFlag();
-//                            }
-//                        }
-//                        //Not Valid
-//                        else
-//                        {
-//                            //Assume the neighbor is not active
-//                            revealed |= direction.ToFlag();
-//                        }
-//                    }
-//
-//                    blockCulled[blockIndex] = ~revealed;
-//                }
-//                else
-//                {
-//                    //Cull everything if the block is hidden
-//                    blockCulled[blockIndex] = DirectionsX.AllFlag;
-//
-//                    foreach (var direction in DirectionsX.AllDirections)
-//                    {
-//                        var neighborIndex = UnivoxUtil.GetNeighborIndex(blockIndex, direction);
-//
-//                        //If Valid
-//                        if (UnivoxUtil.IsValid(neighborIndex))
-//                        {
-//                            //neighbor is active, reveal them
-//                            if (blockActive[neighborIndex])
-//                            {
-//                                blockCulled[neighborIndex] = ~direction.ToOpposite().ToFlag();
-//                            }
-//                        }
-//                    }
-//                }
-
-
-                Profiler.EndSample();
-            }
-
-//            changed.Clear();
+            return job.Schedule(UnivoxDefine.CubeSize, UnivoxDefine.SquareSize, dependencies);
         }
 
 
@@ -337,14 +220,15 @@ namespace UniVox.Rendering.ChunkGen
         {
             inputDeps.Complete();
 
-            var job = RenderPass();
-
 
             CleanupPass();
             SetupPass();
 
+            var job = RenderPass(inputDeps);
+            job.Complete();
+            return new JobHandle();
 
-            return job; // new JobHandle();
+//            return job; // new JobHandle();
         }
     }
 }

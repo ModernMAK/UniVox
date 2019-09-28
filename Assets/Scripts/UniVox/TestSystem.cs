@@ -64,18 +64,25 @@ namespace UniVox
         }
 
         //QUICK TEST
-        void EnforceChunkSize(EntityManager entityManager, Entity entity)
+        void EnforceChunkSize(EntityManager entityManager, Entity entity)    
         {
             entityManager.GetBuffer<BlockActiveComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
             entityManager.GetBuffer<BlockIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
             entityManager.GetBuffer<BlockShapeComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
             entityManager.GetBuffer<BlockMaterialIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockSubMaterialIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+            entityManager.GetBuffer<BlockSubMaterialIdentityComponent>(entity)
+                .ResizeUninitialized(UnivoxDefine.CubeSize);
             entityManager.GetBuffer<BlockCulledFacesComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
         }
 
         void CreateChunk(VoxelWorld world, int3 chunkPos)
         {
+            if (world.ContainsKey(chunkPos))
+            {
+                Debug.Log($"Chunk {chunkPos} already exists!");
+                return;
+            }
+
             var blockReg = GameManager.Registry.Blocks;
 
 
@@ -95,6 +102,7 @@ namespace UniVox
                 typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
                 typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent)
             );
+
             var entity = world.GetOrCreate(chunkPos, entityArchetype);
             EnforceChunkSize(em, entity);
 
