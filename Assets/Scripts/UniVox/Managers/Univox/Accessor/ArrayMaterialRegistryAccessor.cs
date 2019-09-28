@@ -81,9 +81,9 @@ namespace UniVox.Entities.Systems.Registry
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
-                if (record.Meshes.TryGetIndex(key.ArrayMaterial, out var ArrayMaterialId))
+                if (record.Materials.TryGetIndex(key.ArrayMaterial, out var arrayMaterialId))
                 {
-                    identity = new ArrayMaterialId(modId, ArrayMaterialId);
+                    identity = new ArrayMaterialId(modId, arrayMaterialId);
                     return true;
                 }
             }

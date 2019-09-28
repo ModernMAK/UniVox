@@ -8,11 +8,11 @@ namespace UniVox.Entities.Systems.Registry
         public ArrayMaterial(Material material)
         {
             Material = material;
-            SubMaterials = new NamedRegistryV2<int>();
+            SubMaterials = new NamedRegistry<int>();
         }
 
         public Material Material { get; }
-        public NamedRegistryV2<int> SubMaterials { get; }
+        public NamedRegistry<int> SubMaterials { get; }
 
         public static implicit operator Material(ArrayMaterial record)
         {

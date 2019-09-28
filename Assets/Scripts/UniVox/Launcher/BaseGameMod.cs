@@ -1,24 +1,60 @@
 using System;
-using Types;
-using Unity.Mathematics;
-using UnityEngine;
 using UniVox.Asset_Management;
 using UniVox.Entities.Systems.Registry;
 using UniVox.Entities.Systems.Surrogate;
 using UniVox.Launcher;
-using UniVox.Rendering.ChunkGen.Jobs;
-using UniVox.Types;
 
 namespace UniVox.Entities.Systems
 {
+    public class AssetNotFoundException : Exception
+    {
+        public AssetNotFoundException(string assetName) : base($"'{assetName}' was not found!")
+        {
+        }
+
+        public AssetNotFoundException(string variableName, string assetName) : base(
+            $"{variableName} - '{assetName}' was not found!")
+        {
+        }
+    }
+
     public class BaseGameMod : AbstractMod
     {
         public const string ModPath = "BaseGame";
-        private const string GrassDirtPath = "Grass Dirt";
-        
-        
-        
-        
+
+
+        private const string GrassDirtMatPath = "Grass Dirt";
+        private const string GrassSubMatPath = "Grass";
+        private const string GrassSideSubMatPath = "Side";
+        private const string DirtSubMatPath = "Dirt";
+
+        public static readonly ArrayMaterialKey GrassDirtMaterialKey = new ArrayMaterialKey(ModPath, GrassDirtMatPath);
+
+        public static readonly SubArrayMaterialKey GrassSubMaterialKey =
+            new SubArrayMaterialKey(GrassDirtMaterialKey, GrassSubMatPath);
+
+        public static readonly SubArrayMaterialKey GrassSideSubMaterialKey =
+            new SubArrayMaterialKey(GrassDirtMaterialKey, GrassSideSubMatPath);
+
+        public static readonly SubArrayMaterialKey DirtSubMaterialKey =
+            new SubArrayMaterialKey(GrassDirtMaterialKey, DirtSubMatPath);
+
+
+        private const string StoneMatPath = "Stone";
+        private const string SandMatPath = "Sand";
+        public static readonly ArrayMaterialKey StoneMaterialKey = new ArrayMaterialKey(ModPath, StoneMatPath);
+        public static readonly ArrayMaterialKey SandMaterialKey = new ArrayMaterialKey(ModPath, SandMatPath);
+
+
+        private const string GrassBlockPath = "Grass";
+        public static readonly BlockKey GrassBlock = new BlockKey(ModPath, GrassBlockPath);
+        private const string DirtBlockPath = "Dirt";
+        public static readonly BlockKey DirtBlock = new BlockKey(ModPath, DirtBlockPath);
+        private const string SandBlockPath = "Sand";
+        public static readonly BlockKey SandBlock = new BlockKey(ModPath, SandBlockPath);
+        private const string StoneBlockPath = "Stone";
+        public static readonly BlockKey StoneBlock = new BlockKey(ModPath, StoneBlockPath);
+
 
         public override void Initialize(ModInitializer initializer)
         {
@@ -30,38 +66,33 @@ namespace UniVox.Entities.Systems
             //Should actually consider following Unity Patterns instead of this.
 //            initializer.Registry.Mods.RegistrySurrogates(surrogate);
 
+            initializer.Registry.Raw[modId].RegistrySurrogates(surrogate);
+
+            var matReg = initializer.Registry.ArrayMaterials;
+            var subMatReg = initializer.Registry.SubArrayMaterials;
+            var blockReg = initializer.Registry.Blocks;
 
             //YEah, this is a cluster, need to think of a better way to orgnaize data
-            var dirtGrassKey = new ArrayMaterialKey()
-            if (!initializer.Registry.ArrayMaterials.TryGetIdentity("DirtGrass", out var matReference))
-                throw new Exception("Asset not found!");
-            var matId = new MaterialId(modId.Id, matReference.Id);
-            var matReg = matReference.Value;
+            if (!matReg.TryGetIdentity(GrassDirtMaterialKey, out var grassDirtMaterialId))
+                throw new AssetNotFoundException(nameof(GrassDirtMaterialKey), GrassDirtMaterialKey.ToString());
 
-            if (!matReg.SubMaterials.TryGetReference("Grass", out var grassRef))
-                throw new Exception("Asset not found!");
-            if (!matReg.SubMaterials.TryGetReference("Side", out var sideRef))
-                throw new Exception("Asset not found!");
-            if (!matReg.SubMaterials.TryGetReference("Dirt", out var dirtRef))
-                throw new Exception("Asset not found!");
+            if (!subMatReg.TryGetValue(GrassSubMaterialKey, out var grassSubMatIndex))
+                throw new AssetNotFoundException(nameof(GrassSubMaterialKey), grassSubMatIndex.ToString());
+            if (!subMatReg.TryGetValue(GrassSideSubMaterialKey, out var sideSubMatIndex))
+                throw new AssetNotFoundException(nameof(GrassSideSubMaterialKey), sideSubMatIndex.ToString());
+            if (!subMatReg.TryGetValue(DirtSubMaterialKey, out var dirtSubMatIndex))
+                throw new AssetNotFoundException(nameof(DirtSubMaterialKey), dirtSubMatIndex.ToString());
 
+            if (!matReg.TryGetIdentity(StoneMaterialKey, out var stoneMaterialId))
+                throw new AssetNotFoundException(nameof(StoneMaterialKey), stoneMaterialId.ToString());
+            if (!matReg.TryGetIdentity(SandMaterialKey, out var sandMaterialId))
+                throw new AssetNotFoundException(nameof(SandMaterialKey), sandMaterialId.ToString());
             ;
-            modRegistry.Blocks.Register("Grass", new GrassBlockRef(matId, grassRef.Id, sideRef.Id, dirtRef.Id));
-
-
-            modRegistry.Blocks.Register("Dirt", new RegularBlockRef(matId, dirtRef.Id));
-
-            if (!modRegistry.Materials.TryGetReference("Stone", out var stoneReference))
-                throw new Exception("Asset not found!");
-            var stoneId = new MaterialId(modId.Id, stoneReference.Id);
-            modRegistry.Blocks.Register("Stone", new RegularBlockRef(stoneId));
-
-
-            if (!modRegistry.Materials.TryGetReference("Sand", out var sandReference))
-                throw new Exception("Asset not found!");
-            var sandId = new MaterialId(modId.Id, sandReference.Id);
-            modRegistry.Blocks.Register("Sand", new RegularBlockRef(sandId));
-//            modRegistry.Atlases.Register("Grass",);
+            blockReg.Register(GrassBlock,
+                new GrassBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));
+            blockReg.Register(DirtBlock, new RegularBlockRef(grassDirtMaterialId, dirtSubMatIndex));
+            blockReg.Register(StoneBlock, new RegularBlockRef(stoneMaterialId));
+            blockReg.Register(SandBlock, new RegularBlockRef(sandMaterialId));
         }
     }
 }

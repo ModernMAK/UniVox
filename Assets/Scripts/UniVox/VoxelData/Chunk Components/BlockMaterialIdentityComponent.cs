@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Rendering.ChunkGen.Jobs;
 
 namespace UniVox.Core.Types
@@ -8,14 +9,14 @@ namespace UniVox.Core.Types
     public struct BlockMaterialIdentityComponent : IBufferElementData,
         IComparable<BlockMaterialIdentityComponent>, IEquatable<BlockMaterialIdentityComponent>
     {
-        public MaterialId Value;
+        public ArrayMaterialId Value;
 
-        public static implicit operator MaterialId(BlockMaterialIdentityComponent component)
+        public static implicit operator ArrayMaterialId(BlockMaterialIdentityComponent component)
         {
             return component.Value;
         }
 
-        public static implicit operator BlockMaterialIdentityComponent(MaterialId value)
+        public static implicit operator BlockMaterialIdentityComponent(ArrayMaterialId value)
         {
             return new BlockMaterialIdentityComponent() {Value = value};
         }

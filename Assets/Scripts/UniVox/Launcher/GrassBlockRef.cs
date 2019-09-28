@@ -1,11 +1,12 @@
 using UniVox.Core.Types;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Rendering.ChunkGen.Jobs;
 
 namespace UniVox.Entities.Systems
 {
     public class GrassBlockRef : BaseBlockReference
     {
-        public GrassBlockRef(MaterialId materialId, int grass, int sideSub, int dirtSub)
+        public GrassBlockRef(ArrayMaterialId materialId, int grass, int sideSub, int dirtSub)
         {
             _material = materialId;
             _subMaterial = FaceSubMaterial.CreateTopSideBot(grass, sideSub, dirtSub);
@@ -14,7 +15,7 @@ namespace UniVox.Entities.Systems
 //                _dirtSubMat = dirtSub;
         }
 
-        private readonly MaterialId _material;
+        private readonly ArrayMaterialId _material;
         private FaceSubMaterial _subMaterial;
 
         //Cache to avoid dictionary lookups

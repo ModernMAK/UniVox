@@ -14,6 +14,7 @@ using UniVox.Managers;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {
+    [Obsolete("Use ArrayMaterialId")]
     public struct MaterialId : IComparable<MaterialId>, IEquatable<MaterialId>
     {
         public int Mod;
@@ -23,6 +24,11 @@ namespace UniVox.Rendering.ChunkGen.Jobs
         {
             Mod = (byte) modId;
             Material = matIndex;
+        }
+
+        public static implicit operator ArrayMaterialId(MaterialId id)
+        {
+            return new ArrayMaterialId((ModId) id.Mod, id.Material);
         }
 
         public int CompareTo(MaterialId other)
@@ -191,9 +197,8 @@ namespace UniVox.Rendering.ChunkGen.Jobs
         public struct RenderResult
         {
             public Mesh Mesh;
-            public MaterialId Material;
+            public ArrayMaterialId Material;
         }
-
 
 
         public static CalculateCubeSizeJobV2 CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)

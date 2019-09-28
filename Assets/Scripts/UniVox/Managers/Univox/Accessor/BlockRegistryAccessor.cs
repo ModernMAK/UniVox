@@ -5,6 +5,22 @@ namespace UniVox.Entities.Systems.Registry
 {
     public struct BlockKey : IEquatable<BlockKey>, IComparable<BlockKey>
     {
+        public BlockKey(ModKey mod, string block)
+        {
+            Mod = mod;
+            Block = block;
+        }
+
+        public string ToString(string seperator)
+        {
+            return $"{Mod}{seperator}{Block}";
+        }
+
+        public override string ToString()
+        {
+            return ToString("~");
+        }
+
         public ModKey Mod;
         public string Block;
 
@@ -75,6 +91,7 @@ namespace UniVox.Entities.Systems.Registry
         private bool TryGetRecord(BlockIdentity id, out ModRegistry.Record record) =>
             _modRegistry.TryGetValue(id.Mod, out record);
 
+
         public override bool Register(BlockKey key, BaseBlockReference value, out BlockIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
@@ -113,9 +130,9 @@ namespace UniVox.Entities.Systems.Registry
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
-                if (record.Meshes.TryGetIndex(key.Block, out var BlockIdentity))
+                if (record.Blocks.TryGetIndex(key.Block, out var blockIndex))
                 {
-                    identity = new BlockIdentity(modId, BlockIdentity);
+                    identity = new BlockIdentity(modId, blockIndex);
                     return true;
                 }
             }

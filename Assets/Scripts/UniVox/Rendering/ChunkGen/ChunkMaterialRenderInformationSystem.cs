@@ -6,6 +6,7 @@ using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UniVox.Core.Types;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
 
@@ -163,13 +164,13 @@ namespace UniVox.Rendering.ChunkGen
             {
                 Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
-                GameManager.Registry.Blocks
-                if (blockId.Value.TryGetBlockReference(GameManager.Registry, out var blockRef))
+                
+                if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
                 {
                     var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
 
                     Profiler.BeginSample("Perform Pass");
-                    blockRef.Value.RenderPass(blockAccessor);
+                    blockRef.RenderPass(blockAccessor);
                     Profiler.EndSample();
 //                    Profiler.BeginSample("Dirty");
 ////                    block.Render.Version.Dirty();
@@ -177,7 +178,7 @@ namespace UniVox.Rendering.ChunkGen
                 }
                 else
                 {
-                    blockMatArray[blockIndex] = new MaterialId(-1, -1);
+                    blockMatArray[blockIndex] = new ArrayMaterialId(0, -1);
                     blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
 

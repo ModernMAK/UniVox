@@ -18,12 +18,22 @@ namespace UniVox.Core.Types
         public int Block;
 
 
-        public bool TryGetBlockReference(ModRegistry modRegistry,
-            out IAutoReference<string, BaseBlockReference> reference)
+//        public bool TryGetBlockReference(ModRegistry modRegistry,
+//            out IAutoReference<string, BaseBlockReference> reference)
+//        {
+//            return modRegistry.TryGetBlockReference(Mod, Block, out reference);
+//        }
+
+
+        public string ToString(string seperator)
         {
-            return modRegistry.TryGetBlockReference(Mod, Block, out reference);
+            return $"{Mod}{seperator}{Block}";
         }
 
+        public override string ToString()
+        {
+            return ToString("~");
+        }
 
         public bool Equals(BlockIdentity other)
         {

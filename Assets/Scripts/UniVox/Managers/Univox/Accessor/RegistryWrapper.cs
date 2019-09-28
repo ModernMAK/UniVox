@@ -2,6 +2,7 @@ namespace UniVox.Entities.Systems.Registry
 {
     public abstract class RegistryWrapper<TKey, TIdentity, TValue>
     {
+        public bool Register(TKey key, TValue value) => Register(key, value, out _);
         public abstract bool Register(TKey key, TValue value, out TIdentity identity);
 
 

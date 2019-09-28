@@ -11,6 +11,11 @@ namespace UniVox.Entities.Systems.Registry
 
         public byte Value;
 
+        public override string ToString()
+        {
+            return $"{Value}";
+        }
+
         public int CompareTo(ModId other)
         {
             return Value.CompareTo(other.Value);

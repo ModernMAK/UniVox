@@ -18,7 +18,7 @@ MonoBehaviour:
     Blocks: []
     Entities: []
     Materials:
-    - Name: DirtGrass
+    - Name: Grass Dirt
       Value: {fileID: 2100000, guid: 4a69c8d65715bf04d89a8fe0da4c25ea, type: 2}
       SubMaterials:
       - Name: Grass

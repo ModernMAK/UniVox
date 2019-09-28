@@ -12,6 +12,8 @@ using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox.Core.Types;
+using UniVox.Entities.Systems;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
 using UniVox.Utility;
@@ -381,9 +383,9 @@ namespace UniVox.Rendering.ChunkGen
                     mesh.UploadMeshData(true);
                     meshData.mesh = mesh;
 
-                    if (materialId.TryGetMaterialReference(GameManager.Registry, out var materialReference))
+                    if (GameManager.Registry.ArrayMaterials.TryGetValue(materialId, out var arrayMaterial))
                     {
-                        meshData.material = materialReference.Value;
+                        meshData.material = arrayMaterial.Material;
                     }
                     else
                     {
@@ -415,10 +417,11 @@ namespace UniVox.Rendering.ChunkGen
         {
             if (_defaultMaterial == null)
             {
-                if (!GameManager.Registry[0].Materials.TryGetReference("Default", out var defaultAtlas))
+                if (!GameManager.Registry.ArrayMaterials.TryGetValue(
+                    new ArrayMaterialKey(BaseGameMod.ModPath, "Default"), out var defaultMaterial))
                     return inputDeps;
                 else
-                    _defaultMaterial = defaultAtlas.Value.Material;
+                    _defaultMaterial = defaultMaterial.Material;
             }
 
             inputDeps.Complete();

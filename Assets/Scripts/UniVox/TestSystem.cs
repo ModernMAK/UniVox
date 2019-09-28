@@ -7,6 +7,7 @@ using UnityEngine;
 using UniVox;
 using UniVox.Core.Types;
 using UniVox.Entities.Systems;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Launcher;
 using UniVox.Managers;
 using UniVox.Rendering.ChunkGen;
@@ -31,8 +32,8 @@ public class TestSystem : MonoBehaviour
         temp.Initialize(new ModInitializer(GameManager.Registry));
 
 
-        var matReg = GameManager.Registry[0].Materials;
-        matReg.Register("Default", defaultMat);
+        var matReg = GameManager.Registry.Raw[0];
+        matReg.Materials.Register("Default", defaultMat);
 
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 
@@ -81,13 +82,17 @@ public class TestSystem : MonoBehaviour
 
     void CreateChunk(VoxelWorld world, int3 chunkPos)
     {
-        var blockReg = GameManager.Registry[0].Blocks;
+        var blockReg = GameManager.Registry.Blocks;
 
 
-        blockReg.TryGetReference("Grass", out var grass);
-        blockReg.TryGetReference("Dirt", out var dirt);
-        blockReg.TryGetReference("Stone", out var stone);
-        blockReg.TryGetReference("Sand", out var sand);
+        if (!blockReg.TryGetIdentity(BaseGameMod.GrassBlock, out var grass))
+            throw new AssetNotFoundException(BaseGameMod.GrassBlock.ToString());
+        if (!blockReg.TryGetIdentity(BaseGameMod.DirtBlock, out var dirt))
+            throw new AssetNotFoundException(BaseGameMod.DirtBlock.ToString());
+        if (!blockReg.TryGetIdentity(BaseGameMod.StoneBlock, out var stone))
+            throw new AssetNotFoundException(BaseGameMod.StoneBlock.ToString());
+        if (!blockReg.TryGetIdentity(BaseGameMod.SandBlock, out var sand))
+            throw new AssetNotFoundException(BaseGameMod.SandBlock.ToString());
 
         var em = world.EntityManager;
         var entityArchetype = world.EntityManager.CreateArchetype(
@@ -109,17 +114,12 @@ public class TestSystem : MonoBehaviour
         var blockShapes = em.GetBuffer<BlockShapeComponent>(entity);
         var culledFaces = em.GetBuffer<BlockCulledFacesComponent>(entity);
 
+        var invalidMaterial = new ArrayMaterialId(0, -1);
+
+
         for (var i = 0; i < UnivoxDefine.CubeSize; i++)
         {
             var pos = UnivoxUtil.GetPosition3(i);
-
-            activeArray[i] = true;
-            blockIdentities[i] = (pos.y == UnivoxDefine.AxisSize - 1)
-                ? new BlockIdentity(0, grass.Id)
-                : new BlockIdentity(0, dirt.Id);
-
-
-            blockMaterials[i] = new MaterialId(-1, -1);
 
             var xTop = (pos.x == UnivoxDefine.AxisSize - 1);
             var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
@@ -129,15 +129,29 @@ public class TestSystem : MonoBehaviour
             var yBot = (pos.y == 0);
             var zBot = (pos.z == 0);
 
+            activeArray[i] = true;
+
+
+            blockMaterials[i] = invalidMaterial;
+
             if (!yTop)
+            {
                 if (xTop && !zTop)
                 {
-                    blockIdentities[i] = new BlockIdentity(0, stone.Id);
+                    blockIdentities[i] = stone;
                 }
                 else if (!xTop && zTop)
                 {
-                    blockIdentities[i] = new BlockIdentity(0, sand.Id);
+                    blockIdentities[i] = sand;
                 }
+                else
+                {
+                    blockIdentities[i] = dirt;
+                }
+            }
+
+            else
+                blockIdentities[i] = grass;
 
 
             blockShapes[i] = BlockShape.Cube;
@@ -145,18 +159,18 @@ public class TestSystem : MonoBehaviour
             if (xTop || yTop || zTop || xBot || yBot || zBot)
             {
                 var revealed = DirectionsX.NoneFlag;
-                
+
                 if (xTop)
                     revealed |= Directions.Right;
                 else if (xBot)
                     revealed |= Directions.Left;
-                
-                
+
+
                 if (yTop)
                     revealed |= Directions.Up;
                 else if (yBot)
                     revealed |= Directions.Down;
-                
+
                 if (zTop)
                     revealed |= Directions.Forward;
                 else if (zBot)

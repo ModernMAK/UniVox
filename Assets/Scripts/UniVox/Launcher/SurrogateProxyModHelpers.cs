@@ -6,6 +6,13 @@ namespace UniVox.Entities.Systems
 {
     public static class SurrogateProxyModHelpers
     {
+        public static void RegistrySurrogates(this GameRegistry registry, ModId id,
+            ModRegistryRecordSurrogate surrogate)
+        {
+            registry.Mods[id].RegistrySurrogates(surrogate);
+        }
+
+
         public static void RegistrySurrogates(this ModRegistry.Record modRegistry, ModRegistryRecordSurrogate surrogate)
         {
             foreach (var matSur in surrogate.Atlas)
@@ -28,7 +35,7 @@ namespace UniVox.Entities.Systems
                 var arrayMaterialRef = modRegistry.Materials.Register(matSur.Name, mat);
                 foreach (var subMat in subMats)
                 {
-                    arrayMaterialRef.Value.SubMaterials.Register(subMat.Name, subMat.Value);
+                    modRegistry.Materials[arrayMaterialRef].SubMaterials.Register(subMat.Name, subMat.Value);
                 }
             }
         }

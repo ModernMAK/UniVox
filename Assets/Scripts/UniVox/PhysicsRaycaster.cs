@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Types;
-using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
+using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
-using Unity.Physics;
 using UnityEdits;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Core.Types;
-using UniVox.Rendering.ChunkGen;
-using Ray = Unity.Physics.Ray;
-using RaycastHit = UnityEngine.RaycastHit;
+using Entity = Unity.Entities.Entity;
 using World = Unity.Entities.World;
 
 public class PhysicsRaycaster : MonoBehaviour

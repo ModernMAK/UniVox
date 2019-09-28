@@ -41,11 +41,13 @@ namespace UniVox.Entities.Systems.Registry
             ArrayMaterials = new ArrayMaterialRegistryAccessor(Mods);
             Meshes = new MeshRegistryAccessor(Mods);
             Blocks = new BlockRegistryAccessor(Mods);
+            SubArrayMaterials = new SubArrayMaterialRegistryAccessor(ArrayMaterials);
         }
 
         public ModRegistry Raw { get; }
         public ModRegistryAccessor Mods { get; }
         public ArrayMaterialRegistryAccessor ArrayMaterials { get; }
+        public SubArrayMaterialRegistryAccessor SubArrayMaterials { get; set; }
         public MeshRegistryAccessor Meshes { get; }
 
         public BlockRegistryAccessor Blocks { get; }

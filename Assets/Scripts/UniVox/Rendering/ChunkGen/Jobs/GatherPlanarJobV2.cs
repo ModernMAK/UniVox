@@ -8,6 +8,7 @@ using UnityEdits;
 using UnityEngine;
 using UnityEngine.AI;
 using UniVox.Core.Types;
+using UniVox.Entities.Systems.Registry;
 using UniVox.Types;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
@@ -19,7 +20,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
             NativeArray<BlockCulledFacesComponent> culled,
             NativeArray<BlockSubMaterialIdentityComponent> subMaterials,
             NativeArray<BlockMaterialIdentityComponent> materialIdentities,
-            MaterialId batchId, out NativeQueue<PlanarData> data)
+            ArrayMaterialId batchId, out NativeQueue<PlanarData> data)
         {
             data = new NativeQueue<PlanarData>(Allocator.TempJob);
             return new GatherPlanarJobV3()
@@ -188,7 +189,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
             }
         }
 
-        [ReadOnly] public MaterialId BatchId;
+        [ReadOnly] public ArrayMaterialId BatchId;
         [ReadOnly] public NativeArray<BlockMaterialIdentityComponent> Materials;
         [ReadOnly] public NativeArray<BlockSubMaterialIdentityComponent> SubMaterials;
         [ReadOnly] public NativeArray<BlockShapeComponent> Shapes;

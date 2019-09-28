@@ -11,6 +11,11 @@ namespace UniVox.Entities.Systems.Registry
 
         public string Value;
 
+        public override string ToString()
+        {
+            return Value;
+        }
+
         public int CompareTo(ModKey other)
         {
             //TODO deal with this warning, it IS relevant for latter

@@ -12,6 +12,15 @@ namespace UniVox.Entities.Systems.Registry
             ArrayMaterial = mesh;
         }
 
+        public string ToString(string seperator)
+        {
+            return $"{Mod}{seperator}{ArrayMaterial}";
+        }
+
+        public override string ToString()
+        {
+            return ToString("~");
+        }
 
         public static explicit operator ArrayMaterialId(ModId id)
         {
