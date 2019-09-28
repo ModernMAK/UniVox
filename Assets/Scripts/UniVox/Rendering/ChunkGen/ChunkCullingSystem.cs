@@ -1,7 +1,9 @@
 using Types;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEdits;
 using UnityEdits.Hybrid_Renderer;
@@ -88,7 +90,7 @@ namespace UniVox.Rendering.ChunkGen
             });
         }
 
-        void RenderPass()
+        JobHandle RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var activeType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
@@ -98,6 +100,7 @@ namespace UniVox.Rendering.ChunkGen
 
             var VoxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
 
+            var merged = new JobHandle();
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
@@ -111,8 +114,8 @@ namespace UniVox.Rendering.ChunkGen
                     if (ecsChunk.DidChange(activeType, version.ActiveVersion))
                     {
                         Profiler.BeginSample("Update Chunk");
-                        UpdateVoxelChunk(voxelChunkEntity);
-
+                        var job = UpdateVoxelChunkV2(voxelChunkEntity);
+                        merged = JobHandle.CombineDependencies(merged, job);
                         Profiler.EndSample();
                         versions[i] = new SystemVersion()
                         {
@@ -122,32 +125,83 @@ namespace UniVox.Rendering.ChunkGen
 
                     i++;
                 }
-
-//                var ids = ecsChunk.GetNativeArray(idType);
-//                var versions = ecsChunk.GetNativeArray(versionType);
-//                var changedAccessor = ecsChunk.GetBufferAccessor(changedType);
-//                for (var i = 0; i < ecsChunk.Count; i++)
-//                {
-////                    var id = ids[i];
-////                    var version = versions[i];
-////                    if (!_universe.TryGetValue(id.Value.WorldId, out var world)) continue; //TODO produce an error
-////                    if (!world.TryGetAccessor(id.Value.ChunkId, out var record)) continue; //TODO produce an error
-////                    var voxelChunk = record.Chunk;
-////                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
-//
-//                    Profiler.BeginSample("Update Chunk");
-//                    UpdateChunk(ecsChunk[i]);
-//
-//                    Profiler.EndSample();
-//
-//                    //Update version
-////                    versions[i] = SystemVersion.Create(voxelChunk);
-//                }
             }
+
 
             Profiler.EndSample();
 
             chunkArray.Dispose();
+            return merged;
+        }
+
+        [BurstCompile]
+        private struct CullFacesJob : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<BlockActiveComponent> BlockActive;
+            [WriteOnly] public NativeArray<BlockCulledFacesComponent> CulledFaces;
+
+
+//            private int3 ToPosition(int index)
+//            {
+//                var axisSize = UnivoxDefine.AxisSize;
+//                var x = index % axisSize;
+//                var y = index / axisSize % axisSize;
+//                var z = index / (axisSize * axisSize);
+//                return new int3(x, y, z);
+//            }
+//            private int ToIndex(int3 position)
+//            {
+//                var axisSize = UnivoxDefine.AxisSize;
+//                return position.x + position.y * axisSize + position.z * axisSize * axisSize;
+//            }
+
+            public void Execute(int blockIndex)
+            {
+                var blockPos = UnivoxUtil.GetPosition3(blockIndex);
+//                Profiler.BeginSample("Process Block");
+
+                var primaryActive = BlockActive[blockIndex];
+
+                var hidden = DirectionsX.AllFlag;
+                var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+
+                for (var dirIndex = 0; dirIndex < directions.Length; dirIndex++)
+                {
+                    var direction = directions[dirIndex];
+                    var neighborPos = blockPos + direction.ToInt3();
+                    var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
+                    var neighborActive = false;
+                    if (UnivoxUtil.IsPositionValid(neighborPos))
+                    {
+                        neighborActive = BlockActive[neighborIndex];
+                    }
+
+                    if (primaryActive && !neighborActive)
+                    {
+                        hidden &= ~direction.ToFlag();
+                    }
+                }
+
+                CulledFaces[blockIndex] = hidden;
+                directions.Dispose();
+
+//                Profiler.EndSample();
+            }
+        }
+
+        private JobHandle UpdateVoxelChunkV2(Entity voxelChunk)
+        {
+            var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
+            var blockCulledLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
+            var blockActive = blockActiveLookup[voxelChunk];
+            var blockCulled = blockCulledLookup[voxelChunk];
+
+            var job = new CullFacesJob()
+            {
+                BlockActive = blockActive.AsNativeArray(),
+                CulledFaces = blockCulled.AsNativeArray(),
+            };
+            return job.Schedule(UnivoxDefine.CubeSize, UnivoxDefine.SquareSize);
         }
 
         private void UpdateVoxelChunk(Entity voxelChunk)
@@ -284,14 +338,14 @@ namespace UniVox.Rendering.ChunkGen
         {
             inputDeps.Complete();
 
-            RenderPass();
+            var job = RenderPass();
 
 
             CleanupPass();
             SetupPass();
 
 
-            return new JobHandle();
+            return job; // new JobHandle();
         }
     }
 }

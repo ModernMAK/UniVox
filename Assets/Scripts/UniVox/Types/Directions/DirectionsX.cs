@@ -16,12 +16,26 @@ namespace Types
         private static readonly Direction[] AllDirectionsArray = (Direction[]) Enum.GetValues(typeof(Direction));
         public static IEnumerable<Direction> AllDirections => AllDirectionsArray;
 
-        public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
+        [Obsolete]
+        public static NativeArray<Direction> GetDirectionsNativeOld(Allocator allocator)
         {
             var arr = new NativeArray<Direction>(6, allocator);
             for (var i = 0; i < 6; i++)
                 arr[i] = AllDirectionsArray[i];
             return arr;
+        }
+
+        public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
+        {
+            return new NativeArray<Direction>(6, allocator, NativeArrayOptions.UninitializedMemory)
+            {
+                [0] = Direction.Backward,
+                [1] = Direction.Down,
+                [2] = Direction.Forward,
+                [3] = Direction.Left,
+                [4] = Direction.Right,
+                [5] = Direction.Up
+            };
         }
 
         public static Directions ToFlag(this Direction direction)
