@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Types;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEdits;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UniVox;
 using UniVox.Core.Types;
 using UniVox.Entities.Systems;
 using UniVox.Launcher;
+using UniVox.Managers;
 using UniVox.Rendering.ChunkGen;
 using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.Types;
@@ -16,8 +18,6 @@ using EntityWorld = Unity.Entities.World;
 public class TestSystem : MonoBehaviour
 {
     public Material defaultMat;
-
-    public Material[] additionalMats;
 
 //    public ModSurrogate ModData;
     public int wSize = 0;
@@ -33,8 +33,7 @@ public class TestSystem : MonoBehaviour
 
         var matReg = GameManager.Registry[0].Value.Materials;
         matReg.Register("Default", defaultMat);
-        foreach (var mat in additionalMats)
-            matReg.Register(mat.name, mat);
+
         var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 
 
@@ -69,83 +68,105 @@ public class TestSystem : MonoBehaviour
         }
     }
 
+    //QUICK TEST
+    void EnforceChunkSize(EntityManager entityManager, Entity entity)
+    {
+        entityManager.GetBuffer<BlockActiveComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+        entityManager.GetBuffer<BlockIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+        entityManager.GetBuffer<BlockShapeComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+        entityManager.GetBuffer<BlockMaterialIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+        entityManager.GetBuffer<BlockSubMaterialIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+        entityManager.GetBuffer<BlockCulledFacesComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
+    }
+
     void CreateChunk(VoxelWorld world, int3 chunkPos)
     {
         var blockReg = GameManager.Registry[0].Value.Blocks;
+
+
         blockReg.TryGetReference("Grass", out var grass);
         blockReg.TryGetReference("Dirt", out var dirt);
         blockReg.TryGetReference("Stone", out var stone);
         blockReg.TryGetReference("Sand", out var sand);
 
-        var entity = world.EntityManager.CreateEntity(typeof(ChunkIdComponent), typeof(BlockChanged));
+        var em = world.EntityManager;
+        var entityArchetype = world.EntityManager.CreateArchetype(
+            typeof(ChunkIdComponent),
+            typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
+            typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
+            typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent)
+        );
+        var entity = world.GetOrCreate(chunkPos, entityArchetype);
+        EnforceChunkSize(em, entity);
+
         world.EntityManager.SetComponentData(entity,
             new ChunkIdComponent() {Value = new UniversalChunkId(0, chunkPos)});
 
-        var record = world.GetOrCreate(chunkPos, entity);
-        var chunk = record.Chunk;
-        var size = new int3(UnivoxDefine.AxisSize);
-        for (var i = 0; i < chunk.Length; i++)
+
+        var activeArray = em.GetBuffer<BlockActiveComponent>(entity);
+        var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
+        var blockMaterials = em.GetBuffer<BlockMaterialIdentityComponent>(entity);
+        var blockShapes = em.GetBuffer<BlockShapeComponent>(entity);
+        var culledFaces = em.GetBuffer<BlockCulledFacesComponent>(entity);
+
+        for (var i = 0; i < UnivoxDefine.CubeSize; i++)
         {
-            BlockChanged.NotifyEntity(entity, world.EntityManager, (short) i);
-            var pos = IndexMapUtil.ToPosition3(i, size);
+            var pos = UnivoxUtil.GetPosition3(i);
+
+            activeArray[i] = true;
+            blockIdentities[i] = (pos.y == UnivoxDefine.AxisSize - 1)
+                ? new BlockIdentity(0, grass.Id)
+                : new BlockIdentity(0, dirt.Id);
 
 
-//            pos = AxisOrderingX.Reorder(pos, ChunkSize.Ordering);
-
-            var infoAccessor = chunk[i].Info;
-            var renderAccessor = chunk[i].Render;
-            infoAccessor.Identity =
-                (pos.y == UnivoxDefine.AxisSize - 1) ? new BlockIdentity(0, grass.Id) : new BlockIdentity(0, dirt.Id);
-
-
-            renderAccessor.Material = new MaterialId(-1, -1);
+            blockMaterials[i] = new MaterialId(-1, -1);
 
             var xTop = (pos.x == UnivoxDefine.AxisSize - 1);
             var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
             var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
 
-            if (xTop && !yTop && !zTop)
+            var xBot = (pos.x == 0);
+            var yBot = (pos.y == 0);
+            var zBot = (pos.z == 0);
+
+            if (!yTop)
+                if (xTop && !zTop)
+                {
+                    blockIdentities[i] = new BlockIdentity(0, stone.Id);
+                }
+                else if (!xTop && zTop)
+                {
+                    blockIdentities[i] = new BlockIdentity(0, sand.Id);
+                }
+
+
+            blockShapes[i] = BlockShape.Cube;
+
+            if (xTop || yTop || zTop || xBot || yBot || zBot)
             {
-                infoAccessor.Identity = new BlockIdentity(0, stone.Id);
+                var revealed = DirectionsX.NoneFlag;
+                
+                if (xTop)
+                    revealed |= Directions.Right;
+                else if (xBot)
+                    revealed |= Directions.Left;
+                
+                
+                if (yTop)
+                    revealed |= Directions.Up;
+                else if (yBot)
+                    revealed |= Directions.Down;
+                
+                if (zTop)
+                    revealed |= Directions.Forward;
+                else if (zBot)
+                    revealed |= Directions.Backward;
+
+                culledFaces[i] = ~revealed;
             }
-//            else if (!xTop && yTop && !zTop)
-//            {
-//                infoAccessor.Identity = new BlockIdentity(-1, -1);
-//            }
-            else if (!xTop && !yTop && zTop)
-            {
-                infoAccessor.Identity = new BlockIdentity(0, sand.Id);
-            }
-
-
-            renderAccessor.Shape = BlockShape.Cube;
-
-            var hidden = DirectionsX.AllFlag;
-//
-            if (pos.x == 0)
-                hidden &= ~Directions.Left;
-            else if (pos.x == size.x - 1)
-                hidden &= ~Directions.Right;
-
-            infoAccessor.Active = true;
-//
-
-            if (pos.y == 0)
-                hidden &= ~Directions.Down;
-            else if (pos.y == size.y - 1)
-                hidden &= ~Directions.Up;
-
-            if (pos.z == 0)
-                hidden &= ~Directions.Backward;
-            else if (pos.z == size.z - 1)
-                hidden &= ~Directions.Forward;
-
-
-            renderAccessor.HiddenFaces = hidden;
+            else
+                culledFaces[i] = DirectionsX.AllFlag;
         }
-
-        chunk.Render.Version.Dirty();
-        chunk.Info.Version.Dirty();
     }
 
     private void OnApplicationQuit()
