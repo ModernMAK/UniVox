@@ -1097,7 +1097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMat: {fileID: 2100000, guid: 4aad0f971837a604ebba52f8d23dc209, type: 2}
-  wSize: 1
+  wSize: 0
 --- !u!4 &908020822
 Transform:
   m_ObjectHideFlags: 0

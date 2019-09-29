@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,6 +14,7 @@ namespace UniVox.Rendering.ChunkGen.Jobs
 {
     public static class UnivoxRenderingJobs
     {
+        [BurstCompile]
         public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
         {
             public NativeArray<T> Source;

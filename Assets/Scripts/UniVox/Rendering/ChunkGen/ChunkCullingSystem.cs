@@ -75,8 +75,8 @@ namespace UniVox.Rendering.ChunkGen
                 }
             });
 
-            BlockActive = GetBufferFromEntity<BlockActiveComponent>(true );
-            BlockActive = GetBufferFromEntity<BlockActiveComponent>();
+//            BlockActive = GetBufferFromEntity<BlockActiveComponent>(true );
+//            BlockActive = GetBufferFromEntity<BlockActiveComponent>();
         }
 
         JobHandle RenderPass(JobHandle dependencies = default)
@@ -177,14 +177,15 @@ namespace UniVox.Rendering.ChunkGen
                 CulledFaces[blockIndex] = hidden;
                 directions.Dispose();
 
+
 //                Profiler.EndSample();
             }
         }
 
 
-        private BufferFromEntity<BlockActiveComponent> BlockActive;
-        private BufferFromEntity<BlockCulledFacesComponent> CulledFaces;
-        
+//        private BufferFromEntity<BlockActiveComponent> BlockActive;
+//        private BufferFromEntity<BlockCulledFacesComponent> CulledFaces;
+
         private JobHandle UpdateVoxelChunkV2(Entity voxelChunk, JobHandle dependencies = default)
         {
             var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
@@ -221,9 +222,9 @@ namespace UniVox.Rendering.ChunkGen
             SetupPass();
 
             var job = RenderPass(inputDeps);
-            job.Complete();
-            return new JobHandle();
-
+//            job.Complete();
+//            return new JobHandle();
+            return job;
 //            return job; // new JobHandle();
         }
     }
