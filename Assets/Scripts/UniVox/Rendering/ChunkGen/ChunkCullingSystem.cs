@@ -14,23 +14,13 @@ using UniVox.VoxelData.Chunk_Components;
 namespace UniVox.Rendering.ChunkGen
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkCullingSystem : JobComponentSystem
     {
-        public struct SystemVersion : ISystemStateComponentData
+        public struct ChunkCullingSystemVersion : ISystemStateComponentData
         {
             public uint ActiveVersion;
-
-
-//            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
-
-//            public static SystemVersion Create(Chunk chunk)
-//            {
-//                return new SystemVersion()
-//                {
-//                    Info = chunk.Info.Version,
-//                };
-//            }
         }
 
 
@@ -47,7 +37,7 @@ namespace UniVox.Rendering.ChunkGen
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
 //                    ComponentType.ReadWrite<BlockChanged>(),
-                    ComponentType.ReadWrite<SystemVersion>(),
+                    ComponentType.ReadWrite<ChunkCullingSystemVersion>(),
 
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
@@ -64,7 +54,7 @@ namespace UniVox.Rendering.ChunkGen
                 },
                 None = new[]
                 {
-                    ComponentType.ReadWrite<SystemVersion>()
+                    ComponentType.ReadWrite<ChunkCullingSystemVersion>()
                 }
             });
             _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -81,16 +71,19 @@ namespace UniVox.Rendering.ChunkGen
                 },
                 All = new[]
                 {
-                    ComponentType.ReadWrite<SystemVersion>()
+                    ComponentType.ReadWrite<ChunkCullingSystemVersion>()
                 }
             });
+
+            BlockActive = GetBufferFromEntity<BlockActiveComponent>(true );
+            BlockActive = GetBufferFromEntity<BlockActiveComponent>();
         }
 
         JobHandle RenderPass(JobHandle dependencies = default)
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var activeType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
-            var versionType = GetArchetypeChunkComponentType<SystemVersion>();
+            var versionType = GetArchetypeChunkComponentType<ChunkCullingSystemVersion>();
 //            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
 
@@ -114,9 +107,8 @@ namespace UniVox.Rendering.ChunkGen
                         var job = UpdateVoxelChunkV2(voxelChunkEntity, dependencies);
 //
                         job.Complete();
-// merged = JobHandle.CombineDependencies(merged, job);
                         Profiler.EndSample();
-                        versions[i] = new SystemVersion()
+                        versions[i] = new ChunkCullingSystemVersion()
                         {
                             ActiveVersion = ecsChunk.GetComponentVersion(activeType)
                         };
@@ -189,6 +181,10 @@ namespace UniVox.Rendering.ChunkGen
             }
         }
 
+
+        private BufferFromEntity<BlockActiveComponent> BlockActive;
+        private BufferFromEntity<BlockCulledFacesComponent> CulledFaces;
+        
         private JobHandle UpdateVoxelChunkV2(Entity voxelChunk, JobHandle dependencies = default)
         {
             var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
@@ -207,12 +203,12 @@ namespace UniVox.Rendering.ChunkGen
 
         void SetupPass()
         {
-            EntityManager.AddComponent<SystemVersion>(_setupQuery);
+            EntityManager.AddComponent<ChunkCullingSystemVersion>(_setupQuery);
         }
 
         void CleanupPass()
         {
-            EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
+            EntityManager.RemoveComponent<ChunkCullingSystemVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 

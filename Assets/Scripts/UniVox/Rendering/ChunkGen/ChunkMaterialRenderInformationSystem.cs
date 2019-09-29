@@ -15,6 +15,7 @@ namespace UniVox.Rendering.ChunkGen
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
 
+    [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialRenderInformationSystem : JobComponentSystem
     {

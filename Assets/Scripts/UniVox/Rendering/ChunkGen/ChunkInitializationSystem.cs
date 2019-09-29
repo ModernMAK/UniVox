@@ -18,6 +18,7 @@ namespace UniVox
         public UniversalChunkId ChunkPosition;
     }
 
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkInitializationSystem : JobComponentSystem
     {
         private EntityQuery _eventQuery;
@@ -54,6 +55,29 @@ namespace UniVox
             _blockCulledAccessor = GetBufferFromEntity<BlockCulledFacesComponent>();
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+        }
+
+        private struct BlockBuffers
+        {
+            public BufferFromEntity<BlockActiveComponent> _blockActiveAccessor;
+            public BufferFromEntity<BlockIdentityComponent> _blockIdAccessor;
+            public BufferFromEntity<BlockShapeComponent> _blockShapeAccessor;
+            public BufferFromEntity<BlockSubMaterialIdentityComponent> _blockSubMatIdAccessor;
+            public BufferFromEntity<BlockMaterialIdentityComponent> _blockMatIdAccessor;
+            public BufferFromEntity<BlockCulledFacesComponent> _blockCulledAccessor;
+        }
+
+        private BlockBuffers CreateBuffers()
+        {
+            return new BlockBuffers()
+            {
+                _blockActiveAccessor = GetBufferFromEntity<BlockActiveComponent>(),
+                _blockIdAccessor = GetBufferFromEntity<BlockIdentityComponent>(),
+                _blockShapeAccessor = GetBufferFromEntity<BlockShapeComponent>(),
+                _blockMatIdAccessor = GetBufferFromEntity<BlockMaterialIdentityComponent>(),
+                _blockSubMatIdAccessor = GetBufferFromEntity<BlockSubMaterialIdentityComponent>(),
+                _blockCulledAccessor = GetBufferFromEntity<BlockCulledFacesComponent>()
+            };
         }
 
 
@@ -181,39 +205,44 @@ namespace UniVox
 
         void EnforceChunkSize(Entity entity)
         {
-            EnforceChunkSize(entity, _blockActiveAccessor);
-            EnforceChunkSize(entity, _blockIdAccessor);
-            EnforceChunkSize(entity, _blockShapeAccessor);
-            EnforceChunkSize(entity, _blockMatIdAccessor);
-            EnforceChunkSize(entity, _blockSubMatIdAccessor);
-            EnforceChunkSize(entity, _blockCulledAccessor);
+            var buffers = CreateBuffers();
+
+            EnforceChunkSize(entity, buffers._blockActiveAccessor);
+            EnforceChunkSize(entity, buffers._blockIdAccessor);
+            EnforceChunkSize(entity, buffers._blockShapeAccessor);
+            EnforceChunkSize(entity, buffers._blockMatIdAccessor);
+            EnforceChunkSize(entity, buffers._blockSubMatIdAccessor);
+            EnforceChunkSize(entity, buffers._blockCulledAccessor);
         }
 
         static void EnforceChunkSize<T>(Entity entity, BufferFromEntity<T> bufferAccessor)
             where T : struct, IBufferElementData
         {
-            bufferAccessor[entity].ResizeUninitialized(UnivoxDefine.CubeSize);
+            var buffer = bufferAccessor[entity];
+            buffer.ResizeUninitialized(UnivoxDefine.CubeSize);
         }
 
         void InitializeBuffer(Entity entity)
         {
-            var blockActive = _blockActiveAccessor[entity];
+            var buffers = CreateBuffers();
+            
+            var blockActive = buffers._blockActiveAccessor[entity];
             const bool defaultActive = false;
 
-            var blockId = _blockIdAccessor[entity];
+            var blockId = buffers._blockIdAccessor[entity];
             var defaultId = new BlockIdentity(0, -1);
 
-            var blockShape = _blockShapeAccessor[entity];
+            var blockShape = buffers._blockShapeAccessor[entity];
             const Types.BlockShape defaultShape = Types.BlockShape.Cube;
 
-            var blockMatId = _blockMatIdAccessor[entity];
+            var blockMatId = buffers._blockMatIdAccessor[entity];
             var defaultMatId = new ArrayMaterialId(0, -1);
 
-            var blockSubMatId = _blockSubMatIdAccessor[entity];
+            var blockSubMatId = buffers._blockSubMatIdAccessor[entity];
             var defaultSubMatId = FaceSubMaterial.CreateAll(-1);
 
 
-            var blockCulled = _blockCulledAccessor[entity];
+            var blockCulled = buffers._blockCulledAccessor[entity];
             const Directions defaultCulled = DirectionsX.AllFlag;
 
 

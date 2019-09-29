@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Launcher;
@@ -70,7 +71,10 @@ namespace UniVox
 
         bool SetupChunk(UniversalChunkId chunkID)
         {
+            
+            
             var world = GameManager.Universe[chunkID.WorldId];
+            var entityWorld = world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
 
 
             var chunkPos = chunkID.ChunkId;
@@ -151,11 +155,9 @@ namespace UniVox
             }
 
             var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
-            world.EntityManager.SetComponentData(eventity,
-                new CreateChunkEventity() {ChunkPosition = chunkID});
+            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity() {ChunkPosition = chunkID});
 
             _setup.Enqueue(chunkID);
-
         }
 
         private void OnApplicationQuit()
