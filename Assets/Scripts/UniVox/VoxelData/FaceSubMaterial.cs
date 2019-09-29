@@ -5,6 +5,7 @@ namespace UniVox.VoxelData
 {
     public struct FaceSubMaterial : IComparable<FaceSubMaterial>, IEquatable<FaceSubMaterial>
     {
+        
         private int _up;
         private int _down;
         private int _left;

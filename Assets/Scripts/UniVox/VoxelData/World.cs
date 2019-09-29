@@ -35,6 +35,9 @@ namespace UniVox.VoxelData
         }
 
         public Entity this[int3 index] => Records[index];
+
+        //TODO - Something better than this workaround
+        public void Register(int3 index,Entity entity) => Records[index] = entity;
         public IEnumerable<int3> Keys => ((IReadOnlyDictionary<int3, Entity>) Records).Keys;
 
         public IEnumerable<Entity> Values => ((IReadOnlyDictionary<int3, Entity>) Records).Values;

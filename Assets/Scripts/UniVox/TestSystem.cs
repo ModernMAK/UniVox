@@ -20,8 +20,9 @@ namespace UniVox
         // Start is called before the first frame update
         void Start()
         {
-            _datas = new Queue<QueueData>();
-            var reg = GameManager.Registry;
+            _requests = new Queue<UniversalChunkId>();
+            _setup = new Queue<UniversalChunkId>();
+
             var temp = new BaseGameMod();
             temp.Initialize(new ModInitializer(GameManager.Registry));
 
@@ -36,51 +37,46 @@ namespace UniVox
             for (var x = -wSize; x <= wSize; x++)
             for (var y = -wSize; y <= wSize; y++)
             for (var z = -wSize; z <= wSize; z++)
-                QueueChunk(world, new int3(x, y, z));
+                QueueChunk(0, new int3(x, y, z));
         }
 
-        private struct QueueData
-        {
-            public VoxelWorld World;
-            public int3 ChunkPos;
-        }
 
-        private Queue<QueueData> _datas;
+        private Queue<UniversalChunkId> _requests;
+        private Queue<UniversalChunkId> _setup;
 
-        void QueueChunk(VoxelWorld world, int3 chunkPos)
+        void QueueChunk(byte world, int3 chunkPos)
         {
-            _datas.Enqueue(new QueueData() {World = world, ChunkPos = chunkPos});
+            _requests.Enqueue(new UniversalChunkId(world, chunkPos));
         }
 
 
         void ProcessQueue(int count)
         {
-            while (count > 0 && _datas.Count > 0)
+            while (count > 0 && _requests.Count > 0)
             {
-                var data = _datas.Dequeue();
-                CreateChunk(data.World, data.ChunkPos);
+                var data = _requests.Dequeue();
+                CreateChunk(data);
+                count--;
+            }
+
+            while (count > 0 && _setup.Count > 0)
+            {
+                var data = _setup.Dequeue();
+                if (!SetupChunk(data))
+                    _setup.Enqueue(data);
                 count--;
             }
         }
 
-        //QUICK TEST
-        void EnforceChunkSize(EntityManager entityManager, Entity entity)    
+        bool SetupChunk(UniversalChunkId chunkID)
         {
-            entityManager.GetBuffer<BlockActiveComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockShapeComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockMaterialIdentityComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockSubMaterialIdentityComponent>(entity)
-                .ResizeUninitialized(UnivoxDefine.CubeSize);
-            entityManager.GetBuffer<BlockCulledFacesComponent>(entity).ResizeUninitialized(UnivoxDefine.CubeSize);
-        }
+            var world = GameManager.Universe[chunkID.WorldId];
 
-        void CreateChunk(VoxelWorld world, int3 chunkPos)
-        {
-            if (world.ContainsKey(chunkPos))
+
+            var chunkPos = chunkID.ChunkId;
+            if (!world.ContainsKey(chunkPos))
             {
-                Debug.Log($"Chunk {chunkPos} already exists!");
-                return;
+                return false;
             }
 
             var blockReg = GameManager.Registry.Blocks;
@@ -104,19 +100,10 @@ namespace UniVox
             );
 
             var entity = world.GetOrCreate(chunkPos, entityArchetype);
-            EnforceChunkSize(em, entity);
-
-            world.EntityManager.SetComponentData(entity,
-                new ChunkIdComponent() {Value = new UniversalChunkId(0, chunkPos)});
 
 
             var activeArray = em.GetBuffer<BlockActiveComponent>(entity);
             var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
-            var blockMaterials = em.GetBuffer<BlockMaterialIdentityComponent>(entity);
-            var blockShapes = em.GetBuffer<BlockShapeComponent>(entity);
-            var culledFaces = em.GetBuffer<BlockCulledFacesComponent>(entity);
-
-            var invalidMaterial = new ArrayMaterialId(0, -1);
 
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)
@@ -127,14 +114,8 @@ namespace UniVox
                 var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
                 var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
 
-                var xBot = (pos.x == 0);
-                var yBot = (pos.y == 0);
-                var zBot = (pos.z == 0);
 
                 activeArray[i] = true;
-
-
-                blockMaterials[i] = invalidMaterial;
 
                 if (!yTop)
                 {
@@ -154,35 +135,27 @@ namespace UniVox
 
                 else
                     blockIdentities[i] = grass;
-
-
-                blockShapes[i] = BlockShape.Cube;
-
-                if (xTop || yTop || zTop || xBot || yBot || zBot)
-                {
-                    var revealed = DirectionsX.NoneFlag;
-
-                    if (xTop)
-                        revealed |= Directions.Right;
-                    else if (xBot)
-                        revealed |= Directions.Left;
-
-
-                    if (yTop)
-                        revealed |= Directions.Up;
-                    else if (yBot)
-                        revealed |= Directions.Down;
-
-                    if (zTop)
-                        revealed |= Directions.Forward;
-                    else if (zBot)
-                        revealed |= Directions.Backward;
-
-                    culledFaces[i] = ~revealed;
-                }
-                else
-                    culledFaces[i] = DirectionsX.AllFlag;
             }
+
+            return true;
+        }
+
+        void CreateChunk(UniversalChunkId chunkID)
+        {
+            var world = GameManager.Universe[chunkID.WorldId];
+            var chunkPos = chunkID.ChunkId;
+            if (world.ContainsKey(chunkPos))
+            {
+                Debug.Log($"Chunk {chunkPos} already exists!");
+                return;
+            }
+
+            var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
+            world.EntityManager.SetComponentData(eventity,
+                new CreateChunkEventity() {ChunkPosition = chunkID});
+
+            _setup.Enqueue(chunkID);
+
         }
 
         private void OnApplicationQuit()
