@@ -38,7 +38,7 @@ namespace UniVox.Rendering.ChunkGen
 
         private Universe _universe;
 
-        private Dictionary<UniversalChunkId, NativeArray<Entity>> _entityCache;
+        private Dictionary<ChunkIdentity, NativeArray<Entity>> _entityCache;
         private EntityArchetype _archetype;
 
         private void SetupArchetype()
@@ -95,7 +95,7 @@ namespace UniVox.Rendering.ChunkGen
                 }
             });
 
-            _entityCache = new Dictionary<UniversalChunkId, NativeArray<Entity>>();
+            _entityCache = new Dictionary<ChunkIdentity, NativeArray<Entity>>();
         }
 
         protected override void OnDestroy()
@@ -106,15 +106,15 @@ namespace UniVox.Rendering.ChunkGen
         }
 
 
-        NativeArray<Entity> GetResizedCache(UniversalChunkId id, int desiredLength)
+        NativeArray<Entity> GetResizedCache(ChunkIdentity identity, int desiredLength)
         {
-            ResizeCache(id, desiredLength);
-            return _entityCache[id];
+            ResizeCache(identity, desiredLength);
+            return _entityCache[identity];
         }
 
-        void ResizeCache(UniversalChunkId id, int desiredLength)
+        void ResizeCache(ChunkIdentity identity, int desiredLength)
         {
-            if (_entityCache.TryGetValue(id, out var cached))
+            if (_entityCache.TryGetValue(identity, out var cached))
             {
                 if (cached.Length > desiredLength)
                 {
@@ -129,7 +129,7 @@ namespace UniVox.Rendering.ChunkGen
                     EntityManager.DestroyEntity(excess);
                     excess.Dispose();
 
-                    _entityCache[id] = temp;
+                    _entityCache[identity] = temp;
                     cached.Dispose();
                 }
                 else if (cached.Length < desiredLength)
@@ -146,7 +146,7 @@ namespace UniVox.Rendering.ChunkGen
 
                     requested.Dispose();
 
-                    _entityCache[id] = temp;
+                    _entityCache[identity] = temp;
                     cached.Dispose();
                 }
             }
@@ -155,7 +155,7 @@ namespace UniVox.Rendering.ChunkGen
                 var requested = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
                     NativeArrayOptions.UninitializedMemory);
                 EntityManager.CreateEntity(_archetype, requested);
-                _entityCache[id] = requested;
+                _entityCache[identity] = requested;
             }
         }
 
@@ -173,7 +173,7 @@ namespace UniVox.Rendering.ChunkGen
 
         private struct FrameCache
         {
-            public UniversalChunkId Id;
+            public ChunkIdentity Identity;
             public UnivoxRenderingJobs.RenderResult[] Results;
         }
 
@@ -215,7 +215,7 @@ namespace UniVox.Rendering.ChunkGen
                         Profiler.BeginSample("Process Render Chunk");
                         var results = GenerateBoxelMeshes(voxelChunkEntity);
                         Profiler.EndSample();
-                        _frameCaches.Enqueue(new FrameCache() {Id = id, Results = results});
+                        _frameCaches.Enqueue(new FrameCache() {Identity = id, Results = results});
 
                         versions[i] = new SystemVersion()
                         {
@@ -325,7 +325,7 @@ namespace UniVox.Rendering.ChunkGen
             while (_frameCaches.Count > 0)
             {
                 var cached = _frameCaches.Dequeue();
-                var id = cached.Id;
+                var id = cached.Identity;
                 var results = cached.Results;
 
                 var renderEntities = GetResizedCache(id, results.Length);

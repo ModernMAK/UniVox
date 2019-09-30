@@ -21,7 +21,8 @@ SOLUTIONS
 ---
 Alright, lets try this out...
 ---
-# Looking at our ID Types, it would be nice if they weren't arbitrary, and actually were the keys into the lookup table this complicated things though.
+# Revision 2
+Looking at our ID Types, it would be nice if they weren't arbitrary, and actually were the keys into the lookup table this complicated things though.
 
 In our current system, by registering a mod, we reserve a dictionary for each of our types. This is nice since we use arrays to index our types... But I suppose I should start by specifying how our current system works.
 
@@ -32,3 +33,8 @@ This is nice and organized, but it's hard to use, since we have to either assume
 So... How do we resolve this? as obtuse as it is, I think I create a class which encapsulates a ModRegistry and makes it easier to use elsewhere.
 
 I kinda like this, we solve the problem of organizing data in an obvious way, and accessing data in a user friendly way.
+
+# Revision 3
+Unfortunately, I still dont like it, accessing and registartion are very seperated, access want to use ID Types, whereas registartion wants to get the registry ignore ID Types
+
+All in all, I want to work on this some more, but right now, its not a problem, and it works.

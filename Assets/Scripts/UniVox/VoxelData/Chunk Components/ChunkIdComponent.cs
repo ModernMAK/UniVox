@@ -10,7 +10,7 @@ namespace UniVox.VoxelData.Chunk_Components
          * A note because i keep thinking i need to do this. BECAUSE entities are stored on a per World Basis, we dont need to use a Shared Component To GRoup Them
          * We do still need the WorldID since we dont store a reference to the World (Even though we know the entity knows the EntityWorld their in)
          */
-        public UniversalChunkId Value;
+        public ChunkIdentity Value;
 
 
         public bool Equals(ChunkIdComponent other)
@@ -23,12 +23,12 @@ namespace UniVox.VoxelData.Chunk_Components
             return Value.CompareTo(other.Value);
         }
 
-        public static implicit operator UniversalChunkId(ChunkIdComponent component)
+        public static implicit operator ChunkIdentity(ChunkIdComponent component)
         {
             return component.Value;
         }
 
-        public static implicit operator ChunkIdComponent(UniversalChunkId value)
+        public static implicit operator ChunkIdComponent(ChunkIdentity value)
         {
             return new ChunkIdComponent() {Value = value};
         }

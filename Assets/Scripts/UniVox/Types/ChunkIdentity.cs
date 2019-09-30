@@ -14,9 +14,9 @@ namespace UniVox.Types
     /// <summary>
     ///     A Universal Id, capable of grabbing any Chunk, or World in the Universe
     /// </summary>
-    public struct UniversalChunkId : IEquatable<UniversalChunkId>, IComparable<UniversalChunkId>
+    public struct ChunkIdentity : IEquatable<ChunkIdentity>, IComparable<ChunkIdentity>
     {
-        public UniversalChunkId(byte world, int3 chunk)
+        public ChunkIdentity(byte world, int3 chunk)
         {
             WorldId = world;
             ChunkId = chunk;
@@ -26,7 +26,7 @@ namespace UniVox.Types
         public int3 ChunkId { get; }
 
         //WE order By World, Then By Chunk (YXZ), Then By Block (Index)
-        public int CompareTo(UniversalChunkId other)
+        public int CompareTo(ChunkIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);
             if (delta == 0)
@@ -35,14 +35,14 @@ namespace UniVox.Types
         }
 
 
-        public bool Equals(UniversalChunkId other)
+        public bool Equals(ChunkIdentity other)
         {
             return WorldId == other.WorldId && ChunkId.Equals(other.ChunkId);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is UniversalChunkId other && Equals(other);
+            return obj is ChunkIdentity other && Equals(other);
         }
 
         public override int GetHashCode()

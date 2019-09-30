@@ -15,7 +15,7 @@ namespace UniVox
 {
     public struct CreateChunkEventity : IComponentData
     {
-        public UniversalChunkId ChunkPosition;
+        public ChunkIdentity ChunkPosition;
     }
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]

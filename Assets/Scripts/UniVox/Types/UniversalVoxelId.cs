@@ -55,20 +55,20 @@ namespace UniVox.Types
         }
 
 
-        public static implicit operator UniversalChunkId(UniversalVoxelId universalVoxelId)
+        public static implicit operator ChunkIdentity(UniversalVoxelId universalVoxelId)
         {
-            return new UniversalChunkId(universalVoxelId.WorldId, universalVoxelId.ChunkId);
+            return new ChunkIdentity(universalVoxelId.WorldId, universalVoxelId.ChunkId);
         }
 
-        public static implicit operator UniversalVoxelId(UniversalChunkId universalVoxelId)
+        public static implicit operator UniversalVoxelId(ChunkIdentity voxelIdentity)
         {
-            return new UniversalVoxelId(universalVoxelId.WorldId, universalVoxelId.ChunkId, 0);
+            return new UniversalVoxelId(voxelIdentity.WorldId, voxelIdentity.ChunkId, 0);
         }
 
 
-        public UniversalChunkId CreateChunkId()
+        public ChunkIdentity CreateChunkId()
         {
-            return new UniversalChunkId(WorldId, ChunkId);
+            return new ChunkIdentity(WorldId, ChunkId);
         }
     }
 }

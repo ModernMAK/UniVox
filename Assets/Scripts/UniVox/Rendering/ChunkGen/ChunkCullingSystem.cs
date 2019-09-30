@@ -151,7 +151,7 @@ namespace UniVox.Rendering.ChunkGen
             {
                 var blockPos = UnivoxUtil.GetPosition3(blockIndex);
 //                Profiler.BeginSample("Process Block");
-
+    
                 var primaryActive = BlockActive[blockIndex];
 
                 var hidden = DirectionsX.AllFlag;

@@ -21,8 +21,8 @@ namespace UniVox
         // Start is called before the first frame update
         void Start()
         {
-            _requests = new Queue<UniversalChunkId>();
-            _setup = new Queue<UniversalChunkId>();
+            _requests = new Queue<ChunkIdentity>();
+            _setup = new Queue<ChunkIdentity>();
 
             var temp = new BaseGameMod();
             temp.Initialize(new ModInitializer(GameManager.Registry));
@@ -42,12 +42,12 @@ namespace UniVox
         }
 
 
-        private Queue<UniversalChunkId> _requests;
-        private Queue<UniversalChunkId> _setup;
+        private Queue<ChunkIdentity> _requests;
+        private Queue<ChunkIdentity> _setup;
 
         void QueueChunk(byte world, int3 chunkPos)
         {
-            _requests.Enqueue(new UniversalChunkId(world, chunkPos));
+            _requests.Enqueue(new ChunkIdentity(world, chunkPos));
         }
 
 
@@ -69,15 +69,15 @@ namespace UniVox
             }
         }
 
-        bool SetupChunk(UniversalChunkId chunkID)
+        bool SetupChunk(ChunkIdentity chunkIdentity)
         {
             
             
-            var world = GameManager.Universe[chunkID.WorldId];
+            var world = GameManager.Universe[chunkIdentity.WorldId];
             var entityWorld = world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
 
 
-            var chunkPos = chunkID.ChunkId;
+            var chunkPos = chunkIdentity.ChunkId;
             if (!world.ContainsKey(chunkPos))
             {
                 return false;
@@ -144,10 +144,10 @@ namespace UniVox
             return true;
         }
 
-        void CreateChunk(UniversalChunkId chunkID)
+        void CreateChunk(ChunkIdentity chunkIdentity)
         {
-            var world = GameManager.Universe[chunkID.WorldId];
-            var chunkPos = chunkID.ChunkId;
+            var world = GameManager.Universe[chunkIdentity.WorldId];
+            var chunkPos = chunkIdentity.ChunkId;
             if (world.ContainsKey(chunkPos))
             {
                 Debug.Log($"Chunk {chunkPos} already exists!");
@@ -155,9 +155,9 @@ namespace UniVox
             }
 
             var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
-            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity() {ChunkPosition = chunkID});
+            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity() {ChunkPosition = chunkIdentity});
 
-            _setup.Enqueue(chunkID);
+            _setup.Enqueue(chunkIdentity);
         }
 
         private void OnApplicationQuit()
