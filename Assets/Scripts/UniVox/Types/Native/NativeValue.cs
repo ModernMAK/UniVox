@@ -38,9 +38,9 @@ namespace UniVox.Types.Native
         internal int m_MaxIndex;
         internal AtomicSafetyHandle m_Safety;
         [NativeSetClassTypeToNullOnSchedule] internal DisposeSentinel m_DisposeSentinel;
-#endif
 
         public int Length => m_Length;
+#endif
 
 
         public bool IsCreated => _array.IsCreated;

@@ -76,7 +76,7 @@ namespace UniVox.Launcher
                 throw new AssetNotFoundException(nameof(SandMaterialKey), sandMaterialId.ToString());
             ;
             blockReg.Register(GrassBlock,
-                new GrassBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));
+                new TopSideBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));
             blockReg.Register(DirtBlock, new RegularBlockRef(grassDirtMaterialId, dirtSubMatIndex));
             blockReg.Register(StoneBlock, new RegularBlockRef(stoneMaterialId));
             blockReg.Register(SandBlock, new RegularBlockRef(sandMaterialId));

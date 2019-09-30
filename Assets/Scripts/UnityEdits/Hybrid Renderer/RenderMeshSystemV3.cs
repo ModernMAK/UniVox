@@ -4,10 +4,11 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Rendering;
 using Unity.Transforms;
+#if UNITY_EDITOR
 using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 using UnityEngine.Profiling;
-using UniVox.Rendering.Render;
 
 namespace UnityEdits.Hybrid_Renderer
 {

@@ -173,6 +173,7 @@ namespace UniVox.Rendering.ChunkGen
             [ReadOnly] public NativeArray<BlockActiveComponent> BlockActive;
             [WriteOnly] public NativeArray<BlockCulledFacesComponent> CulledFaces;
 
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Direction> Directions;
 
 //            private int3 ToPosition(int index)
 //            {
@@ -196,9 +197,9 @@ namespace UniVox.Rendering.ChunkGen
                 var primaryActive = BlockActive[blockIndex];
 
                 var hidden = DirectionsX.AllFlag;
-                var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+                var directions = Directions; //DirectionsX.GetDirectionsNative(Allocator.Temp);
 
-                for (var dirIndex = 0; dirIndex < directions.Length; dirIndex++)
+                for (var dirIndex = 0; dirIndex < Directions.Length; dirIndex++)
                 {
                     var direction = directions[dirIndex];
                     var neighborPos = blockPos + direction.ToInt3();
@@ -216,7 +217,7 @@ namespace UniVox.Rendering.ChunkGen
                 }
 
                 CulledFaces[blockIndex] = hidden;
-                directions.Dispose();
+//                directions.Dispose();
 
 
 //                Profiler.EndSample();
@@ -236,10 +237,11 @@ namespace UniVox.Rendering.ChunkGen
 
             var job = new CullFacesJob()
             {
+                Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob),
                 BlockActive = blockActive.AsNativeArray(),
                 CulledFaces = blockCulled.AsNativeArray(),
             };
-            return job.Schedule(UnivoxDefine.CubeSize, UnivoxDefine.SquareSize, dependencies);
+            return job.Schedule(UnivoxDefine.CubeSize, UnivoxDefine.AxisSize, dependencies);
         }
 
 
