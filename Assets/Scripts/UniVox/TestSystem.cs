@@ -55,18 +55,18 @@ namespace UniVox
 
         void ProcessQueue(int count)
         {
-            while (count > 0 && _requests.Count > 0)
-            {
-                var data = _requests.Dequeue();
-                CreateChunk(data);
-                count--;
-            }
-
             while (count > 0 && _setup.Count > 0)
             {
                 var data = _setup.Dequeue();
                 if (!SetupChunk(data))
                     _setup.Enqueue(data);
+                count--;
+            }
+
+            while (count > 0 && _requests.Count > 0)
+            {
+                var data = _requests.Dequeue();
+                CreateChunk(data);
                 count--;
             }
         }
@@ -110,8 +110,6 @@ namespace UniVox
             var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
             em.DirtyComponent<BlockActiveComponent.Version>(entity);
             em.DirtyComponent<BlockIdentityComponent.Version>(entity);
-            
-
 
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)
