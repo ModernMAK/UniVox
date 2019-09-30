@@ -12,6 +12,7 @@ using UnityEngine.Rendering;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Rendering.ChunkGen.Jobs;
+using UniVox.Rendering.Render;
 using UniVox.Types;
 using UniVox.Utility;
 using UniVox.VoxelData;
@@ -36,7 +37,7 @@ namespace UniVox.Rendering.ChunkGen
         private EntityQuery _setupQuery;
         private EntityQuery _cleanupQuery;
 
-        private Universe _universe;
+//        private Universe _universe;
 
         private Dictionary<ChunkIdentity, NativeArray<Entity>> _entityCache;
         private EntityArchetype _archetype;
@@ -45,7 +46,7 @@ namespace UniVox.Rendering.ChunkGen
         {
             _archetype = EntityManager.CreateArchetype(
                 //Rendering
-                typeof(RenderMesh),
+                typeof(ChunkRenderMesh),
                 typeof(LocalToWorld),
 //Physics
                 typeof(Translation),
@@ -56,8 +57,9 @@ namespace UniVox.Rendering.ChunkGen
         protected override void OnCreate()
         {
             _frameCaches = new Queue<FrameCache>();
-            _universe = GameManager.Universe;
+//            _universe = GameManager.Universe;
             SetupArchetype();
+            _renderSystem = World.GetOrCreateSystem<ChunkRenderMeshSystemV3>();
             _renderQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
@@ -177,6 +179,8 @@ namespace UniVox.Rendering.ChunkGen
             public UnivoxRenderingJobs.RenderResult[] Results;
         }
 
+
+        private ChunkRenderMeshSystemV3 _renderSystem;
         private Queue<FrameCache> _frameCaches;
         private Material _defaultMaterial;
 
@@ -337,9 +341,11 @@ namespace UniVox.Rendering.ChunkGen
                 {
                     var renderEntity = renderEntities[j];
 
-                    var meshData = EntityManager.GetSharedComponentData<RenderMesh>(renderEntity);
+
+                    var meshData = EntityManager.GetComponentData<ChunkRenderMesh>(renderEntity);
                     var mesh = results[j].Mesh;
                     var materialId = results[j].Material;
+                    var batchId = new BatchGroupIdentity() {Chunk = id, MaterialId = materialId};
 
                     var meshVerts = mesh.vertices;
                     var nativeMeshVerts = new NativeArray<float3>(meshVerts.Length, Allocator.Temp,
@@ -376,24 +382,26 @@ namespace UniVox.Rendering.ChunkGen
 //                    };
 
 
-                    meshData.castShadows = ShadowCastingMode.On;
-                    meshData.receiveShadows = true;
+                    meshData.CastShadows = ShadowCastingMode.On;
+                    meshData.ReceiveShadows = true;
 //                    meshData.layer = VoxelLayer //TODO
                     mesh.UploadMeshData(true);
-                    meshData.mesh = mesh;
+//                    meshData.Mesh = mesh;
+                    meshData.Batch = batchId;
 
-                    if (GameManager.Registry.ArrayMaterials.TryGetValue(materialId, out var arrayMaterial))
-                    {
-                        meshData.material = arrayMaterial.Material;
-                    }
-                    else
-                    {
-                        meshData.material = _defaultMaterial;
-                    }
+                    _renderSystem.UploadMesh(batchId, mesh);
+//                    if (GameManager.Registry.ArrayMaterials.TryGetValue(materialId, out var arrayMaterial))
+//                    {
+//                        meshData.material = arrayMaterial.Material;
+//                    }
+//                    else
+//                    {
+//                        meshData.material = _defaultMaterial;
+//                    }
 
 
                     EntityManager.SetComponentData(renderEntity, new PhysicsCollider() {Value = collider});
-                    EntityManager.SetSharedComponentData(renderEntity, meshData);
+                    EntityManager.SetComponentData(renderEntity, meshData);
                 }
             }
 
@@ -414,14 +422,14 @@ namespace UniVox.Rendering.ChunkGen
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (_defaultMaterial == null)
-            {
-                if (!GameManager.Registry.ArrayMaterials.TryGetValue(
-                    new ArrayMaterialKey(BaseGameMod.ModPath, "Default"), out var defaultMaterial))
-                    return inputDeps;
-                else
-                    _defaultMaterial = defaultMaterial.Material;
-            }
+//            if (_defaultMaterial == null)
+//            {
+//                if (!GameManager.Registry.ArrayMaterials.TryGetValue(
+//                    new ArrayMaterialKey(BaseGameMod.ModPath, "Default"), out var defaultMaterial))
+//                    return inputDeps;
+//                else
+//                    _defaultMaterial = defaultMaterial.Material;
+//            }
 
             inputDeps.Complete();
 
