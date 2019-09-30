@@ -13,6 +13,23 @@ using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen
 {
+    public static class ChunkComponentVersionX
+    {
+        public static void DirtyComponent<T>(this EntityManager em, Entity entity)
+            where T : struct, IVersionProxy<T>, IComponentData
+        {
+            var data = em.GetComponentData<T>(entity);
+            em.SetComponentData<T>(entity, data.GetDirty());
+        }
+
+        public static void DirtySystemComponent<T>(this EntityManager em, Entity entity)
+            where T : struct, IVersionProxy<T>, ISystemStateComponentData
+        {
+            var data = em.GetComponentData<T>(entity);
+            em.SetComponentData<T>(entity, data.GetDirty());
+        }
+    }
+
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
@@ -21,6 +38,17 @@ namespace UniVox.Rendering.ChunkGen
         public struct ChunkCullingSystemVersion : ISystemStateComponentData
         {
             public uint ActiveVersion;
+
+
+            public bool DidChange(ChunkCullingSystemVersion version)
+            {
+                return ChangeVersionUtility.DidChange(ActiveVersion, version.ActiveVersion);
+            }
+
+            public override string ToString()
+            {
+                return ActiveVersion.ToString();
+            }
         }
 
 
@@ -36,11 +64,13 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-//                    ComponentType.ReadWrite<BlockChanged>(),
                     ComponentType.ReadWrite<ChunkCullingSystemVersion>(),
 
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -51,6 +81,9 @@ namespace UniVox.Rendering.ChunkGen
 
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 },
                 None = new[]
                 {
@@ -67,7 +100,8 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 },
                 All = new[]
                 {
@@ -82,25 +116,34 @@ namespace UniVox.Rendering.ChunkGen
         JobHandle RenderPass(JobHandle dependencies = default)
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-            var activeType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
+//            var activeType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
             var versionType = GetArchetypeChunkComponentType<ChunkCullingSystemVersion>();
+            var blockCulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
 //            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
+            var blockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveComponent.Version>(true);
 
-            var VoxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
+            var VoxelChunkEntityArchetype = GetArchetypeChunkEntityType();
 
 //            var merged = new JobHandle();
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
-                var versions = ecsChunk.GetNativeArray(versionType);
-                var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetpye);
+                var systemVersions = ecsChunk.GetNativeArray(versionType);
+                var activeVersions = ecsChunk.GetNativeArray(blockActiveVersionType);
+                var blockCulledVersions = ecsChunk.GetNativeArray(blockCulledVersionType);
+                var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetype);
 
                 var i = 0;
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
-                    var version = versions[i];
-                    if (ecsChunk.DidChange(activeType, version.ActiveVersion))
+                    var version = systemVersions[i];
+                    var currentVersion = new ChunkCullingSystemVersion()
+                    {
+                        ActiveVersion = activeVersions[i]
+                    };
+
+                    if (currentVersion.DidChange(version))
                     {
                         Profiler.BeginSample("Update Chunk");
 //                        var job
@@ -108,10 +151,8 @@ namespace UniVox.Rendering.ChunkGen
 //
                         job.Complete();
                         Profiler.EndSample();
-                        versions[i] = new ChunkCullingSystemVersion()
-                        {
-                            ActiveVersion = ecsChunk.GetComponentVersion(activeType)
-                        };
+                        systemVersions[i] = currentVersion;
+                        blockCulledVersions[i] = blockCulledVersions[i].GetDirty();
                     }
 
                     i++;
@@ -151,7 +192,7 @@ namespace UniVox.Rendering.ChunkGen
             {
                 var blockPos = UnivoxUtil.GetPosition3(blockIndex);
 //                Profiler.BeginSample("Process Block");
-    
+
                 var primaryActive = BlockActive[blockIndex];
 
                 var hidden = DirectionsX.AllFlag;

@@ -31,6 +31,19 @@ namespace UniVox.Rendering.ChunkGen
             public uint BlockShape;
             public uint Material;
             public uint SubMaterial;
+
+            public bool DidChange(SystemVersion version)
+            {
+                return ChangeVersionUtility.DidChange(CulledFaces, version.CulledFaces) ||
+                       ChangeVersionUtility.DidChange(BlockShape, version.BlockShape) ||
+                       ChangeVersionUtility.DidChange(Material, version.Material) ||
+                       ChangeVersionUtility.DidChange(SubMaterial, version.SubMaterial);
+            }
+
+            public override string ToString()
+            {
+                return $"{CulledFaces}-{BlockShape}-{Material}-{SubMaterial}";
+            }
         }
 
         private EntityQuery _renderQuery;
@@ -41,6 +54,7 @@ namespace UniVox.Rendering.ChunkGen
 
         private Dictionary<ChunkIdentity, NativeArray<Entity>> _entityCache;
         private EntityArchetype _archetype;
+
 
         private void SetupArchetype()
         {
@@ -66,8 +80,19 @@ namespace UniVox.Rendering.ChunkGen
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
                     ComponentType.ReadWrite<SystemVersion>(),
+
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
+
                     ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent.Version>(),
+
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent>(),
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+
+                    ComponentType.ReadOnly<BlockActiveComponent>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -75,8 +100,18 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
+
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
+
                     ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent.Version>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent>(),
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+
+                    ComponentType.ReadOnly<BlockActiveComponent>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 },
                 None = new[]
                 {
@@ -88,8 +123,18 @@ namespace UniVox.Rendering.ChunkGen
                 None = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
+
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
+
                     ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent.Version>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent>(),
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+
+                    ComponentType.ReadOnly<BlockActiveComponent>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 },
                 All = new[]
                 {
@@ -184,36 +229,58 @@ namespace UniVox.Rendering.ChunkGen
         private Queue<FrameCache> _frameCaches;
         private Material _defaultMaterial;
 
+
         void RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-            var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
-            var versionType = GetArchetypeChunkComponentType<SystemVersion>();
+            var chunkIdType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
+            var systemEntityVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
-            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
-            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
-            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
-            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
+//            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
+//            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
+//            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
+//            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
+
+            var materialVersionType = GetArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version>(true);
+            var subMaterialVersionType =
+                GetArchetypeChunkComponentType<BlockSubMaterialIdentityComponent.Version>(true);
+            var blockShapeVersionType = GetArchetypeChunkComponentType<BlockShapeComponent.Version>(true);
+            var culledFaceVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>(true);
 
 
             var chunkArchetype = GetArchetypeChunkEntityType();
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
-                var ids = ecsChunk.GetNativeArray(idType);
-                var versions = ecsChunk.GetNativeArray(versionType);
+                var ids = ecsChunk.GetNativeArray(chunkIdType);
+                var systemVersions = ecsChunk.GetNativeArray(systemEntityVersionType);
+                var materialVersions = ecsChunk.GetNativeArray(materialVersionType);
+                var subMaterialVersions = ecsChunk.GetNativeArray(subMaterialVersionType);
+                var blockShapeVersions = ecsChunk.GetNativeArray(blockShapeVersionType);
+                var culledFaceVersions = ecsChunk.GetNativeArray(culledFaceVersionType);
                 var voxelChunkEntityArray = ecsChunk.GetNativeArray(chunkArchetype);
+
+
                 var i = 0;
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
-                    var version = versions[i];
+                    var version = systemVersions[i];
+                    var currentVersion = new SystemVersion()
+                    {
+                        Material = materialVersions[i],
+                        SubMaterial = subMaterialVersions[i],
+                        BlockShape = blockShapeVersions[i],
+                        CulledFaces = culledFaceVersions[i]
+                    };
 //                    var matVersion = 
 //                    var subMatVersion = 
 
-                    if (ecsChunk.DidChange(materialType, version.Material) ||
-                        ecsChunk.DidChange(subMaterialType, version.SubMaterial) ||
-                        ecsChunk.DidChange(culledFaceType, version.CulledFaces) ||
-                        ecsChunk.DidChange(blockShapeType, version.BlockShape))
+
+                    if (currentVersion.DidChange(version))
+//                    .DidChange(materialType, version.Material) ||
+//                        ecsChunk.DidChange(subMaterialType, version.SubMaterial) ||
+//                        ecsChunk.DidChange(culledFaceType, version.CulledFaces) ||
+//                        ecsChunk.DidChange(blockShapeType, version.BlockShape))
                     {
                         var id = ids[i];
                         Profiler.BeginSample("Process Render Chunk");
@@ -221,13 +288,7 @@ namespace UniVox.Rendering.ChunkGen
                         Profiler.EndSample();
                         _frameCaches.Enqueue(new FrameCache() {Identity = id, Results = results});
 
-                        versions[i] = new SystemVersion()
-                        {
-                            Material = ecsChunk.GetComponentVersion(materialType),
-                            SubMaterial = ecsChunk.GetComponentVersion(subMaterialType),
-                            BlockShape = ecsChunk.GetComponentVersion(blockShapeType),
-                            CulledFaces = ecsChunk.GetComponentVersion(culledFaceType),
-                        };
+                        systemVersions[i] = currentVersion;
                     }
 
 

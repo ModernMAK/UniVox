@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
+using UniVox.Rendering.ChunkGen;
 using UniVox.Types;
 using UniVox.VoxelData.Chunk_Components;
 using VoxelWorld = UniVox.VoxelData.World;
@@ -107,6 +108,10 @@ namespace UniVox
 
             var activeArray = em.GetBuffer<BlockActiveComponent>(entity);
             var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
+            em.DirtyComponent<BlockActiveComponent.Version>(entity);
+            em.DirtyComponent<BlockIdentityComponent.Version>(entity);
+            
+
 
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)
