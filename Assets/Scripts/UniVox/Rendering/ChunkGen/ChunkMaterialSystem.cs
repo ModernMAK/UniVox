@@ -247,7 +247,6 @@ namespace UniVox.Rendering.ChunkGen
 //>>>>>>> indev
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
-                Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
 
 
@@ -255,12 +254,10 @@ namespace UniVox.Rendering.ChunkGen
                 {
 //                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
 
-                    Profiler.BeginSample("Perform Pass");
 
                     blockMatArray[blockIndex] = blockRef.GetMaterial(variant);
                     blockSubMatArray[blockIndex] = blockRef.GetSubMaterial(variant);
 // blockRef.RenderPass(blockAccessor);
-                    Profiler.EndSample();
 //                    Profiler.BeginSample("Dirty");
 ////                    block.Render.Version.Dirty();
 //                    Profiler.EndSample();
@@ -271,7 +268,6 @@ namespace UniVox.Rendering.ChunkGen
                     blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
 
-                Profiler.EndSample();
             }
 
 //            changed.Clear();
