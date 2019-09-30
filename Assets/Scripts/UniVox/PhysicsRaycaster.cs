@@ -2,6 +2,7 @@
 using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
+using UniVox.Rendering.ChunkGen;
 using UniVox.Types;
 using UniVox.VoxelData.Chunk_Components;
 using Entity = Unity.Entities.Entity;
@@ -44,6 +45,8 @@ namespace UniVox
             public int3 ChunkPosition;
             public int3 BlockPosition;
             public int BlockIndex;
+
+            public int3 WorldPosition => UnivoxUtil.ToWorldPosition(ChunkPosition, BlockPosition);
         }
 
 
@@ -124,6 +127,8 @@ namespace UniVox
                         var em = voxelInfo.World.EntityManager;
 
                         var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
+//                        em.DirtyComponent<BlockActiveComponent.Version>(entity);
+                        em.DirtyComponent<BlockIdentityComponent.Version>(voxelInfo.ChunkEntity);
 
 
                         blockIdentityArray[voxelInfo.BlockIndex] = new BlockIdentity() {Mod = 0, Block = id};
@@ -133,7 +138,7 @@ namespace UniVox
 //                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
 //                        (short) voxelInfo.BlockIndex);
 
-                        _lastVoxel = voxelInfo.BlockPosition;
+                        _lastVoxel = voxelInfo.WorldPosition;
                         _hitPoint = hit.Position;
 
 //                    Debug.Log($"Hit Alter : {voxelInfo.BlockPosition}");
@@ -154,12 +159,14 @@ namespace UniVox
                         {
                             var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
                             var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
+                            em.DirtyComponent<BlockIdentityComponent.Version>(voxelInfo.ChunkEntity);
+                            em.DirtyComponent<BlockActiveComponent.Version>(voxelInfo.ChunkEntity);
 
 
                             blockActiveArray[blockIndex] = new BlockActiveComponent() {Value = true};
                             blockIdentityArray[blockIndex] = new BlockIdentity() {Mod = 0, Block = id};
 
-                            _lastVoxel = blockPos;
+                            _lastVoxel = UnivoxUtil.ToWorldPosition(voxelInfo.ChunkPosition, blockPos);
                             _hitPoint = hit.Position;
                         }
                         else
@@ -175,12 +182,13 @@ namespace UniVox
                         var em = voxelInfo.World.EntityManager;
 
                         var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
+                        em.DirtyComponent<BlockActiveComponent.Version>(voxelInfo.ChunkEntity);
 
 
                         blockActiveArray[voxelInfo.BlockIndex] = new BlockActiveComponent() {Value = false};
 
 
-                        _lastVoxel = voxelInfo.BlockPosition;
+                        _lastVoxel = voxelInfo.WorldPosition;
                         _hitPoint = hit.Position;
                     }
                     else

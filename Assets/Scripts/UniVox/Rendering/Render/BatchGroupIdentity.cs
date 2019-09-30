@@ -27,6 +27,12 @@ public struct BatchGroupIdentity : IEquatable<BatchGroupIdentity>, IComparable<B
 
     public int CompareTo(BatchGroupIdentity other)
     {
-        return Chunk.CompareTo(other.Chunk);
+        var chunk = Chunk.CompareTo(other.Chunk);
+        return chunk != 0 ? chunk : MaterialId.CompareTo(other.MaterialId);
+    }
+
+    public override string ToString()
+    {
+        return $"({Chunk})-({MaterialId})";
     }
 }

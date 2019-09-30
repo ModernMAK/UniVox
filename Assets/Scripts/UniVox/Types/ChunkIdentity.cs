@@ -8,7 +8,6 @@ namespace UniVox.Types
     public interface IDictionaryReferencer<TKey, TValue>
     {
         TValue Dereference(IDictionary<TKey, TValue> dictionary);
-        
     }
 
     /// <summary>
@@ -32,6 +31,11 @@ namespace UniVox.Types
             if (delta == 0)
                 delta = UniversalIdUtil.CompareTo(ChunkId, other.ChunkId);
             return delta;
+        }
+
+        public override string ToString()
+        {
+            return $"{WorldId}-({ChunkId.x},{ChunkId.y},{ChunkId.z})";
         }
 
 

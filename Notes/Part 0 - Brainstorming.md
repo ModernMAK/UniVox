@@ -1,17 +1,3 @@
-# Vocabulary
-**Block**: A 'Block' is a Voxel's render information
-**Voxel**: A 'Voxel' is just a point with information.
-**Chunk**: A 'Chunk' is a collections of Voxels. Chunks have a predefined size
-**World**: A 'World' is a collection of Chunks.
-**Universe**: A 'Universe' is a collection of Worlds.
-# Design 
-A Voxel represents the core of the game. For all intents and purposes, a Block will store the Rendering Information.
-
-A Block needs to know its worldspace position, & rotation, its 'Shape', 'Material' & whether it has been culled. *Therefore* a Block knows it's **Position**, **Rotation**, **Mesh**, **Material**, and whether it has been **Culled**.
-
-
-
-
 # Mechanics
 ## Wires & Pipes
 Stolen from Minecraft's many 'Tech' Mods. Variants should include; Power Wires, Item, Liquid, Gas, Maybe more?
@@ -27,6 +13,12 @@ There are many Jobs for townies. Lets see how specific we can get.
 		* Carpenter?
 	* Equipment
 		* Smiths - (Guns/Armor/Sword/Shield)
+			- Gunsmith : Guns
+			- Blacksmith : Weapons
+			- Arcsmith : Magical Things
+			- Armorsmiths : Armor
+			- Tailor : Clothes
+			- Chemist : Healing
 * Traders
 	* Shopkeeper
 	* Wandering Trader
@@ -46,9 +38,16 @@ There are many Jobs for townies. Lets see how specific we can get.
 	* Miners
 * Militia
 	* Adventurers (Mercenaries)
+	 	- Rogues 
+		- Wizards
+		- Fighters
+		- Medics
 	* Guards
+* Skilled
+ 	- Doctor : Heals
+	- Scientists : Performs Research
 
-# Mechanic Implimentations
+# Mechanic Implementations
 ## Jobs
 Jobs should probably require a Workspace, maybe a specific room, or a specific object.
 Jobs should be simple, they should do ONE THING. If they dont do one thing, then Jobs should be composed of CHORES, a CHORE is one thing that a JOB can do. This keeps things simple, and allows us to reduce the complexity of a JOB.

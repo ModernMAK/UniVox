@@ -1,8 +1,10 @@
+using System;
 using Unity.Entities;
 using UnityEngine.Rendering;
 
 namespace UniVox.Rendering.Render
 {
+    [Serializable]
     public struct ChunkRenderMesh : IComponentData
     {
         // Oooh boy, SO. Heres the thing.
@@ -14,7 +16,7 @@ namespace UniVox.Rendering.Render
         //I use a BatchIDentity
         //IT couples the GEneration System with the Render System
         //But we dont have to deal with the Bloat of using references in ComponentData
-        
+
 
         public BatchGroupIdentity Batch;
 

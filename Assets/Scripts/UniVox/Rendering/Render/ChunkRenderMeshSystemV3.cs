@@ -386,9 +386,18 @@ namespace UniVox.Rendering.Render
                 var matrix = matrixes[i].Value;
 
                 if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
-                    continue; //TODO throw a warning
+                {
+                    Debug.LogWarning($"No Mesh For {chunkRenderMesh.Batch}!");
+                    continue;
+                }
+
+//                    continue; //TODO throw a warning
                 if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialId, out var material))
-                    continue; //TODO throw a warning
+                {
+                    var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
+                    if (!_arrayMaterialRegistry.TryGetValue(defaultError, out material))
+                        continue; //TODO throw a warning
+                }
 
 
                 Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, chunkRenderMesh.SubMesh,
