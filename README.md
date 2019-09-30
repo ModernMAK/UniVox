@@ -1,2 +1,2 @@
 # UniVox
-[Latest Dev Snapshot](/Images/HappyEarlyAlphaPreview.png)
+![Latest Dev Snapshot](/Images/HappyEarlyAlphaPreview.png)
