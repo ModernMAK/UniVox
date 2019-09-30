@@ -6,12 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
-<<<<<<< Updated upstream
-using UnityEngine.Profiling;
-using UnityEngine.Rendering;
-=======
 using UniVox.Launcher;
->>>>>>> Stashed changes
 using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
 using UniVox.Types;

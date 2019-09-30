@@ -141,15 +141,12 @@ namespace UniVox.Rendering.ChunkGen
             var blockIdArray = blockIdLookup[voxelChunk];
             var blockMatArray = blockMatLookup[voxelChunk];
             var blockSubMatArray = blockSubMatLookup[voxelChunk];
-<<<<<<< Updated upstream
-=======
 
 
             var uniqueBlockJob =
                 UnivoxRenderingJobs.GatherUnique(blockIdArray.AsNativeArray(), out var uniqueBlockIds, dependencies);
 
             var variant = new BlockVariant() {Value = byte.MinValue};
->>>>>>> Stashed changes
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
                 Profiler.BeginSample("Process Block");
@@ -161,7 +158,7 @@ namespace UniVox.Rendering.ChunkGen
 //                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
 
                     Profiler.BeginSample("Perform Pass");
-                    
+
                     blockMatArray[blockIndex] = blockRef.GetMaterial(variant);
                     blockSubMatArray[blockIndex] = blockRef.GetSubMaterial(variant);
 // blockRef.RenderPass(blockAccessor);
