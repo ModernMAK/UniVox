@@ -76,5 +76,10 @@ namespace UniVox.VoxelData.Chunk_Components
         {
             return chunkMap[Value.ChunkId];
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }
