@@ -16,7 +16,8 @@ namespace UniVox
         public Material defaultMat;
 
 //    public ModSurrogate ModData;
-        public int wSize = 0;
+        public int3 wSize = 0;
+        public int3 offset = 0;
 
         // Start is called before the first frame update
         void Start()
@@ -35,10 +36,10 @@ namespace UniVox
 
 
             World.Active = world.EntityWorld;
-            for (var x = -wSize; x <= wSize; x++)
-            for (var y = -wSize; y <= wSize; y++)
-            for (var z = -wSize; z <= wSize; z++)
-                QueueChunk(0, new int3(x, y, z));
+            for (var x = -wSize.x; x <= wSize.x; x++)
+            for (var y = -wSize.y; y <= wSize.y; y++)
+            for (var z = -wSize.z; z <= wSize.z; z++)
+                QueueChunk(0, offset + new int3(x, y, z));
         }
 
 
@@ -71,8 +72,6 @@ namespace UniVox
 
         bool SetupChunk(ChunkIdentity chunkIdentity)
         {
-            
-            
             var world = GameManager.Universe[chunkIdentity.WorldId];
             var entityWorld = world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
 

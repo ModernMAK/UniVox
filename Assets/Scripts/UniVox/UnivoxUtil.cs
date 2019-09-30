@@ -18,7 +18,7 @@ namespace UniVox
             var max = blockPosition < AxisSize;
             return math.all(min) && math.all(max);
         }
-        
+
         public static bool IsIndexValid(int index)
         {
             return index >= 0 && index < CubeSize;
@@ -59,20 +59,49 @@ namespace UniVox
             return chunkPosition * AxisSize + blockPosition;
         }
 
+        private static int3 ToValue(bool3 value, bool invert = false)
+        {
+            var x = (value.x != invert) ? 1 : 0;
+            var y = (value.y != invert) ? 1 : 0;
+            var z = (value.z != invert) ? 1 : 0;
+            return new int3(x, y, z);
+        }
+
         public static int3 ToChunkPosition(int3 worldPosition)
         {
-            return worldPosition / AxisSize;
+            //WHAT WE WANT
+            //0 to 31 => 0
+            //-32 to -1 => -1
+
+            //WHAT WE HAVE
+            //-31 to 31 => 0
+            //-63 to -32 => -1
+
+            //HOW TO FIX?
+            //If we add 31 IF the value is negatve
+            //0 to 31 => 0
+            var needFix = worldPosition < 0;
+            var value = ToValue(needFix);
+            var negativeShift = value * (AxisSize - 1);
+            var chunkPosition = (worldPosition - negativeShift) / AxisSize;
+            return chunkPosition;
         }
 
         public static int3 ToBlockPosition(int3 worldPosition)
         {
-            return worldPosition % AxisSize;
+            var blockPosition = (worldPosition % AxisSize);
+            //Apply Shift - range from  1 to 2*AxisSize-1
+            blockPosition += AxisSize;
+            //Apply clamp - range from 0 to AxisSize-1
+            blockPosition = (blockPosition % AxisSize);
+            return blockPosition;
         }
 
         public static void SplitPosition(int3 worldPosition, out int3 chunkPosition, out int3 blockPosition)
         {
-            chunkPosition = worldPosition / AxisSize;
-            blockPosition = worldPosition % AxisSize;
+            chunkPosition = ToChunkPosition(worldPosition);
+            //Apply clamp - range from -AxisSize+1 to AxisSize-1
+            blockPosition = ToBlockPosition(worldPosition);
         }
 
         #endregion
