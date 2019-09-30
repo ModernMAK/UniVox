@@ -143,6 +143,22 @@ namespace UniVox.Rendering.ChunkGen.Jobs
             return results;
         }
 
+        public static JobHandle GatherUnique<T>(NativeArray<T> batchInfo, out NativeList<T> results,
+            JobHandle dependencies = default)
+            where T : struct, IComparable<T>
+        {
+            results = new NativeList<T>(Allocator.TempJob);
+            return new FindUniquesJob<T>()
+            {
+                Source = batchInfo,
+                Unique = results
+            }.Schedule(dependencies);
+//            Profiler.BeginSample("Gather Uniques");
+//            job.Schedule().Complete();
+//            Profiler.EndSample();
+//            return results;
+        }
+
 
         public struct RenderResult
         {

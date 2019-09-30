@@ -2,12 +2,16 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Rendering;
+using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.SceneManagement;
+using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
+<<<<<<< Updated upstream
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+=======
+using UniVox.Launcher;
+>>>>>>> Stashed changes
 using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
@@ -309,6 +313,7 @@ namespace UniVox.Rendering.Render
 
         private void RenderPass(EntityQuery query)
         {
+            var cameras = Camera.allCameras;
             var chunkRenderMeshType = GetArchetypeChunkComponentType<ChunkRenderMesh>(true);
             var matrixType = GetArchetypeChunkComponentType<LocalToWorld>(true);
             using (var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob))
@@ -318,8 +323,63 @@ namespace UniVox.Rendering.Render
                     var chunkRenderMeshes = chunk.GetNativeArray(chunkRenderMeshType);
                     var matrixes = chunk.GetNativeArray(matrixType);
 
-                    RenderChunk(chunkRenderMeshes, matrixes);
+                    foreach (var camera in cameras)
+                    {
+                        using (var culled = Cull(matrixes, camera))
+                        {
+                            RenderChunk(chunkRenderMeshes, matrixes, culled, camera);
+                        }
+                    }
                 }
+            }
+        }
+
+        private NativeArray<bool> Cull(NativeArray<LocalToWorld> matrix, Camera camera,
+            Allocator allocator = Allocator.Temp)
+        {
+            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+            var cull = new NativeArray<bool>(matrix.Length, allocator);
+            for (var i = 0; i < cull.Length; i++)
+            {
+                var corner = matrix[i].Value.c3.xyz;
+                var size = new float3(UnivoxDefine.AxisSize);
+                var halfSize = size / 2f;
+                var center = corner + halfSize;
+                var bound = new Bounds(center, size);
+                cull[i] = !GeometryUtility.TestPlanesAABB(planes, bound);
+            }
+
+            return cull;
+        }
+
+        private void RenderChunk(NativeArray<ChunkRenderMesh> chunkRenderMeshes, NativeArray<LocalToWorld> matrixes,
+            NativeArray<bool> cullMesh, Camera camera)
+        {
+            for (var i = 0; i < chunkRenderMeshes.Length; i++)
+            {
+                if (cullMesh[i])
+                    continue;
+
+                var chunkRenderMesh = chunkRenderMeshes[i];
+                var matrix = matrixes[i].Value;
+
+                if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
+                {
+                    Debug.LogWarning($"No Mesh For {chunkRenderMesh.Batch}!");
+                    continue;
+                }
+
+//                    continue; //TODO throw a warning
+                if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialId, out var material))
+                {
+                    var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
+                    if (!_arrayMaterialRegistry.TryGetValue(defaultError, out material))
+                        continue; //TODO throw a warning
+                }
+
+
+                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, camera, chunkRenderMesh.SubMesh,
+                    default, chunkRenderMesh.CastShadows, chunkRenderMesh.ReceiveShadows);
             }
         }
 

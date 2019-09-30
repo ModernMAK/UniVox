@@ -1,5 +1,4 @@
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace UniVox.Rendering.Render
