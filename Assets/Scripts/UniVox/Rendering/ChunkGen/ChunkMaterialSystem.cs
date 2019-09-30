@@ -1,49 +1,27 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Rendering;
-using UnityEdits;
-using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UniVox.Managers.Game;
-using UniVox.Rendering.ChunkGen.Jobs;
-using UniVox.Types;
 using UniVox.VoxelData;
 using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-
-    [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialRenderInformationSystem : JobComponentSystem
     {
-        public struct SystemVersion : ISystemStateComponentData
-        {
-            public uint IdentityVersion;
-
-
-//            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
-
-//            public static SystemVersion Create(Chunk chunk)
-//            {
-//                return new SystemVersion()
-//                {
-//                    Info = chunk.Info.Version,
-//                };
-//            }
-        }
+        private EntityQuery _cleanupQuery;
 
 
         private EntityQuery _renderQuery;
         private EntityQuery _setupQuery;
-        private EntityQuery _cleanupQuery;
 
 
         protected override void OnCreate()
         {
-            _renderQuery = GetEntityQuery(new EntityQueryDesc()
+            _renderQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {
@@ -54,10 +32,10 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
                 }
             });
-            _setupQuery = GetEntityQuery(new EntityQueryDesc()
+            _setupQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {
@@ -66,14 +44,14 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
                 },
                 None = new[]
                 {
                     ComponentType.ReadWrite<SystemVersion>()
                 }
             });
-            _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
+            _cleanupQuery = GetEntityQuery(new EntityQueryDesc
             {
                 None = new[]
                 {
@@ -82,7 +60,7 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
                 },
                 All = new[]
                 {
@@ -91,7 +69,7 @@ namespace UniVox.Rendering.ChunkGen
             });
         }
 
-        void RenderPass()
+        private void RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var idType = GetArchetypeChunkBufferType<BlockIdentityComponent>(true);
@@ -99,13 +77,13 @@ namespace UniVox.Rendering.ChunkGen
 //            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
 
-            var VoxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
+            var voxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
 
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
                 var versions = ecsChunk.GetNativeArray(versionType);
-                var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetpye);
+                var voxelChunkEntityArray = ecsChunk.GetNativeArray(voxelChunkEntityArchetpye);
 
                 var i = 0;
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
@@ -117,7 +95,7 @@ namespace UniVox.Rendering.ChunkGen
                         UpdateVoxelChunk(voxelChunkEntity);
 
                         Profiler.EndSample();
-                        versions[i] = new SystemVersion()
+                        versions[i] = new SystemVersion
                         {
                             IdentityVersion = ecsChunk.GetComponentVersion(idType)
                         };
@@ -165,7 +143,7 @@ namespace UniVox.Rendering.ChunkGen
             {
                 Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
-                
+
                 if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
                 {
                     var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
@@ -190,12 +168,12 @@ namespace UniVox.Rendering.ChunkGen
         }
 
 
-        void SetupPass()
+        private void SetupPass()
         {
             EntityManager.AddComponent<SystemVersion>(_setupQuery);
         }
 
-        void CleanupPass()
+        private void CleanupPass()
         {
             EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
@@ -213,6 +191,22 @@ namespace UniVox.Rendering.ChunkGen
 
 
             return new JobHandle();
+        }
+
+        public struct SystemVersion : ISystemStateComponentData
+        {
+            public uint IdentityVersion;
+
+
+//            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
+
+//            public static SystemVersion Create(Chunk chunk)
+//            {
+//                return new SystemVersion()
+//                {
+//                    Info = chunk.Info.Version,
+//                };
+//            }
         }
     }
 }

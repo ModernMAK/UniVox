@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -7,6 +8,7 @@ using UniVox.Types;
 
 namespace UniVox.Rendering.ChunkGen.Jobs
 {
+    [BurstCompile]
     public struct GenerateCubeBoxelMeshV2 : IJobParallelFor
     {
 //        [ReadOnly] public NativeArray<Orientation> Rotations;

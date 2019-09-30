@@ -5,7 +5,6 @@ using Unity.Jobs;
 namespace UniVox.Rendering.ChunkGen.Jobs
 {
     [BurstCompile]
-
     public struct CalculateCubeSizeJobV2 : IJobParallelFor
     {
         /// <summary>

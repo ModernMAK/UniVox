@@ -7,8 +7,6 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEdits;
-using UnityEdits.Hybrid_Renderer;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox.Launcher;
@@ -102,7 +100,7 @@ namespace UniVox.Rendering.ChunkGen
 
         protected override void OnDestroy()
         {
-            //TODO also destory Entities
+            //TODO also destroy Entities
             _entityCache.Dispose();
             _entityCache.Clear();
         }
@@ -274,12 +272,12 @@ namespace UniVox.Rendering.ChunkGen
 
                 var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
                 {
-                    out_list = new NativeList<PlanarData>(Allocator.TempJob),
-                    queue = queue
+                    OutList = new NativeList<PlanarData>(Allocator.TempJob),
+                    Queue = queue
                 };
                 writerToReaderJob.Schedule(gatherPlanerJobHandle).Complete();
                 queue.Dispose();
-                var planarBatch = writerToReaderJob.out_list;
+                var planarBatch = writerToReaderJob.OutList;
 
                 //Calculate the Size Each Voxel Will Use
 //                var cubeSizeJob = CreateCalculateCubeSizeJob(batch, chunk);

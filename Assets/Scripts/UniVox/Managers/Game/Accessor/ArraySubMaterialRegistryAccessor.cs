@@ -17,7 +17,7 @@ namespace UniVox.Managers.Game.Accessor
         {
             if (_matRegistry.TryGetValue(key.ArrayMaterial, out var material))
             {
-                if (material.SubMaterials.Register(key.SubArrayMaterial, value, out var id)) ;
+                if (material.SubMaterials.Register(key.SubArrayMaterial, value, out var id)) 
                 {
                     identity = new SubArrayMaterialId(_matRegistry.GetIdentity(key.ArrayMaterial), id);
                     return true;

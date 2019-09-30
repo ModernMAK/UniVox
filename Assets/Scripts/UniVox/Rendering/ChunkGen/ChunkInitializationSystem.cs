@@ -22,12 +22,6 @@ namespace UniVox
     public class ChunkInitializationSystem : JobComponentSystem
     {
         private EntityQuery _eventQuery;
-        private BufferFromEntity<BlockActiveComponent> _blockActiveAccessor;
-        private BufferFromEntity<BlockIdentityComponent> _blockIdAccessor;
-        private BufferFromEntity<BlockShapeComponent> _blockShapeAccessor;
-        private BufferFromEntity<BlockSubMaterialIdentityComponent> _blockSubMatIdAccessor;
-        private BufferFromEntity<BlockMaterialIdentityComponent> _blockMatIdAccessor;
-        private BufferFromEntity<BlockCulledFacesComponent> _blockCulledAccessor;
         private EntityArchetype _blockChunkArchetype;
         private EndInitializationEntityCommandBufferSystem _updateEnd;
 
@@ -47,12 +41,6 @@ namespace UniVox
 
             _blockChunkArchetype = CreateBlockChunkArchetype();
 
-            _blockActiveAccessor = GetBufferFromEntity<BlockActiveComponent>();
-            _blockIdAccessor = GetBufferFromEntity<BlockIdentityComponent>();
-            _blockShapeAccessor = GetBufferFromEntity<BlockShapeComponent>();
-            _blockMatIdAccessor = GetBufferFromEntity<BlockMaterialIdentityComponent>();
-            _blockSubMatIdAccessor = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
-            _blockCulledAccessor = GetBufferFromEntity<BlockCulledFacesComponent>();
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }

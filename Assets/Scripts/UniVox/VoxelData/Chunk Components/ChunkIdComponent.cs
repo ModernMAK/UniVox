@@ -69,7 +69,7 @@ namespace UniVox.VoxelData.Chunk_Components
 
         public bool TryGetChunkEntity(World chunkMap, out Entity record)
         {
-            return chunkMap.TryGetAccessor(Value.ChunkId, out record);
+            return chunkMap.TryGetValue(Value.ChunkId, out record);
         }
 
         public Entity GetChunkEntity(World chunkMap)
