@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace UniVox.Managers.Generic
 {
     /// <summary>
-    ///     Wrapper around a dictionary, automatically assigns an integer id to each item in the registry
+    ///     Wrapper around a dictionary, automatically assigns an integer identity to each item in the registry
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>

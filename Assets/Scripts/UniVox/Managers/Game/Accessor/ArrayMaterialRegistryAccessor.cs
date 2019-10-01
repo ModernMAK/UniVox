@@ -1,9 +1,10 @@
 using System;
 using UniVox.Managers.Game.Structure;
+using UniVox.Types.Identities;
 
 namespace UniVox.Managers.Game.Accessor
 {
-    public class ArrayMaterialRegistryAccessor : RegistryWrapper<ArrayMaterialKey, ArrayMaterialId, ArrayMaterial>
+    public class ArrayMaterialRegistryAccessor : RegistryWrapper<ArrayMaterialKey, ArrayMaterialIdentity, ArrayMaterial>
     {
         public ArrayMaterialRegistryAccessor(ModRegistryAccessor modRegistry)
         {
@@ -13,17 +14,17 @@ namespace UniVox.Managers.Game.Accessor
         private readonly ModRegistryAccessor _modRegistry;
 
 
-        private bool TryGetRecord(ArrayMaterialKey key, out ModRegistry.Record record, out ModId id)
+        private bool TryGetRecord(ArrayMaterialKey key, out ModRegistry.Record record, out ModIdentity identity)
         {
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
                 record = _modRegistry[index];
-                id = new ModId((byte) index);
+                identity = new ModIdentity((byte) index);
                 return true;
             }
 
             record = default;
-            id = default;
+            identity = default;
             return false;
         }
 
@@ -41,16 +42,16 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(ArrayMaterialId id, out ModRegistry.Record record) =>
-            _modRegistry.TryGetValue(id.Mod, out record);
+        private bool TryGetRecord(ArrayMaterialIdentity identity, out ModRegistry.Record record) =>
+            _modRegistry.TryGetValue(identity.Mod, out record);
 
-        public override bool Register(ArrayMaterialKey key, ArrayMaterial value, out ArrayMaterialId identity)
+        public override bool Register(ArrayMaterialKey key, ArrayMaterial value, out ArrayMaterialIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
                 if (record.Materials.Register(key.ArrayMaterial, value, out var id))
                 {
-                    identity = new ArrayMaterialId(modId, id);
+                    identity = new ArrayMaterialIdentity(modId, id);
                     return true;
                 }
             }
@@ -64,12 +65,12 @@ namespace UniVox.Managers.Game.Accessor
             return _modRegistry.IsRegistered(key.Mod);
         }
 
-        public override bool IsRegistered(ArrayMaterialId identity)
+        public override bool IsRegistered(ArrayMaterialIdentity identity)
         {
             return _modRegistry.IsRegistered(identity.Mod);
         }
 
-        public override ArrayMaterialId GetIdentity(ArrayMaterialKey key)
+        public override ArrayMaterialIdentity GetIdentity(ArrayMaterialKey key)
         {
             if (TryGetIdentity(key, out var id))
             {
@@ -78,13 +79,13 @@ namespace UniVox.Managers.Game.Accessor
             else throw new Exception();
         }
 
-        public override bool TryGetIdentity(ArrayMaterialKey key, out ArrayMaterialId identity)
+        public override bool TryGetIdentity(ArrayMaterialKey key, out ArrayMaterialIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
                 if (record.Materials.TryGetIndex(key.ArrayMaterial, out var arrayMaterialId))
                 {
-                    identity = new ArrayMaterialId(modId, arrayMaterialId);
+                    identity = new ArrayMaterialIdentity(modId, arrayMaterialId);
                     return true;
                 }
             }
@@ -114,7 +115,7 @@ namespace UniVox.Managers.Game.Accessor
             return false;
         }
 
-        public override ArrayMaterial GetValue(ArrayMaterialId identity)
+        public override ArrayMaterial GetValue(ArrayMaterialIdentity identity)
         {
             if (TryGetValue(identity, out var arrayMaterial))
             {
@@ -124,7 +125,7 @@ namespace UniVox.Managers.Game.Accessor
             throw new Exception();
         }
 
-        public override bool TryGetValue(ArrayMaterialId identity, out ArrayMaterial value)
+        public override bool TryGetValue(ArrayMaterialIdentity identity, out ArrayMaterial value)
         {
             if (TryGetRecord(identity, out var record))
             {

@@ -42,18 +42,6 @@ namespace UniVox.VoxelData
 
         public IEnumerable<Entity> Values => ((IReadOnlyDictionary<int3, Entity>) Records).Values;
 
-        [Obsolete("Use This[index] instead")]
-        public Entity GetAccessor(int3 index)
-        {
-            return Records[index];
-        }
-
-        [Obsolete("Use TryGetValue")]
-        public bool TryGetAccessor(int3 key, out Entity accessor)
-        {
-            return Records.TryGetValue(key, out accessor);
-        }
-
         private bool disposed;
         public void Dispose()
         {

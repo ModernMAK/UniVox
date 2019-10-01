@@ -1116,7 +1116,7 @@ namespace ThirdParty.TextureArrayInspector.Layout
 				//if (Event.current.type==EventType.MouseDown && changeNameButtonRect.Contains(ToInternal(Event.current.mousePosition)))
 					currentlyFocusedRect = rect;
 
-				//using rect as id to determine if we are changing the name now
+				//using rect as identity to determine if we are changing the name now
 				bool editing = CoordinatesExtensions.Approximately(rect, currentlyFocusedRect);
 
 				//label
@@ -1666,7 +1666,7 @@ namespace ThirdParty.TextureArrayInspector.Layout
 				if (Event.current.rawType == EventType.MouseUp && id==dragId)
 				{
 					dragState = DragState.Released;
-					//setting drag id in the end, we'll need it
+					//setting drag identity in the end, we'll need it
 				}
 
 

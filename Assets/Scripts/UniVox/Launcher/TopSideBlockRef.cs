@@ -1,20 +1,21 @@
 using UniVox.Managers.Game;
+using UniVox.Types.Identities;
 using UniVox.VoxelData;
 
 namespace UniVox.Launcher
 {
     public class TopSideBlockRef : BaseBlockReference
     {
-        public TopSideBlockRef(ArrayMaterialId materialId, int grass, int sideSub, int dirtSub)
+        public TopSideBlockRef(ArrayMaterialIdentity materialIdentity, int grass, int sideSub, int dirtSub)
         {
-            _material = materialId;
+            _material = materialIdentity;
             _subMaterial = FaceSubMaterial.CreateTopSideBot(grass, sideSub, dirtSub);
 //                _grassSubMat = grass;
 //                _grassSideSubMat = sideSub;
 //                _dirtSubMat = dirtSub;
         }
 
-        private readonly ArrayMaterialId _material;
+        private readonly ArrayMaterialIdentity _material;
         private FaceSubMaterial _subMaterial;
 
         //Cache to avoid dictionary lookups
