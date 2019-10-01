@@ -25,27 +25,6 @@ namespace UniVox.Rendering.ChunkGen
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
-        public struct EntitySystemVersion : ISystemStateComponentData
-        {
-            public uint CulledFaces;
-            public uint BlockShape;
-            public uint Material;
-            public uint SubMaterial;
-
-            public bool DidChange(EntitySystemVersion version)
-            {
-                return ChangeVersionUtility.DidChange(CulledFaces, version.CulledFaces) ||
-                       ChangeVersionUtility.DidChange(BlockShape, version.BlockShape) ||
-                       ChangeVersionUtility.DidChange(Material, version.Material) ||
-                       ChangeVersionUtility.DidChange(SubMaterial, version.SubMaterial);
-            }
-
-            public override string ToString()
-            {
-                return $"{CulledFaces}-{BlockShape}-{Material}-{SubMaterial}";
-            }
-        }
-
         public struct SystemVersion : ISystemStateComponentData
         {
             public uint CulledFaces;
@@ -68,10 +47,8 @@ namespace UniVox.Rendering.ChunkGen
         }
 
         private EntityQuery _renderQuery;
-        private EntityQuery _entityVersionSetupQuery;
-        private EntityQuery _entityVersionCleanupQuery;
-        private EntityQuery _versionSetupQuery;
-        private EntityQuery _versionCleanupQuery;
+        private EntityQuery _setupQuery;
+        private EntityQuery _cleanupQuery;
 
 //        private Universe _universe;
 
@@ -102,8 +79,7 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<EntitySystemVersion>(),
-                    ComponentType.ChunkComponent<SystemVersion>(),
+                    ComponentType.ReadWrite<SystemVersion>(),
 
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
@@ -119,7 +95,7 @@ namespace UniVox.Rendering.ChunkGen
                     ComponentType.ReadOnly<BlockActiveComponent.Version>(),
                 }
             });
-            _entityVersionSetupQuery = GetEntityQuery(new EntityQueryDesc()
+            _setupQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
@@ -139,33 +115,10 @@ namespace UniVox.Rendering.ChunkGen
                 },
                 None = new[]
                 {
-                    ComponentType.ReadWrite<EntitySystemVersion>(),
+                    ComponentType.ReadWrite<SystemVersion>()
                 }
             });
-            _versionSetupQuery = GetEntityQuery(new EntityQueryDesc()
-            {
-                All = new[]
-                {
-                    ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                    ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
-                    ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
-                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockCulledFacesComponent>(),
-                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockActiveComponent>(),
-                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
-                },
-                None = new[]
-                {
-                    ComponentType.ChunkComponent<SystemVersion>()
-                }
-            });
-            _entityVersionCleanupQuery = GetEntityQuery(new EntityQueryDesc()
+            _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 None = new[]
                 {
@@ -185,30 +138,7 @@ namespace UniVox.Rendering.ChunkGen
                 },
                 All = new[]
                 {
-                    ComponentType.ReadWrite<EntitySystemVersion>(),
-                }
-            });
-            _versionCleanupQuery = GetEntityQuery(new EntityQueryDesc()
-            {
-                None = new[]
-                {
-                    ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                    ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
-                    ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent>(),
-                    ComponentType.ReadOnly<BlockSubMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockCulledFacesComponent>(),
-                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockActiveComponent>(),
-                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
-                },
-                All = new[]
-                {
-                    ComponentType.ChunkComponent<SystemVersion>(),
+                    ComponentType.ReadWrite<SystemVersion>(),
                 }
             });
 
@@ -304,13 +234,12 @@ namespace UniVox.Rendering.ChunkGen
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var chunkIdType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
-            var systemEntityVersionType = GetArchetypeChunkComponentType<EntitySystemVersion>();
-            var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
+            var systemEntityVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
-            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
-            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
-            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
-            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
+//            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
+//            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
+//            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
+//            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
 
             var materialVersionType = GetArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version>(true);
             var subMaterialVersionType =
@@ -323,21 +252,6 @@ namespace UniVox.Rendering.ChunkGen
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
-                var cachedSystemVersion = ecsChunk.GetChunkComponentData(systemVersionType);
-                var currentSystemVersion = new SystemVersion()
-                {
-                    BlockShape = ecsChunk.GetComponentVersion(blockShapeType),
-                    CulledFaces = ecsChunk.GetComponentVersion(culledFaceType),
-                    SubMaterial = ecsChunk.GetComponentVersion(subMaterialType),
-                    Material = ecsChunk.GetComponentVersion(materialType)
-                };
-
-                if (!currentSystemVersion.DidChange(cachedSystemVersion))
-                    continue;
-
-                ecsChunk.SetChunkComponentData(systemVersionType, currentSystemVersion);
-
-
                 var ids = ecsChunk.GetNativeArray(chunkIdType);
                 var systemVersions = ecsChunk.GetNativeArray(systemEntityVersionType);
                 var materialVersions = ecsChunk.GetNativeArray(materialVersionType);
@@ -351,7 +265,7 @@ namespace UniVox.Rendering.ChunkGen
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
                     var version = systemVersions[i];
-                    var currentVersion = new EntitySystemVersion()
+                    var currentVersion = new SystemVersion()
                     {
                         Material = materialVersions[i],
                         SubMaterial = subMaterialVersions[i],
@@ -558,14 +472,12 @@ namespace UniVox.Rendering.ChunkGen
 
         void SetupPass()
         {
-            EntityManager.AddComponent<EntitySystemVersion>(_entityVersionSetupQuery);
-            EntityManager.AddChunkComponentData<SystemVersion>(_versionSetupQuery, default);
+            EntityManager.AddComponent<SystemVersion>(_setupQuery);
         }
 
         void CleanupPass()
         {
-            EntityManager.RemoveComponent<EntitySystemVersion>(_entityVersionCleanupQuery);
-            EntityManager.RemoveComponent<SystemVersion>(_versionCleanupQuery);
+            EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 

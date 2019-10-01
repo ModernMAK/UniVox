@@ -3,9 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine.Profiling;
-using UniVox.Launcher;
 using UniVox.Managers.Game;
-using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.VoxelData;
 using UniVox.VoxelData.Chunk_Components;
 
@@ -226,7 +224,7 @@ namespace UniVox.Rendering.ChunkGen
             chunkArray.Dispose();
         }
 
-        private void UpdateVoxelChunk(Entity voxelChunk, JobHandle dependencies = default)
+        private void UpdateVoxelChunk(Entity voxelChunk)
         {
             var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
             var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
@@ -238,26 +236,18 @@ namespace UniVox.Rendering.ChunkGen
             var blockSubMatArray = blockSubMatLookup[voxelChunk];
 
 
-//<<<<<<< HEAD
-//            var uniqueBlockJob =
-//                UnivoxRenderingJobs.GatherUnique(blockIdArray.AsNativeArray(), out var uniqueBlockIds, dependencies);
-//
-            var variant = new BlockVariant() {Value = byte.MinValue};
-//=======
-//>>>>>>> indev
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
+                Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
-
 
                 if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
                 {
-//                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
+                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
 
-
-                    blockMatArray[blockIndex] = blockRef.GetMaterial(variant);
-                    blockSubMatArray[blockIndex] = blockRef.GetSubMaterial(variant);
-// blockRef.RenderPass(blockAccessor);
+                    Profiler.BeginSample("Perform Pass");
+                    blockRef.RenderPass(blockAccessor);
+                    Profiler.EndSample();
 //                    Profiler.BeginSample("Dirty");
 ////                    block.Render.Version.Dirty();
 //                    Profiler.EndSample();
@@ -268,6 +258,7 @@ namespace UniVox.Rendering.ChunkGen
                     blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
 
+                Profiler.EndSample();
             }
 
 //            changed.Clear();

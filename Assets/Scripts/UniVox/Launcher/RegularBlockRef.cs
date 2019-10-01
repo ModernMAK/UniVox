@@ -1,6 +1,4 @@
-using System;
 using UniVox.Managers.Game;
-using UniVox.Types;
 using UniVox.VoxelData;
 
 namespace UniVox.Launcher
@@ -21,16 +19,6 @@ namespace UniVox.Launcher
         {
             blockData.Material.Value = _material;
             blockData.SubMaterial.Value = _subMat;
-        }
-
-        public override ArrayMaterialId GetMaterial(BlockVariant blockData)
-        {
-            return _material;
-        }
-
-        public override FaceSubMaterial GetSubMaterial(BlockVariant blockData)
-        {
-            return _subMat;
         }
     }
 }
