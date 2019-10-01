@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UniVox.Managers.Game.Structure;
+using UniVox.Types.Identities;
 
 namespace UniVox.Managers.Game.Accessor
 {
-    public class ModRegistryAccessor : RegistryWrapper<ModKey, ModId, ModRegistry.Record>
+    public class ModRegistryAccessor : RegistryWrapper<ModKey, ModIdentity, ModRegistry.Record>
     {
         public ModRegistryAccessor(ModRegistry modRegistry)
         {
@@ -13,38 +14,38 @@ namespace UniVox.Managers.Game.Accessor
 
         private readonly ModRegistry _modRegistry;
 
-        public ModId Register(string name)
+        public ModIdentity Register(string name)
         {
-            return new ModId()
+            return new ModIdentity()
             {
                 Value = (byte) _modRegistry.Register(name)
             };
         }
 
-        public ModId GetId(string name)
+        public ModIdentity GetId(string name)
         {
             TryGetId(name, out var id);
             return id;
         }
 
-        public bool TryGetId(string name, out ModId id)
+        public bool TryGetId(string name, out ModIdentity identity)
         {
             if (_modRegistry.TryGetIndex(name, out var index))
             {
-                id = new ModId((byte) index);
+                identity = new ModIdentity((byte) index);
                 return true;
             }
 
-            id = default;
+            identity = default;
             return false;
         }
 
-//        public ModId Get 
-        public override bool Register(ModKey key, ModRegistry.Record value, out ModId identity)
+//        public ModIdentity Get 
+        public override bool Register(ModKey key, ModRegistry.Record value, out ModIdentity identity)
         {
             if (_modRegistry.Register(key, value, out var id))
             {
-                identity = new ModId((Byte) id);
+                identity = new ModIdentity((Byte) id);
                 return true;
             }
 
@@ -60,12 +61,12 @@ namespace UniVox.Managers.Game.Accessor
             return _modRegistry.ContainsKey(key);
         }
 
-        public override bool IsRegistered(ModId identity)
+        public override bool IsRegistered(ModIdentity identity)
         {
             return _modRegistry.IsRegistered(identity);
         }
 
-        public override ModId GetIdentity(ModKey key)
+        public override ModIdentity GetIdentity(ModKey key)
         {
             if (TryGetIdentity(key, out var id))
             {
@@ -76,11 +77,11 @@ namespace UniVox.Managers.Game.Accessor
                 throw new KeyNotFoundException($"'{key}'");
         }
 
-        public override bool TryGetIdentity(ModKey key, out ModId identity)
+        public override bool TryGetIdentity(ModKey key, out ModIdentity identity)
         {
             if (_modRegistry.TryGetIndex(key, out var index))
             {
-                identity = new ModId((byte) index);
+                identity = new ModIdentity((byte) index);
                 return true;
             }
 
@@ -98,12 +99,12 @@ namespace UniVox.Managers.Game.Accessor
             return _modRegistry.TryGetValue(key, out value);
         }
 
-        public override ModRegistry.Record GetValue(ModId identity)
+        public override ModRegistry.Record GetValue(ModIdentity identity)
         {
             return _modRegistry[identity];
         }
 
-        public override bool TryGetValue(ModId identity, out ModRegistry.Record value)
+        public override bool TryGetValue(ModIdentity identity, out ModRegistry.Record value)
         {
             return _modRegistry.TryGetValue(identity, out value);
         }

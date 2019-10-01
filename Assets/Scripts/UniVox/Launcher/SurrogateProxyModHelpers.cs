@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using UniVox.Launcher.Surrogate;
-using UniVox.Managers.Game;
 using UniVox.Managers.Game.Structure;
+using UniVox.Types.Identities;
 
 namespace UniVox.Launcher
 {
     public static class SurrogateProxyModHelpers
     {
-        public static void RegistrySurrogates(this GameRegistry registry, ModId id,
+        public static void RegistrySurrogates(this GameRegistry registry, ModIdentity identity,
             ModRegistryRecordSurrogate surrogate)
         {
-            registry.Mods[id].RegistrySurrogates(surrogate);
+            registry.Mods[identity].RegistrySurrogates(surrogate);
         }
 
 

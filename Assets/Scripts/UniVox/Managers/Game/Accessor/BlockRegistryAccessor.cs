@@ -1,7 +1,7 @@
 using System;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Structure;
-using UniVox.Types;
+using UniVox.Types.Identities;
 
 namespace UniVox.Managers.Game.Accessor
 {
@@ -62,17 +62,17 @@ namespace UniVox.Managers.Game.Accessor
         private readonly ModRegistryAccessor _modRegistry;
 
 
-        private bool TryGetRecord(BlockKey key, out ModRegistry.Record record, out ModId id)
+        private bool TryGetRecord(BlockKey key, out ModRegistry.Record record, out ModIdentity identity)
         {
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
                 record = _modRegistry[index];
-                id = new ModId((byte) index);
+                identity = new ModIdentity((byte) index);
                 return true;
             }
 
             record = default;
-            id = default;
+            identity = default;
             return false;
         }
 
