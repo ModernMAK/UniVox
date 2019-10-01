@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEditor.SceneManagement;
+using UnityEdits.Hybrid_Renderer;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;

@@ -3,9 +3,9 @@ using UniVox.VoxelData;
 
 namespace UniVox.Launcher
 {
-    public class GrassBlockRef : BaseBlockReference
+    public class TopSideBlockRef : BaseBlockReference
     {
-        public GrassBlockRef(ArrayMaterialId materialId, int grass, int sideSub, int dirtSub)
+        public TopSideBlockRef(ArrayMaterialId materialId, int grass, int sideSub, int dirtSub)
         {
             _material = materialId;
             _subMaterial = FaceSubMaterial.CreateTopSideBot(grass, sideSub, dirtSub);
