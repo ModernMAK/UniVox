@@ -1,13 +1,14 @@
 using System;
+using UnityEngine;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
 using UniVox.Types.Keys;
 
 namespace UniVox.Managers.Game.Accessor
 {
-    public class ArrayMaterialRegistryAccessor : RegistryWrapper<ArrayMaterialKey, ArrayMaterialIdentity, ArrayMaterial>
+    public class IconRegistryAccessor : RegistryWrapper<IconKey, IconIdentity, Sprite>
     {
-        public ArrayMaterialRegistryAccessor(ModRegistryAccessor modRegistry)
+        public IconRegistryAccessor(ModRegistryAccessor modRegistry)
         {
             _modRegistry = modRegistry;
         }
@@ -15,7 +16,7 @@ namespace UniVox.Managers.Game.Accessor
         private readonly ModRegistryAccessor _modRegistry;
 
 
-        private bool TryGetRecord(ArrayMaterialKey key, out ModRegistry.Record record, out ModIdentity identity)
+        private bool TryGetRecord(IconKey key, out ModRegistry.Record record, out ModIdentity identity)
         {
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
@@ -30,7 +31,7 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(ArrayMaterialKey key, out ModRegistry.Record record)
+        private bool TryGetRecord(IconKey key, out ModRegistry.Record record)
         {
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
@@ -43,16 +44,16 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(ArrayMaterialIdentity identity, out ModRegistry.Record record) =>
+        private bool TryGetRecord(IconIdentity identity, out ModRegistry.Record record) =>
             _modRegistry.TryGetValue(identity.Mod, out record);
 
-        public override bool Register(ArrayMaterialKey key, ArrayMaterial value, out ArrayMaterialIdentity identity)
+        public override bool Register(IconKey key, Sprite value, out IconIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
-                if (record.Materials.Register(key.ArrayMaterial, value, out var id))
+                if (record.Icons.Register(key.Icon, value, out var id))
                 {
-                    identity = new ArrayMaterialIdentity(modId, id);
+                    identity = new IconIdentity(modId, id);
                     return true;
                 }
             }
@@ -61,17 +62,17 @@ namespace UniVox.Managers.Game.Accessor
             return false;
         }
 
-        public override bool IsRegistered(ArrayMaterialKey key)
+        public override bool IsRegistered(IconKey key)
         {
             return _modRegistry.IsRegistered(key.Mod);
         }
 
-        public override bool IsRegistered(ArrayMaterialIdentity identity)
+        public override bool IsRegistered(IconIdentity identity)
         {
             return _modRegistry.IsRegistered(identity.Mod);
         }
 
-        public override ArrayMaterialIdentity GetIdentity(ArrayMaterialKey key)
+        public override IconIdentity GetIdentity(IconKey key)
         {
             if (TryGetIdentity(key, out var id))
             {
@@ -80,13 +81,13 @@ namespace UniVox.Managers.Game.Accessor
             else throw new Exception();
         }
 
-        public override bool TryGetIdentity(ArrayMaterialKey key, out ArrayMaterialIdentity identity)
+        public override bool TryGetIdentity(IconKey key, out IconIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
             {
-                if (record.Materials.TryGetIndex(key.ArrayMaterial, out var arrayMaterialId))
+                if (record.Materials.TryGetIndex(key.Icon, out var IconId))
                 {
-                    identity = new ArrayMaterialIdentity(modId, arrayMaterialId);
+                    identity = new IconIdentity(modId, IconId);
                     return true;
                 }
             }
@@ -95,42 +96,42 @@ namespace UniVox.Managers.Game.Accessor
             return false;
         }
 
-        public override ArrayMaterial GetValue(ArrayMaterialKey key)
+        public override Sprite GetValue(IconKey key)
         {
-            if (TryGetValue(key, out var arrayMaterial))
+            if (TryGetValue(key, out var Icon))
             {
-                return arrayMaterial;
+                return Icon;
             }
 
             throw new Exception();
         }
 
-        public override bool TryGetValue(ArrayMaterialKey key, out ArrayMaterial value)
+        public override bool TryGetValue(IconKey key, out Sprite value)
         {
             if (TryGetRecord(key, out var record))
             {
-                return (record.Materials.TryGetValue(key.ArrayMaterial, out value));
+                return (record.Icons.TryGetValue(key.Icon, out value));
             }
 
             value = default;
             return false;
         }
 
-        public override ArrayMaterial GetValue(ArrayMaterialIdentity identity)
+        public override Sprite GetValue(IconIdentity identity)
         {
-            if (TryGetValue(identity, out var arrayMaterial))
+            if (TryGetValue(identity, out var Icon))
             {
-                return arrayMaterial;
+                return Icon;
             }
 
             throw new Exception();
         }
 
-        public override bool TryGetValue(ArrayMaterialIdentity identity, out ArrayMaterial value)
+        public override bool TryGetValue(IconIdentity identity, out Sprite value)
         {
             if (TryGetRecord(identity, out var record))
             {
-                return (record.Materials.TryGetValue(identity.ArrayMaterial, out value));
+                return (record.Icons.TryGetValue(identity.Icon, out value));
             }
 
             value = default;

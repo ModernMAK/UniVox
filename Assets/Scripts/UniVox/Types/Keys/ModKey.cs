@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Managers.Game
+namespace UniVox.Types.Keys
 {
     public struct ModKey : IComparable<ModKey>, IEquatable<ModKey>
     {

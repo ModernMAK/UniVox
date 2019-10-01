@@ -1,7 +1,6 @@
 using System;
-using UniVox.Managers.Game;
 
-namespace UniVox.Launcher
+namespace UniVox.Types.Keys
 {
     public struct SubArrayMaterialKey : IEquatable<SubArrayMaterialKey>, IComparable<SubArrayMaterialKey>
     {
@@ -11,7 +10,7 @@ namespace UniVox.Launcher
             SubArrayMaterial = subArrayMaterial;
         }
 
-//        public ModKey Mod => ArrayMaterial.Mod;
+//        public ModKey Mod => Icon.Mod;
         public ArrayMaterialKey ArrayMaterial;
         public string SubArrayMaterial;
 
