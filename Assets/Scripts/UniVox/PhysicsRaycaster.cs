@@ -2,6 +2,7 @@
 using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UniVox.Rendering.ChunkGen;
 using UniVox.Types;
 using UniVox.VoxelData.Chunk_Components;
@@ -10,6 +11,11 @@ using World = Unity.Entities.World;
 
 namespace UniVox
 {
+    public enum ClickMode
+    {
+        Place, Delete, Alter
+    }
+    
     public class PhysicsRaycaster : MonoBehaviour
     {
         // Start is called before the first frame update
@@ -29,6 +35,8 @@ namespace UniVox
         public void SetBlockId(int id) => this.id = (byte) id;
 
         private const byte idLimit = 4;
+
+        private ClickMode mode;
 
         // Update is called once per frame
 
@@ -86,6 +94,10 @@ namespace UniVox
             return false;
         }
 
+        public void SetClickMode(ClickMode NewMode)
+        {
+            mode = NewMode;
+        }
 
         void Update()
         {
@@ -105,8 +117,10 @@ namespace UniVox
                 id %= idLimit;
             }
 
-            if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.C))
+            if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                    return;
                 const float distance = UnivoxDefine.AxisSize * 8; //Raycast at least 8 chunks away
                 var camRay = _camera.ScreenPointToRay(Input.mousePosition);
                 var start = camRay.origin;
@@ -119,7 +133,7 @@ namespace UniVox
                     Filter = CollisionFilter.Default
                 };
                 _lastRay = input;
-                if (Input.GetKeyDown(KeyCode.Z))
+                if (mode == ClickMode.Alter)
                 {
                     _lastRay = input;
                     if (VoxelRaycast(input, out var hit, out var voxelInfo))
@@ -146,7 +160,7 @@ namespace UniVox
                     else
                         Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
                 }
-                else if (Input.GetKeyDown(KeyCode.C))
+                else if (mode == ClickMode.Place)
                 {
                     if (VoxelRaycast(input, out var hit, out var voxelInfo))
                     {
@@ -175,7 +189,7 @@ namespace UniVox
                     else
                         Debug.Log($"Missed Create : {hit.Position} -> {hit.SurfaceNormal}");
                 }
-                else if (Input.GetKeyDown(KeyCode.X))
+                else if (mode == ClickMode.Delete)
                 {
                     if (VoxelRaycast(input, out var hit, out var voxelInfo))
                     {

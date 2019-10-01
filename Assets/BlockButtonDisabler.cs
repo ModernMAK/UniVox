@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UniVox;
 using UniVox.Launcher;
-using UniVox.Types;
 
-public class button_disabler : MonoBehaviour
+public class BlockButtonDisabler : MonoBehaviour
 {
     [SerializeField]
     private Button sand, dirt, grass, stone;
