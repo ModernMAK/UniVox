@@ -9,7 +9,7 @@ using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkCullingSystem : JobComponentSystem
@@ -50,6 +50,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
                     ComponentType.ReadOnly<BlockActiveComponent.Version>(),
+                     
+                },
+                None = new[]
+                {
+                    ComponentType.ReadOnly<ChunkInvalidTag>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()

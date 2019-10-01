@@ -22,6 +22,7 @@ namespace UniVox
 //    public ModSurrogate ModData;
         public int3 wSize = 0;
         public int3 offset = 0;
+        public int MaxItemsPerFrame = 1;
 
         // Start is called before the first frame update
         void Start()
@@ -58,12 +59,20 @@ namespace UniVox
 
         void ProcessQueue(int count)
         {
-            while (count > 0 && _setup.Count > 0)
+            int setupTries = 0;
+            while (count > 0 && _setup.Count > 0 && setupTries < _setup.Count)
             {
                 var data = _setup.Dequeue();
                 if (!SetupChunk(data))
+                {
                     _setup.Enqueue(data);
-                count--;
+                    setupTries++;
+                }
+                else
+                {
+                    count--;
+                    setupTries--;
+                }
             }
 
             while (count > 0 && _requests.Count > 0)
@@ -183,7 +192,7 @@ namespace UniVox
         // Update is called once per frame
         void Update()
         {
-            ProcessQueue(1);
+            ProcessQueue(MaxItemsPerFrame);
         }
     }
 }

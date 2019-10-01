@@ -18,4 +18,20 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 OutList.Add(Queue.Dequeue());
         }
     }
+
+    [BurstCompile]
+    public struct DisposeArrayJob<T> : IJob where T : struct
+    {
+        public DisposeArrayJob(NativeArray<T> array)
+        {
+            Array = array;
+        }
+
+        [DeallocateOnJobCompletion] public NativeArray<T> Array;
+
+        public void Execute()
+        {
+            //Do NOTHING
+        }
+    }
 }

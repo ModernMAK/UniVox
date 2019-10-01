@@ -42,7 +42,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 None = new[]
                 {
                     ComponentType.ReadOnly<DontRenderTag>(),
-                }
+                    ComponentType.ReadOnly<ChunkInvalidTag>(),
+                },
             });
             _arrayMaterialRegistry = GameManager.Registry.ArrayMaterials;
 
