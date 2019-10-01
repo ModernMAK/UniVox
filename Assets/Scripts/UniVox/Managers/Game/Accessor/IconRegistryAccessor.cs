@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UniVox.Managers.Game.Accessor.Types.Identities;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
 using UniVox.Types.Keys;
