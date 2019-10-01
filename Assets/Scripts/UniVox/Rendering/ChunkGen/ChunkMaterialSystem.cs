@@ -1,25 +1,34 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine.Profiling;
-using UniVox.Launcher;
 using UniVox.Managers.Game;
-using UniVox.Rendering.ChunkGen.Jobs;
 using UniVox.VoxelData;
 using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.Rendering.ChunkGen
 {
+    /// <summary>
+    /// Specifies the given chunk is INVALID
+    /// This most likely happens because the chunk is being created, loaded, unloaded, saved, ETC
+    /// Systems that process chunk data should NOT process chunks with this tag
+    /// Some Systems which work on Invalid Chunks (Initialization, Loading, ETC) may still run on InvalidChunks
+    /// </summary>
+    public struct ChunkInvalidTag : IComponentData
+    {
+        
+    }
+    
+    
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialSystem : JobComponentSystem
     {
+        private EntityQuery _cleanupQuery;
+
+
         private EntityQuery _renderQuery;
-        private EntityQuery _setupEntityVersionQuery;
-        private EntityQuery _cleanupEntityVersionQuery;
-        private EntityQuery _setupVersionQuery;
-        private EntityQuery _cleanupVersionQuery;
+        private EntityQuery _setupQuery;
 
 
         protected override void OnCreate()
@@ -29,124 +38,54 @@ namespace UniVox.Rendering.ChunkGen
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                    ComponentType.ReadWrite<SystemEntityVersion>(),
-                    ComponentType.ChunkComponent<SystemVersion>(),
+//                    ComponentType.ReadWrite<BlockChanged>(),
+                    ComponentType.ReadWrite<SystemVersion>(),
 
                     ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
-
-
-                    ComponentType.ReadWrite<BlockMaterialIdentityComponent.Version>(),
-                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockIdentityComponent.Version>()
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
                 }
             });
-            _setupEntityVersionQuery = GetEntityQuery(new EntityQueryDesc
+            _setupQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+//                    ComponentType.ReadWrite<BlockChanged>(),
+                    ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
+                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
+
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
+                },
+                None = new[]
+                {
+                    ComponentType.ReadWrite<SystemVersion>()
+                }
+            });
+            _cleanupQuery = GetEntityQuery(new EntityQueryDesc
+            {
+                None = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
 
                     ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
-
-
-                    ComponentType.ReadWrite<BlockMaterialIdentityComponent.Version>(),
-                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockIdentityComponent.Version>()
+                    ComponentType.ReadOnly<BlockIdentityComponent>()
                 },
-                None = new[]
-                {
-                    ComponentType.ReadWrite<SystemEntityVersion>(),
-                }
-            });
-            _setupVersionQuery = GetEntityQuery(new EntityQueryDesc
-            {
                 All = new[]
                 {
-                    ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                    ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
-                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
-
-                    ComponentType.ReadOnly<BlockIdentityComponent>(),
-
-
-                    ComponentType.ReadWrite<BlockMaterialIdentityComponent.Version>(),
-                    ComponentType.ReadWrite<BlockSubMaterialIdentityComponent.Version>(),
-
-                    ComponentType.ReadOnly<BlockIdentityComponent.Version>()
-                },
-                None = new[]
-                {
-                    ComponentType.ChunkComponent<SystemVersion>()
+                    ComponentType.ReadWrite<SystemVersion>()
                 }
             });
-            _cleanupEntityVersionQuery = GetEntityQuery(
-                new EntityQueryDesc
-                {
-                    None = new[]
-                    {
-                        ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                        ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
-                        ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
-
-                        ComponentType.ReadOnly<BlockIdentityComponent>(),
-
-
-                        ComponentType.ReadWrite<BlockMaterialIdentityComponent.Version>(),
-                        ComponentType.ReadWrite<BlockSubMaterialIdentityComponent.Version>(),
-
-                        ComponentType.ReadOnly<BlockIdentityComponent.Version>()
-                    },
-                    All = new[]
-                    {
-                        ComponentType.ReadWrite<SystemEntityVersion>(),
-                    }
-                });
-
-            _cleanupVersionQuery = GetEntityQuery(
-                new EntityQueryDesc
-                {
-                    None = new[]
-                    {
-                        ComponentType.ReadOnly<ChunkIdComponent>(),
-
-                        ComponentType.ReadWrite<BlockMaterialIdentityComponent>(),
-                        ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
-
-                        ComponentType.ReadOnly<BlockIdentityComponent>(),
-
-
-                        ComponentType.ReadWrite<BlockMaterialIdentityComponent.Version>(),
-                        ComponentType.ReadWrite<BlockSubMaterialIdentityComponent.Version>(),
-
-                        ComponentType.ReadOnly<BlockIdentityComponent.Version>()
-                    },
-                    All = new[]
-                    {
-                        ComponentType.ChunkComponent<SystemVersion>()
-                    }
-                });
         }
 
         private void RenderPass()
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-//            var idType = GetArchetypeChunkBufferType<BlockIdentityComponent>(true);
-            var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
-            var systemEntityVersionType = GetArchetypeChunkComponentType<SystemEntityVersion>();
-            var identityVersionType = GetArchetypeChunkComponentType<BlockIdentityComponent.Version>();
-            var mateiralVersionType = GetArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version>();
-            var subMateiralVersionType = GetArchetypeChunkComponentType<BlockSubMaterialIdentityComponent.Version>();
+            var idType = GetArchetypeChunkBufferType<BlockIdentityComponent>(true);
+            var versionType = GetArchetypeChunkComponentType<SystemVersion>();
 //            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
 
 
@@ -155,45 +94,23 @@ namespace UniVox.Rendering.ChunkGen
             Profiler.BeginSample("Process ECS Chunk");
             foreach (var ecsChunk in chunkArray)
             {
-                var systemVersion = ecsChunk.GetChunkComponentData(systemVersionType);
-
-                if (!ecsChunk.DidChange(systemVersionType, systemVersion.IdentityVersion))
-                    continue;
-
-                ecsChunk.SetChunkComponentData(systemVersionType,
-                    new SystemVersion()
-                    {
-                        IdentityVersion = ecsChunk.GetComponentVersion(systemVersionType)
-                    }
-                );
-
-
-                var systemEntityVersions = ecsChunk.GetNativeArray(systemEntityVersionType);
+                var versions = ecsChunk.GetNativeArray(versionType);
                 var voxelChunkEntityArray = ecsChunk.GetNativeArray(voxelChunkEntityArchetpye);
-                var identityVersions = ecsChunk.GetNativeArray(identityVersionType);
-                var materialVersions = ecsChunk.GetNativeArray(mateiralVersionType);
-                var subMaterialVersions = ecsChunk.GetNativeArray(subMateiralVersionType);
-
 
                 var i = 0;
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
-                    var entityVersion = systemEntityVersions[i];
-
-                    var currentEntityVersion = new SystemEntityVersion
-                    {
-                        IdentityVersion = identityVersions[i]
-                    };
-                    if (currentEntityVersion.DidChange(entityVersion)
-                    ) //ecsChunk.DidChange(idType, version.IdentityVersion)))
+                    var version = versions[i];
+                    if (ecsChunk.DidChange(idType, version.IdentityVersion))
                     {
                         Profiler.BeginSample("Update Chunk");
                         UpdateVoxelChunk(voxelChunkEntity);
 
                         Profiler.EndSample();
-                        systemEntityVersions[i] = currentEntityVersion;
-                        materialVersions[i] = materialVersions[i].GetDirty();
-                        subMaterialVersions[i] = subMaterialVersions[i].GetDirty();
+                        versions[i] = new SystemVersion
+                        {
+                            IdentityVersion = ecsChunk.GetComponentVersion(idType)
+                        };
                     }
 
                     i++;
@@ -226,38 +143,26 @@ namespace UniVox.Rendering.ChunkGen
             chunkArray.Dispose();
         }
 
-        private void UpdateVoxelChunk(Entity voxelChunk, JobHandle dependencies = default)
+        private void UpdateVoxelChunk(Entity voxelChunk)
         {
             var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
             var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
             var blockSubMatLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
-
-
             var blockIdArray = blockIdLookup[voxelChunk];
             var blockMatArray = blockMatLookup[voxelChunk];
             var blockSubMatArray = blockSubMatLookup[voxelChunk];
-
-
-//<<<<<<< HEAD
-//            var uniqueBlockJob =
-//                UnivoxRenderingJobs.GatherUnique(blockIdArray.AsNativeArray(), out var uniqueBlockIds, dependencies);
-//
-            var variant = new BlockVariant() {Value = byte.MinValue};
-//=======
-//>>>>>>> indev
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
+                Profiler.BeginSample("Process Block");
                 var blockId = blockIdArray[blockIndex];
-
 
                 if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
                 {
-//                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
+                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
 
-
-                    blockMatArray[blockIndex] = blockRef.GetMaterial(variant);
-                    blockSubMatArray[blockIndex] = blockRef.GetSubMaterial(variant);
-// blockRef.RenderPass(blockAccessor);
+                    Profiler.BeginSample("Perform Pass");
+                    blockRef.RenderPass(blockAccessor);
+                    Profiler.EndSample();
 //                    Profiler.BeginSample("Dirty");
 ////                    block.Render.Version.Dirty();
 //                    Profiler.EndSample();
@@ -268,6 +173,7 @@ namespace UniVox.Rendering.ChunkGen
                     blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
 
+                Profiler.EndSample();
             }
 
 //            changed.Clear();
@@ -276,14 +182,12 @@ namespace UniVox.Rendering.ChunkGen
 
         private void SetupPass()
         {
-            EntityManager.AddComponent<SystemEntityVersion>(_setupEntityVersionQuery);
-            EntityManager.AddChunkComponentData<SystemVersion>(_setupVersionQuery, default);
+            EntityManager.AddComponent<SystemVersion>(_setupQuery);
         }
 
         private void CleanupPass()
         {
-            EntityManager.RemoveComponent<SystemEntityVersion>(_cleanupEntityVersionQuery);
-            EntityManager.RemoveComponent<SystemVersion>(_cleanupVersionQuery);
+            EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 
@@ -301,34 +205,12 @@ namespace UniVox.Rendering.ChunkGen
             return new JobHandle();
         }
 
-        public struct SystemVersion : ISystemStateComponentData, IVersionProxy<SystemEntityVersion>
+        public struct SystemVersion : ISystemStateComponentData
         {
             public uint IdentityVersion;
 
 
-            public bool DidChange(SystemEntityVersion other) =>
-                ChangeVersionUtility.DidChange(IdentityVersion, other.IdentityVersion);
-
-            public SystemEntityVersion GetDirty()
-            {
-                throw new NotSupportedException();
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public struct SystemEntityVersion : ISystemStateComponentData, IVersionProxy<SystemEntityVersion>
-        {
-            public uint IdentityVersion;
-
-
-            public bool DidChange(SystemEntityVersion other) =>
-                ChangeVersionUtility.DidChange(IdentityVersion, other.IdentityVersion);
-
-            public SystemEntityVersion GetDirty()
-            {
-                throw new NotSupportedException();
-                throw new System.NotImplementedException();
-            }
+//            public bool DidChange(Chunk chunk) => DidChange(chunk.Info.Version);
 
 //            public static SystemVersion Create(Chunk chunk)
 //            {

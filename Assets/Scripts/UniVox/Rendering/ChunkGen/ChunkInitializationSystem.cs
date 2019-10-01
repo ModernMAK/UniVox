@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Rendering;
-using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.VoxelData;
@@ -18,6 +13,7 @@ namespace UniVox
     {
         public ChunkIdentity ChunkPosition;
     }
+
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkInitializationSystem : JobComponentSystem
@@ -129,6 +125,7 @@ namespace UniVox
             };
             return job.Schedule(chunks.Length, chunks.Length, handle);
         }
+
         private struct Result
         {
             public JobHandle Handle;
@@ -136,7 +133,6 @@ namespace UniVox
             public Entity Entity;
         }
 
-        
 
         JobHandle ProcessQuery(JobHandle inputDependencies = default)
         {
@@ -146,15 +142,15 @@ namespace UniVox
             JobHandle handles = new JobHandle();
 //            var cmdBuffer = _updateEnd.CreateCommandBuffer();
 //            cmdBuffer.get
-            using (var ecsChunks = _eventQuery.CreateArchetypeChunkArray(Allocator.TempJob))
-            {
-                if (ecsChunks.Length <= 0)
-                    return inputDependencies;
-                var create = CreateEntities(ecsChunks, out var entities, inputDependencies);
-                _updateEnd.AddJobHandleForProducer(create);
-                var constition = ResizeBuffer()
-//                var creaeJob = 
-            }
+//            using (var ecsChunks = _eventQuery.CreateArchetypeChunkArray(Allocator.TempJob))
+//            {
+//                if (ecsChunks.Length <= 0)
+//                    return inputDependencies;
+//                var create = CreateEntities(ecsChunks, out var entities, inputDependencies);
+//                _updateEnd.AddJobHandleForProducer(create);
+//                var constition = ResizeBuffer()
+////                var creaeJob = 
+//            }
 
 //            EntityManager.DestroyEntity(_eventQuery);
             return handles;

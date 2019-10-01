@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using UniVox.VoxelData.Chunk_Components;
 
 namespace UniVox.VoxelData
 {
@@ -37,7 +38,7 @@ namespace UniVox.VoxelData
         public Entity this[int3 index] => Records[index];
 
         //TODO - Something better than this workaround
-        public void Register(int3 index,Entity entity) => Records[index] = entity;
+        public void Register(int3 index, Entity entity) => Records[index] = entity;
         public IEnumerable<int3> Keys => ((IReadOnlyDictionary<int3, Entity>) Records).Keys;
 
         public IEnumerable<Entity> Values => ((IReadOnlyDictionary<int3, Entity>) Records).Values;
@@ -55,9 +56,10 @@ namespace UniVox.VoxelData
         }
 
         private bool disposed;
+
         public void Dispose()
         {
-            if(disposed)
+            if (disposed)
                 return;
             disposed = true;
             foreach (var recordValue in Records.Values)
@@ -86,5 +88,15 @@ namespace UniVox.VoxelData
         }
 
         public int Count => Records.Count;
+
+        public void ClearChunkEntities()
+        {
+            Records.Clear();
+        }
+
+        public void UpdateChunkEntity(int3 chunkId, Entity entity)
+        {
+            Records[chunkId] = entity;
+        }
     }
 }
