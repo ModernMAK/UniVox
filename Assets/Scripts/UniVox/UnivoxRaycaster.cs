@@ -11,7 +11,7 @@ using World = Unity.Entities.World;
 
 namespace UniVox
 {
-    public class PhysicsRaycaster : MonoBehaviour
+    public class UnivoxRaycaster : MonoBehaviour
     {
         // Start is called before the first frame update
         void Start()
