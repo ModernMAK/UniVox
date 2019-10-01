@@ -1,6 +1,8 @@
+using Unity.Entities;
+
 namespace UniVox.Types.Identities
 {
-    public struct ArrayMaterialIdentity
+    public struct ArrayMaterialIdentity : IBufferElementData
     {
         public ModIdentity Mod;
         public int ArrayMaterial;

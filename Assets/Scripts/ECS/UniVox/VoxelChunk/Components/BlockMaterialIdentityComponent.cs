@@ -74,7 +74,7 @@ namespace UniVox.VoxelData.Chunk_Components
 
             public bool DidChange(Version other)
             {
-                return ChangeVersionUtility.DidChange(Value,other.Value);
+                return ChangeVersionUtility.DidChange(Value, other.Value);
             }
 
             public Version GetDirty()
@@ -83,13 +83,14 @@ namespace UniVox.VoxelData.Chunk_Components
                 ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
                 return new Version() {Value = temp};
             }
+
             public override string ToString()
             {
                 return Value.ToString();
             }
         }
-
     }
+
     public interface IVersion
     {
         uint Value { get; }
