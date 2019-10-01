@@ -7,6 +7,7 @@ using UniVox;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
+using UniVox.Types.Identities.Voxel;
 using UniVox.VoxelData;
 using UniVox.VoxelData.Chunk_Components;
 

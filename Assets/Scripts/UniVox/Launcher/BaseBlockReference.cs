@@ -1,3 +1,4 @@
+using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.VoxelData;
 
