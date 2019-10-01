@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UniVox
+namespace UniVox.Types
 {
     [Serializable]
     public class NamedValue<T>

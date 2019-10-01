@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace UniVox.Types
+namespace UniVox.Types.Exceptions
 {
     public class ObsoleteException : Exception
     {

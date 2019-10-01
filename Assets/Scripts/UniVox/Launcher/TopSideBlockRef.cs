@@ -1,4 +1,5 @@
 using UniVox.Managers.Game;
+using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.VoxelData;
 

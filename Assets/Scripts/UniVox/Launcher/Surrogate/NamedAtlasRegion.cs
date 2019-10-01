@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UniVox.Managers.Game.Structure;
+using UniVox.Types;
 
 namespace UniVox.Launcher.Surrogate
 {

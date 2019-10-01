@@ -2,7 +2,7 @@ using System;
 using Unity.Mathematics;
 using UniVox.Utility;
 
-namespace UniVox.Types
+namespace UniVox.Types.Identities.Voxel
 {
     /// <summary>
     ///     A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or World in the Universe

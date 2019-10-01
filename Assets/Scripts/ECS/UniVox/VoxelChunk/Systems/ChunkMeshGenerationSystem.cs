@@ -12,6 +12,7 @@ using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Rendering.Render;
 using UniVox.Types;
+using UniVox.Types.Identities.Voxel;
 using UniVox.Utility;
 using UniVox.VoxelData.Chunk_Components;
 using Material = UnityEngine.Material;

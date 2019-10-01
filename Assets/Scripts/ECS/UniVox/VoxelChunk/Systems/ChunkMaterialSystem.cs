@@ -5,6 +5,7 @@ using Unity.Jobs;
 using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Managers.Game;
+using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.VoxelData;
 using UniVox.VoxelData.Chunk_Components;

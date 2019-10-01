@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Launcher
+namespace UniVox.Types.Exceptions
 {
     public class AssetNotFoundException : Exception
     {

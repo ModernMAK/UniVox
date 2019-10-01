@@ -1,7 +1,6 @@
 using System;
-using UniVox.Types.Identities;
 
-namespace UniVox.Managers.Game
+namespace UniVox.Types.Identities
 {
     public struct SubArrayMaterialId : IComparable<SubArrayMaterialId>, IEquatable<SubArrayMaterialId>
     {

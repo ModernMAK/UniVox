@@ -2,6 +2,7 @@ using System;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
+using UniVox.Types.Identities.Voxel;
 
 public struct BatchGroupIdentity : IEquatable<BatchGroupIdentity>, IComparable<BatchGroupIdentity>
 {

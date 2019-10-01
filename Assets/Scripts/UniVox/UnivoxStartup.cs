@@ -8,6 +8,8 @@ using UnityEngine.UIElements;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Types;
+using UniVox.Types.Exceptions;
+using UniVox.Types.Identities.Voxel;
 using UniVox.VoxelData.Chunk_Components;
 using VoxelWorld = UniVox.VoxelData.World;
 

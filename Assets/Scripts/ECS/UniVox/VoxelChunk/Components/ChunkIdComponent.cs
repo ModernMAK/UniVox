@@ -1,6 +1,7 @@
 using System;
 using Unity.Entities;
 using UniVox.Types;
+using UniVox.Types.Identities.Voxel;
 
 namespace UniVox.VoxelData.Chunk_Components
 {

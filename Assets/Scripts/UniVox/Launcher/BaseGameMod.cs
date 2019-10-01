@@ -2,6 +2,7 @@ using UniVox.Asset_Management;
 using UniVox.Launcher.Surrogate;
 using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
+using UniVox.Types.Exceptions;
 using UniVox.Types.Keys;
 
 namespace UniVox.Launcher

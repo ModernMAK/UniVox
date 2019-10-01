@@ -1,6 +1,4 @@
-using UniVox.Types.Identities;
-
-namespace UniVox.Managers.Game.Accessor.Types.Identities
+namespace UniVox.Types.Identities
 {
     public struct IconIdentity 
     {
