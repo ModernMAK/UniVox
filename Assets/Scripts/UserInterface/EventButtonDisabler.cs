@@ -12,7 +12,7 @@ public class EventButtonDisabler : MonoBehaviour
 
     private Button last;
 
-    [SerializeField] private PhysicsRaycaster physics;
+    [SerializeField] private UnivoxRaycaster physics;
     
     // Start is called before the first frame update
     void Start()

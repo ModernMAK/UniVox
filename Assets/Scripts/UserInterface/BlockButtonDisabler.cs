@@ -11,7 +11,7 @@ public class BlockButtonDisabler : MonoBehaviour
     private Button last;
     private bool sand_exists, dirt_exists, grass_exists, stone_exists;
 
-    [SerializeField] private PhysicsRaycaster physics;
+    [SerializeField] private UnivoxRaycaster physics;
     
     // Start is called before the first frame update
     void Start()
