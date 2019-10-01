@@ -2,6 +2,7 @@ using System;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
+using UniVox.Types.Keys;
 
 namespace UniVox.Managers.Game.Accessor
 {

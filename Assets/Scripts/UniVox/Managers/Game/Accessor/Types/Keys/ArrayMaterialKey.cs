@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Managers.Game
+namespace UniVox.Types.Keys
 {
     public struct ArrayMaterialKey : IEquatable<ArrayMaterialKey>, IComparable<ArrayMaterialKey>
     {
@@ -48,4 +48,6 @@ namespace UniVox.Managers.Game
             return string.Compare(ArrayMaterial, other.ArrayMaterial, StringComparison.Ordinal);
         }
     }
+    
+    
 }
