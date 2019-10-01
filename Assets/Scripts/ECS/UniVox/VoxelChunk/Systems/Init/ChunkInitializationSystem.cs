@@ -17,156 +17,121 @@ namespace ECS.UniVox.VoxelChunk.Systems
         public ChunkIdentity ChunkPosition;
     }
 
+    public struct ChunkRequiresInitializationTag : IComponentData
+    {
+    }
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkInitializationSystem : JobComponentSystem
     {
-        private EntityQuery _eventQuery;
-        private EntityArchetype _blockChunkArchetype;
+        private EntityQuery _chunkQuery;
         private EndInitializationEntityCommandBufferSystem _updateEnd;
 
-        private EntityArchetype CreateBlockChunkArchetype()
-        {
-            return EntityManager.CreateArchetype(
-                typeof(ChunkIdComponent),
-                typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
-                typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
-                typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
-                typeof(ChunkInvalidTag)
-            );
-        }
 
         protected override void OnCreate()
         {
-            _eventQuery = GetEntityQuery(ComponentType.ReadOnly<CreateChunkEventity>());
-
-            _blockChunkArchetype = CreateBlockChunkArchetype();
+            _chunkQuery = GetEntityQuery(typeof(ChunkIdComponent),
+                typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
+                typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
+                typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
+                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
 
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
 
-        JobHandle ProcessQuery(JobHandle inputDependencies = default)
+        JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
         {
             const int BatchSize = 64;
-            var eventityDataType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
-            var eventityType = GetArchetypeChunkEntityType();
-            JobHandle result = default;
-            using (var ecsChunks = _eventQuery.CreateArchetypeChunkArray(Allocator.TempJob))
+            var entityType = GetArchetypeChunkEntityType();
+            using (var ecsChunks = _chunkQuery.CreateArchetypeChunkArray(Allocator.TempJob))
                 //.ToEntityArray(Allocator.TempJob, out var entytyArrJob))
             {
                 foreach (var ecsChunk in ecsChunks)
                 {
-                    var eventitiesInChunk = ecsChunk.GetNativeArray(eventityType);
-                    var eventityData = ecsChunk.GetNativeArray(eventityDataType);
-//                    var combinedDependency = JobHandle.CombineDependencies(inputDependencies, entytyArrJob);
-                    var createdChunks = new NativeArray<Entity>(eventitiesInChunk.Length, Allocator.TempJob);
-                    var initChunkJob = new InitializeVoxelChunkJob()
-                    {
-                        Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
-                        Archetype = _blockChunkArchetype,
-                        Created = createdChunks,
-                        Eventities = eventitiesInChunk,
-                        EventityData = eventityData
-                    }.Schedule(eventitiesInChunk.Length, BatchSize, inputDependencies);
+                    var entities = ecsChunk.GetNativeArray(entityType);
 
-                    _updateEnd.AddJobHandleForProducer(initChunkJob);
 
-                    var resizeAndInitJob = ResizeAndInitAllBuffers(createdChunks, initChunkJob);
+                    var resizeAndInitJob = ResizeAndInitAllBuffers(entities, inputDependencies);
 //                    var cleanupCreated = new DisposeArrayJob<Entity>(createdChunks).Schedule(resizeAndInitJob);
                     var markValid = new MarkValidJob()
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
-                        ChunkEntities = createdChunks
-                    }.Schedule(createdChunks.Length, BatchSize, resizeAndInitJob);
+                        ChunkEntities = entities
+                    }.Schedule(entities.Length, BatchSize, resizeAndInitJob);
                     _updateEnd.AddJobHandleForProducer(markValid);
-                    result = JobHandle.CombineDependencies(result, markValid);
+                    inputDependencies = markValid;
                 }
             }
 
-            return result;
+            return inputDependencies;
         }
 
-        [BurstCompile]
-        struct InitializeVoxelChunkJob : IJobParallelFor
-        {
-            [ReadOnly] public EntityCommandBuffer.Concurrent Buffer;
-            [ReadOnly] public EntityArchetype Archetype;
 
-            [ReadOnly] public NativeArray<Entity> Eventities;
-            [ReadOnly] public NativeArray<CreateChunkEventity> EventityData;
-            [WriteOnly] public NativeArray<Entity> Created;
-
-            public void Execute(int entityIndex)
-            {
-                var entity = Buffer.CreateEntity(entityIndex, Archetype);
-                //Seperate statements, ChunkEntities is WRITE ONLY
-                Created[entityIndex] = entity;
-                var chunkPos = EventityData[entityIndex].ChunkPosition;
-                Buffer.SetComponent(entityIndex, entity,
-                    new ChunkIdComponent() {Value = chunkPos}
-                );
-
-
-                Buffer.DestroyEntity(entityIndex, Eventities[entityIndex]);
-            }
-        }
-
-        [BurstCompile]
+//        [BurstCompile]
         struct MarkValidJob : IJobParallelFor //Chunk
         {
-            [ReadOnly] public EntityCommandBuffer.Concurrent Buffer;
-
-            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> ChunkEntities;
+            public EntityCommandBuffer.Concurrent Buffer;
+            [ReadOnly] public NativeArray<Entity> ChunkEntities;
 
             public void Execute(int entityIndex)
             {
-                Buffer.RemoveComponent<ChunkInvalidTag>(entityIndex, ChunkEntities[entityIndex]);
+                var entity = ChunkEntities[entityIndex];
+                Buffer.RemoveComponent<ChunkInvalidTag>(entityIndex, entity);
+                Buffer.RemoveComponent<ChunkRequiresInitializationTag>(entityIndex, entity);
             }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return ProcessQuery(inputDeps);
+            return ProcessEventQuery(inputDeps);
 //            inputDeps.Complete();
 //
-//            ProcessQuery();
+//            ProcessEventQuery();
 //
 //            return new JobHandle();
         }
 
 
-        public struct InitializeBufferJob<TComponent> : IJobParallelFor
+        [BurstCompile]
+        public struct InitializeBufferJob<TComponent> : IJob //ParallelFor
             where TComponent : struct, IBufferElementData
         {
-            [ReadOnly] public BufferFromEntity<TComponent> BufferAccessor;
+            public BufferFromEntity<TComponent> BufferAccessor;
             [ReadOnly] public NativeArray<Entity> Entity;
             [ReadOnly] public TComponent Data;
             [ReadOnly] public int Size;
 
 
-            public void Execute(int entityIndex)
+            public void Execute() //int entityIndex)
             {
-                var buffer = BufferAccessor[Entity[entityIndex]];
-                for (var bufferIndex = 0; bufferIndex < Size; bufferIndex++)
+                for (var entityIndex = 0; entityIndex < Entity.Length; entityIndex++)
                 {
-                    buffer[bufferIndex] = Data;
+                    var buffer = BufferAccessor[Entity[entityIndex]];
+                    for (var bufferIndex = 0; bufferIndex < Size; bufferIndex++)
+                    {
+                        buffer[bufferIndex] = Data;
+                    }
                 }
             }
         }
 
-        public struct ResizeBufferJob<TComponent> : IJobParallelFor where TComponent : struct, IBufferElementData
+        [BurstCompile]
+        public struct ResizeBufferJob<TComponent> : IJob where TComponent : struct, IBufferElementData
         {
-            [ReadOnly] public BufferFromEntity<TComponent> BufferAccessor;
+            public BufferFromEntity<TComponent> BufferAccessor;
             [ReadOnly] public NativeArray<Entity> Entity;
             [ReadOnly] public int Size;
 
 
-            public void Execute(int index)
+            public void Execute() //int index)
             {
-                var dynamicBuffer = BufferAccessor[Entity[index]];
-                dynamicBuffer.ResizeUninitialized(Size);
+                for (var index = 0; index < Entity.Length; index++)
+                {
+                    var dynamicBuffer = BufferAccessor[Entity[index]];
+                    dynamicBuffer.ResizeUninitialized(Size);
+                }
             }
         }
 
@@ -185,7 +150,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 BufferAccessor = bufferAccessor,
                 Entity = entities,
                 Size = bufferSize,
-            }.Schedule(jobSize, batchSize, inputDependencies);
+            }.Schedule(inputDependencies); //.Schedule(jobSize, batchSize, inputDependencies);
 
             var initJob = new InitializeBufferJob<TComponent>()
             {
@@ -193,7 +158,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 Entity = entities,
                 Data = defaultValue,
                 Size = bufferSize
-            }.Schedule(jobSize, batchSize, resizeJob);
+            }.Schedule(resizeJob); //.Schedule(jobSize, batchSize, resizeJob);
 
             return initJob;
         }

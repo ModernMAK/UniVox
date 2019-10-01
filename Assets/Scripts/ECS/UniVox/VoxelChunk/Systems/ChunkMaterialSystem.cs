@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -17,11 +18,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
     /// </summary>
     public struct ChunkInvalidTag : IComponentData
     {
-        
     }
-    
-    
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+
+
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialSystem : JobComponentSystem
     {
@@ -46,6 +46,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<BlockSubMaterialIdentityComponent>(),
 
                     ComponentType.ReadOnly<BlockIdentityComponent>()
+                },
+                None = new[]
+                {
+                    ComponentType.ReadOnly<ChunkInvalidTag>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc
@@ -154,30 +158,30 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var blockSubMatArray = blockSubMatLookup[voxelChunk];
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
-                Profiler.BeginSample("Process Block");
+                
                 var blockId = blockIdArray[blockIndex];
 
-                if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
+                try
                 {
-                    var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray).AddData(blockSubMatArray);
+                    if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
+                    {
+//                        var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray)
+//                            .AddData(blockSubMatArray);
 
-                    Profiler.BeginSample("Perform Pass");
-                    blockRef.RenderPass(blockAccessor);
-                    Profiler.EndSample();
-//                    Profiler.BeginSample("Dirty");
-////                    block.Render.Version.Dirty();
-//                    Profiler.EndSample();
+                        blockMatArray[blockIndex] = blockRef.GetMaterial();
+                        blockSubMatArray[blockIndex] = blockRef.GetSubMaterial();
+                    }
+                    else
+                    {
+                        blockMatArray[blockIndex] = new ArrayMaterialIdentity(0, -1);
+                        blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    blockMatArray[blockIndex] = new ArrayMaterialIdentity(0, -1);
-                    blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
+                    throw e;
                 }
-
-                Profiler.EndSample();
             }
-
-//            changed.Clear();
         }
 
 

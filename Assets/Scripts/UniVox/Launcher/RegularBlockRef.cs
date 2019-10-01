@@ -21,5 +21,15 @@ namespace UniVox.Launcher
             blockData.Material.Value = _material;
             blockData.SubMaterial.Value = _subMat;
         }
+
+        public override ArrayMaterialIdentity GetMaterial()
+        {
+            return _material;
+        }
+
+        public override FaceSubMaterial GetSubMaterial()
+        {
+            return _subMat;
+        }
     }
 }

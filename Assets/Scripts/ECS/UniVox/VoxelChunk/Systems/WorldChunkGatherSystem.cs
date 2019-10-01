@@ -1,3 +1,4 @@
+using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -23,12 +24,42 @@ namespace UniVox
 
         protected override void OnCreate()
         {
-            _eventQuery = GetEntityQuery(ComponentType.ReadOnly<ChunkIdComponent>(),
-                ComponentType.ReadWrite<SystemVersion>());
-            _setupQuery = GetEntityQuery(ComponentType.ReadOnly<ChunkIdComponent>(),
-                ComponentType.Exclude<SystemVersion>());
-            _cleanupQuery = GetEntityQuery(ComponentType.Exclude<ChunkIdComponent>(),
-                ComponentType.ReadWrite<SystemVersion>());
+            _eventQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+                    ComponentType.ChunkComponent<SystemVersion>()
+                },
+                None = new[]
+                {
+                    ComponentType.ChunkComponent<ChunkInvalidTag>()
+                }
+            });
+            _setupQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+                },
+                None = new[]
+                {
+                    ComponentType.ChunkComponent<SystemVersion>(),
+                    ComponentType.ChunkComponent<ChunkInvalidTag>()
+                }
+            });
+            _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                None = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+                    ComponentType.ChunkComponent<ChunkInvalidTag>(),
+                },
+                All = new[]
+                {
+                    ComponentType.ChunkComponent<SystemVersion>()
+                }
+            });
         }
 
 
@@ -47,10 +78,10 @@ namespace UniVox
                     var version = chunk.GetChunkComponentData(VersionType);
                     if (!chunk.DidChange(PositionType, version.Value))
                         continue;
-                    
-                    
+
+
                     inputDeps.Complete();
-                    
+
                     chunk.SetChunkComponentData(VersionType,
                         new SystemVersion()
                         {
@@ -65,7 +96,7 @@ namespace UniVox
                     if (!GameManager.Universe.TryGetValue(worldId, out var world))
                         continue;
 
-                    world.ClearChunkEntities();
+//                    world.ClearChunkEntities();
                     for (var i = 0; i < chunk.Count; i++)
                     {
                         world.UpdateChunkEntity(positions[i].Value.ChunkId, entities[i]);
@@ -73,8 +104,9 @@ namespace UniVox
                 }
             }
 
-
-            return inputDeps;
+            if (inputDeps.IsCompleted)
+                return new JobHandle();
+            else return inputDeps;
 //            inputDeps.Complete();
 //
 //            ProcessQuery();

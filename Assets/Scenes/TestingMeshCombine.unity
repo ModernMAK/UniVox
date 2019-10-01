@@ -1177,13 +1177,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultMat: {fileID: 2100000, guid: 4aad0f971837a604ebba52f8d23dc209, type: 2}
   wSize:
-    x: 1
-    y: 0
-    z: 1
+    x: 4
+    y: 4
+    z: 4
   offset:
     x: 0
     y: 0
     z: 0
+  MaxItemsPerFrame: 1
 --- !u!4 &908020822
 Transform:
   m_ObjectHideFlags: 0
@@ -1475,7 +1476,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1236626196}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85cea8ce586986f469a854b6ff3142c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f7e2a063d955ae4e92046da563c374f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boost: 3.5

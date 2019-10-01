@@ -23,6 +23,15 @@ namespace UniVox.Launcher
 //            private readonly int _grassSideSubMat;
 //            private readonly int _dirtSubMat;
 
+        public override ArrayMaterialIdentity GetMaterial()
+        {
+            return _material;
+        }
+
+        public override FaceSubMaterial GetSubMaterial()
+        {
+            return _subMaterial;
+        }
         public override void RenderPass(BlockAccessor blockData)
         {
             blockData.Material.Value = _material;

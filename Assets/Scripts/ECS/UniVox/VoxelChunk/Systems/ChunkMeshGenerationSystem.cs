@@ -19,7 +19,7 @@ using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
         public struct SystemVersion : ISystemStateComponentData
@@ -90,6 +90,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     ComponentType.ReadOnly<BlockActiveComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent.Version>(),
+                },
+                None = new[]
+                {
+                    ComponentType.ReadOnly<ChunkInvalidTag>(),
                 }
             });
             _setupQuery = GetEntityQuery(new EntityQueryDesc()
