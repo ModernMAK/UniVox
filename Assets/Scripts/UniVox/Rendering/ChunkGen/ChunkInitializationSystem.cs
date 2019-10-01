@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Types;
@@ -68,40 +69,95 @@ namespace UniVox
             };
         }
 
+        public struct CreateChunkEntityJob : IJobParallelFor
+        {
+            public EntityCommandBuffer.Concurrent CommandBuffer;
+            public NativeArray<ArchetypeChunk> Chunks;
+            public ArchetypeChunkComponentType<CreateChunkEventity> EventityType;
+            public EntityArchetype BlockChunkArchetype;
+            public NativeQueue<Entity>.ParallelWriter Entities;
+            public ArchetypeChunkEntityType EventityChunkType;
 
-        void ProcessQuery()
+            public void Execute(int chunkIndex)
+            {
+                var ecsEventityChunk = Chunks[chunkIndex];
+                //                    using (var ecsEventityArray = ecsEventityChunk.GetNativeArray(entityType))
+//                    {
+                var eventity = ecsEventityChunk.GetNativeArray(EventityChunkType);
+                var eventityArray = ecsEventityChunk.GetNativeArray(EventityType);
+//                        var i = 0;
+                for (var i = 0; i < eventityArray.Length; i++)
+                {
+                    var chunkPos = eventityArray[i].ChunkPosition;
+                    var entity = CommandBuffer.CreateEntity(i, BlockChunkArchetype);
+                    //EntityManager.CreateEntity(_blockChunkArchetype));
+//                        var entity = EntityManager.CreateEntity(_blockChunkArchetype);
+
+
+                    CommandBuffer.SetComponent(i, entity, new ChunkIdComponent() {Value = chunkPos});
+//                        EntityManager.SetComponentData(entity,
+
+
+                    Entities.Enqueue(entity);
+//                    var resize = ResizeBuffer(entity, inputDependencies);
+////                        EnforceChunkSize(entity);
+//
+//                    var handle = InitializeBuffer(entity, resize);
+//                    handles = JobHandle.CombineDependencies(handle, handles);
+
+//                        InitializeBuffer(entity);
+//                        i++;
+
+//                    universe[chunkPos.WorldId].Register(chunkPos.ChunkId, entity);
+                    CommandBuffer.DestroyEntity(i, eventity[i]);
+                }
+            }
+        }
+
+        JobHandle CreateEntities(NativeArray<ArchetypeChunk> chunks, out NativeQueue<Entity> entities,
+            JobHandle handle = default)
+        {
+            entities = new NativeQueue<Entity>(Allocator.TempJob);
+            var job = new CreateChunkEntityJob()
+            {
+                BlockChunkArchetype = _blockChunkArchetype,
+                Chunks = chunks,
+                CommandBuffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
+                Entities = entities.AsParallelWriter(),
+                EventityChunkType = GetArchetypeChunkEntityType(),
+                EventityType = GetArchetypeChunkComponentType<CreateChunkEventity>(true)
+            };
+            return job.Schedule(chunks.Length, chunks.Length, handle);
+        }
+        private struct Result
+        {
+            public JobHandle Handle;
+
+            public Entity Entity;
+        }
+
+        
+
+        JobHandle ProcessQuery(JobHandle inputDependencies = default)
         {
             var universe = GameManager.Universe;
 //            var entityType = GetArchetypeChunkEntityType();
             var eventityType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
+            JobHandle handles = new JobHandle();
+//            var cmdBuffer = _updateEnd.CreateCommandBuffer();
+//            cmdBuffer.get
             using (var ecsChunks = _eventQuery.CreateArchetypeChunkArray(Allocator.TempJob))
             {
-                foreach (var ecsEventityChunk in ecsChunks)
-                {
-//                    using (var ecsEventityArray = ecsEventityChunk.GetNativeArray(entityType))
-//                    {
-                    var eventityArray = ecsEventityChunk.GetNativeArray(eventityType);
-//                        var i = 0;
-                    for (var i = 0; i < eventityArray.Length; i++)
-                    {
-                        var chunkPos = eventityArray[i].ChunkPosition;
-                        var entity = EntityManager.CreateEntity(_blockChunkArchetype);
-                        EntityManager.SetComponentData(entity,
-                            new ChunkIdComponent() {Value = chunkPos});
-
-                        EnforceChunkSize(entity);
-                        InitializeBuffer(entity);
-//                        i++;
-
-                        universe[chunkPos.WorldId].Register(chunkPos.ChunkId, entity);
-                    }
-
-
-//                    }
-                }
+                if (ecsChunks.Length <= 0)
+                    return inputDependencies;
+                var create = CreateEntities(ecsChunks, out var entities, inputDependencies);
+                _updateEnd.AddJobHandleForProducer(create);
+                var constition = ResizeBuffer()
+//                var creaeJob = 
             }
 
-            EntityManager.DestroyEntity(_eventQuery);
+//            EntityManager.DestroyEntity(_eventQuery);
+            return handles;
         }
 
         struct InitializeVoxelChunkJob : IJob //Chunk
@@ -184,11 +240,12 @@ namespace UniVox
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps.Complete();
-
-            ProcessQuery();
-
-            return new JobHandle();
+            return ProcessQuery(inputDeps);
+//            inputDeps.Complete();
+//
+//            ProcessQuery();
+//
+//            return new JobHandle();
         }
 
         void EnforceChunkSize(Entity entity)
@@ -210,10 +267,37 @@ namespace UniVox
             buffer.ResizeUninitialized(UnivoxDefine.CubeSize);
         }
 
+
+        public struct InitializeBufferJob<TComponent> : IJobParallelFor where TComponent : struct
+        {
+            [WriteOnly] public NativeArray<TComponent> Buffer;
+            [ReadOnly] public TComponent Data;
+
+
+            public void Execute(int index)
+            {
+                Buffer[index] = Data;
+            }
+        }
+
+        public struct ResizeBufferJob<TComponent> : IJob where TComponent : struct, IBufferElementData
+        {
+            public BufferFromEntity<TComponent> BufferAccessor;
+            [ReadOnly] public Entity Entity;
+            [ReadOnly] public int Size;
+
+
+            public void Execute()
+            {
+                var dynamicBuffer = BufferAccessor[Entity];
+                dynamicBuffer.ResizeUninitialized(Size);
+            }
+        }
+
         void InitializeBuffer(Entity entity)
         {
             var buffers = CreateBuffers();
-            
+
             var blockActive = buffers._blockActiveAccessor[entity];
             const bool defaultActive = false;
 
@@ -358,6 +442,136 @@ namespace UniVox
 //                    culledFaces[i] = DirectionsX.AllFlag;
 //            }
 //        }
+        }
+
+
+        JobHandle ResizeBuffer(Entity entity, JobHandle inputDependencies = default)
+        {
+            const int BufferSize = UnivoxDefine.CubeSize;
+            var buffers = CreateBuffers();
+
+            var blockActiveJob = new ResizeBufferJob<BlockActiveComponent>()
+            {
+                BufferAccessor = buffers._blockActiveAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+
+            var blockIdentityJob = new ResizeBufferJob<BlockIdentityComponent>()
+            {
+                BufferAccessor = buffers._blockIdAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+
+            var blockShapeJob = new ResizeBufferJob<BlockShapeComponent>()
+            {
+                BufferAccessor = buffers._blockShapeAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+            var blockMatJob = new ResizeBufferJob<BlockMaterialIdentityComponent>()
+            {
+                BufferAccessor = buffers._blockMatIdAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+
+            var blockSubMatJob = new ResizeBufferJob<BlockSubMaterialIdentityComponent>()
+            {
+                BufferAccessor = buffers._blockSubMatIdAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+
+            var blockCulledJob = new ResizeBufferJob<BlockCulledFacesComponent>()
+            {
+                BufferAccessor = buffers._blockCulledAccessor,
+                Entity = entity,
+                Size = BufferSize,
+            }.Schedule(inputDependencies);
+
+
+            //Combines all jobs
+            return JobHandle.CombineDependencies(
+                JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
+                JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
+            );
+        }
+
+        JobHandle InitializeBuffer(Entity entity, JobHandle inputDependencies = default)
+        {
+            const int BatchSize = UnivoxDefine.CubeSize;
+            const int JobSize = UnivoxDefine.CubeSize;
+            var buffers = CreateBuffers();
+
+            var blockActive = buffers._blockActiveAccessor[entity];
+            const bool defaultActive = false;
+            var blockActiveJob = new InitializeBufferJob<BlockActiveComponent>()
+            {
+                Buffer = blockActive.AsNativeArray(),
+                Data = defaultActive
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+
+            var blockId = buffers._blockIdAccessor[entity];
+            var defaultId = new BlockIdentity(0, -1);
+
+            var blockIdentityJob = new InitializeBufferJob<BlockIdentityComponent>()
+            {
+                Buffer = blockId.AsNativeArray(),
+                Data = defaultId
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+            var blockShape = buffers._blockShapeAccessor[entity];
+            const BlockShape defaultShape = BlockShape.Cube;
+
+            var blockShapeJob = new InitializeBufferJob<BlockShapeComponent>()
+            {
+                Buffer = blockShape.AsNativeArray(),
+                Data = defaultShape
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+            var blockMatId = buffers._blockMatIdAccessor[entity];
+            var defaultMatId = new ArrayMaterialId(0, -1);
+
+            var blockMatJob = new InitializeBufferJob<BlockMaterialIdentityComponent>()
+            {
+                Buffer = blockMatId.AsNativeArray(),
+                Data = defaultMatId
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+
+            var blockSubMatId = buffers._blockSubMatIdAccessor[entity];
+            var defaultSubMatId = FaceSubMaterial.CreateAll(-1);
+
+            var blockSubMatJob = new InitializeBufferJob<BlockSubMaterialIdentityComponent>()
+            {
+                Buffer = blockSubMatId.AsNativeArray(),
+                Data = defaultSubMatId
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+
+            var blockCulled = buffers._blockCulledAccessor[entity];
+            const Directions defaultCulled = DirectionsX.AllFlag;
+
+            var blockCulledJob = new InitializeBufferJob<BlockCulledFacesComponent>()
+            {
+                Buffer = blockCulled.AsNativeArray(),
+                Data = defaultCulled
+            }.Schedule(JobSize, BatchSize, inputDependencies);
+
+
+            //Combines all jobs
+            return JobHandle.CombineDependencies(
+                JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
+                JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
+            );
         }
     }
 }
