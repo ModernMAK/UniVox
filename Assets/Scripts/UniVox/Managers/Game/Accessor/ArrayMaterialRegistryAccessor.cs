@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
 using UniVox.Types.Keys;
@@ -59,6 +60,12 @@ namespace UniVox.Managers.Game.Accessor
 
             identity = default;
             return false;
+        }
+
+        public bool Register(ArrayMaterialKey key, Material value, out ArrayMaterialIdentity identity)
+        {
+            var arrMat = new ArrayMaterial(value);
+            return Register(key, arrMat, out identity);
         }
 
         public override bool IsRegistered(ArrayMaterialKey key)

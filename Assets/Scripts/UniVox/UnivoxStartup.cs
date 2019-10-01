@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Types;
@@ -71,10 +72,15 @@ namespace UniVox
             }
         }
 
+        public class EntityDataStreamer
+        {
+
+            
+        }
+
         bool SetupChunk(ChunkIdentity chunkIdentity)
         {
             var world = GameManager.Universe[chunkIdentity.WorldId];
-            var entityWorld = world.EntityWorld.GetOrCreateSystem<InitializationSystemGroup>();
 
 
             var chunkPos = chunkIdentity.ChunkId;

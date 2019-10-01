@@ -5,6 +5,7 @@ using UniVox.Managers.Generic;
 
 namespace UniVox.Managers.Game.Structure
 {
+    
     public class ModRegistry : NamedRegistry<ModRegistry.Record>
     {
         public class Record
