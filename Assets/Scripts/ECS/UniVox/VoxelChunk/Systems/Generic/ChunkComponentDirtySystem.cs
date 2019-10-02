@@ -39,14 +39,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected sealed override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps.Complete();
+//            inputDeps.Complete();
 
+            
 //            EntityManager.AddComponent<TVersionComponent>(_setup);
             SetComponentData(_setup, GetInitialVersion());
 
             EntityManager.RemoveComponent<TVersionComponent>(_cleanup);
 
-            return new JobHandle();
+            return inputDeps;
+//            return new JobHandle();
         }
     }
 }

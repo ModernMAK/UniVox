@@ -56,6 +56,19 @@ namespace UniVox.Managers.Game.Accessor
 //            throw new NotImplementedException();
         }
 
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+            foreach (var kvp in _modRegistry.GetNameIndexValuePairs())
+            {
+                yield return new Pair()
+                {
+                    Key = kvp.Key,
+                    Value = kvp.Value,
+                    Identity = (byte)kvp.Index
+                };
+            }
+        }
+
         public override bool IsRegistered(ModKey key)
         {
             return _modRegistry.ContainsKey(key);

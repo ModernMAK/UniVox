@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UniVox.Launcher;
 
 namespace UniVox.Managers.Game.Accessor
@@ -26,6 +27,23 @@ namespace UniVox.Managers.Game.Accessor
 
             identity = default;
             return false;
+        }
+
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+            
+            foreach (var pair in _matRegistry.GetAllRegistered())
+            {
+                foreach (var arrayMat in pair.Value.SubMaterials.GetNameIndexValuePairs())
+                {
+                    yield return new Pair()
+                    {
+                        Key = new SubArrayMaterialKey(pair.Key, arrayMat.Key),
+                        Value = arrayMat.Value,
+                        Identity = new SubArrayMaterialId(pair.Identity, arrayMat.Index)
+                    };
+                }
+            }
         }
 
         public override bool IsRegistered(SubArrayMaterialKey key)

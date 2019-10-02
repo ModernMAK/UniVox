@@ -48,7 +48,7 @@ namespace UniVox
 
         #endregion
 
-        #region Position Conversion Util
+        #region System Conversion Util
 
         private static readonly float3 VoxelSpaceOffset = new float3(1f / 2f);
         private const float ReallySmallMultiplier = 1f / 100f;

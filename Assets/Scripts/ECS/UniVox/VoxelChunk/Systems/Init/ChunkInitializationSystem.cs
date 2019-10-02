@@ -1,4 +1,5 @@
-﻿using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
+﻿using ECS.UniVox.VoxelChunk.Components;
+using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -8,7 +9,6 @@ using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.VoxelData;
-using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {

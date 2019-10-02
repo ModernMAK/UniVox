@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,10 +11,8 @@ using Unity.Transforms;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
-using UniVox.Rendering.Render;
 using UniVox.Types;
 using UniVox.Utility;
-using UniVox.VoxelData.Chunk_Components;
 using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
 
@@ -322,7 +321,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             const int maxBatchSize = Byte.MaxValue;
             handle.Complete();
 
-            Profiler.BeginSample("Create Batches");
+            Profiler.BeginSample("CreateNative Batches");
             var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
             Profiler.EndSample();
 
@@ -366,7 +365,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Schedule the generation
                 var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
 
-                //Finish and Create the Mesh
+                //Finish and CreateNative the Mesh
                 genMeshHandle.Complete();
                 planarBatch.Dispose();
                 meshes[i] = new UnivoxRenderingJobs.RenderResult()
@@ -386,7 +385,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         void ProcessFrameCache()
         {
-            Profiler.BeginSample("Create Mesh Entities");
+            Profiler.BeginSample("CreateNative Mesh Entities");
             while (_frameCaches.Count > 0)
             {
                 var cached = _frameCaches.Dequeue();

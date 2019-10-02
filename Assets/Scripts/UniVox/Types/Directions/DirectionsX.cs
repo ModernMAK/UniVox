@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Animations;
 
 namespace UniVox.Types
 {
+    public enum Axis
+    {
+        X,
+        Y,
+        Z,
+    }
+
     public static class DirectionsX
     {
         public const Directions AllFlag = (Directions) 0b00111111;
@@ -14,15 +22,6 @@ namespace UniVox.Types
 
         private static readonly Direction[] AllDirectionsArray = (Direction[]) Enum.GetValues(typeof(Direction));
         public static IEnumerable<Direction> AllDirections => AllDirectionsArray;
-
-        [Obsolete]
-        public static NativeArray<Direction> GetDirectionsNativeOld(Allocator allocator)
-        {
-            var arr = new NativeArray<Direction>(6, allocator);
-            for (var i = 0; i < 6; i++)
-                arr[i] = AllDirectionsArray[i];
-            return arr;
-        }
 
         public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
         {
@@ -35,6 +34,60 @@ namespace UniVox.Types
                 [4] = Direction.Right,
                 [5] = Direction.Up
             };
+        }
+
+        public static Axis ToAxis(this Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Up:
+                case Direction.Down:
+                    return Axis.Y;
+                case Direction.Right:
+                case Direction.Left:
+                    return Axis.X;
+                case Direction.Forward:
+                case Direction.Backward:
+                    return Axis.Z;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
+        public static Direction ToDirection(this Axis axis, bool positive)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                    return positive ? Direction.Right : Direction.Left;
+                case Axis.Y:
+                    return positive ? Direction.Up : Direction.Down;
+                case Axis.Z:
+                    return positive ? Direction.Forward : Direction.Backward;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
+            }
+        }
+
+        public static void GetPlane(this Axis axis, out int3 tangent, out int3 bitangent)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                    tangent = new int3(0, 0, 1);
+                    bitangent = new int3(0, 1, 0);
+                    break;
+                case Axis.Y:
+                    tangent = new int3(1, 0, 0);
+                    bitangent = new int3(0, 0, 1);
+                    break;
+                case Axis.Z:
+                    tangent = new int3(1, 0, 0);
+                    bitangent = new int3(0, 1, 0);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
+            }
         }
 
         public static Directions ToFlag(this Direction direction)
@@ -140,7 +193,7 @@ namespace UniVox.Types
 
         private static readonly float FloatError = Mathf.Epsilon;
 
-        private static Direction UnsafeDirectionGuesser(float3 dir)
+        public static Direction UnsafeDirectionGuesser(float3 dir)
         {
             if (dir.x > FloatError)
                 return Direction.Right;

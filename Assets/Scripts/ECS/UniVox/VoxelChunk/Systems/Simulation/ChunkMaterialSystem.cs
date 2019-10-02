@@ -1,4 +1,5 @@
 using System;
+using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Burst;
 using Unity.Collections;
@@ -6,10 +7,10 @@ using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine.Profiling;
 using UniVox;
+using UniVox.Launcher;
 using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.VoxelData;
-using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -197,24 +198,15 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         new DisposeArrayJob<EntityVersion>(currentVersions).Schedule(gatherIgnoreJob);
 
 
-                    disposeCurrentVersions.Complete();
+                    var updateMaterialJob = UpdateMaterial(ecsChunk, ignore, disposeCurrentVersions);
 
-                    UpdateMaterial(ecsChunk, ignore);
-//                    var cullJob = new CullFacesJob()
-//                    {
-//                        Entities = voxelChunkEntityArray,
-//                        BlockActiveAccessor = GetBufferFromEntity<BlockActiveComponent>(true),
-//                        CulledFacesAccessor = GetBufferFromEntity<BlockCulledFacesComponent>(),
-//                        Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob),
-//                        IgnoreEntity = ignore,
-//                    }.Schedule(disposeCurrentVersions);
 
                     var dirtyVersionJob = new DirtyVersionJob<BlockCulledFacesComponent.Version>()
                     {
                         Chunk = ecsChunk,
                         VersionType = blockCulledVersionType, //blockCulledVersions,
                         Ignore = ignore
-                    }.Schedule(disposeCurrentVersions); //voxelChunkEntityArray.Length, BatchSize, cullJob);
+                    }.Schedule(updateMaterialJob); //voxelChunkEntityArray.Length, BatchSize, cullJob);
                     var disposeIgnore = new DisposeArrayJob<bool>(ignore).Schedule(dirtyVersionJob);
 
                     dependencies = disposeIgnore;
@@ -224,104 +216,76 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 Profiler.EndSample();
             }
 
-//            return merged;
             return dependencies;
-
-//            var chunkArray = _updateMaterialQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-//            var idType = GetArchetypeChunkBufferType<BlockIdentityComponent>(true);
-//            var versionType = GetArchetypeChunkComponentType<SystemVersion>();
-////            var changedType = GetArchetypeChunkBufferType<BlockChanged>();
-//
-//
-//            var voxelChunkEntityArchetpye = GetArchetypeChunkEntityType();
-//
-//            Profiler.BeginSample("Process ECS Chunk");
-//            foreach (var ecsChunk in chunkArray)
-//            {
-//                var versions = ecsChunk.GetNativeArray(versionType);
-//                var voxelChunkEntityArray = ecsChunk.GetNativeArray(voxelChunkEntityArchetpye);
-//
-//                var i = 0;
-//                foreach (var voxelChunkEntity in voxelChunkEntityArray)
-//                {
-//                    var version = versions[i];
-//                    if (ecsChunk.DidChange(idType, version.IdentityVersion))
-//                    {
-//                        Profiler.BeginSample("Update Chunk");
-//                        UpdateVoxelChunk(voxelChunkEntity);
-//
-//                        Profiler.EndSample();
-//                        versions[i] = new SystemVersion
-//                        {
-//                            IdentityVersion = ecsChunk.GetComponentVersion(idType)
-//                        };
-//                    }
-//
-//                    i++;
-//                }
-//
-////                var ids = ecsChunk.GetNativeArray(idType);
-////                var versions = ecsChunk.GetNativeArray(versionType);
-////                var changedAccessor = ecsChunk.GetBufferAccessor(changedType);
-////                for (var i = 0; i < ecsChunk.Count; i++)
-////                {
-//////                    var identity = ids[i];
-//////                    var version = versions[i];
-//////                    if (!_universe.TryGetValue(identity.Value.WorldId, out var world)) continue; //TODO produce an error
-//////                    if (!world.TryGetAccessor(identity.Value.ChunkId, out var record)) continue; //TODO produce an error
-//////                    var voxelChunk = record.Chunk;
-//////                    if (!version.DidChange(voxelChunk)) continue; //Skip this chunk
-////
-////                    Profiler.BeginSample("Update Chunk");
-////                    UpdateChunk(ecsChunk[i]);
-////
-////                    Profiler.EndSample();
-////
-////                    //Update version
-//////                    versions[i] = SystemVersion.Create(voxelChunk);
-////                }
-//            }
-//
-//            Profiler.EndSample();
-//
-//            chunkArray.Dispose();
         }
 
 
-        private void UpdateMaterial(ArchetypeChunk chunk, NativeArray<bool> ignore)
+        private struct UpdateMaterialJob : IJob
         {
-            var entities = chunk.GetNativeArray(GetArchetypeChunkEntityType());
+            [ReadOnly] public ArchetypeChunkEntityType EntityType; //GetArchetypeChunkEntityType()
 
-            var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
-            var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
-            var blockSubMatLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
-            for (int index = 0; index < entities.Length; index++)
+            public BufferFromEntity<BlockIdentityComponent> BlockId;
+            //var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
+
+            public BufferFromEntity<BlockMaterialIdentityComponent> BlockMat;
+            //            var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
+
+            public BufferFromEntity<BlockSubMaterialIdentityComponent> BlockSubMat;
+            //            var blockSubMatLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
+
+            [ReadOnly] public ArchetypeChunk Chunk;
+            [ReadOnly] public NativeArray<bool> Ignore;
+
+            [ReadOnly] public NativeHashMap<BlockIdentity, NativeBaseBlockReference> BlockReferences;
+
+            public void Execute()
             {
-                if (ignore[index])
-                    continue;
-                var voxelChunk = entities[index];
-                var blockIdArray = blockIdLookup[voxelChunk];
-                var blockMatArray = blockMatLookup[voxelChunk];
-                var blockSubMatArray = blockSubMatLookup[voxelChunk];
-                for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
-                {
-                    var blockId = blockIdArray[blockIndex];
+                var entities = Chunk.GetNativeArray(EntityType);
 
-                    if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
+                var defaultMaterial = new ArrayMaterialIdentity(0, -1);
+                var defaultSubMaterial = FaceSubMaterial.CreateAll(-1);
+                for (int index = 0; index < entities.Length; index++)
+                {
+                    if (Ignore[index])
+                        continue;
+                    var voxelChunk = entities[index];
+                    var blockIdArray = BlockId[voxelChunk];
+                    var blockMatArray = BlockMat[voxelChunk];
+                    var blockSubMatArray = BlockSubMat[voxelChunk];
+                    for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
                     {
+                        var blockId = blockIdArray[blockIndex];
+
+                        if (BlockReferences.TryGetValue(blockId, out var blockRef))
+                        {
 //                        var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray)
 //                            .AddData(blockSubMatArray);
 
-                        blockMatArray[blockIndex] = blockRef.GetMaterial();
-                        blockSubMatArray[blockIndex] = blockRef.GetSubMaterial();
-                    }
-                    else
-                    {
-                        blockMatArray[blockIndex] = new ArrayMaterialIdentity(0, -1);
-                        blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
+                            blockMatArray[blockIndex] = blockRef.Material;
+                            blockSubMatArray[blockIndex] = blockRef.SubMaterial;
+                        }
+                        else
+                        {
+                            blockMatArray[blockIndex] = defaultMaterial;
+                            blockSubMatArray[blockIndex] = defaultSubMaterial;
+                        }
                     }
                 }
             }
+        }
+
+        private JobHandle UpdateMaterial(ArchetypeChunk chunk, NativeArray<bool> ignore, JobHandle inputDependencies)
+        {
+            return new UpdateMaterialJob()
+            {
+                EntityType = GetArchetypeChunkEntityType(),
+                BlockId = GetBufferFromEntity<BlockIdentityComponent>(true),
+                BlockMat = GetBufferFromEntity<BlockMaterialIdentityComponent>(),
+                BlockSubMat = GetBufferFromEntity<BlockSubMaterialIdentityComponent>(),
+                BlockReferences = GameManager.NativeRegistry.Blocks, //.GetNativeBlocks(),
+                Chunk = chunk,
+                Ignore = ignore
+            }.Schedule(inputDependencies);
         }
 
 

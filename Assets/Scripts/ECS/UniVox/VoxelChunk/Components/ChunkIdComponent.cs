@@ -1,8 +1,10 @@
 using System;
 using Unity.Entities;
 using UniVox.Types;
+using UniVox.VoxelData;
+using World = UniVox.VoxelData.World;
 
-namespace UniVox.VoxelData.Chunk_Components
+namespace ECS.UniVox.VoxelChunk.Components
 {
     public struct ChunkIdComponent : IComponentData, IEquatable<ChunkIdComponent>, IComparable<ChunkIdComponent>
     {
