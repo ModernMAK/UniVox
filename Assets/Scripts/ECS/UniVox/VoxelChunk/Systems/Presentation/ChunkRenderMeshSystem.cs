@@ -27,17 +27,32 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class ChunkRenderMeshSystem : JobComponentSystem
     {
-        private EntityQuery _chunkGroup;
+        private EntityQuery _chunkComponentGroup;
+        private EntityQuery _chunkBufferGroup;
 
         protected override void OnCreate()
         {
             //@TODO: Support SetFilter with EntityQueryDesc syntax
 
-            _chunkGroup = GetEntityQuery(new EntityQueryDesc()
+            _chunkComponentGroup = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkRenderMesh>(),
+                    ComponentType.ReadOnly<LocalToWorld>(),
+                },
+                None = new[]
+                {
+                    ComponentType.ReadOnly<DontRenderTag>(),
+                    ComponentType.ReadOnly<ChunkInvalidTag>(),
+                },
+            });
+
+            _chunkBufferGroup = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly<ChunkMeshBuffer>(),
                     ComponentType.ReadOnly<LocalToWorld>(),
                 },
                 None = new[]
@@ -64,7 +79,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             inputDeps.Complete(); // #todo
 
-            RenderPass(_chunkGroup);
+            ComponentPass(_chunkComponentGroup);
+            BufferPass(_chunkBufferGroup);
 
             return new JobHandle();
         }
@@ -73,7 +89,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
 
 
-        private void RenderPass(EntityQuery query)
+        private void ComponentPass(EntityQuery query)
         {
             var chunkRenderMeshType = GetArchetypeChunkComponentType<ChunkRenderMesh>(true);
             var matrixType = GetArchetypeChunkComponentType<LocalToWorld>(true);
@@ -88,6 +104,29 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 }
             }
         }
+
+        private void BufferPass(EntityQuery query)
+        {
+            var chunkRenderMeshBuffer = GetBufferFromEntity<ChunkMeshBuffer>(true);
+            var entityType = GetArchetypeChunkEntityType();
+            var matrixType = GetArchetypeChunkComponentType<LocalToWorld>(true);
+            using (var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob))
+            {
+                foreach (var chunk in chunks)
+                {
+                    var entities = chunk.GetNativeArray(entityType);
+                    var matrixes = chunk.GetNativeArray(matrixType);
+                    for (var i = 0; i < entities.Length; i++)
+                    {
+                        var entity = entities[i];
+                        var chunkRenderMeshes = chunkRenderMeshBuffer[entity];
+
+                        RenderChunk(chunkRenderMeshes.AsNativeArray(), matrixes[i]);
+                    }
+                }
+            }
+        }
+
 
         private void RenderChunk(NativeArray<ChunkRenderMesh> chunkRenderMeshes, NativeArray<LocalToWorld> matrixes)
         {
@@ -116,7 +155,35 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
-        public static BatchGroupIdentity CreateBatchGroupIdentity(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity)
+        private void RenderChunk(NativeArray<ChunkMeshBuffer> chunkRenderMeshes, LocalToWorld matrixes)
+        {
+            var matrix = matrixes.Value;
+            for (var i = 0; i < chunkRenderMeshes.Length; i++)
+            {
+                var chunkRenderMesh = chunkRenderMeshes[i];
+
+                if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
+                {
+                    Debug.LogWarning($"No Mesh For {chunkRenderMesh.Batch}!");
+                    continue;
+                }
+
+//                    continue; //TODO throw a warning
+                if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
+                {
+                    var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
+                    if (!_arrayMaterialRegistry.TryGetValue(defaultError, out material))
+                        continue; //TODO throw a warning
+                }
+
+
+                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, chunkRenderMesh.SubMesh,
+                    default, chunkRenderMesh.CastShadows, chunkRenderMesh.ReceiveShadows);
+            }
+        }
+
+        public static BatchGroupIdentity CreateBatchGroupIdentity(ChunkIdentity chunk,
+            ArrayMaterialIdentity arrayMaterialIdentity)
         {
             return new BatchGroupIdentity()
             {
