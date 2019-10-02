@@ -12,6 +12,7 @@ using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Exceptions;
 using UniVox.Types.Identities.Voxel;
+using UniVox.Types.Keys;
 using VoxelWorld = UniVox.VoxelData.World;
 
 namespace UniVox
@@ -31,12 +32,12 @@ namespace UniVox
             _requests = new Queue<ChunkIdentity>();
             _setup = new Queue<ChunkIdentity>();
 
-            var temp = new BaseGameMod();
-            temp.Load(new ModInitializer(GameManager.Registry, GameManager.NativeRegistry));
+//            var temp = new BaseGameMod();
+//            temp.Load(new ModInitializer(GameManager.Registry, GameManager.NativeRegistry));
 
 
-            var matReg = GameManager.Registry.Raw[0];
-            matReg.Materials.Register("Default", defaultMat);
+            GameManager.Registry.Mods.Register(BaseGameMod.ModPath);
+            GameManager.Registry.ArrayMaterials.Register(new ArrayMaterialKey(BaseGameMod.ModPath,"Default"), defaultMat);
 
             var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 

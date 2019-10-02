@@ -11,13 +11,13 @@ namespace UniVox.Launcher
 {
     public class TopSideBlockRef : BaseBlockReference
     {
-        public TopSideBlockRef(ArrayMaterialIdentity materialIdentity, BlockKey blockKey, IconKey iconKey, int grass, int sideSub, int dirtSub)
+        public TopSideBlockRef(ArrayMaterialIdentity materialIdentity, BlockKey blockKey, IconKey iconKey, int top, int side, int bot)
         {
             _material = materialIdentity;
-            _subMaterial = FaceSubMaterial.CreateTopSideBot(grass, sideSub, dirtSub);
-//                _grassSubMat = grass;
-//                _grassSideSubMat = sideSub;
-//                _dirtSubMat = dirtSub;
+            _subMaterial = FaceSubMaterial.CreateTopSideBot(top, side, bot);
+//                _grassSubMat = top;
+//                _grassSideSubMat = side;
+//                _dirtSubMat = bot;
             BlockKey = blockKey;
             IconKey = iconKey;
         }

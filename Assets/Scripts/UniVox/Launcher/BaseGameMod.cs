@@ -47,35 +47,35 @@ namespace UniVox.Launcher
 
         public override void Initialize(ModInitializer initializer)
         {
-            var modId = initializer.Registry.Mods.Register(ModPath);
-//            var modRegistry = modId.Value;
-            var surrogate = ModResources.Load<ModSurrogate>(ModPath, "").Values;
-
-            //For now we use a proxy to register
-            //Should actually consider following Unity Patterns instead of this.
-//            initializer.Registry.Mods.RegistrySurrogates(surrogate);
-
-            initializer.Registry.Raw[modId].RegistrySurrogates(surrogate);
-
-            var matReg = initializer.Registry.ArrayMaterials;
-            var subMatReg = initializer.Registry.SubArrayMaterials;
-            var blockReg = initializer.Registry.Blocks;
-
-            //YEah, this is a cluster, need to think of a better way to orgnaize data
-            if (!matReg.TryGetIdentity(GrassDirtMaterialKey, out var grassDirtMaterialId))
-                throw new AssetNotFoundException(nameof(GrassDirtMaterialKey), GrassDirtMaterialKey.ToString());
-
-            if (!subMatReg.TryGetValue(GrassSubMaterialKey, out var grassSubMatIndex))
-                throw new AssetNotFoundException(nameof(GrassSubMaterialKey), grassSubMatIndex.ToString());
-            if (!subMatReg.TryGetValue(GrassSideSubMaterialKey, out var sideSubMatIndex))
-                throw new AssetNotFoundException(nameof(GrassSideSubMaterialKey), sideSubMatIndex.ToString());
-            if (!subMatReg.TryGetValue(DirtSubMaterialKey, out var dirtSubMatIndex))
-                throw new AssetNotFoundException(nameof(DirtSubMaterialKey), dirtSubMatIndex.ToString());
-
-            if (!matReg.TryGetIdentity(StoneMaterialKey, out var stoneMaterialId))
-                throw new AssetNotFoundException(nameof(StoneMaterialKey), stoneMaterialId.ToString());
-            if (!matReg.TryGetIdentity(SandMaterialKey, out var sandMaterialId))
-                throw new AssetNotFoundException(nameof(SandMaterialKey), sandMaterialId.ToString());
+//            var modId = initializer.Registry.Mods.Register(ModPath);
+////            var modRegistry = modId.Value;
+//            var surrogate = ModResources.Load<ModSurrogate>(ModPath, "").Values;
+//
+//            //For now we use a proxy to register
+//            //Should actually consider following Unity Patterns instead of this.
+////            initializer.Registry.Mods.RegistrySurrogates(surrogate);
+//
+//            initializer.Registry.Raw[modId].RegistrySurrogates(surrogate);
+//
+//            var matReg = initializer.Registry.ArrayMaterials;
+//            var subMatReg = initializer.Registry.SubArrayMaterials;
+//            var blockReg = initializer.Registry.Blocks;
+//
+//            //YEah, this is a cluster, need to think of a better way to orgnaize data
+//            if (!matReg.TryGetIdentity(GrassDirtMaterialKey, out var grassDirtMaterialId))
+//                throw new AssetNotFoundException(nameof(GrassDirtMaterialKey), GrassDirtMaterialKey.ToString());
+//
+//            if (!subMatReg.TryGetValue(GrassSubMaterialKey, out var grassSubMatIndex))
+//                throw new AssetNotFoundException(nameof(GrassSubMaterialKey), grassSubMatIndex.ToString());
+//            if (!subMatReg.TryGetValue(GrassSideSubMaterialKey, out var sideSubMatIndex))
+//                throw new AssetNotFoundException(nameof(GrassSideSubMaterialKey), sideSubMatIndex.ToString());
+//            if (!subMatReg.TryGetValue(DirtSubMaterialKey, out var dirtSubMatIndex))
+//                throw new AssetNotFoundException(nameof(DirtSubMaterialKey), dirtSubMatIndex.ToString());
+//
+//            if (!matReg.TryGetIdentity(StoneMaterialKey, out var stoneMaterialId))
+//                throw new AssetNotFoundException(nameof(StoneMaterialKey), stoneMaterialId.ToString());
+//            if (!matReg.TryGetIdentity(SandMaterialKey, out var sandMaterialId))
+//                throw new AssetNotFoundException(nameof(SandMaterialKey), sandMaterialId.ToString());
             ;
 //            blockReg.Register(GrassBlock,
 //                new TopSideBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));

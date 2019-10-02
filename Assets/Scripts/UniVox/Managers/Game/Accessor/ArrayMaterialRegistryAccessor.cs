@@ -79,6 +79,17 @@ namespace UniVox.Managers.Game.Accessor
             return false;
         }
 
+        public bool Register(ArrayMaterialKey key, Material value)
+        {
+            var arrMat = new ArrayMaterial(value);
+            if (TryGetRecord(key, out var record, out var modId))
+            {
+                return record.Materials.Register(key.ArrayMaterial, arrMat, out var id);
+            }
+
+            return false;
+        }
+
         public override IEnumerable<Pair> GetAllRegistered()
         {
             foreach (var pair in _modRegistry.GetAllRegistered())
