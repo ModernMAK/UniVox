@@ -1,3 +1,4 @@
+using System;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Burst;
 using Unity.Collections;
@@ -10,12 +11,70 @@ using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
+    [BurstCompile]
+    public struct DirtyVersionJob<TVersion> : IJob where TVersion : struct, IComponentData, IVersionProxy<TVersion>
+    {
+        [ReadOnly] public ArchetypeChunk Chunk;
+
+        public ArchetypeChunkComponentType<TVersion> VersionType;
+
+
+        [ReadOnly] public NativeArray<bool> Ignore;
+
+
+        public void Execute()
+        {
+            var versions = Chunk.GetNativeArray(VersionType);
+            for (var index = 0; index < Chunk.Count; index++)
+            {
+                if (!Ignore[index])
+                    versions[index] = versions[index].GetDirty();
+            }
+        }
+    }
+
+    [BurstCompile]
+    public struct GatherDirtyVersionJob<TVersion> : IJob
+        where TVersion : struct, IVersionProxy<TVersion>, IComponentData
+    {
+        [ReadOnly] public ArchetypeChunk Chunk;
+
+        public ArchetypeChunkComponentType<TVersion> VersionsType;
+
+        [ReadOnly] public NativeArray<TVersion> CurrentVersions;
+//            [ReadOnly] public ArchetypeChunkComponentType<BlockActiveComponent.Version> ActiveVersionsType;
+
+        [WriteOnly] public NativeArray<bool> Ignore;
+
+
+        public void Execute()
+        {
+            var entityVersions = Chunk.GetNativeArray(VersionsType);
+//                var activeVersions = Chunk.GetNativeArray(ActiveVersionsType);
+            for (var index = 0; index < Chunk.Count; index++)
+            {
+                var entityVersion = entityVersions[index];
+                var currentVersion = CurrentVersions[index];
+
+                if (currentVersion.DidChange(entityVersion))
+                {
+                    entityVersions[index] = currentVersion;
+                    Ignore[index] = false;
+                }
+                else
+                {
+                    Ignore[index] = true;
+                }
+            }
+        }
+    }
+
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkCullingSystem : JobComponentSystem
     {
-        private struct EntityVersion : ISystemStateComponentData
+        private struct EntityVersion : ISystemStateComponentData, IVersionProxy<EntityVersion>
         {
             public uint ActiveVersion;
 
@@ -23,6 +82,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
             public bool DidChange(EntityVersion version)
             {
                 return ChangeVersionUtility.DidChange(ActiveVersion, version.ActiveVersion);
+            }
+
+            public EntityVersion GetDirty()
+            {
+                throw new NotSupportedException();
             }
 
             public override string ToString()
@@ -185,15 +249,24 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     var ignore = new NativeArray<bool>(ecsChunk.Count, Allocator.TempJob,
                         NativeArrayOptions.UninitializedMemory);
+                    var currentVersions = new NativeArray<EntityVersion>(ecsChunk.Count, Allocator.TempJob);
 
-
-                    var gatherIgnoreJob = new GatherDirtyJob()
+                    var gatherVersionJob = new GatherVersionJob()
                     {
                         Chunk = ecsChunk,
                         ActiveVersionsType = blockActiveVersionType,
-                        EntityVersionsType = entityVersionType,
-                        Ignore = ignore,
+                        CurrentVersions = currentVersions
                     }.Schedule(dependencies);
+
+                    var gatherIgnoreJob = new GatherDirtyVersionJob<EntityVersion>()
+                    {
+                        Chunk = ecsChunk,
+                        VersionsType = entityVersionType,
+                        CurrentVersions = currentVersions,
+                        Ignore = ignore,
+                    }.Schedule(gatherVersionJob);
+                    var disposeCurrentVersions =
+                        new DisposeArrayJob<EntityVersion>(currentVersions).Schedule(gatherIgnoreJob);
 
                     var cullJob = new CullFacesJob()
                     {
@@ -202,38 +275,17 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         CulledFacesAccessor = GetBufferFromEntity<BlockCulledFacesComponent>(),
                         Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob),
                         IgnoreEntity = ignore,
-                    }.Schedule(gatherIgnoreJob);
+                    }.Schedule(disposeCurrentVersions);
 
                     var dirtyVersionJob = new DirtyVersionJob<BlockCulledFacesComponent.Version>()
                     {
                         Chunk = ecsChunk,
                         VersionType = blockCulledVersionType, //blockCulledVersions,
                         Ignore = ignore
-                    }.Schedule(cullJob);//voxelChunkEntityArray.Length, BatchSize, cullJob);
+                    }.Schedule(cullJob); //voxelChunkEntityArray.Length, BatchSize, cullJob);
                     var disposeIgnore = new DisposeArrayJob<bool>(ignore).Schedule(dirtyVersionJob);
 
                     dependencies = disposeIgnore;
-//                    var i = 0;
-//                    foreach (var voxelChunkEntity in voxelChunkEntityArray)
-//                    {
-//                        var entityVersion = entityVersions[i];
-//                        var currentEntityVersion = new EntityVersion()
-//                        {
-//                            ActiveVersion = activeVersions[i]
-//                        };
-//
-//                        if (currentEntityVersion.DidChange(entityVersion))
-//                        {
-//                            Profiler.BeginSample("Update Chunk");
-//                            dependencies = UpdateVoxelChunkV2(voxelChunkEntity, dependencies);
-////                            job.Complete();
-//                            Profiler.EndSample();
-//                            entityVersions[i] = currentEntityVersion;
-//                            blockCulledVersions[i] = blockCulledVersions[i].GetDirty();
-//                        }
-//
-//                        i++;
-//                    }
                 }
 
 
@@ -244,64 +296,29 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return dependencies;
         }
 
+
         [BurstCompile]
-        private struct GatherDirtyJob : IJob
+        private struct GatherVersionJob : IJob
         {
             [ReadOnly] public ArchetypeChunk Chunk;
-
-            public ArchetypeChunkComponentType<EntityVersion> EntityVersionsType;
 
             [ReadOnly] public ArchetypeChunkComponentType<BlockActiveComponent.Version> ActiveVersionsType;
 
-            [WriteOnly] public NativeArray<bool> Ignore;
-
+            [WriteOnly] public NativeArray<EntityVersion> CurrentVersions;
 
             public void Execute()
             {
-                var entityVersions = Chunk.GetNativeArray(EntityVersionsType);
                 var activeVersions = Chunk.GetNativeArray(ActiveVersionsType);
-                for (var index = 0; index < Chunk.Count; index++)
+                for (var i = 0; i < activeVersions.Length; i++)
                 {
-                    var entityVersion = entityVersions[index];
-                    var currentEntityVersion = new EntityVersion()
+                    CurrentVersions[i] = new EntityVersion()
                     {
-                        ActiveVersion = activeVersions[index]
+                        ActiveVersion = activeVersions[i]
                     };
-
-                    if (currentEntityVersion.DidChange(entityVersion))
-                    {
-                        entityVersions[index] = currentEntityVersion;
-                        Ignore[index] = false;
-                    }
-                    else
-                    {
-                        Ignore[index] = true;
-                    }
                 }
             }
         }
 
-        [BurstCompile]
-        private struct DirtyVersionJob<TVersion> : IJob where TVersion : struct, IComponentData, IVersionProxy<TVersion>
-        {
-            [ReadOnly] public ArchetypeChunk Chunk;
-
-            public ArchetypeChunkComponentType<TVersion> VersionType;
-
-
-            [ReadOnly] public NativeArray<bool> Ignore;
-
-
-            public void Execute()
-            {
-                var versions = Chunk.GetNativeArray(VersionType);
-                for (var index = 0; index < Chunk.Count; index++)
-                {
-                    if (!Ignore[index])
-                        versions[index] = versions[index].GetDirty();
-                }
-            }
-        }
 
         [BurstCompile]
         private struct CullFacesJob : IJob
@@ -346,11 +363,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     var primaryActive = blockActive[blockIndex];
 
                     var hidden = DirectionsX.AllFlag;
-                    var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+//                    var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
 
-                    for (var dirIndex = 0; dirIndex < directions.Length; dirIndex++)
+                    for (var dirIndex = 0; dirIndex < Directions.Length; dirIndex++)
                     {
-                        var direction = directions[dirIndex];
+                        var direction = Directions[dirIndex];
                         var neighborPos = blockPos + direction.ToInt3();
                         var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
                         var neighborActive = false;
@@ -373,31 +390,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             {
                 for (var entityIndex = 0; entityIndex < Entities.Length; entityIndex++)
                     ProcessEntity(entityIndex);
-
-//                Profiler.EndSample();
             }
-        }
-
-
-//        private BufferFromEntity<BlockActiveComponent> BlockActive;
-//        private BufferFromEntity<BlockCulledFacesComponent> CulledFaces;
-
-        private JobHandle UpdateVoxelChunkV2(NativeArray<Entity> voxelChunkEntities, JobHandle dependencies = default)
-        {
-            var blockActiveLookup = GetBufferFromEntity<BlockActiveComponent>(true);
-            var blockCulledLookup = GetBufferFromEntity<BlockCulledFacesComponent>();
-//            var blockActive = blockActiveLookup[voxelChunk];
-//            var blockCulled = blockCulledLookup[voxelChunk];
-
-
-            var job = new CullFacesJob()
-            {
-                Entities = voxelChunkEntities,
-                BlockActiveAccessor = blockActiveLookup, // blockActive.AsNativeArray(),
-                CulledFacesAccessor = blockCulledLookup, // blockCulled.AsNativeArray(),
-                Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob)
-            };
-            return job.Schedule(dependencies); //UnivoxDefine.CubeSize, UnivoxDefine.SquareSize, dependencies);
         }
 
 

@@ -148,6 +148,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
             chunkArray.Dispose();
         }
 
+        
+        
         private void UpdateVoxelChunk(Entity voxelChunk)
         {
             var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
@@ -158,28 +160,20 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var blockSubMatArray = blockSubMatLookup[voxelChunk];
             for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
             {
-                
                 var blockId = blockIdArray[blockIndex];
 
-                try
+                if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
                 {
-                    if (GameManager.Registry.Blocks.TryGetValue(blockId, out var blockRef))
-                    {
 //                        var blockAccessor = new BlockAccessor(blockIndex).AddData(blockMatArray)
 //                            .AddData(blockSubMatArray);
 
-                        blockMatArray[blockIndex] = blockRef.GetMaterial();
-                        blockSubMatArray[blockIndex] = blockRef.GetSubMaterial();
-                    }
-                    else
-                    {
-                        blockMatArray[blockIndex] = new ArrayMaterialIdentity(0, -1);
-                        blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
-                    }
+                    blockMatArray[blockIndex] = blockRef.GetMaterial();
+                    blockSubMatArray[blockIndex] = blockRef.GetSubMaterial();
                 }
-                catch (Exception e)
+                else
                 {
-                    throw e;
+                    blockMatArray[blockIndex] = new ArrayMaterialIdentity(0, -1);
+                    blockSubMatArray[blockIndex] = FaceSubMaterial.CreateAll(-1);
                 }
             }
         }
