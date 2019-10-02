@@ -16,11 +16,11 @@ namespace ThirdParty
         public bool invertY;
     
         [Header("Rotation Settings")]
-        [Tooltip("X = Change in mouse position.\nY = Multiplicative factor for camera rotation.")]
+        [Tooltip("X = Change in mouse Position.\nY = Multiplicative factor for camera rotation.")]
         public AnimationCurve mouseSensitivityCurve =
             new AnimationCurve(new Keyframe(0f, 0.5f, 0f, 5f), new Keyframe(1f, 2.5f, 0f, 0f));
 
-        [Tooltip("Time it takes to interpolate camera position 99% of the way to the target.")] [Range(0.001f, 1f)]
+        [Tooltip("Time it takes to interpolate camera Position 99% of the way to the target.")] [Range(0.001f, 1f)]
         public float positionLerpTime = 0.2f;
 
         [Tooltip("Time it takes to interpolate camera rotation 99% of the way to the target.")] [Range(0.001f, 1f)]

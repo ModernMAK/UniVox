@@ -179,12 +179,12 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             return size;
         }
 
-//        private float2 CalculateUvShift(Direction direction, int3 position, int2 size, int vertex)
+//        private float2 CalculateUvShift(Direction direction, int3 Position, int2 size, int vertex)
 //        {
 //            DetermineWindingAndFlip(direction, out var invertWindingOrder, out var _);
 //            size = ShiftOnVertex(size, vertex, invertWindingOrder, flipSize);
 //            var sizeShift = Broaden(direction, size);
-//            var positionShift = Strip(direction, position + sizeShift);
+//            var positionShift = Strip(direction, Position + sizeShift);
 //            return positionShift;
 //        }
 

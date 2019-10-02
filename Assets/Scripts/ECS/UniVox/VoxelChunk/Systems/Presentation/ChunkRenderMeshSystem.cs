@@ -54,9 +54,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
         protected override void OnDestroy()
         {
 //            _mChunkRenderMeshRenderCallProxy.CompleteJobs();
-//            _mChunkRenderMeshRenderCallProxy.Dispose();
-//            m_SubsceneTagVersion.Dispose();
-//            m_LastKnownSubsceneTagVersion.Dispose();
+//            _mChunkRenderMeshRenderCallProxy.DisposeEnumerable();
+//            m_SubsceneTagVersion.DisposeEnumerable();
+//            m_LastKnownSubsceneTagVersion.DisposeEnumerable();
         }
 
 

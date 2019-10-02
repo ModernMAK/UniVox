@@ -4,10 +4,10 @@
 //[CustomPropertyDrawer(typeof(MaterialList))]
 //public class MaterialListDrawer : PropertyDrawer
 //{
-//    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+//    public override void OnGUI(Rect Position, SerializedProperty property, GUIContent label)
 //    {
 //        var realProperty = property.FindPropertyRelative("_backingList");
-//        EditorGUI.PropertyField(position, realProperty, label);
+//        EditorGUI.PropertyField(Position, realProperty, label);
 //    }
 //
 //    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
