@@ -65,7 +65,17 @@ namespace UniVox.Managers.Game.Accessor
         public bool Register(ArrayMaterialKey key, Material value, out ArrayMaterialIdentity identity)
         {
             var arrMat = new ArrayMaterial(value);
-            return Register(key, arrMat, out identity);
+            if (TryGetRecord(key, out var record, out var modId))
+            {
+                if (record.Materials.Register(key.ArrayMaterial, arrMat, out var id))
+                {
+                    identity = new ArrayMaterialIdentity(modId, id);
+                    return true;
+                }
+            }
+
+            identity = default;
+            return false;
         }
 
         public override bool IsRegistered(ArrayMaterialKey key)

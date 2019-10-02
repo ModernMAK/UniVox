@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UniVox.Launcher;
+using UniVox.Managers;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Exceptions;
