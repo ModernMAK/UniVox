@@ -348,7 +348,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             return RenderPass(inputDeps);
 
-            return new JobHandle();
+//            return new JobHandle();
         }
 
         public struct SystemVersion : ISystemStateComponentData, IVersionProxy<SystemVersion>

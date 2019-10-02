@@ -1,9 +1,8 @@
-using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace UniVox.VoxelData.Chunk_Components
+namespace ECS.UniVox.VoxelChunk.Systems
 {
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     public abstract class ChunkComponentDirtySystem<TComponent, TVersionComponent> : JobComponentSystem

@@ -212,21 +212,18 @@ namespace ECS.UniVox.VoxelChunk.Systems
             });
         }
 
-        JobHandle RenderPass(JobHandle dependencies = default)
+        JobHandle RenderPass(JobHandle dependencies)
         {
-            const int BatchSize = 64;
             using (var chunkArray = _cullQuery.CreateArchetypeChunkArray(Allocator.TempJob))
             {
-//                dependencies = JobHandle.CombineDependencies(dependencies, handle);
                 var entityVersionType = GetArchetypeChunkComponentType<EntityVersion>();
                 var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
                 var blockCulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
-//                var blockCulledType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
                 var blockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveComponent.Version>(true);
                 var blockActiveType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
+                var entityType = GetArchetypeChunkEntityType();
 
-                var VoxelChunkEntityArchetype = GetArchetypeChunkEntityType();
 
                 Profiler.BeginSample("Process ECS Chunk");
                 foreach (var ecsChunk in chunkArray)
@@ -240,11 +237,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         continue;
 
                     ecsChunk.SetChunkComponentData(systemVersionType, currentSystemVersion);
-
-//                    var entityVersions = ecsChunk.GetNativeArray(entityVersionType);
-//                    var activeVersions = ecsChunk.GetNativeArray(blockActiveVersionType);
-//                    var blockCulledVersions = ecsChunk.GetNativeArray(blockCulledVersionType);
-                    var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetype);
 
 
                     var ignore = new NativeArray<bool>(ecsChunk.Count, Allocator.TempJob,
@@ -270,7 +262,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     var cullJob = new CullFacesJob()
                     {
-                        Entities = voxelChunkEntityArray,
+                        EntityType = entityType,
+                        Chunk = ecsChunk,
+//                        Entities = voxelChunkEntityArray,
                         BlockActiveAccessor = GetBufferFromEntity<BlockActiveComponent>(true),
                         CulledFacesAccessor = GetBufferFromEntity<BlockCulledFacesComponent>(),
                         Directions = DirectionsX.GetDirectionsNative(Allocator.TempJob),
@@ -323,7 +317,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
         [BurstCompile]
         private struct CullFacesJob : IJob
         {
-            [ReadOnly] public NativeArray<Entity> Entities;
+            [ReadOnly] public ArchetypeChunk Chunk;
+
+            [ReadOnly] public ArchetypeChunkEntityType EntityType;
+//            [ReadOnly] public NativeArray<EntityType> Entities;
 
             public BufferFromEntity<BlockActiveComponent> BlockActiveAccessor;
             public BufferFromEntity<BlockCulledFacesComponent> CulledFacesAccessor;
@@ -346,12 +343,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //            }
 
 
-            void ProcessEntity(int entityIndex)
+            void ProcessEntity(int entityIndex, NativeArray<Entity> entities)
             {
                 if (IgnoreEntity[entityIndex])
                     return;
 
-                var entity = Entities[entityIndex];
+                var entity = entities[entityIndex];
                 var blockActive = BlockActiveAccessor[entity];
                 var culledFaces = CulledFacesAccessor[entity];
 
@@ -388,8 +385,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             public void Execute()
             {
+                var Entities = Chunk.GetNativeArray(EntityType);
                 for (var entityIndex = 0; entityIndex < Entities.Length; entityIndex++)
-                    ProcessEntity(entityIndex);
+                    ProcessEntity(entityIndex, Entities);
             }
         }
 

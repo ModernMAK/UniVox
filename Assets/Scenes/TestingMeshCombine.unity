@@ -1177,14 +1177,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultMat: {fileID: 2100000, guid: 4aad0f971837a604ebba52f8d23dc209, type: 2}
   wSize:
-    x: 4
-    y: 4
-    z: 4
+    x: 8
+    y: 8
+    z: 8
   offset:
     x: 0
     y: 0
     z: 0
-  MaxItemsPerFrame: 1
+  MaxItemsPerFrame: 8
 --- !u!4 &908020822
 Transform:
   m_ObjectHideFlags: 0

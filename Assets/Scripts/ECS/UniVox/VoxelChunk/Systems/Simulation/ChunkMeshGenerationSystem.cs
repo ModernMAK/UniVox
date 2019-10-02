@@ -332,9 +332,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
             {
                 var materialId = uniqueBatchData[i];
                 Profiler.BeginSample($"Process Batch {i}");
-                var gatherPlanerJob = GatherPlanarJobV3.Create(blockShapes, culledFaces, subMaterials, materials,
+                var gatherPlanerJob = GatherPlanarJob.Create(blockShapes, culledFaces, subMaterials, materials,
                     uniqueBatchData[i], out var queue);
-                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, maxBatchSize);
+                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJob.JobLength, maxBatchSize);
 
                 var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
                 {
@@ -358,14 +358,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 indexAndSizeJobHandle.Complete();
 
                 //GEnerate the mesh
-//                var genMeshJob = CreateGenerateCubeBoxelMeshV2(planarBatch, offsets, indexAndSizeJob);
-                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMeshV2(planarBatch, indexAndSizeJob);
+//                var genMeshJob = CreateGenerateCubeBoxelMesh(planarBatch, offsets, indexAndSizeJob);
+                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMesh(planarBatch, indexAndSizeJob);
                 //Dispose unneccessary native arrays
                 indexAndSizeJob.TriangleTotalSize.Dispose();
                 indexAndSizeJob.VertexTotalSize.Dispose();
                 //Schedule the generation
-                var genMeshHandle =
-                    genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
+                var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
 
                 //Finish and Create the Mesh
                 genMeshHandle.Complete();
@@ -505,5 +504,4 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return new JobHandle();
         }
     }
-
 }

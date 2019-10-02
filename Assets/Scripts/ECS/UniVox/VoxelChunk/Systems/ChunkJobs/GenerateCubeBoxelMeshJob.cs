@@ -9,7 +9,7 @@ using UniVox.Types;
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
     [BurstCompile]
-    public struct GenerateCubeBoxelMeshV2 : IJobParallelFor
+    public struct GenerateCubeBoxelMeshJob : IJobParallelFor
     {
 //        [ReadOnly] public NativeArray<Orientation> Rotations;
 
