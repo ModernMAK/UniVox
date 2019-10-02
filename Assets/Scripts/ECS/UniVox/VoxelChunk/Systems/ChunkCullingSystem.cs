@@ -14,12 +14,28 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkCullingSystem : JobComponentSystem
     {
-        private struct ChunkCullingSystemVersion : ISystemStateComponentData
+        private struct EntityVersion : ISystemStateComponentData
         {
             public uint ActiveVersion;
 
 
-            public bool DidChange(ChunkCullingSystemVersion version)
+            public bool DidChange(EntityVersion version)
+            {
+                return ChangeVersionUtility.DidChange(ActiveVersion, version.ActiveVersion);
+            }
+
+            public override string ToString()
+            {
+                return ActiveVersion.ToString();
+            }
+        }
+
+        private struct SystemVersion : ISystemStateComponentData
+        {
+            public uint ActiveVersion;
+
+
+            public bool DidChange(SystemVersion version)
             {
                 return ChangeVersionUtility.DidChange(ActiveVersion, version.ActiveVersion);
             }
@@ -31,33 +47,36 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        private EntityQuery _renderQuery;
-        private EntityQuery _setupQuery;
-        private EntityQuery _cleanupQuery;
+        private EntityQuery _cullQuery;
+        private EntityQuery _setupEntityVersionQuery;
+        private EntityQuery _cleanupEntityVersionQuery;
+        private EntityQuery _setupSystemVersionQuery;
+        private EntityQuery _cleanupSystemVersionQuery;
 
 
         protected override void OnCreate()
         {
-            _renderQuery = GetEntityQuery(new EntityQueryDesc()
+            _cullQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<ChunkCullingSystemVersion>(),
+
+                    ComponentType.ReadWrite<EntityVersion>(),
+                    ComponentType.ChunkComponent<SystemVersion>(),
 
                     ComponentType.ReadWrite<BlockCulledFacesComponent>(),
                     ComponentType.ReadOnly<BlockActiveComponent>(),
 
                     ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
                     ComponentType.ReadOnly<BlockActiveComponent.Version>(),
-                     
                 },
                 None = new[]
                 {
                     ComponentType.ReadOnly<ChunkInvalidTag>(),
                 }
             });
-            _setupQuery = GetEntityQuery(new EntityQueryDesc()
+            _setupEntityVersionQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
@@ -71,10 +90,27 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 },
                 None = new[]
                 {
-                    ComponentType.ReadWrite<ChunkCullingSystemVersion>()
+                    ComponentType.ReadWrite<EntityVersion>()
                 }
             });
-            _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
+            _setupSystemVersionQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+
+                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
+                    ComponentType.ReadOnly<BlockActiveComponent>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
+                },
+                None = new[]
+                {
+                    ComponentType.ChunkComponent<SystemVersion>()
+                }
+            });
+            _cleanupEntityVersionQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 None = new[]
                 {
@@ -89,56 +125,87 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 },
                 All = new[]
                 {
-                    ComponentType.ReadWrite<ChunkCullingSystemVersion>()
+                    ComponentType.ReadWrite<EntityVersion>()
+                }
+            });
+            _cleanupSystemVersionQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                None = new[]
+                {
+                    ComponentType.ReadOnly<ChunkIdComponent>(),
+
+                    ComponentType.ReadWrite<BlockCulledFacesComponent>(),
+                    ComponentType.ReadOnly<BlockActiveComponent>(),
+
+                    ComponentType.ReadOnly<BlockCulledFacesComponent.Version>(),
+                    ComponentType.ReadOnly<BlockActiveComponent.Version>(),
+                },
+                All = new[]
+                {
+                    ComponentType.ChunkComponent<SystemVersion>()
                 }
             });
         }
 
         JobHandle RenderPass(JobHandle dependencies = default)
         {
-            var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-            var versionType = GetArchetypeChunkComponentType<ChunkCullingSystemVersion>();
-            var blockCulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
-
-            var blockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveComponent.Version>(true);
-
-            var VoxelChunkEntityArchetype = GetArchetypeChunkEntityType();
-
-            Profiler.BeginSample("Process ECS Chunk");
-            foreach (var ecsChunk in chunkArray)
+            using (var chunkArray = _cullQuery.CreateArchetypeChunkArray(Allocator.TempJob))
             {
-                var systemVersions = ecsChunk.GetNativeArray(versionType);
-                var activeVersions = ecsChunk.GetNativeArray(blockActiveVersionType);
-                var blockCulledVersions = ecsChunk.GetNativeArray(blockCulledVersionType);
-                var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetype);
+                var entityVersionType = GetArchetypeChunkComponentType<EntityVersion>();
+                var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
-                var i = 0;
-                foreach (var voxelChunkEntity in voxelChunkEntityArray)
+                var blockCulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
+//                var blockCulledType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
+                var blockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveComponent.Version>(true);
+                var blockActiveType = GetArchetypeChunkBufferType<BlockActiveComponent>(true);
+
+                var VoxelChunkEntityArchetype = GetArchetypeChunkEntityType();
+
+                Profiler.BeginSample("Process ECS Chunk");
+                foreach (var ecsChunk in chunkArray)
                 {
-                    var version = systemVersions[i];
-                    var currentVersion = new ChunkCullingSystemVersion()
-                    {
-                        ActiveVersion = activeVersions[i]
-                    };
+                    var currentSystemVersion = new SystemVersion()
+                        {ActiveVersion = ecsChunk.GetComponentVersion(blockActiveType)};
 
-                    if (currentVersion.DidChange(version))
+                    var cachedSystemVersion = ecsChunk.GetChunkComponentData(systemVersionType);
+
+                    if (!currentSystemVersion.DidChange(cachedSystemVersion))
+                        continue;
+
+                    ecsChunk.SetChunkComponentData(systemVersionType, currentSystemVersion);
+
+                    var entityVersions = ecsChunk.GetNativeArray(entityVersionType);
+                    var activeVersions = ecsChunk.GetNativeArray(blockActiveVersionType);
+                    var blockCulledVersions = ecsChunk.GetNativeArray(blockCulledVersionType);
+                    var voxelChunkEntityArray = ecsChunk.GetNativeArray(VoxelChunkEntityArchetype);
+
+                    var i = 0;
+                    foreach (var voxelChunkEntity in voxelChunkEntityArray)
                     {
-                        Profiler.BeginSample("Update Chunk");
-                        var job = UpdateVoxelChunkV2(voxelChunkEntity, dependencies);
-                        job.Complete();
-                        Profiler.EndSample();
-                        systemVersions[i] = currentVersion;
-                        blockCulledVersions[i] = blockCulledVersions[i].GetDirty();
+                        var entityVersion = entityVersions[i];
+                        var currentEntityVersion = new EntityVersion()
+                        {
+                            ActiveVersion = activeVersions[i]
+                        };
+
+                        if (currentEntityVersion.DidChange(entityVersion))
+                        {
+                            Profiler.BeginSample("Update Chunk");
+                            var job = UpdateVoxelChunkV2(voxelChunkEntity, dependencies);
+                            job.Complete();
+                            Profiler.EndSample();
+                            entityVersions[i] = currentEntityVersion;
+                            blockCulledVersions[i] = blockCulledVersions[i].GetDirty();
+                        }
+
+                        i++;
                     }
-
-                    i++;
                 }
+
+
+                Profiler.EndSample();
             }
 
-
-            Profiler.EndSample();
-
-            chunkArray.Dispose();
 //            return merged;
             return dependencies;
         }
@@ -221,12 +288,14 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         void SetupPass()
         {
-            EntityManager.AddComponent<ChunkCullingSystemVersion>(_setupQuery);
+            EntityManager.AddComponent<EntityVersion>(_setupEntityVersionQuery);
+            EntityManager.AddChunkComponentData(_setupSystemVersionQuery, new SystemVersion());
         }
 
         void CleanupPass()
         {
-            EntityManager.RemoveComponent<ChunkCullingSystemVersion>(_cleanupQuery);
+            EntityManager.RemoveComponent<EntityVersion>(_cleanupEntityVersionQuery);
+            EntityManager.RemoveChunkComponentData<SystemVersion>(_cleanupSystemVersionQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 
