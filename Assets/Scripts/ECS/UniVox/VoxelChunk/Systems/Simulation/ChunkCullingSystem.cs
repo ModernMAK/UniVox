@@ -337,10 +337,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //                var z = index / (axisSize * axisSize);
 //                return new int3(x, y, z);
 //            }
-//            private int ToIndex(int3 position)
+//            private int ToIndex(int3 Position)
 //            {
 //                var axisSize = UnivoxDefine.AxisSize;
-//                return position.x + position.y * axisSize + position.z * axisSize * axisSize;
+//                return Position.x + Position.y * axisSize + Position.z * axisSize * axisSize;
 //            }
 
 

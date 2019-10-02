@@ -9,20 +9,10 @@ using UniVox;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
-using UniVox.Types.Identities.Voxel;
 using UniVox.VoxelData;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
-    public struct CreateChunkEventity : IComponentData
-    {
-        public ChunkIdentity ChunkPosition;
-    }
-
-    public struct ChunkRequiresInitializationTag : IComponentData
-    {
-    }
-
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkInitializationSystem : JobComponentSystem
     {
@@ -45,7 +35,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
         {
-            const int BatchSize = 64;
+            const int batchSize = 64;
             var entityType = GetArchetypeChunkEntityType();
             using (var ecsChunks = _chunkQuery.CreateArchetypeChunkArray(Allocator.TempJob))
                 //.ToEntityArray(Allocator.TempJob, out var entytyArrJob))
@@ -61,7 +51,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities
-                    }.Schedule(entities.Length, BatchSize, resizeAndInitJob);
+                    }.Schedule(entities.Length, batchSize, resizeAndInitJob);
                     _updateEnd.AddJobHandleForProducer(markValid);
                     inputDependencies = markValid;
                 }

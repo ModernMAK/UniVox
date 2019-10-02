@@ -46,7 +46,7 @@ namespace UniVox.Managers.Game.Structure
 
 //        public void UpdateNativeBlock()
 //        {
-//            NativeBlocks.Dispose();
+//            NativeBlocks.DisposeEnumerable();
 //            NativeBlocks = Blocks.CreateNativeBlockMap();
 //        }
     }

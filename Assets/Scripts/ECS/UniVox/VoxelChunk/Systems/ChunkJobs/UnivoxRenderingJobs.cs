@@ -1,13 +1,16 @@
 using System;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Physics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox.Rendering.MeshPrefabGen;
-using UniVox.Types.Identities;
 using UniVox.Types.Native;
+using Collider = Unity.Physics.Collider;
+using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
@@ -117,15 +120,70 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         {
             var mesh = CommonRenderingJobs.CreateMesh(meshJobJob.Vertexes, meshJobJob.Normals, meshJobJob.Tangents,
                 meshJobJob.TextureMap0,
-//                meshJobJob.TextureMap1,
+//                meshContainer.TextureMap1,
                 meshJobJob.Triangles);
             meshJobJob.Vertexes.Dispose();
             meshJobJob.Normals.Dispose();
             meshJobJob.Tangents.Dispose();
             meshJobJob.TextureMap0.Dispose();
-//            meshJobJob.TextureMap1.Dispose();
+//            meshContainer.TextureMap1.DisposeEnumerable();
             meshJobJob.Triangles.Dispose();
             return mesh;
+        }
+
+        public static Mesh CreateMesh(NativeMeshContainer meshContainer)
+        {
+            return CommonRenderingJobs.CreateMesh(meshContainer.Vertexes, meshContainer.Normals, meshContainer.Tangents,
+                meshContainer.TextureMap0, meshContainer.Indexes);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,
+            BufferFromEntity<VertexBufferComponent> vertexes, BufferFromEntity<IndexBufferComponent> indexes) =>
+            CreateMeshCollider(entity, vertexes, indexes, CollisionFilter.Default);
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,
+            BufferFromEntity<VertexBufferComponent> vertexes, BufferFromEntity<IndexBufferComponent> indexes,
+            CollisionFilter filter)
+        {
+            return CreateMeshCollider(vertexes[entity], indexes[entity], filter);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(NativeMeshContainer meshContainer)
+        {
+            return CreateMeshCollider(meshContainer, CollisionFilter.Default);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(NativeMeshContainer meshContainer,
+            CollisionFilter filter)
+        {
+            return MeshCollider.Create(meshContainer.Vertexes, meshContainer.Indexes, filter);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<IndexBufferComponent> indexes) =>
+            CreateMeshCollider(vertexes, indexes, CollisionFilter.Default);
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<IndexBufferComponent> indexes, CollisionFilter filter)
+        {
+            return MeshCollider.Create(vertexes.AsNativeArray().Reinterpret<float3>(),
+                indexes.AsNativeArray().Reinterpret<int>(), filter);
+        }
+
+        public static Mesh CreateMesh(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<NormalBufferComponent> normals, DynamicBuffer<TangentBufferComponent> tangents,
+            DynamicBuffer<TextureMap0BufferComponent> textureMap0, DynamicBuffer<IndexBufferComponent> indexes)
+        {
+            return CommonRenderingJobs.CreateMesh(vertexes.AsNativeArray(), normals.AsNativeArray(),
+                tangents.AsNativeArray(), textureMap0.AsNativeArray(), indexes.AsNativeArray());
+        }
+
+        public static Mesh CreateMesh(Entity entity, BufferFromEntity<VertexBufferComponent> vertexes,
+            BufferFromEntity<NormalBufferComponent> normals, BufferFromEntity<TangentBufferComponent> tangents,
+            BufferFromEntity<TextureMap0BufferComponent> textureMap0, BufferFromEntity<IndexBufferComponent> indexes)
+        {
+            return CreateMesh(vertexes[entity], normals[entity], tangents[entity], textureMap0[entity],
+                indexes[entity]);
         }
 
         public static NativeList<T> GatherUnique<T>(NativeArray<T> batchInfo) where T : struct, IComparable<T>
@@ -143,13 +201,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
 
-        public struct RenderResult
-        {
-            public Mesh Mesh;
-            public ArrayMaterialIdentity Material;
-        }
-
-
         public static CalculateCubeSizeJob CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)
         {
             const Allocator allocator = Allocator.TempJob;
@@ -162,7 +213,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             };
         }
 
-        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(CalculateCubeSizeJob cubeSizeJob)
+        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(
+            CalculateCubeSizeJob cubeSizeJob)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
@@ -180,6 +232,33 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             };
         }
 
+        public struct NativeMeshContainer : IDisposable
+        {
+            public NativeMeshContainer(int vertexes, int indexes, Allocator allocator, NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+            {
+                Vertexes = new NativeArray<float3>(vertexes, allocator, options);
+                Normals = new NativeArray<float3>(vertexes, allocator, options);
+                Tangents = new NativeArray<float4>(vertexes, allocator, options);
+                TextureMap0 = new NativeArray<float3>(vertexes, allocator, options);
+                Indexes = new NativeArray<int>(indexes, allocator, options);
+            }
+
+            public NativeArray<float3> Vertexes { get; }
+            public NativeArray<float3> Normals { get; }
+            public NativeArray<float4> Tangents { get; }
+            public NativeArray<float3> TextureMap0 { get; }
+
+            public NativeArray<int> Indexes { get; }
+
+            public void Dispose()
+            {
+                Vertexes.Dispose();
+                Normals.Dispose();
+                Tangents.Dispose();
+                TextureMap0.Dispose();
+                Indexes.Dispose();
+            }
+        }
 
         public static GenerateCubeBoxelMeshJob CreateGenerateCubeBoxelMesh(NativeList<PlanarData> planarBatch,
             CalculateIndexAndTotalSizeJob indexAndSizeJob)
@@ -200,6 +279,39 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 TextureMap0 = new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
 //                TextureMap1 = new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
                 Triangles = new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
+
+                TriangleOffsets = indexAndSizeJob.TriangleOffsets,
+                VertexOffsets = indexAndSizeJob.VertexOffsets
+            };
+        }
+
+        public static GenerateCubeBoxelMeshJob CreateGenerateCubeBoxelMesh(NativeList<PlanarData> planarBatch,
+            CalculateIndexAndTotalSizeJob indexAndSizeJob, out NativeMeshContainer meshContainer, Allocator allocator)
+        {
+//            const Allocator allocator = Allocator.TempJob;
+            const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
+            meshContainer = new NativeMeshContainer(indexAndSizeJob.VertexTotalSize, indexAndSizeJob.TriangleTotalSize,
+                allocator, options);
+            return new GenerateCubeBoxelMeshJob()
+            {
+                PlanarBatch = planarBatch.AsDeferredJobArray(),
+
+                Offset = new float3(1f / 2f),
+
+                NativeCube = new NativeCubeBuilder(allocator),
+
+                Vertexes = meshContainer
+                    .Vertexes, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                Normals = meshContainer
+                    .Normals, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                Tangents = meshContainer
+                    .Tangents, //new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                TextureMap0 =
+                    meshContainer
+                        .TextureMap0, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+//                TextureMap1 = new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                Triangles = meshContainer
+                    .Indexes, //new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
 
                 TriangleOffsets = indexAndSizeJob.TriangleOffsets,
                 VertexOffsets = indexAndSizeJob.VertexOffsets

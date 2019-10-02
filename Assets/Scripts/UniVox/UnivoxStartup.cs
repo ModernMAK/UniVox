@@ -36,8 +36,10 @@ namespace UniVox
 //            temp.Load(new ModInitializer(GameManager.Registry, GameManager.NativeRegistry));
 
 
-            GameManager.Registry.Mods.Register(BaseGameMod.ModPath);
-            GameManager.Registry.ArrayMaterials.Register(new ArrayMaterialKey(BaseGameMod.ModPath,"Default"), defaultMat);
+            if (!GameManager.Registry.Mods.IsRegistered(BaseGameMod.ModPath))
+                GameManager.Registry.Mods.Register(BaseGameMod.ModPath);
+            GameManager.Registry.ArrayMaterials.Register(new ArrayMaterialKey(BaseGameMod.ModPath, "Default"),
+                defaultMat);
 
             var world = GameManager.Universe.GetOrCreate(0, "UniVox");
 
@@ -87,7 +89,6 @@ namespace UniVox
 
         public class EntityDataStreamer
         {
-            
         }
 
         bool SetupChunk(ChunkIdentity chunkIdentity)
@@ -99,7 +100,7 @@ namespace UniVox
                 return false;
 
             var blockReg = GameManager.Registry.Blocks;
-            
+
             if (!blockReg.TryGetIdentity(BaseGameMod.GrassBlock, out var grass))
                 throw new AssetNotFoundException(BaseGameMod.GrassBlock.ToString());
             if (!blockReg.TryGetIdentity(BaseGameMod.DirtBlock, out var dirt))
@@ -131,7 +132,7 @@ namespace UniVox
                 var xTop = (pos.x == UnivoxDefine.AxisSize - 1);
                 var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
                 var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
-                
+
                 activeArray[i] = true;
 
                 if (!yTop)
