@@ -50,6 +50,8 @@ namespace UniVox.Managers
                     throw new ArgumentOutOfRangeException();
             }
             GameManager.Registry.Blocks.Register(blockKey, blockReference, out var identity);
+            
+            GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
         }
     }
 }

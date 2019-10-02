@@ -17,26 +17,24 @@ public class EventButtonDisabler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        last = place;
     }
     
-    void HandleClick(Button btn, ClickMode btnMode)
+    void HandleClick(Button btn, EventMode btnMode)
     {
         if (last != null)
-        {
             last.interactable = true;
-        }
 
         last = btn;
         btn.interactable = false;
-        physics.SetClickMode(btnMode);
+        physics.SetEventMode(btnMode);
     }
 
     // Update is called once per frame
     void Update()
     {
-        place.onClick.AddListener(() => HandleClick(place, ClickMode.Place));
-        delete.onClick.AddListener(() => HandleClick(delete, ClickMode.Delete));
-        alter.onClick.AddListener(() => HandleClick(alter, ClickMode.Alter));
+        place.onClick.AddListener(() => HandleClick(place, EventMode.Place));
+        delete.onClick.AddListener(() => HandleClick(delete, EventMode.Delete));
+        alter.onClick.AddListener(() => HandleClick(alter, EventMode.Alter));
     }
 }

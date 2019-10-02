@@ -9,7 +9,7 @@ namespace UniVox.Asset_Management
         [SerializeField] private BlockAsset[] blocks;
         [SerializeField] private Transform blockPanel;
         [SerializeField] private GameObject btnPreFab;
-        [SerializeField] private BlockButtonDisabler _blockButtonDisabler;
+        [SerializeField] private BlockButtonDisabler blockButtonDisabler;
     
         // Start is called before the first frame update
         void Start()
@@ -21,7 +21,7 @@ namespace UniVox.Asset_Management
                 btnBase.transform.localPosition = Vector3.zero;
                 var btn = btnBase.GetComponent<Button>();
                 ((Image) btn.targetGraphic).sprite = block.icon;
-                _blockButtonDisabler.Register(block, btn);
+                blockButtonDisabler.Register(block, btn);
             }
         }
 

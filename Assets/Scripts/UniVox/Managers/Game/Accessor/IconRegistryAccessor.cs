@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
@@ -60,6 +61,23 @@ namespace UniVox.Managers.Game.Accessor
 
             identity = default;
             return false;
+        }
+
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+
+            foreach (var pair in _modRegistry.GetAllRegistered())
+            {
+                foreach (var icon in pair.Value.Icons.GetNameIndexValuePairs())
+                {
+                    yield return new Pair()
+                    {
+                        Key = new IconKey(pair.Key, icon.Key),
+                        Value = icon.Value,
+                        Identity = new IconIdentity(pair.Identity, icon.Index)
+                    };
+                }
+            }
         }
 
         public override bool IsRegistered(IconKey key)

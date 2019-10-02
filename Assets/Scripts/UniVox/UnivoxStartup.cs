@@ -86,7 +86,6 @@ namespace UniVox
 
         public class EntityDataStreamer
         {
-
             
         }
 
@@ -94,16 +93,12 @@ namespace UniVox
         {
             var world = GameManager.Universe[chunkIdentity.WorldId];
 
-
             var chunkPos = chunkIdentity.ChunkId;
             if (!world.ContainsKey(chunkPos))
-            {
                 return false;
-            }
 
             var blockReg = GameManager.Registry.Blocks;
-
-
+            
             if (!blockReg.TryGetIdentity(BaseGameMod.GrassBlock, out var grass))
                 throw new AssetNotFoundException(BaseGameMod.GrassBlock.ToString());
             if (!blockReg.TryGetIdentity(BaseGameMod.DirtBlock, out var dirt))
@@ -123,12 +118,10 @@ namespace UniVox
 
             var entity = world.GetOrCreate(chunkPos, entityArchetype);
 
-
             var activeArray = em.GetBuffer<BlockActiveComponent>(entity);
             var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
             em.DirtyComponent<BlockActiveComponent.Version>(entity);
             em.DirtyComponent<BlockIdentityComponent.Version>(entity);
-
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)
             {
@@ -137,8 +130,7 @@ namespace UniVox
                 var xTop = (pos.x == UnivoxDefine.AxisSize - 1);
                 var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
                 var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
-
-
+                
                 activeArray[i] = true;
 
                 if (!yTop)
