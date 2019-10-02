@@ -1,7 +1,8 @@
 using System;
 using Unity.Entities;
+using UniVox;
 
-namespace UniVox.VoxelData.Chunk_Components
+namespace ECS.UniVox.VoxelChunk.Components
 {
     //We cant use CubeSize because that would make the ECS chunk too big
     //WE could get around this by shrinking chunks

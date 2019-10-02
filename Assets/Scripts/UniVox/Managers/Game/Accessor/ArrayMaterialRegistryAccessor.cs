@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
@@ -65,7 +66,33 @@ namespace UniVox.Managers.Game.Accessor
         public bool Register(ArrayMaterialKey key, Material value, out ArrayMaterialIdentity identity)
         {
             var arrMat = new ArrayMaterial(value);
-            return Register(key, arrMat, out identity);
+            if (TryGetRecord(key, out var record, out var modId))
+            {
+                if (record.Materials.Register(key.ArrayMaterial, arrMat, out var id))
+                {
+                    identity = new ArrayMaterialIdentity(modId, id);
+                    return true;
+                }
+            }
+
+            identity = default;
+            return false;
+        }
+
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+            foreach (var pair in _modRegistry.GetAllRegistered())
+            {
+                foreach (var arrayMat in pair.Value.Materials.GetNameIndexValuePairs())
+                {
+                    yield return new Pair()
+                    {
+                        Key = new ArrayMaterialKey(pair.Key, arrayMat.Key),
+                        Value = arrayMat.Value,
+                        Identity = new ArrayMaterialIdentity(pair.Identity, arrayMat.Index)
+                    };
+                }
+            }
         }
 
         public override bool IsRegistered(ArrayMaterialKey key)

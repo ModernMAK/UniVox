@@ -1,21 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using UniVox.Managers.Game.Accessor;
 
 namespace UniVox.Managers.Generic
 {
+    public struct NameIndexValue<TKey,TValue>
+    {
+        public TKey Key;
+        public int Index;
+        public TValue Value;
+    }
+
     /// <summary>
     ///     Wrapper around a dictionary, automatically assigns an integer identity to each item in the registry
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class AutoRegistry<TKey, TValue> : IReadOnlyList<TValue>, IReadOnlyDictionary<TKey, TValue>, IIndexedRegistry<TKey,TValue>,
-        IRegistry<TKey, TValue>
+    public class AutoRegistry<TKey, TValue> : IReadOnlyList<TValue>, IReadOnlyDictionary<TKey, TValue>,
+        IIndexedRegistry<TKey, TValue>,
+        IRegistry<TKey, TValue>//, IEnumerable<KeyValuePair<int, TValue>>
     {
         private readonly List<TValue> _backingArray;
         private readonly Dictionary<TKey, int> _backingLookup;
         private int _nextId;
-        
-        
+
 
         public AutoRegistry(int initialSize = 0)
         {
@@ -32,9 +40,45 @@ namespace UniVox.Managers.Generic
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
+            
+            foreach (var value in GetKeyValuePairs())
+            {
+                yield return value;
+            }
+        }
+
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> GetKeyValuePairs()
+        {
             foreach (var kvp in _backingLookup)
                 yield return new KeyValuePair<TKey, TValue>(kvp.Key, _backingArray[kvp.Value]);
         }
+
+//        IEnumerator<KeyValuePair<int, TValue>> IEnumerable<KeyValuePair<int, TValue>>.GetEnumerator()
+//        {
+//            foreach (var value in GetIndexedValuePairs())
+//            {
+//                yield return value;
+//            }
+//        }
+
+        public IEnumerable<KeyValuePair<int, TValue>> GetIndexedValuePairs()
+        {
+            for (var i = 0; i < _backingArray.Count; i++)
+                yield return new KeyValuePair<int, TValue>(i, _backingArray[i]);
+        }
+
+        public IEnumerable<NameIndexValue<TKey,TValue>> GetNameIndexValuePairs()
+        {
+            foreach (var kvp in _backingLookup)
+                yield return new NameIndexValue<TKey,TValue>()
+                {
+                    Key = kvp.Key,
+                    Index = kvp.Value,
+                    Value = _backingArray[kvp.Value]
+                };
+        }
+
 
         int IReadOnlyCollection<KeyValuePair<TKey, TValue>>.Count => _backingLookup.Count;
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ECS.UnityEdits.Hybrid_Renderer;
+using ECS.UniVox.VoxelChunk.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -9,7 +10,6 @@ using UniVox;
 using UniVox.Launcher;
 using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Rendering.Render;
 using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.Types.Identities.Voxel;

@@ -1,4 +1,5 @@
 using System;
+using ECS.UniVox.VoxelChunk.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -7,21 +8,20 @@ using UniVox;
 using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
-using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
     [BurstCompile]
-    struct GatherPlanarJobV3 : IJobParallelFor
+    struct GatherPlanarJob : IJobParallelFor
     {
-        public static GatherPlanarJobV3 Create(NativeArray<BlockShapeComponent> shapes,
+        public static GatherPlanarJob Create(NativeArray<BlockShapeComponent> shapes,
             NativeArray<BlockCulledFacesComponent> culled,
             NativeArray<BlockSubMaterialIdentityComponent> subMaterials,
             NativeArray<BlockMaterialIdentityComponent> materialIdentities,
             ArrayMaterialIdentity batchIdentity, out NativeQueue<PlanarData> data)
         {
             data = new NativeQueue<PlanarData>(Allocator.TempJob);
-            return new GatherPlanarJobV3()
+            return new GatherPlanarJob()
             {
                 Data = data.AsParallelWriter(),
                 BatchIdentity = batchIdentity,
