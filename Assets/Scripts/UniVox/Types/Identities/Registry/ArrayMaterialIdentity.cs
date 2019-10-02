@@ -1,8 +1,9 @@
+using System;
 using Unity.Entities;
 
 namespace UniVox.Types.Identities
 {
-    public struct ArrayMaterialIdentity 
+    public struct ArrayMaterialIdentity : IEquatable<ArrayMaterialIdentity>, IComparable<ArrayMaterialIdentity>
     {
         public ModIdentity Mod;
         public int ArrayMaterial;
