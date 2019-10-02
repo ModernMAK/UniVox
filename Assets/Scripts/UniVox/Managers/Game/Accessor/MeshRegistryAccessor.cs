@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
@@ -60,6 +61,22 @@ namespace UniVox.Managers.Game.Accessor
 
             identity = default;
             return false;
+        }
+
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+            foreach (var pair in _modRegistry.GetAllRegistered())
+            {
+                foreach (var arrayMat in pair.Value.Meshes.GetNameIndexValuePairs())
+                {
+                    yield return new Pair()
+                    {
+                        Key = new MeshKey(pair.Key, arrayMat.Key),
+                        Value = arrayMat.Value,
+                        Identity = new MeshId(pair.Identity, arrayMat.Index)
+                    };
+                }
+            }
         }
 
         public override bool IsRegistered(MeshKey key)

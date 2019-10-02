@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types.Identities;
@@ -58,9 +59,11 @@ namespace UniVox.Managers.Game.Accessor
         public BlockRegistryAccessor(ModRegistryAccessor modRegistry)
         {
             _modRegistry = modRegistry;
+//            _gameRegistry = registry;
         }
 
         private readonly ModRegistryAccessor _modRegistry;
+//        private readonly GameRegistry _gameRegistry;
 
 
         private bool TryGetRecord(BlockKey key, out ModRegistry.Record record, out ModIdentity identity)
@@ -102,12 +105,30 @@ namespace UniVox.Managers.Game.Accessor
                 if (record.Blocks.Register(key.Block, value, out var id))
                 {
                     identity = new BlockIdentity(modId, id);
+//                    _gameRegistry.UpdateNativeBlock();
                     return true;
                 }
             }
 
             identity = default;
             return false;
+        }
+
+        public override IEnumerable<Pair> GetAllRegistered()
+        {
+            
+            foreach (var pair in _modRegistry.GetAllRegistered())
+            {
+                foreach (var arrayMat in pair.Value.Blocks.GetNameIndexValuePairs())
+                {
+                    yield return new Pair()
+                    {
+                        Key = new BlockKey(pair.Key, arrayMat.Key),
+                        Value = arrayMat.Value,
+                        Identity = new BlockIdentity(pair.Identity, arrayMat.Index)
+                    };
+                }
+            }
         }
 
         public override bool IsRegistered(BlockKey key)

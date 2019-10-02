@@ -5,7 +5,7 @@ using Unity.Jobs;
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
     [BurstCompile]
-    public struct CalculateCubeSizeJobV2 : IJobParallelFor
+    public struct CalculateCubeSizeJob : IJobParallelFor
     {
         /// <summary>
         ///     An array reperesenting the indexes to process

@@ -1,4 +1,5 @@
-﻿using ECS.UniVox.VoxelChunk.Systems;
+﻿using ECS.UniVox.VoxelChunk.Components;
+using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
@@ -6,7 +7,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UniVox.Types;
 using UniVox.Types.Identities;
-using UniVox.VoxelData.Chunk_Components;
 using Entity = Unity.Entities.Entity;
 using World = Unity.Entities.World;
 
@@ -174,10 +174,10 @@ namespace UniVox
                             _hitPoint = hit.Position;
                         }
                         else
-                            Debug.Log($"OOB Create : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
+                            Debug.Log($"OOB CreateNative : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
                     }
                     else
-                        Debug.Log($"Missed Create : {hit.Position} -> {hit.SurfaceNormal}");
+                        Debug.Log($"Missed CreateNative : {hit.Position} -> {hit.SurfaceNormal}");
                 }
                 else if (mode == ClickMode.Delete)
                 {

@@ -1,5 +1,5 @@
+using ECS.UniVox.VoxelChunk.Components;
 using Unity.Entities;
-using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {

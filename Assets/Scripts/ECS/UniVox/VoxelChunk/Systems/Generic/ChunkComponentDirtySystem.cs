@@ -1,9 +1,8 @@
-using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace UniVox.VoxelData.Chunk_Components
+namespace ECS.UniVox.VoxelChunk.Systems
 {
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     public abstract class ChunkComponentDirtySystem<TComponent, TVersionComponent> : JobComponentSystem
@@ -40,14 +39,16 @@ namespace UniVox.VoxelData.Chunk_Components
 
         protected sealed override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps.Complete();
+//            inputDeps.Complete();
 
+            
 //            EntityManager.AddComponent<TVersionComponent>(_setup);
             SetComponentData(_setup, GetInitialVersion());
 
             EntityManager.RemoveComponent<TVersionComponent>(_cleanup);
 
-            return new JobHandle();
+            return inputDeps;
+//            return new JobHandle();
         }
     }
 }

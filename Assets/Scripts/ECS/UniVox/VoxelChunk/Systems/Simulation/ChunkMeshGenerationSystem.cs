@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,11 +11,9 @@ using Unity.Transforms;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
-using UniVox.Rendering.Render;
 using UniVox.Types;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Utility;
-using UniVox.VoxelData.Chunk_Components;
 using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
 
@@ -323,7 +322,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             const int maxBatchSize = Byte.MaxValue;
             handle.Complete();
 
-            Profiler.BeginSample("Create Batches");
+            Profiler.BeginSample("CreateNative Batches");
             var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
             Profiler.EndSample();
 
@@ -333,9 +332,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
             {
                 var materialId = uniqueBatchData[i];
                 Profiler.BeginSample($"Process Batch {i}");
-                var gatherPlanerJob = GatherPlanarJobV3.Create(blockShapes, culledFaces, subMaterials, materials,
+                var gatherPlanerJob = GatherPlanarJob.Create(blockShapes, culledFaces, subMaterials, materials,
                     uniqueBatchData[i], out var queue);
-                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJobV3.JobLength, maxBatchSize);
+                var gatherPlanerJobHandle = gatherPlanerJob.Schedule(GatherPlanarJob.JobLength, maxBatchSize);
 
                 var writerToReaderJob = new NativeQueueToNativeListJob<PlanarData>()
                 {
@@ -359,16 +358,15 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 indexAndSizeJobHandle.Complete();
 
                 //GEnerate the mesh
-//                var genMeshJob = CreateGenerateCubeBoxelMeshV2(planarBatch, offsets, indexAndSizeJob);
-                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMeshV2(planarBatch, indexAndSizeJob);
+//                var genMeshJob = CreateGenerateCubeBoxelMesh(planarBatch, offsets, indexAndSizeJob);
+                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMesh(planarBatch, indexAndSizeJob);
                 //Dispose unneccessary native arrays
                 indexAndSizeJob.TriangleTotalSize.Dispose();
                 indexAndSizeJob.VertexTotalSize.Dispose();
                 //Schedule the generation
-                var genMeshHandle =
-                    genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
+                var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
 
-                //Finish and Create the Mesh
+                //Finish and CreateNative the Mesh
                 genMeshHandle.Complete();
                 planarBatch.Dispose();
                 meshes[i] = new UnivoxRenderingJobs.RenderResult()
@@ -388,7 +386,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         void ProcessFrameCache()
         {
-            Profiler.BeginSample("Create Mesh Entities");
+            Profiler.BeginSample("CreateNative Mesh Entities");
             while (_frameCaches.Count > 0)
             {
                 var cached = _frameCaches.Dequeue();
@@ -506,5 +504,4 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return new JobHandle();
         }
     }
-
 }

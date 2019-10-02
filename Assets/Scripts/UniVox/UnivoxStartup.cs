@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,7 +12,6 @@ using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Exceptions;
 using UniVox.Types.Identities.Voxel;
-using UniVox.VoxelData.Chunk_Components;
 using VoxelWorld = UniVox.VoxelData.World;
 
 namespace UniVox
@@ -32,7 +32,7 @@ namespace UniVox
             _setup = new Queue<ChunkIdentity>();
 
             var temp = new BaseGameMod();
-            temp.Initialize(new ModInitializer(GameManager.Registry));
+            temp.Load(new ModInitializer(GameManager.Registry, GameManager.NativeRegistry));
 
 
             var matReg = GameManager.Registry.Raw[0];
@@ -183,11 +183,13 @@ namespace UniVox
         private void OnApplicationQuit()
         {
             GameManager.Universe.Dispose();
+            GameManager.NativeRegistry.Dispose();
         }
 
         private void OnDestroy()
         {
             GameManager.Universe.Dispose();
+            GameManager.NativeRegistry.Dispose();
         }
 
         // Update is called once per frame

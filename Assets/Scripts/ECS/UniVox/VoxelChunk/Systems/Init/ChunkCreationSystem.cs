@@ -1,8 +1,8 @@
+using ECS.UniVox.VoxelChunk.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using UniVox.VoxelData.Chunk_Components;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -40,7 +40,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
         {
-            const int BatchSize = 64;
             var eventityDataType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
             var eventityType = GetArchetypeChunkEntityType();
             using (var ecsChunks = _eventQuery.CreateArchetypeChunkArray(Allocator.TempJob))
@@ -61,7 +60,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //                        Created = createdChunks,
                         Eventities = eventitiesInChunk,
                         EventityData = eventityData
-                    }.Schedule(inputDependencies);//eventitiesInChunk.Length, BatchSize, inputDependencies);
+                    }.Schedule(inputDependencies);
+                    //eventitiesInChunk.Length, BatchSize, inputDependencies);
 
                     _updateEnd.AddJobHandleForProducer(initChunkJob);
                     result = JobHandle.CombineDependencies(result, initChunkJob);

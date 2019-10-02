@@ -5,127 +5,126 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UniVox.Managers.Game;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types.Identities;
 using UniVox.Types.Native;
 
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
-    public static class UnivoxRenderingJobs
+    [BurstCompile]
+    public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
     {
-        [BurstCompile]
-        public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
+        public NativeArray<T> Source;
+        public NativeList<T> Unique;
+
+
+        public void Execute()
         {
-            public NativeArray<T> Source;
-            public NativeList<T> Unique;
-
-
-            public void Execute()
+            for (var i = 0; i < Source.Length; i++)
             {
-                for (var i = 0; i < Source.Length; i++)
+                Insert(Source[i]);
+            }
+        }
+
+
+        #region UniqueList Helpers
+
+        private bool Find(T value)
+        {
+            return Find(value, 0, Source.Length - 1);
+        }
+
+        private bool Find(T value, int min, int max)
+        {
+            while (true)
+            {
+                if (min > max) return false;
+
+                var mid = (min + max) / 2;
+
+                var delta = value.CompareTo(Unique[mid]);
+
+                if (delta == 0)
+                    return true;
+                if (delta < 0) //-
                 {
-                    Insert(Source[i]);
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
                 }
             }
+        }
 
+        private void Insert(T value)
+        {
+            Insert(value, 0, Unique.Length - 1);
+        }
 
-            #region UniqueList Helpers
-
-            private bool Find(T value)
+        private void Insert(T value, int min, int max)
+        {
+            while (true)
             {
-                return Find(value, 0, Source.Length - 1);
-            }
-
-            private bool Find(T value, int min, int max)
-            {
-                while (true)
+                if (min > max)
                 {
-                    if (min > max) return false;
-
-                    var mid = (min + max) / 2;
-
-                    var delta = value.CompareTo(Unique[mid]);
-
-                    if (delta == 0)
-                        return true;
-                    if (delta < 0) //-
-                    {
-                        max = mid - 1;
-                    }
-                    else //+
-                    {
-                        min = mid + 1;
-                    }
-                }
-            }
-
-            private void Insert(T value)
-            {
-                Insert(value, 0, Unique.Length - 1);
-            }
-
-            private void Insert(T value, int min, int max)
-            {
-                while (true)
-                {
-                    if (min > max)
-                    {
-                        //Max is our min, and min is our max, so lets fix that real quick
-                        var temp = max;
-                        max = min;
-                        min = temp;
+                    //Max is our min, and min is our max, so lets fix that real quick
+                    var temp = max;
+                    max = min;
+                    min = temp;
 //                    if (min < -1) //Allow -1, to insert at front
 //                        min = -1;
 //                    else if (min > Unique.Length - 1)
 //                        min = Unique.Length - 1;
 
 
-                        var insertAt = min + 1;
+                    var insertAt = min + 1;
 
 
-                        //Add a placeholder
-                        Unique.Add(default);
-                        //Shift all elements down one
-                        for (var i = insertAt + 1; i < Unique.Length; i++)
-                            Unique[i] = Unique[i - 1];
-                        //Insert the correct element
-                        Unique[insertAt] = value;
-                        return;
-                    }
+                    //Add a placeholder
+                    Unique.Add(default);
+                    //Shift all elements down one
+                    for (var i = insertAt + 1; i < Unique.Length; i++)
+                        Unique[i] = Unique[i - 1];
+                    //Insert the correct element
+                    Unique[insertAt] = value;
+                    return;
+                }
 
-                    var mid = (min + max) / 2;
+                var mid = (min + max) / 2;
 
-                    var delta = value.CompareTo(Unique[mid]);
+                var delta = value.CompareTo(Unique[mid]);
 
-                    if (delta == 0)
-                        return; //Material is Unique and present
-                    if (delta < 0) //-
-                    {
-                        max = mid - 1;
-                    }
-                    else //+
-                    {
-                        min = mid + 1;
-                    }
+                if (delta == 0)
+                    return; //Material is Unique and present
+                if (delta < 0) //-
+                {
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
                 }
             }
-
-            #endregion
         }
 
-        public static Mesh CreateMesh(GenerateCubeBoxelMeshV2 meshJob)
+        #endregion
+    }
+
+    public static class UnivoxRenderingJobs
+    {
+        public static Mesh CreateMesh(GenerateCubeBoxelMeshJob meshJobJob)
         {
-            var mesh = CommonRenderingJobs.CreateMesh(meshJob.Vertexes, meshJob.Normals, meshJob.Tangents,
-                meshJob.TextureMap0,
-//                meshJob.TextureMap1,
-                meshJob.Triangles);
-            meshJob.Vertexes.Dispose();
-            meshJob.Normals.Dispose();
-            meshJob.Tangents.Dispose();
-            meshJob.TextureMap0.Dispose();
-//            meshJob.TextureMap1.Dispose();
-            meshJob.Triangles.Dispose();
+            var mesh = CommonRenderingJobs.CreateMesh(meshJobJob.Vertexes, meshJobJob.Normals, meshJobJob.Tangents,
+                meshJobJob.TextureMap0,
+//                meshJobJob.TextureMap1,
+                meshJobJob.Triangles);
+            meshJobJob.Vertexes.Dispose();
+            meshJobJob.Normals.Dispose();
+            meshJobJob.Tangents.Dispose();
+            meshJobJob.TextureMap0.Dispose();
+//            meshJobJob.TextureMap1.Dispose();
+            meshJobJob.Triangles.Dispose();
             return mesh;
         }
 
@@ -151,27 +150,19 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
 
-        public static CalculateCubeSizeJobV2 CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)
+        public static CalculateCubeSizeJob CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
-            return new CalculateCubeSizeJobV2
+            return new CalculateCubeSizeJob
             {
                 PlanarInBatch = batch.AsDeferredJobArray(),
-//                
-//                Batch = batch,
-//                Shapes = chunk.Shapes,
-//                HiddenFaces = chunk.HiddenFaces,
-
                 VertexSizes = new NativeArray<int>(batch.Length, allocator, options),
                 TriangleSizes = new NativeArray<int>(batch.Length, allocator, options),
-
-//                Directions = DirectionsX.GetDirectionsNative(allocator)
             };
         }
 
-        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(
-            CalculateCubeSizeJobV2 cubeSizeJob)
+        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(CalculateCubeSizeJob cubeSizeJob)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
@@ -190,29 +181,18 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
 
-        public static GenerateCubeBoxelMeshV2 CreateGenerateCubeBoxelMeshV2(NativeList<PlanarData> planarBatch,
+        public static GenerateCubeBoxelMeshJob CreateGenerateCubeBoxelMesh(NativeList<PlanarData> planarBatch,
             CalculateIndexAndTotalSizeJob indexAndSizeJob)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
-            return new GenerateCubeBoxelMeshV2()
+            return new GenerateCubeBoxelMeshJob()
             {
                 PlanarBatch = planarBatch.AsDeferredJobArray(),
 
                 Offset = new float3(1f / 2f),
 
-//                Directions = DirectionsX.GetDirectionsNative(allocator),
-
-
-//                Shapes = chunk.Shapes,
-//                HiddenFaces = chunk.HiddenFaces,
-
-
                 NativeCube = new NativeCubeBuilder(allocator),
-
-
-//                ReferencePositions = chunkOffsets,
-
 
                 Vertexes = new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
                 Normals = new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
@@ -220,7 +200,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 TextureMap0 = new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
 //                TextureMap1 = new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
                 Triangles = new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
-
 
                 TriangleOffsets = indexAndSizeJob.TriangleOffsets,
                 VertexOffsets = indexAndSizeJob.VertexOffsets
