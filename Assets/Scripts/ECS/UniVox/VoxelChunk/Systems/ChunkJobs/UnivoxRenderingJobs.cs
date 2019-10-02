@@ -113,6 +113,107 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         #endregion
     }
+    
+    [BurstCompile]
+    public struct FindAndCountUniquePerChunk<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
+    {
+        public NativeArray<T> Source;
+        public NativeList<T> Unique;
+
+
+        public void Execute()
+        {
+            for (var i = 0; i < Source.Length; i++)
+            {
+                Insert(Source[i]);
+            }
+        }
+
+
+        #region UniqueList Helpers
+
+        private bool Find(T value)
+        {
+            return Find(value, 0, Source.Length - 1);
+        }
+
+        private bool Find(T value, int min, int max)
+        {
+            while (true)
+            {
+                if (min > max) return false;
+
+                var mid = (min + max) / 2;
+
+                var delta = value.CompareTo(Unique[mid]);
+
+                if (delta == 0)
+                    return true;
+                if (delta < 0) //-
+                {
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
+                }
+            }
+        }
+
+        private void Insert(T value)
+        {
+            Insert(value, 0, Unique.Length - 1);
+        }
+
+        private void Insert(T value, int min, int max)
+        {
+            while (true)
+            {
+                if (min > max)
+                {
+                    //Max is our min, and min is our max, so lets fix that real quick
+                    var temp = max;
+                    max = min;
+                    min = temp;
+//                    if (min < -1) //Allow -1, to insert at front
+//                        min = -1;
+//                    else if (min > Unique.Length - 1)
+//                        min = Unique.Length - 1;
+
+
+                    var insertAt = min + 1;
+
+
+                    //Add a placeholder
+                    Unique.Add(default);
+                    //Shift all elements down one
+                    for (var i = insertAt + 1; i < Unique.Length; i++)
+                        Unique[i] = Unique[i - 1];
+                    //Insert the correct element
+                    Unique[insertAt] = value;
+                    return;
+                }
+
+                var mid = (min + max) / 2;
+
+                var delta = value.CompareTo(Unique[mid]);
+
+                if (delta == 0)
+                    return; //Material is Unique and present
+                if (delta < 0) //-
+                {
+                    max = mid - 1;
+                }
+                else //+
+                {
+                    min = mid + 1;
+                }
+            }
+        }
+
+        #endregion
+    }
+
 
     public static class UnivoxRenderingJobs
     {
@@ -235,6 +336,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             Profiler.EndSample();
             return results;
         }
+        
+        
 
 
         public static CalculateCubeSizeJob CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)
@@ -268,6 +371,40 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             };
         }
 
+        public struct DynamicNativeMeshContainer : IDisposable
+        {
+            public DynamicNativeMeshContainer(int vertexes, int indexes, Allocator allocator)
+            {
+                Vertexes = new NativeList<float3>(vertexes, allocator);
+                Normals = new NativeList<float3>(vertexes, allocator);
+                Tangents = new NativeList<float4>(vertexes, allocator);
+                TextureMap0 = new NativeList<float3>(vertexes, allocator);
+                Indexes = new NativeList<int>(indexes, allocator);
+            }
+
+            public NativeMeshContainer ToDeferred()
+            {
+                return new NativeMeshContainer(this);
+            }
+
+
+            public NativeList<float3> Vertexes { get; }
+            public NativeList<float3> Normals { get; }
+            public NativeList<float4> Tangents { get; }
+            public NativeList<float3> TextureMap0 { get; }
+
+            public NativeList<int> Indexes { get; }
+
+            public void Dispose()
+            {
+                Vertexes.Dispose();
+                Normals.Dispose();
+                Tangents.Dispose();
+                TextureMap0.Dispose();
+                Indexes.Dispose();
+            }
+        }
+
         public struct NativeMeshContainer : IDisposable
         {
             public NativeMeshContainer(int vertexes, int indexes, Allocator allocator,
@@ -279,6 +416,16 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 TextureMap0 = new NativeArray<float3>(vertexes, allocator, options);
                 Indexes = new NativeArray<int>(indexes, allocator, options);
             }
+
+            public NativeMeshContainer(DynamicNativeMeshContainer dnmc)
+            {
+                Vertexes = dnmc.Vertexes.AsDeferredJobArray();
+                Normals = dnmc.Normals.AsDeferredJobArray();
+                Tangents = dnmc.Tangents.AsDeferredJobArray();
+                TextureMap0 = dnmc.TextureMap0.AsDeferredJobArray();
+                Indexes = dnmc.Indexes.AsDeferredJobArray();
+            }
+
 
             public NativeArray<float3> Vertexes { get; }
             public NativeArray<float3> Normals { get; }

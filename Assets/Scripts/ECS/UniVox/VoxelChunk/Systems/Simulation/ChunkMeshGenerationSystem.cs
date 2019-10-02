@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using ECS.UniVox.VoxelChunk.Tags;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Transforms;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
-using UniVox.Types.Native;
 using UniVox.Utility;
 using Material = UnityEngine.Material;
 
@@ -20,19 +18,24 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
-        public struct SystemVersion : ISystemStateComponentData
+        public struct EntityVersion : ISystemStateComponentData, IVersionProxy<EntityVersion>
         {
             public uint CulledFaces;
             public uint BlockShape;
             public uint Material;
             public uint SubMaterial;
 
-            public bool DidChange(SystemVersion version)
+            public bool DidChange(EntityVersion version)
             {
                 return ChangeVersionUtility.DidChange(CulledFaces, version.CulledFaces) ||
                        ChangeVersionUtility.DidChange(BlockShape, version.BlockShape) ||
                        ChangeVersionUtility.DidChange(Material, version.Material) ||
                        ChangeVersionUtility.DidChange(SubMaterial, version.SubMaterial);
+            }
+
+            public EntityVersion GetDirty()
+            {
+                throw new NotSupportedException();
             }
 
             public override string ToString()
@@ -45,52 +48,20 @@ namespace ECS.UniVox.VoxelChunk.Systems
         private EntityQuery _setupQuery;
         private EntityQuery _cleanupQuery;
 
-//        private Universe _universe;
-//        private EntityCommandBufferSystem _updateEnd;
-
-//        private Dictionary<ChunkIdentity, NativeArray<Entity>> _entityCache;
-//        private EntityArchetype _chunkRenderArchetype;
-
 
         private NativeHashMap<BatchGroupIdentity, Entity> _entityCache;
 
-        //TODO remove the need for this
         private Queue<MultiJobCache> _jobCache;
-
-//
-//        private void SetupArchetype()
-//        {
-////            _chunkRenderArchetype = EntityManager.CreateArchetype(
-////                //Rendering
-////                typeof(ChunkRenderMesh),
-////                typeof(LocalToWorld),
-//////Physics
-////                typeof(Translation),
-////                typeof(Rotation),
-////                typeof(PhysicsCollider)
-////            );
-////            _chunkRenderEventityArchetype = EntityManager.CreateArchetype(
-////                typeof(VertexBufferComponent),
-////                typeof(NormalBufferComponent),
-////                typeof(TextureMap0BufferComponent),
-////                typeof(TangentBufferComponent),
-////                typeof(CreateChunkMeshEventity)
-////            );
-//        }
 
         protected override void OnCreate()
         {
-//            _updateEnd = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-////            _frameCaches = new Queue<FrameCache>();
-////            _universe = GameManager.Universe;
-//            SetupArchetype();
             _renderSystem = World.GetOrCreateSystem<ChunkRenderMeshSystem>();
             _renderQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkIdComponent>(),
-                    ComponentType.ReadWrite<SystemVersion>(),
+                    ComponentType.ReadWrite<EntityVersion>(),
 
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent>(),
                     ComponentType.ReadOnly<BlockMaterialIdentityComponent.Version>(),
@@ -136,7 +107,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 },
                 None = new[]
                 {
-                    ComponentType.ReadWrite<SystemVersion>()
+                    ComponentType.ReadWrite<EntityVersion>()
                 }
             });
             _cleanupQuery = GetEntityQuery(new EntityQueryDesc()
@@ -162,7 +133,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 },
                 All = new[]
                 {
-                    ComponentType.ReadWrite<SystemVersion>(),
+                    ComponentType.ReadWrite<EntityVersion>(),
                 }
             });
 
@@ -196,43 +167,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 {
                     nativeMesh.Dispose();
                 }
-            }
-        }
-
-        private struct JobCache : IDisposable
-        {
-            public JobHandle WaitHandle;
-
-            public BatchGroupIdentity Identity;
-
-
-            public Entity Entity;
-
-//            public NativeValue<Entity> Entity;
-//            public Entity GetEntity(NativeHashMap<BatchGroupIdentity, Entity> lookup) => lookup[Identity];
-            public UnivoxRenderingJobs.NativeMeshContainer NativeMesh;
-
-//            public bool IsValid(NativeHashMap<BatchGroupIdentity, Entity> lookup)
-//            {
-//                if (!lookup.TryGetValue(Identity, out var entity)) return false;
-//
-//
-//                var handleCompleted = IsHandleCompleted();
-//                var entityNotNull = !IsEntityNull(entity);
-//                var entityNotDeferred = !IsEntityDeferred(entity);
-//
-//                return handleCompleted && entityNotDeferred && entityNotNull;
-//            }
-
-            public bool IsHandleCompleted()
-            {
-                return WaitHandle.IsCompleted; // && Entity.Value != Unity.Entities.Entity.Null;
-            }
-
-            public void Dispose()
-            {
-//                Entity.Dispose();
-                NativeMesh.Dispose();
             }
         }
 
@@ -286,19 +220,14 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
         JobHandle AddToCache(Entity entity, BatchGroupIdentity[] identity,
-            UnivoxRenderingJobs.NativeMeshContainer[] nmc,
-            JobHandle inputDep)
+            UnivoxRenderingJobs.NativeMeshContainer[] nmc, JobHandle inputDep)
         {
             var cached = new MultiJobCache()
             {
                 Entity = entity,
-//                Entity = new NativeValue<Entity>(Allocator.Persistent),
                 NativeMeshes = nmc,
                 Identities = identity
             };
-
-//            var mergedHandle = JobHandle.CombineDependencies(inputDep, _entityCacheHandle);
-//            var commandBuffer = _updateEnd.CreateCommandBuffer();
 
             var finalHandle = new JobHandle(); //initEntity;
 
@@ -325,12 +254,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             var chunkArray = _renderQuery.CreateArchetypeChunkArray(Allocator.TempJob);
             var chunkIdType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
-            var systemEntityVersionType = GetArchetypeChunkComponentType<SystemVersion>();
-
-//            var materialType = GetArchetypeChunkBufferType<BlockMaterialIdentityComponent>(true);
-//            var subMaterialType = GetArchetypeChunkBufferType<BlockSubMaterialIdentityComponent>(true);
-//            var blockShapeType = GetArchetypeChunkBufferType<BlockShapeComponent>(true);
-//            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
+            var systemEntityVersionType = GetArchetypeChunkComponentType<EntityVersion>();
 
             var materialVersionType = GetArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version>(true);
             var subMaterialVersionType =
@@ -357,7 +281,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 foreach (var voxelChunkEntity in voxelChunkEntityArray)
                 {
                     var version = systemVersions[i];
-                    var currentVersion = new SystemVersion()
+                    var currentVersion = new EntityVersion()
                     {
                         Material = materialVersions[i],
                         SubMaterial = subMaterialVersions[i],
@@ -369,18 +293,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
 
                     if (currentVersion.DidChange(version))
-//                    .DidChange(materialType, version.Material) ||
-//                        ecsChunk.DidChange(subMaterialType, version.SubMaterial) ||
-//                        ecsChunk.DidChange(culledFaceType, version.CulledFaces) ||
-//                        ecsChunk.DidChange(blockShapeType, version.BlockShape))
                     {
-//                        var id = ids[i];
                         Profiler.BeginSample("Process Render Chunk");
                         var results = GenerateBoxelMeshes(voxelChunkEntity, ids[i]);
                         outHandles = JobHandle.CombineDependencies(outHandles, results);
                         Profiler.EndSample();
-//                        _frameCaches.Enqueue(new FrameCache() {Key = id, Results = results});
-
                         systemVersions[i] = currentVersion;
                     }
 
@@ -397,6 +314,253 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return outHandles;
         }
 
+        /*
+         * For a given 
+         *
+         * 
+         */
+
+        [BurstCompile]
+        private struct GatherVersionJob : IJob
+        {
+            [ReadOnly] public ArchetypeChunk Chunk;
+
+            [ReadOnly]
+            public ArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version> MaterialIdentityVersionType;
+
+            [ReadOnly] public ArchetypeChunkComponentType<BlockSubMaterialIdentityComponent.Version>
+                SubMaterialIdentityVersionType;
+
+            [ReadOnly] public ArchetypeChunkComponentType<BlockShapeComponent.Version> ShapeVersionType;
+            [ReadOnly] public ArchetypeChunkComponentType<BlockCulledFacesComponent.Version> CulledVersionType;
+
+            [WriteOnly] public NativeArray<EntityVersion> CurrentVersions;
+
+            public void Execute()
+            {
+                var materialVersions = Chunk.GetNativeArray(MaterialIdentityVersionType);
+                var subMaterialVersions = Chunk.GetNativeArray(SubMaterialIdentityVersionType);
+                var blockShapeVersions = Chunk.GetNativeArray(ShapeVersionType);
+                var culledFaceVersions = Chunk.GetNativeArray(CulledVersionType);
+                for (var i = 0; i < Chunk.Count; i++)
+                {
+                    CurrentVersions[i] = new EntityVersion()
+                    {
+                        Material = materialVersions[i],
+                        SubMaterial = subMaterialVersions[i],
+                        BlockShape = blockShapeVersions[i],
+                        CulledFaces = culledFaceVersions[i]
+                    };
+                }
+            }
+        }
+
+        JobHandle UpdateVersionAndGatherIgnore(ArchetypeChunk chunk, out NativeArray<bool> ignore,
+            JobHandle dependencies)
+        {
+//            var 
+            ignore = new NativeArray<bool>(chunk.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var currentVersions = new NativeArray<EntityVersion>(chunk.Count, Allocator.TempJob);
+//            var versionType = 
+//            var 
+
+
+            var gatherVersionJob = new GatherVersionJob()
+            {
+                Chunk = chunk,
+                CulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>(true),
+                MaterialIdentityVersionType =
+                    GetArchetypeChunkComponentType<BlockMaterialIdentityComponent.Version>(true),
+                SubMaterialIdentityVersionType =
+                    GetArchetypeChunkComponentType<BlockSubMaterialIdentityComponent.Version>(true),
+                ShapeVersionType = GetArchetypeChunkComponentType<BlockShapeComponent.Version>(true),
+//                CulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>(),
+//                IdentityVersionType = blockIdentityVersionType,
+                CurrentVersions = currentVersions
+            }.Schedule(dependencies);
+
+            var gatherIgnoreJob = new GatherDirtyVersionJob<EntityVersion>()
+            {
+                Chunk = chunk,
+                VersionsType = GetArchetypeChunkComponentType<EntityVersion>(),
+                CurrentVersions = currentVersions,
+                Ignore = ignore,
+            }.Schedule(gatherVersionJob);
+            var disposeCurrentVersions =
+                new DisposeArrayJob<EntityVersion>(currentVersions).Schedule(gatherIgnoreJob);
+
+            return disposeCurrentVersions;
+        }
+
+
+        JobHandle CreateBatches<T>(ArchetypeChunk chunk, NativeArray<bool> ignore,
+            out FindAndCountUniquePerChunk<T> job, JobHandle dependencies)
+            where T : struct, IBufferElementData, IComparable<T>
+        {
+//            var batchBuffer = GetBufferFromEntity<T>(true);
+
+//            results = new NativeList<T>(Allocator.TempJob);
+            job = new FindAndCountUniquePerChunk<T>()
+            {
+                BufferFromEntity = GetBufferFromEntity<T>(true),
+                Chunk = chunk,
+                Counts = new NativeList<int>(Allocator.TempJob),
+                Offsets = new NativeList<int>(Allocator.TempJob),
+                EntityType = GetArchetypeChunkEntityType(),
+                Ignore = ignore,
+
+//                Source = batchBuffer[entity].AsNativeArray(),
+                Unique = new NativeList<T>(Allocator.TempJob)
+            };
+            return job.Schedule(dependencies);
+        }
+
+        [BurstCompile]
+        public struct FindAndCountUniquePerChunk<T> : IJob where T : struct, IComparable<T>, IBufferElementData
+//, IEquatable<T>
+        {
+            [ReadOnly] public ArchetypeChunk Chunk;
+            [ReadOnly] public ArchetypeChunkEntityType EntityType;
+            public BufferFromEntity<T> BufferFromEntity;
+
+            [ReadOnly] public NativeArray<bool> Ignore;
+
+//        public NativeArray<T> Source;
+            public NativeList<T> Unique;
+            public NativeList<int> Offsets;
+            public NativeList<int> Counts;
+
+
+            private int Execute(Entity entity, int previousOFfset)
+            {
+                var buffer = BufferFromEntity[entity];
+                var count = 0;
+                for (var bufferIndex = 0; bufferIndex < buffer.Length; bufferIndex++)
+                {
+                    if (Insert(buffer[bufferIndex], previousOFfset, count))
+                        count++;
+                }
+
+                return count;
+            }
+
+            public void Execute()
+            {
+                var entities = Chunk.GetNativeArray(EntityType);
+                var prevOffset = 0;
+                for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
+                {
+                    if (Ignore[entityIndex])
+                    {
+//                        Offsets[entityIndex] = 0;
+//                        Counts[entityIndex] = 0;
+                        continue;
+                    }
+
+                    var count = Execute(entities[entityIndex], prevOffset);
+
+                    Offsets.Add(prevOffset + count);
+                    Counts.Add(count);
+                    prevOffset += count;
+                }
+
+//            temp
+//            for (var i = 0; i < Source.Length; i++)
+//            {
+//                Insert(Source[i]);
+//            }
+            }
+
+
+            #region UniqueList Helpers
+
+            private bool RawFind(T value, int min, int max)
+            {
+                while (true)
+                {
+                    if (min > max) return false;
+
+                    var mid = (min + max) / 2;
+
+                    var delta = value.CompareTo(Unique[mid]);
+
+                    if (delta == 0)
+                        return true;
+                    if (delta < 0) //-
+                    {
+                        max = mid - 1;
+                    }
+                    else //+
+                    {
+                        min = mid + 1;
+                    }
+                }
+            }
+
+
+            private bool Insert(T value, int start, int len)
+            {
+                return RawInsert(value, start, start + len - 1);
+            }
+
+            private bool RawInsert(T value, int min, int max)
+            {
+                while (true)
+                {
+                    if (min > max)
+                    {
+                        //Max is our min, and min is our max, so lets fix that real quick
+                        var temp = max;
+                        max = min;
+                        min = temp;
+//                    if (min < -1) //Allow -1, to insert at front
+//                        min = -1;
+//                    else if (min > Unique.Length - 1)
+//                        min = Unique.Length - 1;
+
+
+                        var insertAt = min + 1;
+
+
+                        //Add a placeholder
+                        Unique.Add(default);
+                        //Shift all elements down one
+                        for (var i = insertAt + 1; i < Unique.Length; i++)
+                            Unique[i] = Unique[i - 1];
+                        //Insert the correct element
+                        Unique[insertAt] = value;
+                        return true;
+                    }
+
+                    var mid = (min + max) / 2;
+
+                    var delta = value.CompareTo(Unique[mid]);
+
+                    if (delta == 0)
+                        return false; //Material is Unique and present
+                    if (delta < 0) //-
+                    {
+                        max = mid - 1;
+                    }
+                    else //+
+                    {
+                        min = mid + 1;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+
+        JobHandle GenerateBoxelMeshes(ArchetypeChunk chunk, JobHandle dependencies)
+        {
+            var updateAndIgnore = UpdateVersionAndGatherIgnore(chunk, out var ignore, dependencies);
+            var findUnique =
+                CreateBatches<BlockMaterialIdentityComponent>(chunk, ignore, out var uniqueJob, updateAndIgnore);
+            
+            return findUnique;
+        }
 
         JobHandle GenerateBoxelMeshes(Entity chunk, ChunkIdComponent chunkPos, JobHandle handle = default)
         {
@@ -415,7 +579,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
             handle.Complete();
 
             Profiler.BeginSample("CreateNative Batches");
+            //Gather unique materials, these become our batch groups
             var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
+
+
+//            var uniqueJob = CreateBatches<BlockMaterialIdentityComponent>(chunk, out var batches, handle);
+
             Profiler.EndSample();
 
             var outHandle = new JobHandle();
@@ -472,26 +641,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 genMeshHandle.Complete();
                 planarBatch.Dispose();
 
-
-//                var eventityCreate = CreateMeshEventity(genMeshJob, genMeshHandle);
-//                outHandle = JobHandle.CombineDependencies(outHandle, eventityCreate);
-//                meshes[i] = new UnivoxRenderingJobs.RenderResult()
-//                {
-//                    Mesh = UnivoxRenderingJobs.CreateMesh(genMeshJob),
-//                    Material = materialId
-//                };
                 Profiler.EndSample();
             }
 
-//
-//            var batchId = new BatchGroupIdentity()
-//            {
-//            };
             var cacheHandle = AddToCache(chunk, batches, nativeMeshes, new JobHandle());
             outHandle = JobHandle.CombineDependencies(outHandle, cacheHandle);
             Profiler.EndSample();
 
-//            offsets.DisposeEnumerable();
             uniqueBatchData.Dispose();
             return outHandle;
         }
@@ -499,26 +655,17 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         void SetupPass()
         {
-            EntityManager.AddComponent<SystemVersion>(_setupQuery);
+            EntityManager.AddComponent<EntityVersion>(_setupQuery);
         }
 
         void CleanupPass()
         {
-            EntityManager.RemoveComponent<SystemVersion>(_cleanupQuery);
+            EntityManager.RemoveComponent<EntityVersion>(_cleanupQuery);
             //TODO, lazy right now, but we need to cleanup the cache
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-//            if (_defaultMaterial == null)
-//            {
-//                if (!GameManager.Registry.ArrayMaterials.TryGetValue(
-//                    new ArrayMaterialKey(BaseGameMod.ModPath, "Default"), out var defaultMaterial))
-//                    return inputDeps;
-//                else
-//                    _defaultMaterial = defaultMaterial.Material;
-//            }
-
             inputDeps.Complete();
 
 
