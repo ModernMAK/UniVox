@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 using UniVox;
 using UniVox.Managers.Game;
 using UniVox.Types;
@@ -26,7 +27,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
                 typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
                 typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
-                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
+                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag),
+                typeof(LocalToWorld), typeof(Translation), typeof(Rotation)
+            );
 
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
@@ -37,12 +40,20 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             const int batchSize = 64;
             var entityType = GetArchetypeChunkEntityType();
+            var translationType = GetArchetypeChunkComponentType<Translation>();
+            var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
+
             using (var ecsChunks = _chunkQuery.CreateArchetypeChunkArray(Allocator.TempJob))
                 //.ToEntityArray(Allocator.TempJob, out var entytyArrJob))
             {
                 foreach (var ecsChunk in ecsChunks)
                 {
+                    var ids = ecsChunk.GetNativeArray(idType);
+                    var translations = ecsChunk.GetNativeArray(translationType);
+
                     var entities = ecsChunk.GetNativeArray(entityType);
+                    for (var i = 0; i < entities.Length; i++)
+                        translations[i] = new Translation() {Value = UnivoxDefine.AxisSize * ids[i].Value.ChunkId};
 
 
                     var resizeAndInitJob = ResizeAndInitAllBuffers(entities, inputDependencies);

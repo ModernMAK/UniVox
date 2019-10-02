@@ -4,6 +4,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Physics;
+using Unity.Transforms;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -22,6 +24,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
                 typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
                 typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
+
+                
+                typeof(LocalToWorld), typeof(Translation), typeof(Rotation),
+                
+                //Rendering & Physics
+                typeof(ChunkMeshBuffer), typeof(PhysicsCollider),
 
                 //Tag components
                 typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag)

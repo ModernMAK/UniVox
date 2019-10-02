@@ -148,6 +148,42 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             return CreateMeshCollider(vertexes[entity], indexes[entity], filter);
         }
 
+        public static BlobAssetReference<Collider> CreateMeshCollider(NativeMeshContainer[] meshContainers)
+        {
+            return CreateMeshCollider(meshContainers, CollisionFilter.Default);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(NativeMeshContainer[] meshContainers,
+            CollisionFilter filter)
+        {
+            var vLen = 0;
+            var iLen = 0;
+
+            foreach (var nm in meshContainers)
+            {
+                vLen += nm.Vertexes.Length;
+                iLen += nm.Indexes.Length;
+            }
+
+            using (var vertexes = new NativeArray<float3>(vLen, Allocator.Temp))
+            using (var indexes = new NativeArray<int>(iLen, Allocator.Temp))
+            {
+                var vOff = 0;
+                var iOff = 0;
+                foreach (var nm in meshContainers)
+                {
+                    NativeArray<float3>.Copy(nm.Vertexes, 0, vertexes, vOff, nm.Vertexes.Length);
+                    NativeArray<int>.Copy(nm.Indexes, 0, indexes, iOff, nm.Indexes.Length);
+
+                    vOff += nm.Vertexes.Length;
+                    iOff += nm.Indexes.Length;
+                }
+
+                return MeshCollider.Create(vertexes, indexes, filter);
+            }
+        }
+
+
         public static BlobAssetReference<Collider> CreateMeshCollider(NativeMeshContainer meshContainer)
         {
             return CreateMeshCollider(meshContainer, CollisionFilter.Default);
@@ -234,7 +270,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         public struct NativeMeshContainer : IDisposable
         {
-            public NativeMeshContainer(int vertexes, int indexes, Allocator allocator, NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+            public NativeMeshContainer(int vertexes, int indexes, Allocator allocator,
+                NativeArrayOptions options = NativeArrayOptions.ClearMemory)
             {
                 Vertexes = new NativeArray<float3>(vertexes, allocator, options);
                 Normals = new NativeArray<float3>(vertexes, allocator, options);
