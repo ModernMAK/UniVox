@@ -1,6 +1,7 @@
 using System;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
+using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -14,17 +15,6 @@ using UniVox.VoxelData;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
-    /// <summary>
-    /// Specifies the given chunk is INVALID
-    /// This most likely happens because the chunk is being created, loaded, unloaded, saved, ETC
-    /// Systems that process chunk data should NOT process chunks with this tag
-    /// Some Systems which work on Invalid Chunks (Initialization, Loading, ETC) may still run on InvalidChunks
-    /// </summary>
-    public struct ChunkInvalidTag : IComponentData
-    {
-    }
-
-
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     public class ChunkMaterialSystem : JobComponentSystem

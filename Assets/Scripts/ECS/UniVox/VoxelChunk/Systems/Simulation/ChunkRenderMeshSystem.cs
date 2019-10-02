@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ECS.UnityEdits.Hybrid_Renderer;
 using ECS.UniVox.VoxelChunk.Components;
+using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
