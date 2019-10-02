@@ -19,6 +19,7 @@ namespace UniVox.Managers.Game.Structure
             Blocks = new BlockRegistryAccessor(Mods); //,this);
             SubArrayMaterials = new SubArrayMaterialRegistryAccessor(ArrayMaterials);
 //            NativeBlocks = new NativeHashMap<BlockIdentity, NativeBaseBlockReference>(0, Allocator.Persistent);
+            Icons = new IconRegistryAccessor(Mods);
         }
 
 
@@ -33,7 +34,13 @@ namespace UniVox.Managers.Game.Structure
         public MeshRegistryAccessor Meshes { get; }
 
         public BlockRegistryAccessor Blocks { get; }
+        
         public IconRegistryAccessor Icons { get; }
+
+        public NativeHashMap<BlockIdentity, NativeBaseBlockReference> GetNativeBlocks()
+        {
+            return Blocks.CreateNativeBlockMap();
+        }
 
 //        public NativeHashMap<BlockIdentity, NativeBaseBlockReference> NativeBlocks { get; private set; }
 

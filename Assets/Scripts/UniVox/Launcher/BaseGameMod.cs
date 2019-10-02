@@ -77,11 +77,11 @@ namespace UniVox.Launcher
             if (!matReg.TryGetIdentity(SandMaterialKey, out var sandMaterialId))
                 throw new AssetNotFoundException(nameof(SandMaterialKey), sandMaterialId.ToString());
             ;
-            blockReg.Register(GrassBlock,
-                new TopSideBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));
-            blockReg.Register(DirtBlock, new RegularBlockRef(grassDirtMaterialId, dirtSubMatIndex));
-            blockReg.Register(StoneBlock, new RegularBlockRef(stoneMaterialId));
-            blockReg.Register(SandBlock, new RegularBlockRef(sandMaterialId));
+//            blockReg.Register(GrassBlock,
+//                new TopSideBlockRef(grassDirtMaterialId, grassSubMatIndex, sideSubMatIndex, dirtSubMatIndex));
+//            blockReg.Register(DirtBlock, new RegularBlockRef(grassDirtMaterialId, dirtSubMatIndex));
+//            blockReg.Register(StoneBlock, new RegularBlockRef(stoneMaterialId));
+//            blockReg.Register(SandBlock, new RegularBlockRef(sandMaterialId));
         }
     }
 }

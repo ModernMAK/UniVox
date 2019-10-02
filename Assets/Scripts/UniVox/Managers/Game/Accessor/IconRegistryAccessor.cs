@@ -65,7 +65,6 @@ namespace UniVox.Managers.Game.Accessor
 
         public override IEnumerable<Pair> GetAllRegistered()
         {
-            
             foreach (var pair in _modRegistry.GetAllRegistered())
             {
                 foreach (var icon in pair.Value.Icons.GetNameIndexValuePairs())

@@ -88,98 +88,53 @@ namespace UniVox
             return false;
         }
 
-
-        void Update()
+        void HandleEvent(RaycastInput input)
         {
-//            if (Input.GetKeyDown(KeyCode.UpArrow))
-//            {
-//                id++;
-//
-//
-//                id %= idLimit;
-//            }
-//            else if (Input.GetKeyDown(KeyCode.DownArrow))
-//            {
-//                id--;
-//                id += idLimit;
-//
-//
-//                id %= idLimit;
-//            }
-
-            if (Input.GetMouseButtonDown(0))
+            if (_eventMode == EventMode.Alter)
             {
-                if (EventSystem.current.IsPointerOverGameObject())
-                    return;
-                const float distance = UnivoxDefine.AxisSize * 8; //Raycast at least 8 chunks away
-                var camRay = _camera.ScreenPointToRay(Input.mousePosition);
-                var start = camRay.origin;
-                var direction = camRay.direction;
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
+                {
+                    var em = voxelInfo.World.EntityManager;
 
-                var input = new RaycastInput()
+                    var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
+                    em.DirtyComponent<BlockIdentityComponent.Version>(voxelInfo.ChunkEntity);
+
+                    blockIdentityArray[voxelInfo.BlockIndex] = new BlockIdentity() {Mod = 0, Block = id};
+
+                    _lastVoxel = voxelInfo.WorldPosition;
+                    _hitPoint = hit.Position;
+                }
+                else Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
+            }
+            else if (_eventMode == EventMode.Place)
+            {
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
-                    Start = start,
-                    End = start + direction * distance,
-                    Filter = CollisionFilter.Default
-                };
-                _lastRay = input;
-                if (mode == ClickMode.Alter)
-                {
-                    _lastRay = input;
-                    if (VoxelRaycast(input, out var hit, out var voxelInfo))
+                    var em = voxelInfo.World.EntityManager;
+
+                    var blockPos = voxelInfo.BlockPosition + new int3(hit.SurfaceNormal);
+                    var blockIndex = UnivoxUtil.GetIndex(blockPos);
+
+                    if (UnivoxUtil.IsPositionValid(blockPos))
                     {
-                        var em = voxelInfo.World.EntityManager;
-
+                        var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
                         var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
-//                        em.DirtyComponent<BlockActiveComponent.Version>(entity);
                         em.DirtyComponent<BlockIdentityComponent.Version>(voxelInfo.ChunkEntity);
+                        em.DirtyComponent<BlockActiveComponent.Version>(voxelInfo.ChunkEntity);
 
+                        blockActiveArray[blockIndex] = new BlockActiveComponent() {Value = true};
+                        blockIdentityArray[blockIndex] = new BlockIdentity() {Mod = 0, Block = id};
 
-                        blockIdentityArray[voxelInfo.BlockIndex] = new BlockIdentity() {Mod = 0, Block = id};
-
-//                    accessorInfo.Version.Dirty();
-//                    accessorRender.Version.Dirty();
-//                    BlockChanged.NotifyEntity(voxelInfo.ChunkEntity, voxelInfo.World.EntityManager,
-//                        (short) voxelInfo.BlockIndex);
-
-                        _lastVoxel = voxelInfo.WorldPosition;
+                        _lastVoxel = UnivoxUtil.ToWorldPosition(voxelInfo.ChunkPosition, blockPos);
                         _hitPoint = hit.Position;
-
-//                    Debug.Log($"Hit Alter : {voxelInfo.BlockPosition}");
                     }
-                    else
-                        Debug.Log($"Missed Alter : {hit.Position} -> {hit.SurfaceNormal}");
+                    else Debug.Log($"OOB CreateNative : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
                 }
-                else if (mode == ClickMode.Place)
-                {
-                    if (VoxelRaycast(input, out var hit, out var voxelInfo))
-                    {
-                        var em = voxelInfo.World.EntityManager;
-
-                        var blockPos = voxelInfo.BlockPosition + new int3(hit.SurfaceNormal);
-                        var blockIndex = UnivoxUtil.GetIndex(blockPos);
-
-                        if (UnivoxUtil.IsPositionValid(blockPos))
-                        {
-                            var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
-                            var blockIdentityArray = em.GetBuffer<BlockIdentityComponent>(voxelInfo.ChunkEntity);
-                            em.DirtyComponent<BlockIdentityComponent.Version>(voxelInfo.ChunkEntity);
-                            em.DirtyComponent<BlockActiveComponent.Version>(voxelInfo.ChunkEntity);
-
-
-                            blockActiveArray[blockIndex] = new BlockActiveComponent() {Value = true};
-                            blockIdentityArray[blockIndex] = new BlockIdentity() {Mod = 0, Block = id};
-
-                            _lastVoxel = UnivoxUtil.ToWorldPosition(voxelInfo.ChunkPosition, blockPos);
-                            _hitPoint = hit.Position;
-                        }
-                        else
-                            Debug.Log($"OOB CreateNative : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
-                    }
-                    else
-                        Debug.Log($"Missed CreateNative : {hit.Position} -> {hit.SurfaceNormal}");
-                }
-                else if (mode == ClickMode.Delete)
+                else Debug.Log($"Missed CreateNative : {hit.Position} -> {hit.SurfaceNormal}");
+            }
+            else if (_eventMode == EventMode.Delete)
+            {
+                if (_clickMode == ClickMode.Single)
                 {
                     if (VoxelRaycast(input, out var hit, out var voxelInfo))
                     {
@@ -188,24 +143,93 @@ namespace UniVox
                         var blockActiveArray = em.GetBuffer<BlockActiveComponent>(voxelInfo.ChunkEntity);
                         em.DirtyComponent<BlockActiveComponent.Version>(voxelInfo.ChunkEntity);
 
-
                         blockActiveArray[voxelInfo.BlockIndex] = new BlockActiveComponent() {Value = false};
-
 
                         _lastVoxel = voxelInfo.WorldPosition;
                         _hitPoint = hit.Position;
                     }
-                    else
-                        Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
+                    else Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
+                } else if (_clickMode == ClickMode.Square)
+                {
+                    if (VoxelRaycast(input, out var hit, out var voxelInfo))
+                    {
+                        var em = voxelInfo.World.EntityManager;
+                        Direction dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
+                        DirectionsX.GetPlane(dir.ToAxis(), out var up, out var right);
+                        
+                        int3 worldPosition = voxelInfo.WorldPosition;
+
+                        for (int x = -1; x < 2; x++)
+                        for (int y = -1; y < 2; y++)
+                        {
+                            int3 tmpWorldPosition = worldPosition + up * x + right * y;
+                            int3 chunk = UnivoxUtil.ToChunkPosition(tmpWorldPosition);
+                            int3 block = UnivoxUtil.ToBlockPosition(tmpWorldPosition);
+                            if (voxelInfo.World.TryGetValue(chunk, out var entity))
+                            {
+                                var blockActiveArray = em.GetBuffer<BlockActiveComponent>(entity);
+                                em.DirtyComponent<BlockActiveComponent.Version>(entity);
+                                
+                                blockActiveArray[UnivoxUtil.GetIndex(block)] = new BlockActiveComponent() {Value = false};
+                            }
+                        }
+                        
+                        _lastVoxel = voxelInfo.WorldPosition;
+                        _hitPoint = hit.Position;
+                    }
+                    else Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
                 }
             }
         }
 
-        private ClickMode mode;
-
-        public void SetClickMode(ClickMode NewMode)
+        RaycastInput GetRaycastInput()
         {
-            mode = NewMode;
+            const float distance = UnivoxDefine.AxisSize * 8; //Raycast at least 8 chunks away
+            var camRay = _camera.ScreenPointToRay(Input.mousePosition);
+            var start = camRay.origin;
+            var direction = camRay.direction;
+
+            var input = new RaycastInput()
+            {
+                Start = start,
+                End = start + direction * distance,
+                Filter = CollisionFilter.Default
+            };
+            return input;
+        }
+
+        void Update()
+        {
+            if (Input.GetMouseButtonDown(0) && _clickMode != ClickMode.Drag)
+            {
+                if (EventSystem.current.IsPointerOverGameObject())
+                    return;
+
+                RaycastInput input = GetRaycastInput();
+                HandleEvent(input);
+                _lastRay = input;
+            } else if (Input.GetMouseButtonUp(0) && _clickMode == ClickMode.Drag)
+            {
+                if (EventSystem.current.IsPointerOverGameObject())
+                    return;
+                
+                RaycastInput input = GetRaycastInput();
+                HandleEvent(input);
+                _lastRay = input;
+            }
+        }
+
+        private EventMode _eventMode = EventMode.Place;
+        private ClickMode _clickMode = ClickMode.Single;
+
+        public void SetEventMode(EventMode newMode)
+        {
+            _eventMode = newMode;
+        }
+        
+        public void SetClickMode(ClickMode newMode)
+        {
+            _clickMode = newMode;
         }
 
         private void OnDrawGizmos()
@@ -220,10 +244,18 @@ namespace UniVox
         }
     }
 
-    public enum ClickMode
+    public enum EventMode
     {
         Place,
         Delete,
         Alter
+    }
+
+    public enum ClickMode
+    {
+        Single,
+        Drag,
+        Square,
+        Circle
     }
 }
