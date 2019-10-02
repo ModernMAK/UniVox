@@ -1,13 +1,17 @@
 using System;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Physics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types.Identities;
 using UniVox.Types.Native;
+using Collider = Unity.Physics.Collider;
+using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
@@ -128,6 +132,44 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             return mesh;
         }
 
+        public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,
+            BufferFromEntity<VertexBufferComponent> vertexes, BufferFromEntity<IndexBufferComponent> indexes) =>
+            CreateMeshCollider(entity, vertexes, indexes, CollisionFilter.Default);
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,
+            BufferFromEntity<VertexBufferComponent> vertexes, BufferFromEntity<IndexBufferComponent> indexes,
+            CollisionFilter filter)
+        {
+            return CreateMeshCollider(vertexes[entity], indexes[entity], filter);
+        }
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<IndexBufferComponent> indexes) =>
+            CreateMeshCollider(vertexes, indexes, CollisionFilter.Default);
+
+        public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<IndexBufferComponent> indexes, CollisionFilter filter)
+        {
+            return MeshCollider.Create(vertexes.AsNativeArray().Reinterpret<float3>(),
+                indexes.AsNativeArray().Reinterpret<int>(), filter);
+        }
+
+        public static Mesh CreateMesh(DynamicBuffer<VertexBufferComponent> vertexes,
+            DynamicBuffer<NormalBufferComponent> normals, DynamicBuffer<TangentBufferComponent> tangents,
+            DynamicBuffer<TextureMap0BufferComponent> textureMap0, DynamicBuffer<IndexBufferComponent> indexes)
+        {
+            return CommonRenderingJobs.CreateMesh(vertexes.AsNativeArray(), normals.AsNativeArray(),
+                tangents.AsNativeArray(), textureMap0.AsNativeArray(), indexes.AsNativeArray());
+        }
+
+        public static Mesh CreateMesh(Entity entity, BufferFromEntity<VertexBufferComponent> vertexes,
+            BufferFromEntity<NormalBufferComponent> normals, BufferFromEntity<TangentBufferComponent> tangents,
+            BufferFromEntity<TextureMap0BufferComponent> textureMap0, BufferFromEntity<IndexBufferComponent> indexes)
+        {
+            return CreateMesh(vertexes[entity], normals[entity], tangents[entity], textureMap0[entity],
+                indexes[entity]);
+        }
+
         public static NativeList<T> GatherUnique<T>(NativeArray<T> batchInfo) where T : struct, IComparable<T>
         {
             var results = new NativeList<T>(Allocator.TempJob);
@@ -162,7 +204,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             };
         }
 
-        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(CalculateCubeSizeJob cubeSizeJob)
+        public static CalculateIndexAndTotalSizeJob CreateCalculateIndexAndTotalSizeJob(
+            CalculateCubeSizeJob cubeSizeJob)
         {
             const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;

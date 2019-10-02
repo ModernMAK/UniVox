@@ -23,6 +23,27 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             mesh.SetNormals(normals);
             mesh.SetTangents(tangents);
             mesh.SetUVs(0, uvs);
+            //            mesh.SetUVs(2, uv1s);
+            mesh.SetIndices(indexes, MeshTopology.Triangles, 0, false);
+            //Optimizes the Mesh, might not be neccessary
+            mesh.Optimize();
+            //Recalculates the Mesh's Boundary
+            mesh.RecalculateBounds();
+            //Frees the mesh from CPU, but makes it unreadable.
+            //            mesh.UploadMeshData(true);
+            return mesh;
+        }
+
+        public static Mesh CreateMesh(NativeArray<VertexBufferComponent> vertexes,
+            NativeArray<NormalBufferComponent> normals,
+            NativeArray<TangentBufferComponent> tangents, NativeArray<TextureMap0BufferComponent> uvs,
+            NativeArray<IndexBufferComponent> indexes)
+        {
+            var mesh = new Mesh();
+            mesh.SetVertices(vertexes);
+            mesh.SetNormals(normals);
+            mesh.SetTangents(tangents);
+            mesh.SetUVs(0, uvs);
 //            mesh.SetUVs(2, uv1s);
             mesh.SetIndices(indexes, MeshTopology.Triangles, 0, false);
             //Optimizes the Mesh, might not be neccessary
