@@ -307,6 +307,80 @@ namespace ECS.UniVox.VoxelChunk.Systems
             ProcessFrameCache();
         }
 
+
+        public struct DynamicNativeMeshContainer : IDisposable
+        {
+            public DynamicNativeMeshContainer(int vertexes, int indexes, Allocator allocator)
+            {
+                Vertexes = new NativeList<float3>(vertexes, allocator);
+                Normals = new NativeList<float3>(vertexes, allocator);
+                Tangents = new NativeList<float4>(vertexes, allocator);
+                TextureMap0 = new NativeList<float3>(vertexes, allocator);
+                Indexes = new NativeList<int>(indexes, allocator);
+            }
+
+            public NativeMeshContainer ToDeferred()
+            {
+                return new NativeMeshContainer(this);
+            }
+
+
+            public NativeList<float3> Vertexes { get; }
+            public NativeList<float3> Normals { get; }
+            public NativeList<float4> Tangents { get; }
+            public NativeList<float3> TextureMap0 { get; }
+
+            public NativeList<int> Indexes { get; }
+
+            public void Dispose()
+            {
+                Vertexes.Dispose();
+                Normals.Dispose();
+                Tangents.Dispose();
+                TextureMap0.Dispose();
+                Indexes.Dispose();
+            }
+        }
+
+        public struct NativeMeshContainer : IDisposable
+        {
+            public NativeMeshContainer(int vertexes, int indexes, Allocator allocator,
+                NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+            {
+                Vertexes = new NativeArray<float3>(vertexes, allocator, options);
+                Normals = new NativeArray<float3>(vertexes, allocator, options);
+                Tangents = new NativeArray<float4>(vertexes, allocator, options);
+                TextureMap0 = new NativeArray<float3>(vertexes, allocator, options);
+                Indexes = new NativeArray<int>(indexes, allocator, options);
+            }
+
+            public NativeMeshContainer(DynamicNativeMeshContainer dnmc)
+            {
+                Vertexes = dnmc.Vertexes.AsDeferredJobArray();
+                Normals = dnmc.Normals.AsDeferredJobArray();
+                Tangents = dnmc.Tangents.AsDeferredJobArray();
+                TextureMap0 = dnmc.TextureMap0.AsDeferredJobArray();
+                Indexes = dnmc.Indexes.AsDeferredJobArray();
+            }
+
+
+            public NativeArray<float3> Vertexes { get; }
+            public NativeArray<float3> Normals { get; }
+            public NativeArray<float4> Tangents { get; }
+            public NativeArray<float3> TextureMap0 { get; }
+
+            public NativeArray<int> Indexes { get; }
+
+            public void Dispose()
+            {
+                Vertexes.Dispose();
+                Normals.Dispose();
+                Tangents.Dispose();
+                TextureMap0.Dispose();
+                Indexes.Dispose();
+            }
+        }
+
         UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle)
         {
             var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>(true);
@@ -504,5 +578,78 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             return new JobHandle();
         }
+    }
+}
+
+public struct DynamicNativeMeshContainer : IDisposable
+{
+    public DynamicNativeMeshContainer(int vertexes, int indexes, Allocator allocator)
+    {
+        Vertexes = new NativeList<float3>(vertexes, allocator);
+        Normals = new NativeList<float3>(vertexes, allocator);
+        Tangents = new NativeList<float4>(vertexes, allocator);
+        TextureMap0 = new NativeList<float3>(vertexes, allocator);
+        Indexes = new NativeList<int>(indexes, allocator);
+    }
+
+    public NativeMeshContainer ToDeferred()
+    {
+        return new NativeMeshContainer(this);
+    }
+
+
+    public NativeList<float3> Vertexes { get; }
+    public NativeList<float3> Normals { get; }
+    public NativeList<float4> Tangents { get; }
+    public NativeList<float3> TextureMap0 { get; }
+
+    public NativeList<int> Indexes { get; }
+
+    public void Dispose()
+    {
+        Vertexes.Dispose();
+        Normals.Dispose();
+        Tangents.Dispose();
+        TextureMap0.Dispose();
+        Indexes.Dispose();
+    }
+}
+
+public struct NativeMeshContainer : IDisposable
+{
+    public NativeMeshContainer(int vertexes, int indexes, Allocator allocator,
+        NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+    {
+        Vertexes = new NativeArray<float3>(vertexes, allocator, options);
+        Normals = new NativeArray<float3>(vertexes, allocator, options);
+        Tangents = new NativeArray<float4>(vertexes, allocator, options);
+        TextureMap0 = new NativeArray<float3>(vertexes, allocator, options);
+        Indexes = new NativeArray<int>(indexes, allocator, options);
+    }
+
+    public NativeMeshContainer(DynamicNativeMeshContainer dnmc)
+    {
+        Vertexes = dnmc.Vertexes.AsDeferredJobArray();
+        Normals = dnmc.Normals.AsDeferredJobArray();
+        Tangents = dnmc.Tangents.AsDeferredJobArray();
+        TextureMap0 = dnmc.TextureMap0.AsDeferredJobArray();
+        Indexes = dnmc.Indexes.AsDeferredJobArray();
+    }
+
+
+    public NativeArray<float3> Vertexes { get; }
+    public NativeArray<float3> Normals { get; }
+    public NativeArray<float4> Tangents { get; }
+    public NativeArray<float3> TextureMap0 { get; }
+
+    public NativeArray<int> Indexes { get; }
+
+    public void Dispose()
+    {
+        Vertexes.Dispose();
+        Normals.Dispose();
+        Tangents.Dispose();
+        TextureMap0.Dispose();
+        Indexes.Dispose();
     }
 }
