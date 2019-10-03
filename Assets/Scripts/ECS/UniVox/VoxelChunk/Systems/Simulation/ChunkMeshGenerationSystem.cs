@@ -286,7 +286,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     {
                         var id = ids[i];
                         Profiler.BeginSample("Process Render Chunk");
-                        var results = GenerateBoxelMeshes(voxelChunkEntity);
+                        var results = GenerateBoxelMeshes(voxelChunkEntity, new JobHandle());
                         Profiler.EndSample();
                         _frameCaches.Enqueue(new FrameCache() {Identity = id, Results = results});
 
@@ -307,7 +307,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             ProcessFrameCache();
         }
 
-        UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle = default)
+        UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle)
         {
             var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>(true);
             var subMaterialLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>(true);

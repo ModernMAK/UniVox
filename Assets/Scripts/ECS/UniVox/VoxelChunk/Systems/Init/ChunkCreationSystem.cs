@@ -39,7 +39,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
+        JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
             var eventityDataType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
             var eventityType = GetArchetypeChunkEntityType();
@@ -48,7 +48,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 if (ecsChunks.Length <= 0)
                     return inputDependencies;
 
-                JobHandle result = default;
+                JobHandle result = inputDependencies;
                 foreach (var ecsChunk in ecsChunks)
                 {
                     var eventitiesInChunk = ecsChunk.GetNativeArray(eventityType);

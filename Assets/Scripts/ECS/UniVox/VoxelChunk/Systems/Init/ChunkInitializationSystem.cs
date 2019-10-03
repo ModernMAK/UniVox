@@ -33,7 +33,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
+        JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
             const int batchSize = 64;
             var entityType = GetArchetypeChunkEntityType();
@@ -128,7 +128,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
         JobHandle ResizeAndInitBuffer<TComponent>(NativeArray<Entity> entities, TComponent defaultValue,
-            JobHandle inputDependencies = default)
+            JobHandle inputDependencies)
             where TComponent : struct, IBufferElementData
         {
             const int maxExpectedWorkers = 4; //How many maximum
@@ -155,7 +155,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return initJob;
         }
 
-        JobHandle ResizeAndInitAllBuffers(NativeArray<Entity> entities, JobHandle inputDependencies = default)
+        JobHandle ResizeAndInitAllBuffers(NativeArray<Entity> entities, JobHandle inputDependencies)
         {
             const bool defaultActive = false;
             var defaultId = new BlockIdentity(0, -1);

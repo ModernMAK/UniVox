@@ -131,7 +131,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        private JobHandle RenderPass(JobHandle dependencies = default)
+        private JobHandle RenderPass(JobHandle dependencies)
         {
 //            const int BatchSize = 64;
             using (var chunkArray = _updateMaterialQuery.CreateArchetypeChunkArray(Allocator.TempJob))
