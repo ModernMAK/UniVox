@@ -9,10 +9,12 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Types;
+using UniVox.Types.Identities;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Utility;
 using Material = UnityEngine.Material;
@@ -220,10 +222,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
+        public struct RenderResult
+        {
+            public Mesh Mesh;
+            public ArrayMaterialIdentity Material;
+        }
+
         private struct FrameCache
         {
             public ChunkIdentity Identity;
-            public UnivoxRenderingJobs.RenderResult[] Results;
+            public RenderResult[] Results;
         }
 
 
@@ -381,7 +389,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
-        UnivoxRenderingJobs.RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle)
+        RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle)
         {
             var materialLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>(true);
             var subMaterialLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>(true);
@@ -401,7 +409,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
             Profiler.EndSample();
 
-            var meshes = new UnivoxRenderingJobs.RenderResult[uniqueBatchData.Length];
+            var meshes = new RenderResult[uniqueBatchData.Length];
             Profiler.BeginSample("Process Batches");
             for (var i = 0; i < uniqueBatchData.Length; i++)
             {
@@ -444,7 +452,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Finish and CreateNative the Mesh
                 genMeshHandle.Complete();
                 planarBatch.Dispose();
-                meshes[i] = new UnivoxRenderingJobs.RenderResult()
+                meshes[i] = new RenderResult()
                 {
                     Mesh = UnivoxRenderingJobs.CreateMesh(genMeshJob),
                     Material = materialId
