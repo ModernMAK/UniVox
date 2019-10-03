@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -28,6 +29,23 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
         [DeallocateOnJobCompletion] public NativeQueue<T> Queue;
+
+        public void Execute()
+        {
+            //Do NOTHING
+        }
+    }
+
+    [BurstCompile]
+    [Obsolete("Deallocate Not Supported")]
+    public struct DisposeListJob<T> : IJob where T : struct
+    {
+        public DisposeListJob(NativeList<T> list)
+        {
+            List = list;
+        }
+
+        [DeallocateOnJobCompletion] public NativeList<T> List;
 
         public void Execute()
         {

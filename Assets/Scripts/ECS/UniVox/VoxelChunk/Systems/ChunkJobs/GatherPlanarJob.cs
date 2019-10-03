@@ -427,11 +427,12 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         public void Execute()
         {
-            var entities = 
-            for (var entityIndex = 0; entityIndex < Chunk.Count; entityIndex++)
-            {
-                Execute(entities[entityIndex],entityIndex);
-            }
+            throw new NotSupportedException();
+//            var entities = 
+//            for (var entityIndex = 0; entityIndex < Chunk.Count; entityIndex++)
+//            {
+//                Execute(entities[entityIndex],entityIndex);
+//            }
         }
     }
 }

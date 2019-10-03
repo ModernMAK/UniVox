@@ -558,7 +558,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var updateAndIgnore = UpdateVersionAndGatherIgnore(chunk, out var ignore, dependencies);
             var findUnique =
                 CreateBatches<BlockMaterialIdentityComponent>(chunk, ignore, out var uniqueJob, updateAndIgnore);
-            
+
             return findUnique;
         }
 
@@ -637,15 +637,20 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     Chunk = chunkPos,
                     MaterialIdentity = uniqueBatchData[i]
                 };
+                var disposePlanar = new DisposeArrayJob<PlanarData>(planarBatch).Schedule(genMeshHandle);
+//                var disposePlanar = new DisposeListJob<PlanarData>(planarBatch).Sc
+//
+// hedule(genMeshHandle);
+                outHandle = JobHandle.CombineDependencies(outHandle, disposePlanar);
                 //Finish and CreateNative the Mesh
-                genMeshHandle.Complete();
+//                genMeshHandle.Complete();
                 planarBatch.Dispose();
 
                 Profiler.EndSample();
             }
 
-            var cacheHandle = AddToCache(chunk, batches, nativeMeshes, new JobHandle());
-            outHandle = JobHandle.CombineDependencies(outHandle, cacheHandle);
+            var cacheHandle = AddToCache(chunk, batches, nativeMeshes, outHandle);
+//            outHandle = JobHandle.CombineDependencies(outHandle, cacheHandle);
             Profiler.EndSample();
 
             uniqueBatchData.Dispose();
