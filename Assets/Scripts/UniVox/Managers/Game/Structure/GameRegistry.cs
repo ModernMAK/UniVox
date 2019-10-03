@@ -1,4 +1,3 @@
-using System;
 using Unity.Collections;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
@@ -24,7 +23,7 @@ namespace UniVox.Managers.Game.Structure
 
 
         /// <summary>
-        /// Adding blocks REQUIRES a Native UPDATE
+        ///     Adding blocks REQUIRES a Native UPDATE
         /// </summary>
         public ModRegistry Raw { get; }
 
@@ -34,7 +33,7 @@ namespace UniVox.Managers.Game.Structure
         public MeshRegistryAccessor Meshes { get; }
 
         public BlockRegistryAccessor Blocks { get; }
-        
+
         public IconRegistryAccessor Icons { get; }
 
         public NativeHashMap<BlockIdentity, NativeBaseBlockReference> GetNativeBlocks()

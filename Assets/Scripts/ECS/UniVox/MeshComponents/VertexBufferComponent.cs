@@ -14,7 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public static implicit operator VertexBufferComponent(float3 value)
         {
-            return new VertexBufferComponent() {Value = value};
+            return new VertexBufferComponent {Value = value};
         }
     }
 }

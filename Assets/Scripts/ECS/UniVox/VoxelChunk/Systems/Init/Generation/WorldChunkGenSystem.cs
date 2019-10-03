@@ -1,6 +1,7 @@
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
+using ECS.UniVox.VoxelChunk.Systems.Generation;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
 using Unity.Jobs;
@@ -12,23 +13,22 @@ namespace Unity.Entities
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
-    public class WorlcChunkGenSystem : JobComponentSystem
+    public class WorldChunkGenSystem : JobComponentSystem
     {
+        private const int BatchCount = 64;
         private EntityQuery _query;
         private EntityCommandBufferSystem _updateEnd;
 
-        private const int BatchCount = 64;
-
         protected override void OnCreate()
         {
-            _query = GetEntityQuery(new EntityQueryDesc()
+            _query = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {
-                    ComponentType.ReadOnly<ChunkIdComponent>(),
+                    ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
-                    ComponentType.ReadWrite<BlockActiveComponent>(),
-                    ComponentType.ReadWrite<BlockActiveComponent.Version>(),
+                    ComponentType.ReadWrite<VoxelActive>(),
+                    ComponentType.ReadWrite<BlockActiveVersion>(),
 
                     ComponentType.ReadWrite<ChunkRequiresGenerationTag>()
                 },
@@ -45,7 +45,7 @@ namespace Unity.Entities
         {
             //Clamps the data to 0-1 if im not mistaken
             const int DefaultSeed = 8675309;
-            const float DefaultAmplitudeMultiplier = (1f / 2f);
+            const float DefaultAmplitudeMultiplier = 1f / 2f;
             const float DefaultBias = 1f * DefaultAmplitudeMultiplier; //Bias is applied AFTER amplitude
 
             //Increase octave by one to avoid errors from 0
@@ -56,10 +56,10 @@ namespace Unity.Entities
             {
                 default:
 
-                    return new NoiseSampler()
+                    return new NoiseSampler
                     {
                         Seed = DefaultSeed,
-                        Amplitude = (1f / octave),
+                        Amplitude = 1f / octave,
                         Bias = DefaultBias,
                         Frequency = new float3(1f / octave) / UnivoxDefine.AxisSize,
                         Shift = new float3(
@@ -82,22 +82,23 @@ namespace Unity.Entities
         {
             const int Octaves = 4;
             var octaveSamples = new NativeArray<float>[Octaves];
-            JobHandle gatherOctaveSamples = new JobHandle();
+            var gatherOctaveSamples = inputDependencies;
 
 //            var constant = GetConstant(Octaves);
             for (var i = 0; i < Octaves; i++)
             {
-                octaveSamples[i] = new NativeArray<float>(UnivoxDefine.CubeSize, Allocator.TempJob,
-                    NativeArrayOptions.ClearMemory);
+                octaveSamples[i] = new NativeArray<float>(UnivoxDefine.CubeSize, Allocator.TempJob);
 
-                var gatherSamples = new GatherChunkSimplexNoiseJob()
+                var gatherSamples = new GatherChunkSimplexNoiseJob
                 {
                     ChunkPosition = chunkPos,
                     Values = octaveSamples[i],
                     Sampler = GetSampler(i)
-                }.Schedule(GatherChunkSimplexNoiseJob.JobSize, BatchCount, inputDependencies);
+                }.Schedule(GatherChunkSimplexNoiseJob.JobSize, BatchCount, gatherOctaveSamples);
 
-                gatherOctaveSamples = JobHandle.CombineDependencies(gatherOctaveSamples, gatherSamples);
+                gatherOctaveSamples = gatherSamples;
+
+//                gatherOctaveSamples = JobHandle.CombineDependencies(gatherOctaveSamples, gatherSamples);
             }
 
             var summedJob = AddElementArrayJob.SumAll(gatherOctaveSamples, octaveSamples);
@@ -108,26 +109,26 @@ namespace Unity.Entities
 //            }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
             var active = new NativeArray<bool>(UnivoxDefine.CubeSize, Allocator.TempJob,
                 NativeArrayOptions.UninitializedMemory);
-            var blockActive = new ConvertSampleToActiveJob()
+            var blockActive = new ConvertSampleToActiveJob
             {
                 Active = active,
                 Sample = octaveSamples[0],
-                Threshold = 0.8f,
+                Threshold = 0.8f
             }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
 
-            var setActive = new SetBlockActiveJob()
+            var setActive = new SetBlockActiveJob
             {
                 Active = active,
-                GetBlockActiveBuffer = GetBufferFromEntity<BlockActiveComponent>(),
+                GetBlockActiveBuffer = GetBufferFromEntity<VoxelActive>(),
                 Entity = entity
             }.Schedule(blockActive);
 
 
-            var disposeOctaves = new JobHandle();
+            var disposeOctaves = setActive;
             for (var i = 0; i < Octaves; i++)
             {
-                var disposeArr = new DisposeArrayJob<float>(octaveSamples[i]).Schedule(setActive);
-                disposeOctaves = JobHandle.CombineDependencies(disposeOctaves, disposeArr);
+                var disposeArr = new DisposeArrayJob<float>(octaveSamples[i]).Schedule(disposeOctaves);
+                disposeOctaves = disposeArr;
             }
 
             var disposeActive = new DisposeArrayJob<bool>(active).Schedule(disposeOctaves);
@@ -139,8 +140,8 @@ namespace Unity.Entities
         {
             const int BatchSize = 64;
             var EntityType = GetArchetypeChunkEntityType();
-            var ChunkPositionType = GetArchetypeChunkComponentType<ChunkIdComponent>();
-            var chunkBlockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveComponent.Version>();
+            var ChunkPositionType = GetArchetypeChunkComponentType<VoxelChunkIdentity>();
+            var chunkBlockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveVersion>();
 
 
             using (var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob))
@@ -148,7 +149,7 @@ namespace Unity.Entities
                 foreach (var chunk in chunks)
                 {
                     Profiler.BeginSample("Process Chunk");
-                    var chunkHandle = new JobHandle();
+                    var chunkHandle = inputs;
                     var entities = chunk.GetNativeArray(EntityType);
                     var chunkPositions = chunk.GetNativeArray(ChunkPositionType);
                     var activeVersion = chunk.GetNativeArray(chunkBlockActiveVersionType);
@@ -156,7 +157,7 @@ namespace Unity.Entities
 
                     for (var i = 0; i < entities.Length; i++)
                     {
-                        var genJob = GenerateChunkEntity(entities[i], chunkPositions[i].Value.ChunkId, inputs);
+                        var genJob = GenerateChunkEntity(entities[i], chunkPositions[i].Value.ChunkId, chunkHandle);
 
                         chunkHandle = JobHandle.CombineDependencies(chunkHandle, genJob);
 
@@ -164,12 +165,12 @@ namespace Unity.Entities
                         activeVersion[i] = activeVersion[i].GetDirty();
                     }
 
-                    var markGen = new RemoveComponentJob<ChunkRequiresGenerationTag>()
+                    var markGen = new RemoveComponentJob<ChunkRequiresGenerationTag>
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities
                     }.Schedule(entities.Length, BatchSize, chunkHandle);
-                    var markValid = new RemoveComponentJob<ChunkInvalidTag>()
+                    var markValid = new RemoveComponentJob<ChunkInvalidTag>
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities

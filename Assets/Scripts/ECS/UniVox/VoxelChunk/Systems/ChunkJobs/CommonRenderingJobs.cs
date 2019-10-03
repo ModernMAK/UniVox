@@ -7,7 +7,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
     public static class CommonRenderingJobs
     {
         /// <summary>
-        /// Creates A Mesh. The Mesh is sent to teh GPU and is no longer readable.
+        ///     Creates A Mesh. The Mesh is sent to teh GPU and is no longer readable.
         /// </summary>
         /// <param name="vertexes"></param>
         /// <param name="normals"></param>
@@ -23,14 +23,14 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             mesh.SetNormals(normals);
             mesh.SetTangents(tangents);
             mesh.SetUVs(0, uvs);
-//            mesh.SetUVs(2, uv1s);
+            
             mesh.SetIndices(indexes, MeshTopology.Triangles, 0, false);
+            
             //Optimizes the Mesh, might not be neccessary
             mesh.Optimize();
             //Recalculates the Mesh's Boundary
             mesh.RecalculateBounds();
-            //Frees the mesh from CPU, but makes it unreadable.
-//            mesh.UploadMeshData(true);
+
             return mesh;
         }
     }

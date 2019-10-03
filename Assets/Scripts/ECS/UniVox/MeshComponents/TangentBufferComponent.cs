@@ -14,7 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public static implicit operator TangentBufferComponent(float4 value)
         {
-            return new TangentBufferComponent() {Value = value};
+            return new TangentBufferComponent {Value = value};
         }
     }
 }

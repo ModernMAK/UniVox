@@ -717,11 +717,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38cfc797f351b8a4b923e193be2044f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  physics: {fileID: 1236626200}
   single: {fileID: 1890357219}
   drag: {fileID: 492836679}
   square: {fileID: 722723979}
   circle: {fileID: 527577961}
-  physics: {fileID: 1236626200}
 --- !u!114 &603038529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1361,15 +1361,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMat: {fileID: 2100000, guid: 4aad0f971837a604ebba52f8d23dc209, type: 2}
-  wSize:
-    x: 1
-    y: 1
-    z: 1
+  MaxItemsPerFrame: 1
   offset:
     x: 0
     y: 0
     z: 0
-  MaxItemsPerFrame: 1
+  wSize:
+    x: 8
+    y: 8
+    z: 8
 --- !u!4 &908020822
 Transform:
   m_ObjectHideFlags: 0
@@ -1396,15 +1396,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afe800b8d9e436541ba8ac27d2fd8e72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockButtonDisabler: {fileID: 1810625665}
+  blockPanel: {fileID: 1810625661}
   blocks:
   - {fileID: 11400000, guid: ef6ee72af0d83054d82270748b88054e, type: 2}
   - {fileID: 11400000, guid: cff5a95081c30a94e8b947fa96259d91, type: 2}
   - {fileID: 11400000, guid: 353861e1ba91e2c4eb61a690b8ab6698, type: 2}
   - {fileID: 11400000, guid: e9cebbff135edc34c82c29d774c3702a, type: 2}
-  blockPanel: {fileID: 1810625661}
   btnPreFab: {fileID: 6024586522033888362, guid: c8a5b7117ff3b964ab23da843024b0b3,
     type: 3}
-  blockButtonDisabler: {fileID: 1810625665}
 --- !u!1 &984367005
 GameObject:
   m_ObjectHideFlags: 0
@@ -1879,10 +1879,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8021eec003eedb2418365b115ada5b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  physics: {fileID: 1236626200}
   place: {fileID: 1543309889}
   delete: {fileID: 1439154496}
   alter: {fileID: 2020924651}
-  physics: {fileID: 1236626200}
 --- !u!1 &1407831701
 GameObject:
   m_ObjectHideFlags: 0

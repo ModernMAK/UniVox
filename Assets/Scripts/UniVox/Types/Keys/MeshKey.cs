@@ -1,7 +1,8 @@
 using System;
 
 namespace UniVox.Types.Keys
-{public struct IconKey : IEquatable<IconKey>, IComparable<IconKey>
+{
+    public struct IconKey : IEquatable<IconKey>, IComparable<IconKey>
     {
         public IconKey(ModKey mod, string array)
         {
@@ -47,6 +48,7 @@ namespace UniVox.Types.Keys
             return string.Compare(Icon, other.Icon, StringComparison.Ordinal);
         }
     }
+
     public struct MeshKey : IEquatable<MeshKey>, IComparable<MeshKey>
     {
         public MeshKey(ModKey mod, string mesh)
@@ -54,13 +56,13 @@ namespace UniVox.Types.Keys
             Mod = mod;
             Mesh = mesh;
         }
-        
+
         //Why not just use string? IF i ever change it, changes will propgate across types
         //Admittedly, I can't imagine ever changing it
         public ModKey Mod;
 
         public string Mesh;
-        
+
 //        
 //        public static explicit operator string(MeshKey mey)
 //        {
@@ -69,8 +71,9 @@ namespace UniVox.Types.Keys
 
         public static implicit operator MeshKey(ModKey value)
         {
-            return new MeshKey(value,"");
+            return new MeshKey(value, "");
         }
+
         public static implicit operator ModKey(MeshKey value)
         {
             return value.Mod;

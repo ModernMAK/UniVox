@@ -24,9 +24,7 @@ namespace UniVox.Launcher
 
                 var atlasMaterialIndex = modRegistry.Atlases.Register(matSur.Name, mat);
                 foreach (var region in regions)
-                {
                     modRegistry.Atlases[atlasMaterialIndex].Regions.Register(region.Name, region.Value);
-                }
             }
 
             foreach (var matSur in surrogate.Materials)
@@ -36,9 +34,7 @@ namespace UniVox.Launcher
 
                 var arrayMaterialIndex = modRegistry.Materials.Register(matSur.Name, mat);
                 foreach (var subMat in subMats)
-                {
                     modRegistry.Materials[arrayMaterialIndex].SubMaterials.Register(subMat.Name, subMat.Value);
-                }
             }
         }
 

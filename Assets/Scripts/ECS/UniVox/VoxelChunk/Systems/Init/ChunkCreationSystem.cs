@@ -1,6 +1,5 @@
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Tags;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,19 +10,17 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateBefore(typeof(ChunkInitializationSystem))]
     public class ChunkCreationSystem : JobComponentSystem
     {
-        private EntityQuery _eventQuery;
         private EntityArchetype _blockChunkArchetype;
+        private EntityQuery _eventQuery;
         private EndInitializationEntityCommandBufferSystem _updateEnd;
 
         private EntityArchetype CreateBlockChunkArchetype()
         {
             return EntityManager.CreateArchetype(
-                typeof(ChunkIdComponent),
-                typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
-                typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
-                typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
-                
-                
+                typeof(VoxelChunkIdentity),
+                typeof(VoxelActive), typeof(VoxelBlockIdentity),
+                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
+                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag),
 
                 //Tag components
                 typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag), typeof(ChunkRequiresGenerationTag)
@@ -41,7 +38,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        JobHandle ProcessEventQuery(JobHandle inputDependencies)
+        private JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
             var eventityDataType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
             var eventityType = GetArchetypeChunkEntityType();
@@ -50,13 +47,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 if (ecsChunks.Length <= 0)
                     return inputDependencies;
 
-                JobHandle result = inputDependencies;
+                var result = inputDependencies;
                 foreach (var ecsChunk in ecsChunks)
                 {
                     var eventitiesInChunk = ecsChunk.GetNativeArray(eventityType);
                     var eventityData = ecsChunk.GetNativeArray(eventityDataType);
 //                    var createdChunks = new NativeArray<Entity>(eventitiesInChunk.Length, Allocator.TempJob);
-                    var initChunkJob = new CreateVoxelChunkJob()
+                    var initChunkJob = new CreateVoxelChunkJob
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         Archetype = _blockChunkArchetype,
@@ -74,8 +71,14 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            return ProcessEventQuery(inputDeps);
+        }
+
 //        [BurstCompile]
-        struct CreateVoxelChunkJob : IJob
+        private struct CreateVoxelChunkJob : IJob
         {
             public EntityCommandBuffer.Concurrent Buffer;
             [ReadOnly] public EntityArchetype Archetype;
@@ -94,19 +97,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //                Created[entityIndex] = entity;
                     var chunkPos = EventityData[entityIndex].ChunkPosition;
                     Buffer.SetComponent(entityIndex, entity,
-                        new ChunkIdComponent() {Value = chunkPos}
+                        new VoxelChunkIdentity {Value = chunkPos}
                     );
 
 
                     Buffer.DestroyEntity(entityIndex, Eventities[entityIndex]);
                 }
             }
-        }
-
-
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            return ProcessEventQuery(inputDeps);
         }
     }
 }

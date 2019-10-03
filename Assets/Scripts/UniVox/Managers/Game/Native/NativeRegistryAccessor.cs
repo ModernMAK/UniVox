@@ -13,10 +13,7 @@ namespace UniVox.Managers.Game.Native
         {
             //Lets assume we only need a byte (which is highly unlikely)
             var map = new NativeHashMap<TIdentity, TValue>(byte.MaxValue, Allocator.Persistent);
-            foreach (var pair in registry.GetAllRegistered())
-            {
-                map[pair.Identity] = pair.Value;
-            }
+            foreach (var pair in registry.GetAllRegistered()) map[pair.Identity] = pair.Value;
 
             return map;
         }
@@ -28,10 +25,7 @@ namespace UniVox.Managers.Game.Native
         {
             //Lets assume we only need a byte (which is highly unlikely)
             var map = new NativeHashMap<TIdentity, NativeBaseBlockReference>(byte.MaxValue, Allocator.Persistent);
-            foreach (var pair in registry.GetAllRegistered())
-            {
-                map[pair.Identity] = pair.Value.GetNative();
-            }
+            foreach (var pair in registry.GetAllRegistered()) map[pair.Identity] = pair.Value.GetNative();
 
             return map;
         }

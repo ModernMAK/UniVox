@@ -1,13 +1,12 @@
 using System;
 using Unity.Entities;
-using UniVox.Types;
 using UniVox.Types.Identities.Voxel;
 using UniVox.VoxelData;
 using World = UniVox.VoxelData.World;
 
 namespace ECS.UniVox.VoxelChunk.Components
 {
-    public struct ChunkIdComponent : IComponentData, IEquatable<ChunkIdComponent>, IComparable<ChunkIdComponent>
+    public struct VoxelChunkIdentity : IComponentData, IEquatable<VoxelChunkIdentity>, IComparable<VoxelChunkIdentity>
     {
         /*
          * A note because i keep thinking i need to do this. BECAUSE entities are stored on a per World Basis, we dont need to use a Shared Component To GRoup Them
@@ -16,24 +15,24 @@ namespace ECS.UniVox.VoxelChunk.Components
         public ChunkIdentity Value;
 
 
-        public bool Equals(ChunkIdComponent other)
+        public bool Equals(VoxelChunkIdentity other)
         {
             return Value.Equals(other.Value);
         }
 
-        public int CompareTo(ChunkIdComponent other)
+        public int CompareTo(VoxelChunkIdentity other)
         {
             return Value.CompareTo(other.Value);
         }
 
-        public static implicit operator ChunkIdentity(ChunkIdComponent component)
+        public static implicit operator ChunkIdentity(VoxelChunkIdentity component)
         {
             return component.Value;
         }
 
-        public static implicit operator ChunkIdComponent(ChunkIdentity value)
+        public static implicit operator VoxelChunkIdentity(ChunkIdentity value)
         {
-            return new ChunkIdComponent() {Value = value};
+            return new VoxelChunkIdentity {Value = value};
         }
 
         public override int GetHashCode()

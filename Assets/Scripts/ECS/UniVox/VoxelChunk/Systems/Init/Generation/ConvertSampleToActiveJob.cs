@@ -2,7 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace Unity.Entities
+namespace ECS.UniVox.VoxelChunk.Systems.Generation
 {
     [BurstCompile]
     public struct ConvertSampleToActiveJob : IJobParallelFor
@@ -14,7 +14,7 @@ namespace Unity.Entities
 
         public void Execute(int index)
         {
-            //Seperate lines for easier debugging
+            //Separate lines for easier debugging
             var sample = Sample[index];
             var active = sample > Threshold;
             Active[index] = active;

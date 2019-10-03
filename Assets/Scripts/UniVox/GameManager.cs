@@ -18,20 +18,14 @@ namespace UniVox
 
     public class NativeGameRegistry : IDisposable
     {
+        private bool dispose;
+
         public NativeGameRegistry()
         {
             Blocks = new NativeHashMap<BlockIdentity, NativeBaseBlockReference>(0, Allocator.Persistent);
         }
 
         public NativeHashMap<BlockIdentity, NativeBaseBlockReference> Blocks { get; private set; }
-
-        public void UpdateBlocksFromRegistry(BlockRegistryAccessor accessor)
-        {
-            Blocks.Dispose();
-            Blocks = accessor.CreateNativeBlockMap();
-        }
-
-        private bool dispose;
 
         public void Dispose()
         {
@@ -40,6 +34,12 @@ namespace UniVox
 
             dispose = true;
             Blocks.Dispose();
+        }
+
+        public void UpdateBlocksFromRegistry(BlockRegistryAccessor accessor)
+        {
+            Blocks.Dispose();
+            Blocks = accessor.CreateNativeBlockMap();
         }
     }
 }

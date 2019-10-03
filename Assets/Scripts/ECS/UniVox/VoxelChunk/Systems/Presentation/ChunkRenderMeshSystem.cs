@@ -9,9 +9,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UniVox;
 using UniVox.Launcher;
-using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Types;
 using UniVox.Types.Identities;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Types.Keys;
@@ -27,36 +25,31 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class ChunkRenderMeshSystem : JobComponentSystem
     {
+        private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
         private EntityQuery _chunkGroup;
+
+        private Dictionary<BatchGroupIdentity, Mesh> _meshCache;
 
         protected override void OnCreate()
         {
             //@TODO: Support SetFilter with EntityQueryDesc syntax
 
-            _chunkGroup = GetEntityQuery(new EntityQueryDesc()
+            _chunkGroup = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkRenderMesh>(),
-                    ComponentType.ReadOnly<LocalToWorld>(),
+                    ComponentType.ReadOnly<LocalToWorld>()
                 },
                 None = new[]
                 {
                     ComponentType.ReadOnly<DontRenderTag>(),
-                    ComponentType.ReadOnly<ChunkInvalidTag>(),
-                },
+                    ComponentType.ReadOnly<ChunkInvalidTag>()
+                }
             });
             _arrayMaterialRegistry = GameManager.Registry.ArrayMaterials;
 
             _meshCache = new Dictionary<BatchGroupIdentity, Mesh>();
-        }
-
-        protected override void OnDestroy()
-        {
-//            _mChunkRenderMeshRenderCallProxy.CompleteJobs();
-//            _mChunkRenderMeshRenderCallProxy.Dispose();
-//            m_SubsceneTagVersion.Dispose();
-//            m_LastKnownSubsceneTagVersion.Dispose();
         }
 
 
@@ -68,9 +61,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             return new JobHandle();
         }
-
-        private Dictionary<BatchGroupIdentity, Mesh> _meshCache;
-        private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
 
 
         private void RenderPass(EntityQuery query)
@@ -116,25 +106,30 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
-        public static BatchGroupIdentity CreateBatchGroupIdentity(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity)
+        public static BatchGroupIdentity CreateBatchGroupIdentity(ChunkIdentity chunk,
+            ArrayMaterialIdentity arrayMaterialIdentity)
         {
-            return new BatchGroupIdentity()
+            return new BatchGroupIdentity
             {
                 Chunk = chunk,
                 MaterialIdentity = arrayMaterialIdentity
             };
         }
 
-        public void UploadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh) =>
+        public void UploadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh)
+        {
             UploadMesh(CreateBatchGroupIdentity(chunk, arrayMaterialIdentity), mesh);
+        }
 
         public void UploadMesh(BatchGroupIdentity groupIdentity, Mesh mesh)
         {
             _meshCache[groupIdentity] = mesh;
         }
 
-        public void UnloadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh) =>
+        public void UnloadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh)
+        {
             UnloadMesh(CreateBatchGroupIdentity(chunk, arrayMaterialIdentity));
+        }
 
         public void UnloadMesh(BatchGroupIdentity groupIdentity)
         {

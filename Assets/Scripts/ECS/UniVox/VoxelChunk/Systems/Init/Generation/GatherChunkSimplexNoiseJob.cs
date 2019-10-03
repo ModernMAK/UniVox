@@ -7,7 +7,8 @@ using UniVox;
 namespace Unity.Entities
 {
     /// <summary>
-    /// Samples the chunk with the given seed, provides some sampler controls in the form of frequency, amplitude, shift (an offset for the input), and bias (an offset for the output)
+    ///     Samples the chunk with the given seed, provides some sampler controls in the form of frequency, amplitude, shift
+    ///     (an offset for the input), and bias (an offset for the output)
     /// </summary>
     [BurstCompile]
     public struct GatherChunkSimplexNoiseJob : IJobParallelFor
@@ -23,11 +24,11 @@ namespace Unity.Entities
         {
             var blockPos = UnivoxUtil.GetPosition3(index);
             var worldPos = blockPos + ChunkPosition * UnivoxDefine.AxisSize;
-            
+
             var samplePos = worldPos * Sampler.Frequency + Sampler.Shift;
             var seededSamplePos = new float4(samplePos.x, samplePos.y, samplePos.z, Sampler.Seed);
 
-            
+
             var sampleValue = noise.snoise(seededSamplePos);
             var scaledSampleValue = sampleValue * Sampler.Amplitude;
             var biasedSampleValue = scaledSampleValue + Sampler.Bias;

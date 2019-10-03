@@ -9,12 +9,12 @@ namespace UniVox.Managers.Game.Accessor
 {
     public class IconRegistryAccessor : RegistryWrapper<IconKey, IconIdentity, Sprite>
     {
+        private readonly ModRegistryAccessor _modRegistry;
+
         public IconRegistryAccessor(ModRegistryAccessor modRegistry)
         {
             _modRegistry = modRegistry;
         }
-
-        private readonly ModRegistryAccessor _modRegistry;
 
 
         private bool TryGetRecord(IconKey key, out ModRegistry.Record record, out ModIdentity identity)
@@ -22,7 +22,7 @@ namespace UniVox.Managers.Game.Accessor
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
                 record = _modRegistry[index];
-                identity = new ModIdentity((byte) index);
+                identity = new ModIdentity(index);
                 return true;
             }
 
@@ -45,19 +45,19 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(IconIdentity identity, out ModRegistry.Record record) =>
-            _modRegistry.TryGetValue(identity.Mod, out record);
+        private bool TryGetRecord(IconIdentity identity, out ModRegistry.Record record)
+        {
+            return _modRegistry.TryGetValue(identity.Mod, out record);
+        }
 
         public override bool Register(IconKey key, Sprite value, out IconIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Icons.Register(key.Icon, value, out var id))
                 {
                     identity = new IconIdentity(modId, id);
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -66,18 +66,15 @@ namespace UniVox.Managers.Game.Accessor
         public override IEnumerable<Pair> GetAllRegistered()
         {
             foreach (var pair in _modRegistry.GetAllRegistered())
-            {
-                foreach (var icon in pair.Value.Icons.GetNameIndexValuePairs())
+            foreach (var icon in pair.Value.Icons.GetNameIndexValuePairs())
+                yield return new Pair
                 {
-                    yield return new Pair()
-                    {
-                        Key = new IconKey(pair.Key, icon.Key),
-                        Value = icon.Value,
-                        Identity = new IconIdentity(pair.Identity, icon.Index)
-                    };
-                }
-            }
+                    Key = new IconKey(pair.Key, icon.Key),
+                    Value = icon.Value,
+                    Identity = new IconIdentity(pair.Identity, icon.Index)
+                };
         }
+
         public override bool IsRegistered(IconKey key)
         {
             return _modRegistry.IsRegistered(key.Mod);
@@ -91,22 +88,18 @@ namespace UniVox.Managers.Game.Accessor
         public override IconIdentity GetIdentity(IconKey key)
         {
             if (TryGetIdentity(key, out var id))
-            {
                 return id;
-            }
-            else throw new Exception();
+            throw new Exception();
         }
 
         public override bool TryGetIdentity(IconKey key, out IconIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Materials.TryGetIndex(key.Icon, out var IconId))
                 {
                     identity = new IconIdentity(modId, IconId);
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -114,20 +107,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override Sprite GetValue(IconKey key)
         {
-            if (TryGetValue(key, out var Icon))
-            {
-                return Icon;
-            }
+            if (TryGetValue(key, out var Icon)) return Icon;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(IconKey key, out Sprite value)
         {
-            if (TryGetRecord(key, out var record))
-            {
-                return (record.Icons.TryGetValue(key.Icon, out value));
-            }
+            if (TryGetRecord(key, out var record)) return record.Icons.TryGetValue(key.Icon, out value);
 
             value = default;
             return false;
@@ -135,20 +122,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override Sprite GetValue(IconIdentity identity)
         {
-            if (TryGetValue(identity, out var Icon))
-            {
-                return Icon;
-            }
+            if (TryGetValue(identity, out var Icon)) return Icon;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(IconIdentity identity, out Sprite value)
         {
-            if (TryGetRecord(identity, out var record))
-            {
-                return (record.Icons.TryGetValue(identity.Icon, out value));
-            }
+            if (TryGetRecord(identity, out var record)) return record.Icons.TryGetValue(identity.Icon, out value);
 
             value = default;
             return false;

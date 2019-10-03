@@ -27,7 +27,7 @@ namespace UniVox.Types.Exceptions
         public ObsoleteException(string substitution) : base(Format(substitution))
         {
         }
-        
+
         public ObsoleteException() : base("This has been marked obsolete!")
         {
         }

@@ -8,16 +8,16 @@ namespace UniVox.Managers.Game.Accessor
 {
     public class ModRegistryAccessor : RegistryWrapper<ModKey, ModIdentity, ModRegistry.Record>
     {
+        private readonly ModRegistry _modRegistry;
+
         public ModRegistryAccessor(ModRegistry modRegistry)
         {
             _modRegistry = modRegistry;
         }
 
-        private readonly ModRegistry _modRegistry;
-
         public ModIdentity Register(string name)
         {
-            return new ModIdentity()
+            return new ModIdentity
             {
                 Value = (byte) _modRegistry.Register(name)
             };
@@ -46,7 +46,7 @@ namespace UniVox.Managers.Game.Accessor
         {
             if (_modRegistry.Register(key, value, out var id))
             {
-                identity = new ModIdentity((Byte) id);
+                identity = new ModIdentity((byte) id);
                 return true;
             }
 
@@ -60,14 +60,12 @@ namespace UniVox.Managers.Game.Accessor
         public override IEnumerable<Pair> GetAllRegistered()
         {
             foreach (var kvp in _modRegistry.GetNameIndexValuePairs())
-            {
-                yield return new Pair()
+                yield return new Pair
                 {
                     Key = kvp.Key,
                     Value = kvp.Value,
-                    Identity = (byte)kvp.Index
+                    Identity = (byte) kvp.Index
                 };
-            }
         }
 
         public override bool IsRegistered(ModKey key)
@@ -83,12 +81,8 @@ namespace UniVox.Managers.Game.Accessor
         public override ModIdentity GetIdentity(ModKey key)
         {
             if (TryGetIdentity(key, out var id))
-            {
                 return id;
-            }
-            else
-                //Its assumed we want to throw an error if it fails, but we only expose a TryGet so we have to throw our own
-                throw new KeyNotFoundException($"'{key}'");
+            throw new KeyNotFoundException($"'{key}'");
         }
 
         public override bool TryGetIdentity(ModKey key, out ModIdentity identity)

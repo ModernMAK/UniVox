@@ -4,7 +4,6 @@ namespace UniVox.Types
 {
     public struct FaceSubMaterial : IComparable<FaceSubMaterial>, IEquatable<FaceSubMaterial>
     {
-        
         private int _up;
         private int _down;
         private int _left;
@@ -105,30 +104,30 @@ namespace UniVox.Types
 
         public static FaceSubMaterial CreateTopSideBot(int top, int side, int bot)
         {
-            return new FaceSubMaterial()
+            return new FaceSubMaterial
             {
                 _up = top,
-                
+
                 _backward = side,
                 _forward = side,
                 _left = side,
                 _right = side,
-              
+
                 _down = bot
             };
         }
 
         public static FaceSubMaterial CreateAll(int all)
         {
-            return new FaceSubMaterial()
+            return new FaceSubMaterial
             {
                 _up = all,
-                
+
                 _backward = all,
                 _forward = all,
                 _left = all,
                 _right = all,
-              
+
                 _down = all
             };
         }

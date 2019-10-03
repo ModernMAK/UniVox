@@ -1,6 +1,6 @@
 namespace UniVox.Types.Identities
 {
-    public struct IconIdentity 
+    public struct IconIdentity
     {
         public ModIdentity Mod;
         public int Icon;

@@ -6,35 +6,35 @@ using UniVox.Types;
 namespace ECS.UniVox.VoxelChunk.Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
-    public struct BlockSubMaterialIdentityComponent : IBufferElementData,
-        IComparable<BlockSubMaterialIdentityComponent>, IEquatable<BlockSubMaterialIdentityComponent>
+    public struct VoxelBlockSubMaterial : IBufferElementData,
+        IComparable<VoxelBlockSubMaterial>, IEquatable<VoxelBlockSubMaterial>
     {
         public FaceSubMaterial Value;
 
-        public static implicit operator FaceSubMaterial(BlockSubMaterialIdentityComponent component)
+        public static implicit operator FaceSubMaterial(VoxelBlockSubMaterial component)
         {
             return component.Value;
         }
 
-        public static implicit operator BlockSubMaterialIdentityComponent(FaceSubMaterial value)
+        public static implicit operator VoxelBlockSubMaterial(FaceSubMaterial value)
         {
-            return new BlockSubMaterialIdentityComponent() {Value = value};
+            return new VoxelBlockSubMaterial {Value = value};
         }
 
 
-        public int CompareTo(BlockSubMaterialIdentityComponent other)
+        public int CompareTo(VoxelBlockSubMaterial other)
         {
             return Value.CompareTo(other);
         }
 
-        public bool Equals(BlockSubMaterialIdentityComponent other)
+        public bool Equals(VoxelBlockSubMaterial other)
         {
             return Value.Equals(other.Value);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is BlockSubMaterialIdentityComponent other && Equals(other);
+            return obj is VoxelBlockSubMaterial other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -42,18 +42,19 @@ namespace ECS.UniVox.VoxelChunk.Components
             return Value.GetHashCode();
         }
 
-        public struct Version : ISystemStateComponentData, IEquatable<Version>, IVersionProxy<Version>
+        public struct VersionProxyDirty : ISystemStateComponentData, IEquatable<VersionProxyDirty>,
+            IVersionDirtyProxy<VersionProxyDirty>
         {
             public uint Value;
 
-            public bool Equals(Version other)
+            public bool Equals(VersionProxyDirty other)
             {
                 return Value == other.Value;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is Version other && Equals(other);
+                return obj is VersionProxyDirty other && Equals(other);
             }
 
             public override int GetHashCode()
@@ -61,17 +62,17 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return (int) Value;
             }
 
-            public static implicit operator uint(Version version)
+            public static implicit operator uint(VersionProxyDirty versionProxyDirty)
             {
-                return version.Value;
+                return versionProxyDirty.Value;
             }
 
-            public static implicit operator Version(uint value)
+            public static implicit operator VersionProxyDirty(uint value)
             {
-                return new Version() {Value = value};
+                return new VersionProxyDirty {Value = value};
             }
 
-            public bool DidChange(Version other)
+            public bool DidChange(VersionProxyDirty other)
             {
                 return ChangeVersionUtility.DidChange(Value, other.Value);
             }
@@ -80,11 +81,12 @@ namespace ECS.UniVox.VoxelChunk.Components
             {
                 return Value.ToString();
             }
-            public Version GetDirty()
+
+            public VersionProxyDirty GetDirty()
             {
                 var temp = Value;
                 ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
-                return new Version() {Value = temp};
+                return new VersionProxyDirty {Value = temp};
             }
         }
     }

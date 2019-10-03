@@ -5,12 +5,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
-    public class BlockSubMaterialIdentityVersionSystem : ChunkComponentDirtySystem<BlockSubMaterialIdentityComponent,
-        BlockSubMaterialIdentityComponent.Version>
+    public class BlockSubMaterialIdentityVersionSystem : ChunkComponentDirtySystem<VoxelBlockSubMaterial,
+        VoxelBlockSubMaterial.VersionProxyDirty>
     {
-        protected override BlockSubMaterialIdentityComponent.Version GetInitialVersion()
+        protected override VoxelBlockSubMaterial.VersionProxyDirty GetInitialVersion()
         {
-            return new BlockSubMaterialIdentityComponent.Version()
+            return new VoxelBlockSubMaterial.VersionProxyDirty
             {
                 Value = ChangeVersionUtility.InitialGlobalSystemVersion
             };

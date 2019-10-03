@@ -99,11 +99,11 @@ namespace ECS.UnityEdits.Hybrid_Renderer
                 new NativeArray<int>(chunkCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var sortedChunks = new NativeArraySharedValues<int>(chunkRenderer, Allocator.TempJob);
 
-            var gatherChunkRenderersJob = new GatherChunkRenderers
+            var gatherChunkRenderersJob = new GatherSharedComponentIndex<RenderMesh>
             {
                 Chunks = chunks,
-                RenderMeshType = RenderMeshType,
-                ChunkRenderer = chunkRenderer
+                ComponentType = RenderMeshType,
+                Indexes = chunkRenderer
             };
             var gatherChunkRenderersJobHandle = gatherChunkRenderersJob.Schedule(chunkCount, 64);
             var sortedChunksJobHandle = sortedChunks.Schedule(gatherChunkRenderersJobHandle);

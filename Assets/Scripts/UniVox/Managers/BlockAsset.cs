@@ -1,28 +1,26 @@
 ﻿using System;
 using UnityEngine;
 using UniVox.Launcher;
-using UniVox.Managers.Game;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Managers.Game.Structure;
 using UniVox.Types.Keys;
 
 namespace UniVox.Managers
 {
     public enum RenderType
     {
-        SideTopBottom, All
+        SideTopBottom,
+        All
     }
-    
+
     [CreateAssetMenu(menuName = "Custom Assets/Block")]
     public class BlockAsset : ScriptableObject
     {
+        public BlockKey blockKey;
+        public string blockName;
         public Sprite icon;
         public Material material;
-        public String blockName;
         public RenderType renderType;
         public int top, side, bottom, all;
-
-        public BlockKey blockKey;
 
         // enum (render type)
         // 3 nums (side top bottom, all, none) for texture index
@@ -32,10 +30,10 @@ namespace UniVox.Managers
         {
             var materialKey = new ArrayMaterialKey(BaseGameMod.ModPath, blockName);
             GameManager.Registry.ArrayMaterials.Register(materialKey, material, out var materialIdentity);
-            
+
             var iconKey = new IconKey(BaseGameMod.ModPath, blockName);
             GameManager.Registry.Icons.Register(iconKey, icon, out var iconIdentity);
-            
+
             blockKey = new BlockKey(BaseGameMod.ModPath, blockName);
             BaseBlockReference blockReference;
             switch (renderType)
@@ -49,8 +47,9 @@ namespace UniVox.Managers
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             GameManager.Registry.Blocks.Register(blockKey, blockReference, out var identity);
-            
+
             GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
         }
     }
