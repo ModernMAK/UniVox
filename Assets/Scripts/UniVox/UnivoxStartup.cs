@@ -133,7 +133,7 @@ namespace UniVox
                 var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
                 var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
 
-                activeArray[i] = true;
+//                activeArray[i] = true;
 
                 if (!yTop)
                 {

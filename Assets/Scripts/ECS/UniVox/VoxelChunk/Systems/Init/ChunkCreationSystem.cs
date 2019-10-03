@@ -22,9 +22,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
                 typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
                 typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
+                
+                
 
                 //Tag components
-                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag)
+                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag), typeof(ChunkRequiresGenerationTag)
             );
         }
 

@@ -47,7 +47,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     var resizeAndInitJob = ResizeAndInitAllBuffers(entities, inputDependencies);
 //                    var cleanupCreated = new DisposeArrayJob<Entity>(createdChunks).Schedule(resizeAndInitJob);
-                    var markValid = new MarkValidJob()
+                    var markValid = new RemoveComponentJob<ChunkRequiresInitializationTag>()
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities
@@ -60,20 +60,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return inputDependencies;
         }
 
-
-//        [BurstCompile]
-        struct MarkValidJob : IJobParallelFor //Chunk
-        {
-            public EntityCommandBuffer.Concurrent Buffer;
-            [ReadOnly] public NativeArray<Entity> ChunkEntities;
-
-            public void Execute(int entityIndex)
-            {
-                var entity = ChunkEntities[entityIndex];
-                Buffer.RemoveComponent<ChunkInvalidTag>(entityIndex, entity);
-                Buffer.RemoveComponent<ChunkRequiresInitializationTag>(entityIndex, entity);
-            }
-        }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
@@ -189,6 +175,20 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
                 JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
             );
+        }
+    }
+
+//        [BurstCompile]
+    public struct RemoveComponentJob<TComponent> : IJobParallelFor //Chunk
+    {
+        public EntityCommandBuffer.Concurrent Buffer;
+        [ReadOnly] public NativeArray<Entity> ChunkEntities;
+
+        public void Execute(int entityIndex)
+        {
+            var entity = ChunkEntities[entityIndex];
+            Buffer.RemoveComponent<TComponent>(entityIndex, entity);
+//                Buffer.RemoveComponent<ChunkRequiresInitializationTag>(entityIndex, entity);
         }
     }
 }
