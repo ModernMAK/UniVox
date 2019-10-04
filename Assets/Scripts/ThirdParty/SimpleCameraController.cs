@@ -14,7 +14,7 @@ namespace ThirdParty
 
         [Tooltip("Whether or not to invert our Y axis for mouse input to rotation.")]
         public bool invertY;
-    
+
         [Header("Rotation Settings")]
         [Tooltip("X = Change in mouse Position.\nY = Multiplicative factor for camera rotation.")]
         public AnimationCurve mouseSensitivityCurve =
@@ -54,6 +54,7 @@ namespace ThirdParty
                 EditorApplication.isPlaying = false;
 #endif
             }
+
             // Hide and lock cursor when right mouse button pressed
             if (Input.GetMouseButtonDown(1)) Cursor.lockState = CursorLockMode.Locked;
 

@@ -9,12 +9,12 @@ namespace UniVox.Managers.Game.Accessor
 {
     public class MeshRegistryAccessor : RegistryWrapper<MeshKey, MeshId, Mesh>
     {
+        private readonly ModRegistryAccessor _modRegistry;
+
         public MeshRegistryAccessor(ModRegistryAccessor modRegistry)
         {
             _modRegistry = modRegistry;
         }
-
-        private readonly ModRegistryAccessor _modRegistry;
 
 
         private bool TryGetRecord(MeshKey key, out ModRegistry.Record record, out ModIdentity identity)
@@ -22,7 +22,7 @@ namespace UniVox.Managers.Game.Accessor
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
                 record = _modRegistry[index];
-                identity = new ModIdentity((byte) index);
+                identity = new ModIdentity(index);
                 return true;
             }
 
@@ -45,19 +45,19 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(MeshId id, out ModRegistry.Record record) =>
-            _modRegistry.TryGetValue(id.Mod, out record);
+        private bool TryGetRecord(MeshId id, out ModRegistry.Record record)
+        {
+            return _modRegistry.TryGetValue(id.Mod, out record);
+        }
 
         public override bool Register(MeshKey key, Mesh value, out MeshId identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Meshes.Register(key.Mesh, value, out var id))
                 {
                     identity = new MeshId(modId, id);
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -66,17 +66,13 @@ namespace UniVox.Managers.Game.Accessor
         public override IEnumerable<Pair> GetAllRegistered()
         {
             foreach (var pair in _modRegistry.GetAllRegistered())
-            {
-                foreach (var arrayMat in pair.Value.Meshes.GetNameIndexValuePairs())
+            foreach (var arrayMat in pair.Value.Meshes.GetNameIndexValuePairs())
+                yield return new Pair
                 {
-                    yield return new Pair()
-                    {
-                        Key = new MeshKey(pair.Key, arrayMat.Key),
-                        Value = arrayMat.Value,
-                        Identity = new MeshId(pair.Identity, arrayMat.Index)
-                    };
-                }
-            }
+                    Key = new MeshKey(pair.Key, arrayMat.Key),
+                    Value = arrayMat.Value,
+                    Identity = new MeshId(pair.Identity, arrayMat.Index)
+                };
         }
 
         public override bool IsRegistered(MeshKey key)
@@ -92,22 +88,18 @@ namespace UniVox.Managers.Game.Accessor
         public override MeshId GetIdentity(MeshKey key)
         {
             if (TryGetIdentity(key, out var id))
-            {
                 return id;
-            }
-            else throw new Exception();
+            throw new Exception();
         }
 
         public override bool TryGetIdentity(MeshKey key, out MeshId identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Meshes.TryGetIndex(key.Mesh, out var meshId))
                 {
                     identity = new MeshId(modId, meshId);
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -115,20 +107,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override Mesh GetValue(MeshKey key)
         {
-            if (TryGetValue(key, out var mesh))
-            {
-                return mesh;
-            }
+            if (TryGetValue(key, out var mesh)) return mesh;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(MeshKey key, out Mesh value)
         {
-            if (TryGetRecord(key, out var record))
-            {
-                return (record.Meshes.TryGetValue(key.Mesh, out value));
-            }
+            if (TryGetRecord(key, out var record)) return record.Meshes.TryGetValue(key.Mesh, out value);
 
             value = default;
             return false;
@@ -136,20 +122,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override Mesh GetValue(MeshId identity)
         {
-            if (TryGetValue(identity, out var mesh))
-            {
-                return mesh;
-            }
+            if (TryGetValue(identity, out var mesh)) return mesh;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(MeshId identity, out Mesh value)
         {
-            if (TryGetRecord(identity, out var record))
-            {
-                return (record.Meshes.TryGetValue(identity.Mesh, out value));
-            }
+            if (TryGetRecord(identity, out var record)) return record.Meshes.TryGetValue(identity.Mesh, out value);
 
             value = default;
             return false;

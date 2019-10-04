@@ -130,8 +130,7 @@ namespace UniVox.Types
 
         public static FaceSubMaterial CreateAll(int all)
         {
-            
-            return new FaceSubMaterial(all,all,all,all,all,all);
+            return new FaceSubMaterial(all, all, all, all, all, all);
         }
     }
 }

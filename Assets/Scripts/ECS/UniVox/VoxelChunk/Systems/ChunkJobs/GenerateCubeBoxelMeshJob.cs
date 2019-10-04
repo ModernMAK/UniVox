@@ -11,8 +11,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
     [BurstCompile]
     public struct GenerateCubeBoxelMeshJob : IJobParallelFor
     {
-//        [ReadOnly] public NativeArray<Orientation> Rotations;
-
         [ReadOnly] public NativeArray<PlanarData> PlanarBatch;
 
         [ReadOnly] public float3 Offset;
@@ -20,7 +18,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> VertexOffsets;
 
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> TriangleOffsets;
-//        [ReadOnly] public NativeArray<BlockShape> Shapes;
 
 
         [NativeDisableParallelForRestriction] [WriteOnly]
@@ -34,19 +31,12 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         [NativeDisableParallelForRestriction] [WriteOnly]
         public NativeArray<float3> TextureMap0;
-//
-//        [NativeDisableParallelForRestriction] [WriteOnly]
-//        public NativeArray<float4> TextureMap1;
 
         [NativeDisableParallelForRestriction] [WriteOnly]
         public NativeArray<int> Triangles;
 
 
-//        [WriteOnly] public NativeMeshBuilder NativeMesh;
-
         [DeallocateOnJobCompletion] [ReadOnly] public NativeCubeBuilder NativeCube;
-//        public int VertexPos;
-//        public int TrianglePos;
 
 
         private const int QuadSize = 4;
@@ -123,8 +113,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         private bool DetermineWinding(Direction direction)
         {
-            return (direction == Direction.Backward || direction == Direction.Down ||
-                    direction == Direction.Right);
+            return direction == Direction.Backward || direction == Direction.Down ||
+                   direction == Direction.Right;
         }
 
         private bool DetermineFlip(Direction direction)
@@ -138,7 +128,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         private bool DetermineUvFlip(Direction direction)
         {
             //Looks like we only flip Size if its not forward or backward
-            return !(direction == Direction.Left || direction == Direction.Right || direction == Direction.Up || direction == Direction.Down);
+            return !(direction == Direction.Left || direction == Direction.Right || direction == Direction.Up ||
+                     direction == Direction.Down);
         }
 
         private int2 FixSize(Direction direction, int2 size)
@@ -159,7 +150,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         private int2 ApplyVertex(int2 size, int vertex, bool invertWindingOrder = false)
         {
             if (invertWindingOrder)
-                vertex = 3 - (vertex % 4);
+                vertex = 3 - vertex % 4;
 
             switch (vertex % 4)
             {
@@ -179,15 +170,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             return size;
         }
 
-//        private float2 CalculateUvShift(Direction direction, int3 Position, int2 size, int vertex)
-//        {
-//            DetermineWindingAndFlip(direction, out var invertWindingOrder, out var _);
-//            size = ShiftOnVertex(size, vertex, invertWindingOrder, flipSize);
-//            var sizeShift = Broaden(direction, size);
-//            var positionShift = Strip(direction, Position + sizeShift);
-//            return positionShift;
-//        }
-
 
         private void GenerateCube(int index)
         {
@@ -198,8 +180,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             //Represents the blocks offset in the array
             var blockVertOffset = VertexOffsets[index];
             var blockTriangleOffset = TriangleOffsets[index];
-
-            //Represents the local offsets applied due to the number of directions we have used
 
 
             var dir = plane.Direction;
@@ -226,7 +206,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
                 var uv0 = refUv * (fixedUvSize + uvSizeOffset) + uvShift;
                 TextureMap0[mergedVertOffset + i] = new float3(uv0.x, uv0.y, subMat);
-//                TextureMap1[mergedVertOffset + i] = subMat;
             }
 
             for (var j = 0; j < QuadIndexSize; j++)

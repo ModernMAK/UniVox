@@ -1,21 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
-using UniVox.Managers;
 using UniVox.Types;
 
 namespace UniVox
 {
-//[CreateAssetMenu(menuName = "Custom Assets/AtlasMaterial",fileName= "AtlasMaterial")]
-//[Serializable]
-//public class AtlasAsset : ScriptableObject
-//{
-//    public Material Material;
-//
-//    public NamedValue<Rect>[] Rectangles;
-//}
 
 
     [Serializable]

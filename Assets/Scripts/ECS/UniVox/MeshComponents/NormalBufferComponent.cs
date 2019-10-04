@@ -14,7 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public static implicit operator NormalBufferComponent(float3 value)
         {
-            return new NormalBufferComponent() {Value = value};
+            return new NormalBufferComponent {Value = value};
         }
     }
 }

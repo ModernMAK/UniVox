@@ -8,6 +8,8 @@ namespace UniVox.VoxelData
 {
     public class World : IDisposable, IReadOnlyDictionary<int3, Entity>
     {
+        private bool disposed;
+
         public World(string name = default)
         {
             Records = new Dictionary<int3, Entity>();
@@ -24,6 +26,14 @@ namespace UniVox.VoxelData
 
         public EntityManager EntityManager => EntityWorld.EntityManager;
 
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+            disposed = true;
+            foreach (var recordValue in Records.Values) EntityManager.DestroyEntity(recordValue);
+        }
+
         public bool ContainsKey(int3 key)
         {
             return Records.ContainsKey(key);
@@ -35,34 +45,9 @@ namespace UniVox.VoxelData
         }
 
         public Entity this[int3 index] => Records[index];
-
-        //TODO - Something better than this workaround
-        public void Register(int3 index, Entity entity) => Records[index] = entity;
         public IEnumerable<int3> Keys => ((IReadOnlyDictionary<int3, Entity>) Records).Keys;
 
         public IEnumerable<Entity> Values => ((IReadOnlyDictionary<int3, Entity>) Records).Values;
-
-        private bool disposed;
-
-        public void Dispose()
-        {
-            if (disposed)
-                return;
-            disposed = true;
-            foreach (var recordValue in Records.Values)
-            {
-                EntityManager.DestroyEntity(recordValue);
-            }
-        }
-
-        public Entity GetOrCreate(int3 chunkId, EntityArchetype archetype)
-        {
-            if (TryGetValue(chunkId, out var record)) return record;
-
-//            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
-            Records[chunkId] = record = EntityManager.CreateEntity(archetype);
-            return record;
-        }
 
         public IEnumerator<KeyValuePair<int3, Entity>> GetEnumerator()
         {
@@ -75,6 +60,21 @@ namespace UniVox.VoxelData
         }
 
         public int Count => Records.Count;
+
+        //TODO - Something better than this workaround
+        public void Register(int3 index, Entity entity)
+        {
+            Records[index] = entity;
+        }
+
+        public Entity GetOrCreate(int3 chunkId, EntityArchetype archetype)
+        {
+            if (TryGetValue(chunkId, out var record)) return record;
+
+//            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
+            Records[chunkId] = record = EntityManager.CreateEntity(archetype);
+            return record;
+        }
 
         public void ClearChunkEntities()
         {

@@ -4,9 +4,16 @@ using UniVox.Managers.Generic;
 
 namespace UniVox.Managers.Game.Structure
 {
-    
     public class ModRegistry : NamedRegistry<ModRegistry.Record>
     {
+        //Helper Function
+        public int Register(string name)
+        {
+            var record = new Record();
+            base.Register(name, record, out var reference);
+            return reference;
+        }
+
         public class Record
         {
             public Record()
@@ -25,14 +32,6 @@ namespace UniVox.Managers.Game.Structure
             public NamedRegistry<BaseBlockReference> Blocks { get; }
             public NamedRegistry<EntityRegistryRecord> Entities { get; }
             public NamedRegistry<Sprite> Icons { get; }
-        }
-
-        //Helper Function
-        public int Register(string name)
-        {
-            var record = new Record();
-            base.Register(name, record, out var reference);
-            return reference;
         }
     }
 }

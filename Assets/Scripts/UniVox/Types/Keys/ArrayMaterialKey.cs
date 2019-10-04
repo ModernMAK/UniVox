@@ -48,6 +48,4 @@ namespace UniVox.Types.Keys
             return string.Compare(ArrayMaterial, other.ArrayMaterial, StringComparison.Ordinal);
         }
     }
-    
-    
 }

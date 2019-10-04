@@ -25,26 +25,59 @@ namespace UniVox
 
         #region Index Conversion Util
 
-        public static int2 CreateSizeSquare() => new int2(AxisSize);
-        public static int3 CreateSizeCube() => new int3(AxisSize);
+        public static int2 CreateSizeSquare()
+        {
+            return new int2(AxisSize);
+        }
 
-        public static int GetNeighborIndex(int3 position, Direction direction) =>
-            IndexMapUtil.ToIndex(position + direction.ToInt3(), CreateSizeCube());
+        public static int3 CreateSizeCube()
+        {
+            return new int3(AxisSize);
+        }
 
-        public static int GetNeighborIndex(int index, Direction direction) =>
-            GetNeighborIndex(GetPosition3(index), direction);
+        public static int GetNeighborIndex(int3 position, Direction direction)
+        {
+            return IndexMapUtil.ToIndex(position + direction.ToInt3(), CreateSizeCube());
+        }
 
-        public static int GetIndex(int3 position) => IndexMapUtil.ToIndex(position, CreateSizeCube());
-        public static int GetIndex(int x, int y, int z) => IndexMapUtil.ToIndex(x, y, z, AxisSize, AxisSize);
-        public static int GetIndex(int2 position) => IndexMapUtil.ToIndex(position, AxisSize);
-        public static int GetIndex(int x, int y) => IndexMapUtil.ToIndex(x, y, AxisSize);
+        public static int GetNeighborIndex(int index, Direction direction)
+        {
+            return GetNeighborIndex(GetPosition3(index), direction);
+        }
+
+        public static int GetIndex(int3 position)
+        {
+            return IndexMapUtil.ToIndex(position, CreateSizeCube());
+        }
+
+        public static int GetIndex(int x, int y, int z)
+        {
+            return IndexMapUtil.ToIndex(x, y, z, AxisSize, AxisSize);
+        }
+
+        public static int GetIndex(int2 position)
+        {
+            return IndexMapUtil.ToIndex(position, AxisSize);
+        }
+
+        public static int GetIndex(int x, int y)
+        {
+            return IndexMapUtil.ToIndex(x, y, AxisSize);
+        }
 
         #endregion
 
         #region Position Conversion Util
 
-        public static int3 GetPosition3(int index) => IndexMapUtil.ToPosition3(index, AxisSize, AxisSize);
-        public static int2 GetPosition2(int index) => IndexMapUtil.ToPosition2(index, AxisSize);
+        public static int3 GetPosition3(int index)
+        {
+            return IndexMapUtil.ToPosition3(index, AxisSize, AxisSize);
+        }
+
+        public static int2 GetPosition2(int index)
+        {
+            return IndexMapUtil.ToPosition2(index, AxisSize);
+        }
 
         #endregion
 
@@ -60,9 +93,9 @@ namespace UniVox
 
         private static int3 ToValue(bool3 value, bool invert = false)
         {
-            var x = (value.x != invert) ? 1 : 0;
-            var y = (value.y != invert) ? 1 : 0;
-            var z = (value.z != invert) ? 1 : 0;
+            var x = value.x != invert ? 1 : 0;
+            var y = value.y != invert ? 1 : 0;
+            var z = value.z != invert ? 1 : 0;
             return new int3(x, y, z);
         }
 
@@ -88,11 +121,11 @@ namespace UniVox
 
         public static int3 ToBlockPosition(int3 worldPosition)
         {
-            var blockPosition = (worldPosition % AxisSize);
+            var blockPosition = worldPosition % AxisSize;
             //Apply Shift - range from  1 to 2*AxisSize-1
             blockPosition += AxisSize;
             //Apply clamp - range from 0 to AxisSize-1
-            blockPosition = (blockPosition % AxisSize);
+            blockPosition = blockPosition % AxisSize;
             return blockPosition;
         }
 

@@ -49,6 +49,5 @@ namespace UniVox.Types.Identities
             if (modComparison != 0) return modComparison;
             return Block.CompareTo(other.Block);
         }
-
     }
 }

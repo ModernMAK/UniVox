@@ -2,14 +2,9 @@
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UniVox.Launcher;
-using UniVox.Managers;
-using UniVox.Managers.Game;
-using UniVox.Types;
 using UniVox.Types.Exceptions;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Types.Keys;
@@ -19,15 +14,17 @@ namespace UniVox
 {
     public class UnivoxStartup : MonoBehaviour
     {
+        private Queue<ChunkIdentity> _requests;
+        private Queue<ChunkIdentity> _setup;
         public Material defaultMat;
+        public int MaxItemsPerFrame = 1;
+        public int3 offset = 0;
 
 //    public ModSurrogate ModData;
         public int3 wSize = 0;
-        public int3 offset = 0;
-        public int MaxItemsPerFrame = 1;
 
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
             _requests = new Queue<ChunkIdentity>();
             _setup = new Queue<ChunkIdentity>();
@@ -51,19 +48,15 @@ namespace UniVox
                 QueueChunk(0, offset + new int3(x, y, z));
         }
 
-
-        private Queue<ChunkIdentity> _requests;
-        private Queue<ChunkIdentity> _setup;
-
-        void QueueChunk(byte world, int3 chunkPos)
+        private void QueueChunk(byte world, int3 chunkPos)
         {
             _requests.Enqueue(new ChunkIdentity(world, chunkPos));
         }
 
 
-        void ProcessQueue(int count)
+        private void ProcessQueue(int count)
         {
-            int setupTries = 0;
+            var setupTries = 0;
             while (count > 0 && _setup.Count > 0 && setupTries < _setup.Count)
             {
                 var data = _setup.Dequeue();
@@ -87,11 +80,7 @@ namespace UniVox
             }
         }
 
-        public class EntityDataStreamer
-        {
-        }
-
-        bool SetupChunk(ChunkIdentity chunkIdentity)
+        private bool SetupChunk(ChunkIdentity chunkIdentity)
         {
             var world = GameManager.Universe[chunkIdentity.WorldId];
 
@@ -112,53 +101,49 @@ namespace UniVox
 
             var em = world.EntityManager;
             var entityArchetype = world.EntityManager.CreateArchetype(
-                typeof(ChunkIdComponent),
-                typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
-                typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
-                typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent)
+                typeof(VoxelChunkIdentity),
+                typeof(VoxelActive), typeof(VoxelBlockIdentity),
+                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
+                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag)
             );
 
             var entity = world.GetOrCreate(chunkPos, entityArchetype);
 
-            var activeArray = em.GetBuffer<BlockActiveComponent>(entity);
-            var blockIdentities = em.GetBuffer<BlockIdentityComponent>(entity);
-            em.DirtyComponent<BlockActiveComponent.Version>(entity);
-            em.DirtyComponent<BlockIdentityComponent.Version>(entity);
+            var activeArray = em.GetBuffer<VoxelActive>(entity);
+            var blockIdentities = em.GetBuffer<VoxelBlockIdentity>(entity);
+            em.DirtyComponent<BlockActiveVersion>(entity);
+            em.DirtyComponent<VoxelBlockIdentityVersion>(entity);
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)
             {
                 var pos = UnivoxUtil.GetPosition3(i);
 
-                var xTop = (pos.x == UnivoxDefine.AxisSize - 1);
-                var yTop = (pos.y == UnivoxDefine.AxisSize - 1);
-                var zTop = (pos.z == UnivoxDefine.AxisSize - 1);
+                var xTop = pos.x == UnivoxDefine.AxisSize - 1;
+                var yTop = pos.y == UnivoxDefine.AxisSize - 1;
+                var zTop = pos.z == UnivoxDefine.AxisSize - 1;
 
-                activeArray[i] = true;
+//                activeArray[i] = true;
 
                 if (!yTop)
                 {
                     if (xTop && !zTop)
-                    {
                         blockIdentities[i] = stone;
-                    }
                     else if (!xTop && zTop)
-                    {
                         blockIdentities[i] = sand;
-                    }
                     else
-                    {
                         blockIdentities[i] = dirt;
-                    }
                 }
 
                 else
+                {
                     blockIdentities[i] = grass;
+                }
             }
 
             return true;
         }
 
-        void CreateChunk(ChunkIdentity chunkIdentity)
+        private void CreateChunk(ChunkIdentity chunkIdentity)
         {
             var world = GameManager.Universe[chunkIdentity.WorldId];
             var chunkPos = chunkIdentity.ChunkId;
@@ -169,7 +154,7 @@ namespace UniVox
             }
 
             var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
-            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity() {ChunkPosition = chunkIdentity});
+            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity {ChunkPosition = chunkIdentity});
 
             _setup.Enqueue(chunkIdentity);
         }
@@ -187,9 +172,13 @@ namespace UniVox
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             ProcessQueue(MaxItemsPerFrame);
+        }
+
+        public class EntityDataStreamer
+        {
         }
     }
 }

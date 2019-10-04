@@ -6,20 +6,19 @@ namespace UserInterface
 {
     public class ClickButtonDisabler : MonoBehaviour
     {
-        [SerializeField]
-        private Button single, drag, square, circle;
-
         private Button last;
 
         [SerializeField] private UnivoxRaycaster physics;
-    
+
+        [SerializeField] private Button single, drag, square, circle;
+
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
             last = single;
         }
-    
-        void HandleClick(Button btn, ClickMode btnMode)
+
+        private void HandleClick(Button btn, ClickMode btnMode)
         {
             if (last != null)
                 last.interactable = true;
@@ -30,7 +29,7 @@ namespace UserInterface
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             single.onClick.AddListener(() => HandleClick(single, ClickMode.Single));
             square.onClick.AddListener(() => HandleClick(square, ClickMode.Square));

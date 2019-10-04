@@ -56,13 +56,13 @@ namespace UniVox.Managers.Game.Accessor
 
     public class BlockRegistryAccessor : RegistryWrapper<BlockKey, BlockIdentity, BaseBlockReference>
     {
+        private readonly ModRegistryAccessor _modRegistry;
+
         public BlockRegistryAccessor(ModRegistryAccessor modRegistry)
         {
             _modRegistry = modRegistry;
 //            _gameRegistry = registry;
         }
-
-        private readonly ModRegistryAccessor _modRegistry;
 //        private readonly GameRegistry _gameRegistry;
 
 
@@ -71,7 +71,7 @@ namespace UniVox.Managers.Game.Accessor
             if (_modRegistry.TryGetId(key.Mod, out var index))
             {
                 record = _modRegistry[index];
-                identity = new ModIdentity((byte) index);
+                identity = new ModIdentity(index);
                 return true;
             }
 
@@ -94,21 +94,21 @@ namespace UniVox.Managers.Game.Accessor
         }
 
 
-        private bool TryGetRecord(BlockIdentity id, out ModRegistry.Record record) =>
-            _modRegistry.TryGetValue(id.Mod, out record);
+        private bool TryGetRecord(BlockIdentity id, out ModRegistry.Record record)
+        {
+            return _modRegistry.TryGetValue(id.Mod, out record);
+        }
 
 
         public override bool Register(BlockKey key, BaseBlockReference value, out BlockIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Blocks.Register(key.Block, value, out var id))
                 {
                     identity = new BlockIdentity(modId, id);
 //                    _gameRegistry.UpdateNativeBlock();
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -116,19 +116,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override IEnumerable<Pair> GetAllRegistered()
         {
-            
             foreach (var pair in _modRegistry.GetAllRegistered())
-            {
-                foreach (var arrayMat in pair.Value.Blocks.GetNameIndexValuePairs())
+            foreach (var arrayMat in pair.Value.Blocks.GetNameIndexValuePairs())
+                yield return new Pair
                 {
-                    yield return new Pair()
-                    {
-                        Key = new BlockKey(pair.Key, arrayMat.Key),
-                        Value = arrayMat.Value,
-                        Identity = new BlockIdentity(pair.Identity, arrayMat.Index)
-                    };
-                }
-            }
+                    Key = new BlockKey(pair.Key, arrayMat.Key),
+                    Value = arrayMat.Value,
+                    Identity = new BlockIdentity(pair.Identity, arrayMat.Index)
+                };
         }
 
         public override bool IsRegistered(BlockKey key)
@@ -144,22 +139,18 @@ namespace UniVox.Managers.Game.Accessor
         public override BlockIdentity GetIdentity(BlockKey key)
         {
             if (TryGetIdentity(key, out var id))
-            {
                 return id;
-            }
-            else throw new Exception();
+            throw new Exception();
         }
 
         public override bool TryGetIdentity(BlockKey key, out BlockIdentity identity)
         {
             if (TryGetRecord(key, out var record, out var modId))
-            {
                 if (record.Blocks.TryGetIndex(key.Block, out var blockIndex))
                 {
                     identity = new BlockIdentity(modId, blockIndex);
                     return true;
                 }
-            }
 
             identity = default;
             return false;
@@ -167,20 +158,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override BaseBlockReference GetValue(BlockKey key)
         {
-            if (TryGetValue(key, out var arrayMaterial))
-            {
-                return arrayMaterial;
-            }
+            if (TryGetValue(key, out var arrayMaterial)) return arrayMaterial;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(BlockKey key, out BaseBlockReference value)
         {
-            if (TryGetRecord(key, out var record))
-            {
-                return (record.Blocks.TryGetValue(key.Block, out value));
-            }
+            if (TryGetRecord(key, out var record)) return record.Blocks.TryGetValue(key.Block, out value);
 
             value = default;
             return false;
@@ -188,20 +173,14 @@ namespace UniVox.Managers.Game.Accessor
 
         public override BaseBlockReference GetValue(BlockIdentity identity)
         {
-            if (TryGetValue(identity, out var arrayMaterial))
-            {
-                return arrayMaterial;
-            }
+            if (TryGetValue(identity, out var arrayMaterial)) return arrayMaterial;
 
             throw new Exception();
         }
 
         public override bool TryGetValue(BlockIdentity identity, out BaseBlockReference value)
         {
-            if (TryGetRecord(identity, out var record))
-            {
-                return (record.Blocks.TryGetValue(identity.Block, out value));
-            }
+            if (TryGetRecord(identity, out var record)) return record.Blocks.TryGetValue(identity.Block, out value);
 
             value = default;
             return false;

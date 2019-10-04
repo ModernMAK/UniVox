@@ -13,7 +13,10 @@ using Unity.Collections.LowLevel.Unsafe;
 namespace UniVox.Types.Native
 {
     /// <summary>
-    ///   <para>A NativeValue exposes a buffer of native memory to managed code, making it possible to share data between managed and native without marshalling costs.</para>
+    ///     <para>
+    ///         A NativeValue exposes a buffer of native memory to managed code, making it possible to share data between
+    ///         managed and native without marshalling costs.
+    ///     </para>
     /// </summary>
     [DebuggerDisplay("Length = {Length}")]
     [NativeContainerSupportsDeferredConvertListToArray]
@@ -37,7 +40,7 @@ namespace UniVox.Types.Native
             Allocate(allocator, out this);
             if ((options & NativeArrayOptions.ClearMemory) != NativeArrayOptions.ClearMemory)
                 return;
-            UnsafeUtility.MemClear(this.m_Buffer, (long) this.Length * (long) UnsafeUtility.SizeOf<T>());
+            UnsafeUtility.MemClear(m_Buffer, Length * (long) UnsafeUtility.SizeOf<T>());
         }
 
         public T Value
@@ -46,7 +49,10 @@ namespace UniVox.Types.Native
             set => Set(value);
         }
 
-        public static implicit operator T(NativeValue<T> nativeValue) => nativeValue.Value;
+        public static implicit operator T(NativeValue<T> nativeValue)
+        {
+            return nativeValue.Value;
+        }
 
         public NativeValue(T value, Allocator allocator)
         {
@@ -57,7 +63,7 @@ namespace UniVox.Types.Native
 
         private static unsafe void Allocate(Allocator allocator, out NativeValue<T> array)
         {
-            long size = (long) UnsafeUtility.SizeOf<T>() * (long) InternalLength;
+            var size = UnsafeUtility.SizeOf<T>() * (long) InternalLength;
             if (allocator <= Allocator.None)
                 throw new ArgumentException("Allocator must be Temp, TempJob or Persistent", nameof(allocator));
             IsUnmanagedAndThrow();
@@ -71,10 +77,7 @@ namespace UniVox.Types.Native
             DisposeSentinel.Create(out array.m_Safety, out array.m_DisposeSentinel, 1, allocator);
         }
 
-        public int Length
-        {
-            get { return this.m_Length; }
-        }
+        public int Length => m_Length;
 
         [BurstDiscard]
         internal static void IsUnmanagedAndThrow()
@@ -82,7 +85,7 @@ namespace UniVox.Types.Native
             if (!UnsafeUtility.IsValidNativeContainerElementType<T>())
                 throw new InvalidOperationException(string.Format(
                     "{0} used in NativeValue<{1}> must be unmanaged (contain no managed types) and cannot itself be a native container type.",
-                    (object) typeof(T), (object) typeof(T)));
+                    typeof(T), typeof(T)));
         }
 
 //    [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
@@ -127,7 +130,7 @@ namespace UniVox.Types.Native
 //            get
 //            {
 //        this.CheckElementReadAccess(index);
-            return UnsafeUtility.ReadArrayElement<T>(this.m_Buffer, InternalIndex);
+            return UnsafeUtility.ReadArrayElement<T>(m_Buffer, InternalIndex);
         }
 //            [WriteAccessRequired]
 
@@ -135,26 +138,23 @@ namespace UniVox.Types.Native
 //            set
         {
 //        this.CheckElementWriteAccess(index);
-            UnsafeUtility.WriteArrayElement<T>(this.m_Buffer, InternalIndex, value);
+            UnsafeUtility.WriteArrayElement(m_Buffer, InternalIndex, value);
         }
 
 
-        public unsafe bool IsCreated
-        {
-            get { return (IntPtr) this.m_Buffer != IntPtr.Zero; }
-        }
+        public unsafe bool IsCreated => (IntPtr) m_Buffer != IntPtr.Zero;
 
         [WriteAccessRequired]
         public unsafe void Dispose()
         {
-            if (!UnsafeUtility.IsValidAllocator(this.m_AllocatorLabel))
+            if (!UnsafeUtility.IsValidAllocator(m_AllocatorLabel))
                 throw new InvalidOperationException(
                     "The NativeValue can not be Disposed because it was not allocated with a valid allocator.");
 
-            DisposeSentinel.Dispose(ref this.m_Safety, ref this.m_DisposeSentinel);
-            UnsafeUtility.Free(this.m_Buffer, this.m_AllocatorLabel);
-            this.m_Buffer = (void*) null;
-            this.m_Length = 0;
+            DisposeSentinel.Dispose(ref m_Safety, ref m_DisposeSentinel);
+            UnsafeUtility.Free(m_Buffer, m_AllocatorLabel);
+            m_Buffer = null;
+            m_Length = 0;
         }
 //
 //        [WriteAccessRequired]
@@ -215,19 +215,19 @@ namespace UniVox.Types.Native
 
         public unsafe bool Equals(NativeValue<T> other)
         {
-            return this.m_Buffer == other.m_Buffer && this.m_Length == other.m_Length;
+            return m_Buffer == other.m_Buffer && m_Length == other.m_Length;
         }
 
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
-            return obj is NativeValue<T> && this.Equals((NativeValue<T>) obj);
+            return obj is NativeValue<T> && Equals((NativeValue<T>) obj);
         }
 
         public override unsafe int GetHashCode()
         {
-            return (int) this.m_Buffer * 397 ^ this.m_Length;
+            return ((int) m_Buffer * 397) ^ m_Length;
         }
 
         public static bool operator ==(NativeValue<T> left, NativeValue<T> right)

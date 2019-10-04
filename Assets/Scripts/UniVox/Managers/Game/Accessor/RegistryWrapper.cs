@@ -2,25 +2,20 @@ using System.Collections.Generic;
 
 namespace UniVox.Managers.Game.Accessor
 {
-    public abstract class RegistryWrapper<TKey, TIdentity, TValue> 
+    public abstract class RegistryWrapper<TKey, TIdentity, TValue>
     {
-        
-        public struct Pair
+        public TValue this[TKey key] => GetValue(key);
+        public TValue this[TIdentity identity] => GetValue(identity);
+
+        public bool Register(TKey key, TValue value)
         {
-            public TKey Key;
-            public TIdentity Identity;
-            public TValue Value;
+            return Register(key, value, out _);
         }
-        
-        public bool Register(TKey key, TValue value) => Register(key, value, out _);
+
         public abstract bool Register(TKey key, TValue value, out TIdentity identity);
 
 
         public abstract IEnumerable<Pair> GetAllRegistered();
-        
-
-        public TValue this[TKey key] => GetValue(key);
-        public TValue this[TIdentity identity] => GetValue(identity);
 
         public abstract bool IsRegistered(TKey key);
         public abstract bool IsRegistered(TIdentity identity);
@@ -33,5 +28,12 @@ namespace UniVox.Managers.Game.Accessor
 
         public abstract TValue GetValue(TIdentity identity);
         public abstract bool TryGetValue(TIdentity identity, out TValue value);
+
+        public struct Pair
+        {
+            public TKey Key;
+            public TIdentity Identity;
+            public TValue Value;
+        }
     }
 }

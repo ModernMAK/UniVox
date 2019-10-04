@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace UniVox.Managers.Generic
 {
     /// <summary>
-    /// Wrapper around a dictionary
+    ///     Wrapper around a dictionary
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
@@ -12,8 +12,6 @@ namespace UniVox.Managers.Generic
     {
         private readonly Dictionary<TKey, TValue> _backingLookup;
 
-        public bool IsRegistered(TKey key) => ContainsKey(key);
-        
         public Registry()
         {
             _backingLookup = new Dictionary<TKey, TValue>();
@@ -24,16 +22,28 @@ namespace UniVox.Managers.Generic
             _backingLookup = new Dictionary<TKey, TValue>(registry._backingLookup, registry._backingLookup.Comparer);
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _backingLookup.GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            return _backingLookup.GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
 
         public int Count => _backingLookup.Count;
 
-        public bool ContainsKey(TKey key) => _backingLookup.ContainsKey(key);
+        public bool ContainsKey(TKey key)
+        {
+            return _backingLookup.ContainsKey(key);
+        }
 
-        public bool TryGetValue(TKey key, out TValue value) => _backingLookup.TryGetValue(key, out value);
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            return _backingLookup.TryGetValue(key, out value);
+        }
 
         public TValue this[TKey key] => _backingLookup[key];
 
@@ -41,8 +51,13 @@ namespace UniVox.Managers.Generic
 
         public IEnumerable<TValue> Values => _backingLookup.Values;
 
+        public bool IsRegistered(TKey key)
+        {
+            return ContainsKey(key);
+        }
+
         /// <summary>
-        /// Registers the value into the registry, overwrites previous registrations if present.
+        ///     Registers the value into the registry, overwrites previous registrations if present.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -53,6 +68,9 @@ namespace UniVox.Managers.Generic
             return true;
         }
 
-        public virtual bool Unregister(TKey key) => _backingLookup.Remove(key);
+        public virtual bool Unregister(TKey key)
+        {
+            return _backingLookup.Remove(key);
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public static implicit operator IndexBufferComponent(int value)
         {
-            return new IndexBufferComponent() {Value = value};
+            return new IndexBufferComponent {Value = value};
         }
     }
 }

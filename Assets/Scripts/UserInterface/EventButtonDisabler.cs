@@ -1,26 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UniVox;
-using UniVox.Launcher;
 
 public class EventButtonDisabler : MonoBehaviour
 {
-    [SerializeField]
-    private Button place, delete, alter;
-
     private Button last;
 
     [SerializeField] private UnivoxRaycaster physics;
-    
+
+    [SerializeField] private Button place, delete, alter;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         last = place;
     }
-    
-    void HandleClick(Button btn, EventMode btnMode)
+
+    private void HandleClick(Button btn, EventMode btnMode)
     {
         if (last != null)
             last.interactable = true;
@@ -31,7 +27,7 @@ public class EventButtonDisabler : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         place.onClick.AddListener(() => HandleClick(place, EventMode.Place));
         delete.onClick.AddListener(() => HandleClick(delete, EventMode.Delete));

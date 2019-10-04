@@ -6,12 +6,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     public class
-        BlockCulledFacesVersionSystem : ChunkComponentDirtySystem<BlockCulledFacesComponent,
-            BlockCulledFacesComponent.Version>
+        BlockCulledFacesVersionSystem : ChunkComponentDirtySystem<VoxelBlockCullingFlag,
+            VoxelBlockCullingFlag.BlockCullFlagVersion>
     {
-        protected override BlockCulledFacesComponent.Version GetInitialVersion()
+        protected override VoxelBlockCullingFlag.BlockCullFlagVersion GetInitialVersion()
         {
-            return new BlockCulledFacesComponent.Version()
+            return new VoxelBlockCullingFlag.BlockCullFlagVersion
             {
                 Value = ChangeVersionUtility.InitialGlobalSystemVersion
             };

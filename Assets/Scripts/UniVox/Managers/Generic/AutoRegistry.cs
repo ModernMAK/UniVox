@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using UniVox.Managers.Game.Accessor;
 
 namespace UniVox.Managers.Generic
 {
-    public struct NameIndexValue<TKey,TValue>
+    public struct NameIndexValue<TKey, TValue>
     {
         public TKey Key;
         public int Index;
@@ -18,7 +17,7 @@ namespace UniVox.Managers.Generic
     /// <typeparam name="TValue"></typeparam>
     public class AutoRegistry<TKey, TValue> : IReadOnlyList<TValue>, IReadOnlyDictionary<TKey, TValue>,
         IIndexedRegistry<TKey, TValue>,
-        IRegistry<TKey, TValue>//, IEnumerable<KeyValuePair<int, TValue>>
+        IRegistry<TKey, TValue> //, IEnumerable<KeyValuePair<int, TValue>>
     {
         private readonly List<TValue> _backingArray;
         private readonly Dictionary<TKey, int> _backingLookup;
@@ -38,45 +37,48 @@ namespace UniVox.Managers.Generic
             _backingArray = new List<TValue>(registry._backingArray);
         }
 
+        public bool Register(TKey key, TValue value, out int id)
+        {
+            if (ContainsKey(key))
+            {
+                id = default;
+                return false;
+            }
+
+            id = GetNextId();
+            _backingLookup[key] = id;
+            if (id == _backingArray.Count)
+                _backingArray.Add(value);
+            else
+                _backingArray[id] = value;
+            return true;
+        }
+
+        public bool TryGetValue(int key, out TValue value)
+        {
+            if (_backingArray.Count > key && key >= 0)
+            {
+                value = _backingArray[key];
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public bool TryGetIndex(TKey key, out int value)
+        {
+            return _backingLookup.TryGetValue(key, out value);
+        }
+
+        public bool IsRegistered(int index)
+        {
+            return index >= 0 && index < _backingArray.Count;
+        }
+
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
-            
-            foreach (var value in GetKeyValuePairs())
-            {
-                yield return value;
-            }
-        }
-
-
-        public IEnumerable<KeyValuePair<TKey, TValue>> GetKeyValuePairs()
-        {
-            foreach (var kvp in _backingLookup)
-                yield return new KeyValuePair<TKey, TValue>(kvp.Key, _backingArray[kvp.Value]);
-        }
-
-//        IEnumerator<KeyValuePair<int, TValue>> IEnumerable<KeyValuePair<int, TValue>>.GetEnumerator()
-//        {
-//            foreach (var value in GetIndexedValuePairs())
-//            {
-//                yield return value;
-//            }
-//        }
-
-        public IEnumerable<KeyValuePair<int, TValue>> GetIndexedValuePairs()
-        {
-            for (var i = 0; i < _backingArray.Count; i++)
-                yield return new KeyValuePair<int, TValue>(i, _backingArray[i]);
-        }
-
-        public IEnumerable<NameIndexValue<TKey,TValue>> GetNameIndexValuePairs()
-        {
-            foreach (var kvp in _backingLookup)
-                yield return new NameIndexValue<TKey,TValue>()
-                {
-                    Key = kvp.Key,
-                    Index = kvp.Value,
-                    Value = _backingArray[kvp.Value]
-                };
+            foreach (var value in GetKeyValuePairs()) yield return value;
         }
 
 
@@ -151,51 +153,44 @@ namespace UniVox.Managers.Generic
             return true;
         }
 
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> GetKeyValuePairs()
+        {
+            foreach (var kvp in _backingLookup)
+                yield return new KeyValuePair<TKey, TValue>(kvp.Key, _backingArray[kvp.Value]);
+        }
+
+//        IEnumerator<KeyValuePair<int, TValue>> IEnumerable<KeyValuePair<int, TValue>>.GetEnumerator()
+//        {
+//            foreach (var value in GetIndexedValuePairs())
+//            {
+//                yield return value;
+//            }
+//        }
+
+        public IEnumerable<KeyValuePair<int, TValue>> GetIndexedValuePairs()
+        {
+            for (var i = 0; i < _backingArray.Count; i++)
+                yield return new KeyValuePair<int, TValue>(i, _backingArray[i]);
+        }
+
+        public IEnumerable<NameIndexValue<TKey, TValue>> GetNameIndexValuePairs()
+        {
+            foreach (var kvp in _backingLookup)
+                yield return new NameIndexValue<TKey, TValue>
+                {
+                    Key = kvp.Key,
+                    Index = kvp.Value,
+                    Value = _backingArray[kvp.Value]
+                };
+        }
+
         private int GetNextId()
         {
             var temp = _nextId;
             //TODO add in a bit that allows us to fetch empty holes in the registry
             _nextId++;
             return temp;
-        }
-
-        public bool Register(TKey key, TValue value, out int id)
-        {
-            if (ContainsKey(key))
-            {
-                id = default;
-                return false;
-            }
-
-            id = GetNextId();
-            _backingLookup[key] = id;
-            if (id == _backingArray.Count)
-                _backingArray.Add(value);
-            else
-                _backingArray[id] = value;
-            return true;
-        }
-
-        public bool TryGetValue(int key, out TValue value)
-        {
-            if (_backingArray.Count > key && key >= 0)
-            {
-                value = _backingArray[key];
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-
-        public bool TryGetIndex(TKey key, out int value)
-        {
-            return _backingLookup.TryGetValue(key, out value);
-        }
-
-        public bool IsRegistered(int index)
-        {
-            return (index >= 0 && index < _backingArray.Count);
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Animations;
 
 namespace UniVox.Types
 {
@@ -11,7 +10,7 @@ namespace UniVox.Types
     {
         X,
         Y,
-        Z,
+        Z
     }
 
     public static class DirectionsX
@@ -54,7 +53,7 @@ namespace UniVox.Types
             }
         }
 
-        public static Direction ToDirection(this Axis axis, bool positive)
+        public static Direction ToDirection(this Axis axis, bool positive = true)
         {
             switch (axis)
             {
@@ -89,6 +88,55 @@ namespace UniVox.Types
                     throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
             }
         }
+
+        public static void GetPlaneDirections(this Axis axis, out Direction normal, out Direction tangent, out Direction bitangent)
+        {
+            normal = axis.GetNormal();
+            tangent = axis.GetTangent();
+            bitangent = axis.GetBitangent();
+        }
+        public static void GetPlaneVectors(this Axis axis, out int3 normal, out int3 tangent, out int3 bitangent)
+        {
+            axis.GetPlaneDirections(out var n, out var t, out var b);
+            normal = n.ToInt3();
+            tangent = t.ToInt3();
+            bitangent = b.ToInt3();
+        }
+
+        public static Direction GetNormal(this Axis axis, bool positive = true)
+        {
+            return axis.ToDirection(positive);
+        }
+
+        public static Direction GetTangent(this Axis axis, bool positive = true)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                    return positive ? Direction.Forward : Direction.Backward;
+                case Axis.Y:
+                case Axis.Z:
+                    return positive ? Direction.Right : Direction.Left;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
+            }
+        }
+
+        public static Direction GetBitangent(this Axis axis, bool positive = true)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                case Axis.Z:
+                    return positive ? Direction.Up : Direction.Down;
+                case Axis.Y:
+                    return positive ? Direction.Right : Direction.Left;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
+            }
+        }
+
 
         public static Directions ToFlag(this Direction direction)
         {

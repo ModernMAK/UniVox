@@ -1,5 +1,4 @@
 ﻿using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Burst;
 using Unity.Collections;
@@ -7,10 +6,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using UniVox;
-using UniVox.Managers.Game;
 using UniVox.Types;
 using UniVox.Types.Identities;
-using UniVox.VoxelData;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -23,28 +20,25 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected override void OnCreate()
         {
-            _chunkQuery = GetEntityQuery(typeof(ChunkIdComponent),
-                typeof(BlockActiveComponent), typeof(BlockIdentityComponent),
-                typeof(BlockShapeComponent), typeof(BlockMaterialIdentityComponent),
-                typeof(BlockSubMaterialIdentityComponent), typeof(BlockCulledFacesComponent),
-                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag),
-                typeof(LocalToWorld), typeof(Translation), typeof(Rotation)
-            );
+            _chunkQuery = GetEntityQuery(typeof(VoxelChunkIdentity),
+                typeof(VoxelActive), typeof(VoxelBlockIdentity),
+                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
+                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag),
+                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
 
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
 
-        JobHandle ProcessEventQuery(JobHandle inputDependencies = default)
+        private JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
             const int batchSize = 64;
             var entityType = GetArchetypeChunkEntityType();
             var translationType = GetArchetypeChunkComponentType<Translation>();
-            var idType = GetArchetypeChunkComponentType<ChunkIdComponent>(true);
+            var idType = GetArchetypeChunkComponentType<VoxelChunkIdentity>(true);
 
             using (var ecsChunks = _chunkQuery.CreateArchetypeChunkArray(Allocator.TempJob))
-                //.ToEntityArray(Allocator.TempJob, out var entytyArrJob))
             {
                 foreach (var ecsChunk in ecsChunks)
                 {
@@ -57,8 +51,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
 
                     var resizeAndInitJob = ResizeAndInitAllBuffers(entities, inputDependencies);
-//                    var cleanupCreated = new DisposeArrayJob<Entity>(createdChunks).Schedule(resizeAndInitJob);
-                    var markValid = new MarkValidJob()
+                    var markValid = new RemoveComponentJob<ChunkRequiresInitializationTag>
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities
@@ -72,28 +65,73 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-//        [BurstCompile]
-        struct MarkValidJob : IJobParallelFor //Chunk
-        {
-            public EntityCommandBuffer.Concurrent Buffer;
-            [ReadOnly] public NativeArray<Entity> ChunkEntities;
-
-            public void Execute(int entityIndex)
-            {
-                var entity = ChunkEntities[entityIndex];
-                Buffer.RemoveComponent<ChunkInvalidTag>(entityIndex, entity);
-                Buffer.RemoveComponent<ChunkRequiresInitializationTag>(entityIndex, entity);
-            }
-        }
-
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             return ProcessEventQuery(inputDeps);
-//            inputDeps.Complete();
-//
-//            ProcessEventQuery();
-//
-//            return new JobHandle();
+        }
+
+        private JobHandle ResizeAndInitBuffer<TComponent>(NativeArray<Entity> entities, TComponent defaultValue,
+            JobHandle inputDependencies)
+            where TComponent : struct, IBufferElementData
+        {
+            const int maxExpectedWorkers = 4; //How many maximum
+            const int bufferSize = UnivoxDefine.CubeSize;
+            const int batchSize = bufferSize / maxExpectedWorkers;
+            var jobSize = entities.Length;
+            var bufferAccessor = GetBufferFromEntity<TComponent>();
+
+            var resizeJob = new ResizeBufferJob<TComponent>
+            {
+                BufferAccessor = bufferAccessor,
+                Entity = entities,
+                Size = bufferSize
+            }.Schedule(inputDependencies); //.Schedule(jobSize, batchSize, inputDependencies);
+
+            var initJob = new InitializeBufferJob<TComponent>
+            {
+                BufferAccessor = bufferAccessor,
+                Entity = entities,
+                Data = defaultValue,
+                Size = bufferSize
+            }.Schedule(resizeJob); //.Schedule(jobSize, batchSize, resizeJob);
+
+            return initJob;
+        }
+
+        private JobHandle ResizeAndInitAllBuffers(NativeArray<Entity> entities, JobHandle inputDependencies)
+        {
+            const bool defaultActive = false;
+            var defaultId = new BlockIdentity(0, -1);
+            const BlockShape defaultShape = BlockShape.Cube;
+            var defaultSubMatId = FaceSubMaterial.CreateAll(-1);
+            const Directions defaultCulled = DirectionsX.AllFlag;
+
+            var defaultMatId = new ArrayMaterialIdentity(0, -1);
+
+            var blockActiveJob =
+                ResizeAndInitBuffer<VoxelActive>(entities, defaultActive, inputDependencies);
+
+            var blockIdentityJob =
+                ResizeAndInitBuffer<VoxelBlockIdentity>(entities, defaultId, inputDependencies);
+
+            var blockShapeJob = ResizeAndInitBuffer<VoxelBlockShape>(entities, defaultShape, inputDependencies);
+
+            var blockMatJob =
+                ResizeAndInitBuffer<VoxelBlockMaterialIdentity>(entities, defaultMatId, inputDependencies);
+
+            var blockSubMatJob =
+                ResizeAndInitBuffer<VoxelBlockSubMaterial>(entities, defaultSubMatId,
+                    inputDependencies);
+
+            var blockCulledJob =
+                ResizeAndInitBuffer<VoxelBlockCullingFlag>(entities, defaultCulled, inputDependencies);
+
+
+            //Combines all jobs
+            return JobHandle.CombineDependencies(
+                JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
+                JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
+            );
         }
 
 
@@ -112,10 +150,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 for (var entityIndex = 0; entityIndex < Entity.Length; entityIndex++)
                 {
                     var buffer = BufferAccessor[Entity[entityIndex]];
-                    for (var bufferIndex = 0; bufferIndex < Size; bufferIndex++)
-                    {
-                        buffer[bufferIndex] = Data;
-                    }
+                    for (var bufferIndex = 0; bufferIndex < Size; bufferIndex++) buffer[bufferIndex] = Data;
                 }
             }
         }
@@ -137,69 +172,19 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 }
             }
         }
+    }
 
-        JobHandle ResizeAndInitBuffer<TComponent>(NativeArray<Entity> entities, TComponent defaultValue,
-            JobHandle inputDependencies = default)
-            where TComponent : struct, IBufferElementData
+//        [BurstCompile]
+    public struct RemoveComponentJob<TComponent> : IJobParallelFor //Chunk
+    {
+        public EntityCommandBuffer.Concurrent Buffer;
+        [ReadOnly] public NativeArray<Entity> ChunkEntities;
+
+        public void Execute(int entityIndex)
         {
-            const int maxExpectedWorkers = 4; //How many maximum
-            const int bufferSize = UnivoxDefine.CubeSize;
-            const int batchSize = bufferSize / maxExpectedWorkers;
-            var jobSize = entities.Length;
-            var bufferAccessor = GetBufferFromEntity<TComponent>(false);
-
-            var resizeJob = new ResizeBufferJob<TComponent>()
-            {
-                BufferAccessor = bufferAccessor,
-                Entity = entities,
-                Size = bufferSize,
-            }.Schedule(inputDependencies); //.Schedule(jobSize, batchSize, inputDependencies);
-
-            var initJob = new InitializeBufferJob<TComponent>()
-            {
-                BufferAccessor = bufferAccessor,
-                Entity = entities,
-                Data = defaultValue,
-                Size = bufferSize
-            }.Schedule(resizeJob); //.Schedule(jobSize, batchSize, resizeJob);
-
-            return initJob;
-        }
-
-        JobHandle ResizeAndInitAllBuffers(NativeArray<Entity> entities, JobHandle inputDependencies = default)
-        {
-            const bool defaultActive = false;
-            var defaultId = new BlockIdentity(0, -1);
-            const BlockShape defaultShape = BlockShape.Cube;
-            var defaultSubMatId = FaceSubMaterial.CreateAll(-1);
-            const Directions defaultCulled = DirectionsX.AllFlag;
-
-            var defaultMatId = new ArrayMaterialIdentity(0, -1);
-
-            var blockActiveJob =
-                ResizeAndInitBuffer<BlockActiveComponent>(entities, defaultActive, inputDependencies);
-
-            var blockIdentityJob =
-                ResizeAndInitBuffer<BlockIdentityComponent>(entities, defaultId, inputDependencies);
-
-            var blockShapeJob = ResizeAndInitBuffer<BlockShapeComponent>(entities, defaultShape, inputDependencies);
-
-            var blockMatJob =
-                ResizeAndInitBuffer<BlockMaterialIdentityComponent>(entities, defaultMatId, inputDependencies);
-
-            var blockSubMatJob =
-                ResizeAndInitBuffer<BlockSubMaterialIdentityComponent>(entities, defaultSubMatId,
-                    inputDependencies);
-
-            var blockCulledJob =
-                ResizeAndInitBuffer<BlockCulledFacesComponent>(entities, defaultCulled, inputDependencies);
-
-
-            //Combines all jobs
-            return JobHandle.CombineDependencies(
-                JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
-                JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
-            );
+            var entity = ChunkEntities[entityIndex];
+            Buffer.RemoveComponent<TComponent>(entityIndex, entity);
+//                Buffer.RemoveComponent<ChunkRequiresInitializationTag>(entityIndex, entity);
         }
     }
 }

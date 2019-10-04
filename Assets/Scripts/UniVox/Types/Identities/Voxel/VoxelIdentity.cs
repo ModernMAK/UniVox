@@ -26,7 +26,7 @@ namespace UniVox.Types.Identities.Voxel
         {
             var delta = WorldId.CompareTo(other.WorldId);
             if (delta == 0)
-                delta = UniversalIdUtil.CompareTo(ChunkId, other.ChunkId);//, AxisOrdering.YXZ);
+                delta = UniversalIdUtil.CompareTo(ChunkId, other.ChunkId); //, AxisOrdering.YXZ);
             if (delta == 0)
                 delta = VoxelId.CompareTo(other.VoxelId);
             return delta;
