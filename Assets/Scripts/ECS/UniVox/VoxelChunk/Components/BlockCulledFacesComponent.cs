@@ -87,5 +87,10 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return Value.ToString();
             }
         }
+
+        public bool IsCulled(Direction direction)
+        {
+            return Value.HasDirection(direction);
+        }
     }
 }

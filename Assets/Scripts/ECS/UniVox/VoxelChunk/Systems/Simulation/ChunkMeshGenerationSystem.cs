@@ -49,9 +49,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
         private EntityQuery _cleanupQuery;
 
 
-        private NativeHashMap<BatchGroupIdentity, Entity> _entityCache;
-
+//        private NativeHashMap<BatchGroupIdentity, Entity> _entityCache;
+//
         private Queue<MultiJobCache> _jobCache;
+
+//        private Queue<JobWaiter> _jobsWaiting;
 
         protected override void OnCreate()
         {
@@ -138,8 +140,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
             });
 
             _jobCache = new Queue<MultiJobCache>(); //Allocator.Persistent);
-            _entityCache = new NativeHashMap<BatchGroupIdentity, Entity>(0,
-                Allocator.Persistent); //<ChunkIdentity, NativeArray<Entity>>();
+//            _entityCache = new NativeHashMap<BatchGroupIdentity, Entity>(0,
+//                Allocator.Persistent); //<ChunkIdentity, NativeArray<Entity>>();
         }
 
         private struct MultiJobCache : IDisposable
@@ -229,7 +231,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 Identities = identity
             };
 
-            var finalHandle = new JobHandle(); //initEntity;
+            var finalHandle = inputDep;
 
             cached.WaitHandle = finalHandle;
             _jobCache.Enqueue(cached);
@@ -241,13 +243,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             _jobCache.DisposeEnumerable();
             //TODO also destroy Entities
-            _entityCache.Dispose();
+//            _entityCache.Dispose();
 //            _entityCache.Clear();
         }
 
 
         private ChunkRenderMeshSystem _renderSystem;
-        private Material _defaultMaterial;
+//        private Material _defaultMaterial;
 
 
         JobHandle RenderPass()
@@ -553,6 +555,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
+
         JobHandle GenerateBoxelMeshes(ArchetypeChunk chunk, JobHandle dependencies)
         {
             var updateAndIgnore = UpdateVersionAndGatherIgnore(chunk, out var ignore, dependencies);
@@ -580,7 +583,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             Profiler.BeginSample("CreateNative Batches");
             //Gather unique materials, these become our batch groups
-            var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
+            var uniqueBatchData = new NativeList<BlockMaterialIdentityComponent>(Allocator.TempJob);
+            var job = new FindUniquesJob<BlockMaterialIdentityComponent>()
+            {
+                Source = materials,
+                Unique = uniqueBatchData
+            };
 
 
 //            var uniqueJob = CreateBatches<BlockMaterialIdentityComponent>(chunk, out var batches, handle);

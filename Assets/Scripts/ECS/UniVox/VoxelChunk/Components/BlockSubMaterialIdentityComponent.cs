@@ -11,6 +11,12 @@ namespace ECS.UniVox.VoxelChunk.Components
     {
         public FaceSubMaterial Value;
 
+
+        public int this[Direction direction]
+        {
+            get => Value[direction];
+        }
+        
         public static implicit operator FaceSubMaterial(BlockSubMaterialIdentityComponent component)
         {
             return component.Value;

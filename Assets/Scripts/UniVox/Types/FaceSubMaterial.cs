@@ -4,13 +4,22 @@ namespace UniVox.Types
 {
     public struct FaceSubMaterial : IComparable<FaceSubMaterial>, IEquatable<FaceSubMaterial>
     {
-        
-        private int _up;
-        private int _down;
-        private int _left;
-        private int _right;
-        private int _forward;
-        private int _backward;
+        public FaceSubMaterial(int up, int down, int left, int right, int forward, int backward)
+        {
+            _up = up;
+            _down = down;
+            _left = left;
+            _right = right;
+            _forward = forward;
+            _backward = backward;
+        }
+
+        private readonly int _up;
+        private readonly int _down;
+        private readonly int _left;
+        private readonly int _right;
+        private readonly int _forward;
+        private readonly int _backward;
 
         public int this[Direction direction]
         {
@@ -34,32 +43,42 @@ namespace UniVox.Types
                         throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
                 }
             }
-            set
+        }
+
+        public FaceSubMaterial Set(Direction direction, int value)
+        {
+            var up = _up;
+            var down = _down;
+            var left = _left;
+            var right = _right;
+            var forward = _forward;
+            var backward = _backward;
+
+            switch (direction)
             {
-                switch (direction)
-                {
-                    case Direction.Up:
-                        _up = value;
-                        break;
-                    case Direction.Down:
-                        _down = value;
-                        break;
-                    case Direction.Right:
-                        _right = value;
-                        break;
-                    case Direction.Left:
-                        _left = value;
-                        break;
-                    case Direction.Forward:
-                        _forward = value;
-                        break;
-                    case Direction.Backward:
-                        _backward = value;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
+                case Direction.Up:
+                    up = value;
+                    break;
+                case Direction.Down:
+                    down = value;
+                    break;
+                case Direction.Right:
+                    right = value;
+                    break;
+                case Direction.Left:
+                    left = value;
+                    break;
+                case Direction.Forward:
+                    forward = value;
+                    break;
+                case Direction.Backward:
+                    backward = value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
+
+            return new FaceSubMaterial(up, down, left, right, forward, backward);
         }
 
 
@@ -105,32 +124,14 @@ namespace UniVox.Types
 
         public static FaceSubMaterial CreateTopSideBot(int top, int side, int bot)
         {
-            return new FaceSubMaterial()
-            {
-                _up = top,
-                
-                _backward = side,
-                _forward = side,
-                _left = side,
-                _right = side,
-              
-                _down = bot
-            };
+            return new FaceSubMaterial(top, bot, side, side, side, side);
         }
+
 
         public static FaceSubMaterial CreateAll(int all)
         {
-            return new FaceSubMaterial()
-            {
-                _up = all,
-                
-                _backward = all,
-                _forward = all,
-                _left = all,
-                _right = all,
-              
-                _down = all
-            };
+            
+            return new FaceSubMaterial(all,all,all,all,all,all);
         }
     }
 }
