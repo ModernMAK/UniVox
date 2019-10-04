@@ -113,29 +113,47 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         #endregion
     }
-    
+
     [BurstCompile]
-    public struct FindAndCountUniquePerChunk<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
+    public struct FindAndCountUniquePerChunkInBuffer<T> : IJob where T : struct, IComparable<T>, IBufferElementData
+//, IEquatable<T>
     {
-        public NativeArray<T> Source;
+        [ReadOnly] public ArchetypeChunk Chunk;
+        [ReadOnly] public ArchetypeChunkEntityType EntityType;
+        public BufferFromEntity<T> GetBuffer;
         public NativeList<T> Unique;
+        [WriteOnly] public NativeList<int> Count;
+        [WriteOnly] public NativeList<int> Offset;
 
 
         public void Execute()
         {
-            for (var i = 0; i < Source.Length; i++)
+            var entities = Chunk.GetNativeArray(EntityType);
+            var start = 0;
+            var end = -1;
+            for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
             {
-                Insert(Source[i]);
+                var source = GetBuffer[entities[entityIndex]];
+                var count = 0;
+
+                for (var i = 0; i < source.Length; i++)
+                {
+                    if (Insert(source[i], start, end))
+                    {
+                        end++;
+                        count++;
+                    }
+                }
+
+                Count[entityIndex] = count;
+                Offset[entityIndex] = start;
+
+                start = end + 1;
             }
         }
 
 
         #region UniqueList Helpers
-
-        private bool Find(T value)
-        {
-            return Find(value, 0, Source.Length - 1);
-        }
 
         private bool Find(T value, int min, int max)
         {
@@ -165,7 +183,15 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             Insert(value, 0, Unique.Length - 1);
         }
 
-        private void Insert(T value, int min, int max)
+        /// <summary>
+        /// Returns TRUE IF ADDED
+        /// RETURNS FALSE IF FOUND
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        private bool Insert(T value, int min, int max)
         {
             while (true)
             {
@@ -191,7 +217,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                         Unique[i] = Unique[i - 1];
                     //Insert the correct element
                     Unique[insertAt] = value;
-                    return;
+                    return true;
                 }
 
                 var mid = (min + max) / 2;
@@ -199,7 +225,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 var delta = value.CompareTo(Unique[mid]);
 
                 if (delta == 0)
-                    return; //Material is Unique and present
+                    return false; //Material is Unique and present
                 if (delta < 0) //-
                 {
                     max = mid - 1;
@@ -236,6 +262,12 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         {
             return CommonRenderingJobs.CreateMesh(meshContainer.Vertexes, meshContainer.Normals, meshContainer.Tangents,
                 meshContainer.TextureMap0, meshContainer.Indexes);
+        }
+        
+        public static Mesh CreateMesh(NativeMeshContainer meshContainer, int vStart, int vLen, int iStart, int iLen)
+        {
+            return CommonRenderingJobs.CreateMesh(meshContainer.Vertexes, meshContainer.Normals, meshContainer.Tangents,
+                meshContainer.TextureMap0, meshContainer.Indexes, vStart,vLen,iStart,iLen);
         }
 
         public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,
@@ -336,8 +368,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             Profiler.EndSample();
             return results;
         }
-        
-        
 
 
         public static CalculateCubeSizeJob CreateCalculateCubeSizeJobV2(NativeList<PlanarData> batch)

@@ -212,7 +212,12 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
                 {
                     if (SkipEntity[entityIndex])
+                    {
+                        //To keep the array a valid size
+//                        DataCount.Add(0);
+//                        DataOffsets.Add(0);
                         continue;
+                    }
 
                     var entity = entities[entityIndex];
                     for (var batchIndex = 0; batchIndex < UniqueBatchCounts[entityIndex]; batchIndex++)
@@ -232,6 +237,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
                         var currentSize = Data.Length;
 
+                        //entityIndexProcessed (I.E entityIndex-skipped) * batchSize[entity]
                         DataCount.Add(currentSize - lastSize);
                         DataOffsets.Add(lastSize);
                     }
