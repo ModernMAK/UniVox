@@ -9,7 +9,12 @@ namespace ECS.UniVox.VoxelChunk.Components
     public struct VoxelBlockShape : IBufferElementData,
         IComparable<VoxelBlockShape>, IEquatable<VoxelBlockShape>
     {
-        public BlockShape Value;
+        private VoxelBlockShape(BlockShape value)
+        {
+            Value = value;
+        }
+
+        private BlockShape Value { get; }
 
         public static implicit operator BlockShape(VoxelBlockShape component)
         {
@@ -18,18 +23,18 @@ namespace ECS.UniVox.VoxelChunk.Components
 
         public static implicit operator VoxelBlockShape(BlockShape value)
         {
-            return new VoxelBlockShape {Value = value};
+            return new VoxelBlockShape(value);
         }
 
 
         public int CompareTo(VoxelBlockShape other)
         {
-            return Value.CompareTo(other);
+            return Value - other;
         }
 
         public bool Equals(VoxelBlockShape other)
         {
-            return Value.Equals(other.Value);
+            return Value == other.Value;
         }
 
         public override bool Equals(object obj)
@@ -42,19 +47,19 @@ namespace ECS.UniVox.VoxelChunk.Components
             return Value.GetHashCode();
         }
 
-        public struct VersionProxyDirty : ISystemStateComponentData, IEquatable<VersionProxyDirty>,
-            IVersionDirtyProxy<VersionProxyDirty>
+        public struct Version : ISystemStateComponentData, IEquatable<Version>,
+            IVersionDirtyProxy<Version>
         {
             public uint Value;
 
-            public bool Equals(VersionProxyDirty other)
+            public bool Equals(Version other)
             {
                 return Value == other.Value;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is VersionProxyDirty other && Equals(other);
+                return obj is Version other && Equals(other);
             }
 
             public override int GetHashCode()
@@ -62,18 +67,18 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return (int) Value;
             }
 
-            public static implicit operator uint(VersionProxyDirty versionProxyDirty)
+            public static implicit operator uint(Version version)
             {
-                return versionProxyDirty.Value;
+                return version.Value;
             }
 
-            public static implicit operator VersionProxyDirty(uint value)
+            public static implicit operator Version(uint value)
             {
-                return new VersionProxyDirty {Value = value};
+                return new Version {Value = value};
             }
 
 
-            public bool DidChange(VersionProxyDirty other)
+            public bool DidChange(Version other)
             {
                 return ChangeVersionUtility.DidChange(Value, other.Value);
             }
@@ -83,17 +88,12 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return Value.ToString();
             }
 
-            public VersionProxyDirty GetDirty()
+            public Version GetDirty()
             {
                 var temp = Value;
                 ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
-                return new VersionProxyDirty {Value = temp};
+                return new Version {Value = temp};
             }
-        }
-
-        public bool IsCulled(Direction direction)
-        {
-            return Value.HasDirection(direction);
         }
     }
 }

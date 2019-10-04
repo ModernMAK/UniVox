@@ -5,11 +5,6 @@ namespace UniVox.Types.Exceptions
 {
     public class ObsoleteException : Exception
     {
-        public ObsoleteException(SerializationInfo info, StreamingContext context) : base(
-            info, context)
-        {
-        }
-
         public ObsoleteException(string original, string substitution, Exception innerException) : base(
             Format(original, substitution), innerException)
         {

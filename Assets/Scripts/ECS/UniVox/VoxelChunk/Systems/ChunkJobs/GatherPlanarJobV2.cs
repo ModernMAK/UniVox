@@ -32,7 +32,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         private bool IsInspected(NativeArray<bool> processed, int chunkIndex, Direction direction) =>
             GetProcessed(processed, chunkIndex, direction);
 
-        private bool IsCulled(DynamicBuffer<BlockCulledFacesComponent> culled, int chunkIndex, Direction direction) =>
+
+        private bool IsCulled(DynamicBuffer<VoxelBlockCullingFlag> culled, int chunkIndex, Direction direction) =>
             culled[chunkIndex].IsCulled(direction);
 
         private bool SameValue<T>(DynamicBuffer<T> value, int chunkIndex, int otherIndex)
@@ -42,17 +43,17 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             where T : struct, IEquatable<T> => value[chunkIndex].Equals(batch);
 
 
-        private bool SameSubMaterial(DynamicBuffer<BlockSubMaterialIdentityComponent> value, int chunkIndex,
+        private bool SameSubMaterial(DynamicBuffer<VoxelBlockSubMaterial> value, int chunkIndex,
             int otherIndex, Direction direction) => value[chunkIndex][direction] != value[otherIndex][direction];
 
 
         [ReadOnly] public ArchetypeChunk Chunk;
         [ReadOnly] public NativeArray<bool> SkipEntity;
         [ReadOnly] public ArchetypeChunkEntityType EntityType;
-        [ReadOnly] public BufferFromEntity<BlockMaterialIdentityComponent> Materials;
-        [ReadOnly] public BufferFromEntity<BlockSubMaterialIdentityComponent> SubMaterials;
+        [ReadOnly] public BufferFromEntity<VoxelBlockMaterialIdentity> Materials;
+        [ReadOnly] public BufferFromEntity<VoxelBlockSubMaterial> SubMaterials;
         [ReadOnly] public BufferFromEntity<BlockShapeComponent> Shapes;
-        [ReadOnly] public BufferFromEntity<BlockCulledFacesComponent> CulledFaces;
+        [ReadOnly] public BufferFromEntity<VoxelBlockCullingFlag> CulledFaces;
 
 
         //The planes we have written
@@ -67,7 +68,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
 
         //The Unique Batches! Size is EntityLen * Count[EntityIndex]
-        [ReadOnly] public NativeArray<BlockMaterialIdentityComponent> UniqueBatchValues;
+        [ReadOnly] public NativeArray<VoxelBlockMaterialIdentity> UniqueBatchValues;
 
         //The Unique Batches! Size is EntityLen 
         [ReadOnly] public NativeArray<int> UniqueBatchCounts;
@@ -94,8 +95,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
         public void Execute(NativeArray<bool> processed, int axisValue, Direction direction,
-            BlockMaterialIdentityComponent batchValue,
-            Entity entity)
+            VoxelBlockMaterialIdentity batchValue, Entity entity)
         {
             var shapeBuffer = Shapes[entity];
             var cullBuffer = CulledFaces[entity];

@@ -65,7 +65,6 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 //
 //            return UnivoxUtil.GetIndex(pos);
 
-            
 
             switch (plane.mode)
             {
@@ -96,10 +95,10 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             int subMaterial)
         {
             return plane.Inspected[spanIndex] ||
-                   Shapes[chunkSpanIndex].Value != Shapes[chunkIndex].Value ||
+                   !Shapes[chunkSpanIndex].Equals(Shapes[chunkIndex]) ||
                    CulledFaces[chunkSpanIndex].IsCulled(plane.direction) ||
                    !Materials[chunkSpanIndex].Equals(BatchIdentity) ||
-                   SubMaterials[chunkSpanIndex].Value[plane.direction] != subMaterial;
+                   SubMaterials[chunkSpanIndex][plane.direction] != subMaterial;
         }
 
         private void ProccessPlane(PlaneInfo plane)
@@ -123,7 +122,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
                 //Size excludes it's own voxel
                 var size = int2.zero;
-                var subMat = SubMaterials[chunkIndex].Value[plane.direction];
+                var subMat = SubMaterials[chunkIndex][plane.direction];
                 var cantMerge = false;
                 for (var majorSpan = 0; majorSpan < UnivoxDefine.AxisSize - major; majorSpan++)
                     if (majorSpan == 0)
