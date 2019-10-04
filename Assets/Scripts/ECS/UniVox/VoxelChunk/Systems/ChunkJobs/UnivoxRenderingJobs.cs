@@ -145,8 +145,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                     }
                 }
 
-                Count[entityIndex] = count;
-                Offset[entityIndex] = start;
+                Count.Add(count);
+                Offset.Add(start);
 
                 start = end + 1;
             }
@@ -263,11 +263,11 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             return CommonRenderingJobs.CreateMesh(meshContainer.Vertexes, meshContainer.Normals, meshContainer.Tangents,
                 meshContainer.TextureMap0, meshContainer.Indexes);
         }
-        
+
         public static Mesh CreateMesh(NativeMeshContainer meshContainer, int vStart, int vLen, int iStart, int iLen)
         {
             return CommonRenderingJobs.CreateMesh(meshContainer.Vertexes, meshContainer.Normals, meshContainer.Tangents,
-                meshContainer.TextureMap0, meshContainer.Indexes, vStart,vLen,iStart,iLen);
+                meshContainer.TextureMap0, meshContainer.Indexes, vStart, vLen, iStart, iLen);
         }
 
         public static BlobAssetReference<Collider> CreateMeshCollider(Entity entity,

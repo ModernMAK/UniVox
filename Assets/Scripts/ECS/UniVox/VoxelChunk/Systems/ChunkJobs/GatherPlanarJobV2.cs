@@ -29,7 +29,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
 
-        private bool IsInspected(int chunkIndex, Direction direction) => GetProcessed(chunkIndex, direction);
+        private bool IsInspected(NativeArray<bool> processed, int chunkIndex, Direction direction) =>
+            GetProcessed(processed, chunkIndex, direction);
 
         private bool IsCulled(DynamicBuffer<BlockCulledFacesComponent> culled, int chunkIndex, Direction direction) =>
             culled[chunkIndex].IsCulled(direction);
@@ -55,7 +56,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
 
         //The planes we have written
-        [WriteOnly] public NativeList<PlanarData> Data;
+//        [WriteOnly]
+        public NativeList<PlanarData> Data;
 
         //The Unique Batches! Size is EntityLen * BatchCount[EntityIndex]
         [WriteOnly] public NativeList<int> DataOffsets;
@@ -73,25 +75,26 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         //The Unique Batches! Size is EntityLen 
         [ReadOnly] public NativeArray<int> UniqueBatchOffsets;
 
-        private NativeArray<bool> processeced;
+//        private NativeArray<bool> processeced;
 
-        public bool GetProcessed(int index, Direction direction)
+        public bool GetProcessed(NativeArray<bool> processed, int index, Direction direction)
         {
-            return processeced[index * 6 + (int) direction];
+            return processed[index * 6 + (int) direction];
         }
 
-        public void SetProcessed(int index, Direction direction, bool value)
+        public void SetProcessed(NativeArray<bool> processed, int index, Direction direction, bool value)
         {
-            processeced[index * 6 + (int) direction] = value;
+            processed[index * 6 + (int) direction] = value;
         }
 
-        public void ClearProcessed()
+        public void ClearProcessed(NativeArray<bool> processed)
         {
             for (var i = 0; i < UnivoxDefine.CubeSize * 6; i++)
-                processeced[i] = false;
+                processed[i] = false;
         }
 
-        public void Execute(int axisValue, Direction direction, BlockMaterialIdentityComponent batchValue,
+        public void Execute(NativeArray<bool> processed, int axisValue, Direction direction,
+            BlockMaterialIdentityComponent batchValue,
             Entity entity)
         {
             var shapeBuffer = Shapes[entity];
@@ -105,13 +108,13 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 var chunkIndex = GetChunkIndex(direction, axisValue, minor, major);
 
                 //Skip chunks we have processed
-                if (GetProcessed(chunkIndex, direction))
+                if (GetProcessed(processed, chunkIndex, direction))
                     continue;
 
                 //Skip faces that are culled, also mark them as processed
                 if (IsCulled(cullBuffer, chunkIndex, direction))
                 {
-                    SetProcessed(chunkIndex, direction, true);
+                    SetProcessed(processed, chunkIndex, direction, true);
                     continue;
                 }
 
@@ -133,7 +136,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                                 GetChunkIndex(direction, axisValue, minor + minorSpan, major + majorSpan);
 
                             //Do nothing if the plane has been processed
-                            var isInspected = IsInspected(otherIndex, direction);
+                            var isInspected = IsInspected(processed, otherIndex, direction);
                             //Break if there is a DIFFERENT shape
                             var sameShape = SameValue(shapeBuffer, chunkIndex, otherIndex);
                             //Break if culled
@@ -157,7 +160,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                                 GetChunkIndex(direction, axisValue, minor + minorSpan, major + majorSpan);
 
                             //Do nothing if the plane has been processed
-                            var isInspected = IsInspected(otherIndex, direction);
+                            var isInspected = IsInspected(processed, otherIndex, direction);
                             //Break if there is a DIFFERENT shape
                             var sameShape = SameValue(shapeBuffer, chunkIndex, otherIndex);
                             //Break if culled
@@ -188,7 +191,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                     var otherIndex =
                         GetChunkIndex(direction, axisValue, minor + minorSpan, major + majorSpan);
 
-                    SetProcessed(otherIndex, direction, true);
+                    SetProcessed(processed, otherIndex, direction, true);
                 }
 
                 Data.Add(new PlanarData()
@@ -204,48 +207,49 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         public void Execute()
         {
-            using (processeced =
-                new NativeArray<bool>(UnivoxDefine.CubeSize * 6, Allocator.Temp, NativeArrayOptions.ClearMemory))
-            {
-                var entities = Chunk.GetNativeArray(EntityType);
+            var processed =
+                new NativeArray<bool>(UnivoxDefine.CubeSize * 6, Allocator.Temp, NativeArrayOptions.ClearMemory);
 
-                for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
+            var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+            var entities = Chunk.GetNativeArray(EntityType);
+
+            for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
+            {
+                if (SkipEntity[entityIndex])
                 {
-                    if (SkipEntity[entityIndex])
-                    {
-                        //To keep the array a valid size
+                    //To keep the array a valid size
 //                        DataCount.Add(0);
 //                        DataOffsets.Add(0);
-                        continue;
-                    }
-
-                    var entity = entities[entityIndex];
-                    for (var batchIndex = 0; batchIndex < UniqueBatchCounts[entityIndex]; batchIndex++)
-                    {
-                        var lastSize = Data.Length;
-                        var batchValue = UniqueBatchValues[batchIndex + UniqueBatchOffsets[entityIndex]];
-                        using (var directions = DirectionsX.GetDirectionsNative(Allocator.Temp))
-                        {
-                            for (var i = 0; i < UnivoxDefine.AxisSize; i++)
-                            {
-                                foreach (var direction in directions)
-                                {
-                                    Execute(i, direction, batchValue, entity);
-                                }
-                            }
-                        }
-
-                        var currentSize = Data.Length;
-
-                        //entityIndexProcessed (I.E entityIndex-skipped) * batchSize[entity]
-                        DataCount.Add(currentSize - lastSize);
-                        DataOffsets.Add(lastSize);
-                    }
-
-
-                    ClearProcessed();
+                    continue;
                 }
+
+                var entity = entities[entityIndex];
+                for (var batchIndex = 0; batchIndex < UniqueBatchCounts[entityIndex]; batchIndex++)
+                {
+                    var lastSize = Data.Length;
+                    var batchValue = UniqueBatchValues[batchIndex + UniqueBatchOffsets[entityIndex]];
+                    for (var i = 0; i < UnivoxDefine.AxisSize; i++)
+                    {
+                        for (var dirI = 0; dirI < directions.Length; dirI++)
+                        {
+                            var direction = directions[dirI];
+                            Execute(processed, i, direction, batchValue, entity);
+                        }
+                    }
+
+                    var currentSize = Data.Length;
+
+                    //entityIndexProcessed (I.E entityIndex-skipped) * batchSize[entity]
+                    DataCount.Add(currentSize - lastSize);
+                    DataOffsets.Add(lastSize);
+                }
+
+
+                ClearProcessed(processed);
             }
+
+            directions.Dispose();
+            processed.Dispose();
         }
     }
 }

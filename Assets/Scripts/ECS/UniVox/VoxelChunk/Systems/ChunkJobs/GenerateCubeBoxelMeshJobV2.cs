@@ -36,10 +36,10 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
 
         //The Unique Batches! Size is EntityLen * BatchCount[EntityIndex]
-        [ReadOnly] public NativeList<int> DataOffsets;
+        [ReadOnly] public NativeArray<int> DataOffsets;
 
         //The Unique Batches! Size is EntityLen * BatchCount[EntityIndex]
-        [ReadOnly] public NativeList<int> DataCounts;
+        [ReadOnly] public NativeArray<int> DataCounts;
 
         [ReadOnly] public float3 Offset;
 
@@ -206,15 +206,15 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 //        }
 
 
-        private void GenerateCube(int index)
+        private void GenerateCube(int index, int vOffset, int iOffset, int vLocalOffset, int iLocalOffset)
         {
             var plane = PlanarData[index];
             var subMat = plane.SubMaterial;
 
             var blockPos = plane.Position;
             //Represents the blocks offset in the array
-            var blockVertOffset = VertexOffsets[index];
-            var blockTriangleOffset = TriangleOffsets[index];
+//            var blockVertOffset = VertexOffsets[index];
+//            var blockTriangleOffset = TriangleOffsets[index];
 
             //Represents the local offsets applied due to the number of directions we have used
 
@@ -225,10 +225,17 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             var t = NativeCube.GetTangent(dir);
 
             var uvSizeOffset = new int2(1);
-            var mergedVertOffset = blockVertOffset;
+//            var mergedVertOffset = blockVertOffset;
 
             for (var ih = 0; ih < QuadSize; ih++)
+            {
                 Vertexes.Add(default);
+                Normals.Add(default);
+                Tangents.Add(default);
+                TextureMap0.Add(default);
+//                Normals.Add(default);
+            }
+
             for (var jh = 0; jh < QuadIndexSize; jh++)
                 Indexes.Add(default);
 
@@ -242,31 +249,32 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 Vertexes.Add(default);
 
 
-                Vertexes[mergedVertOffset + i] = NativeCube.GetVertex(dir, i) + blockPos +
-                                                 planeShift + Offset;
+                Vertexes[+i] = NativeCube.GetVertex(dir, i) + blockPos +
+                               planeShift + Offset;
 
-                Normals[mergedVertOffset + i] = n;
-                Tangents[mergedVertOffset + i] = t;
+                Normals[vOffset + i] = n;
+                Tangents[vOffset + i] = t;
                 var refUv = NativeCube.Uvs[i];
 
                 var uv0 = refUv * (fixedUvSize + uvSizeOffset) + uvShift;
-                TextureMap0[mergedVertOffset + i] = new float3(uv0.x, uv0.y, subMat);
+                TextureMap0[vOffset + i] = new float3(uv0.x, uv0.y, subMat);
 //                TextureMap1[mergedVertOffset + i] = subMat;
             }
 
             for (var j = 0; j < QuadIndexSize; j++)
-                Indexes[blockTriangleOffset + j] = NativeCube.TriangleOrder[j] + mergedVertOffset;
+                Indexes[iOffset + j] = NativeCube.TriangleOrder[j] + vLocalOffset;
         }
 
         //Returns number of verts added
-        public void ProcessPlanar(int index, out int vertsAdded, out int trisAdded)
+        public void ProcessPlanar(int index, int vOffset, int iOffset, int vLocalOffset, int iLocalOffset,
+            out int vertsAdded, out int trisAdded)
         {
             var batch = PlanarData[index];
 
             switch (batch.Shape)
             {
                 case BlockShape.Cube:
-                    GenerateCube(index);
+                    GenerateCube(index, vOffset, iOffset, vLocalOffset, iLocalOffset);
                     vertsAdded = QuadSize;
                     trisAdded = QuadIndexSize;
 //                    return QuadSize;
@@ -306,7 +314,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                     var meshTris = 0;
                     for (var dataIndex = 0; dataIndex < dataCount; dataIndex++)
                     {
-                        ProcessPlanar(dataStart + dataIndex, out var addedVerts, out var addedTris);
+                        ProcessPlanar(dataStart + dataIndex, offsetVerts, offsetTris, meshVerts, meshTris,
+                            out var addedVerts, out var
+                                addedTris);
                         meshVerts += addedVerts;
                         meshTris += addedVerts;
                     }

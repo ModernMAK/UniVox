@@ -24,12 +24,12 @@ namespace ECS.UniVox.VoxelChunk.Components
 
         public int CompareTo(BlockShapeComponent other)
         {
-            return Value.CompareTo(other);
+            return Value - other;
         }
 
         public bool Equals(BlockShapeComponent other)
         {
-            return Value.Equals(other.Value);
+            return Value == other;
         }
 
         public override bool Equals(object obj)

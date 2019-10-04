@@ -159,7 +159,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             public NativeList<BatchGroupIdentity> Identities;
             public NativeArray<bool> Ignores;
             public NativeArray<Entity> Entities;
-            public NativeArray<int> BatchCounts;
+            public NativeList<int> BatchCounts;
 
 
 //            public NativeValue<Entity> Entity;
@@ -543,9 +543,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             //Gather unique materials, these become our batch groups
             var uniqueBatchData = new NativeList<BlockMaterialIdentityComponent>(Allocator.TempJob);
+//            var uniqueBatchData = new NativeList<BlockMaterialIdentityComponent>(Allocator.TempJob);
             var uniqueBatchDataCount = new NativeList<int>(Allocator.TempJob);
             var uniqueBatchDataOffset = new NativeList<int>(Allocator.TempJob);
-            var createBatches = new FindAndCountUniquePerChunkInBuffer<BlockMaterialIdentityComponent>()
+            inputDependencies = new FindAndCountUniquePerChunkInBuffer<BlockMaterialIdentityComponent>()
             {
                 Unique = uniqueBatchData,
                 Chunk = chunk,
@@ -564,7 +565,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //            var 
 
 
-            var gatherVersionJob = new GatherVersionJob()
+            inputDependencies = new GatherVersionJob()
             {
                 Chunk = chunk,
                 CulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>(true),
@@ -576,17 +577,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //                CulledVersionType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>(),
 //                IdentityVersionType = blockIdentityVersionType,
                 CurrentVersions = currentVersions
-            }.Schedule(createBatches);
+            }.Schedule(inputDependencies);
 
-            var gatherIgnoreJob = new GatherDirtyVersionJob<EntityVersion>()
+            inputDependencies = new GatherDirtyVersionJob<EntityVersion>()
             {
                 Chunk = chunk,
                 VersionsType = GetArchetypeChunkComponentType<EntityVersion>(),
                 CurrentVersions = currentVersions,
                 Ignore = ignore,
-            }.Schedule(gatherVersionJob);
-            var disposeCurrentVersions =
-                new DisposeArrayJob<EntityVersion>(currentVersions).Schedule(gatherIgnoreJob);
+            }.Schedule(inputDependencies);
+            inputDependencies = new DisposeArrayJob<EntityVersion>(currentVersions).Schedule(inputDependencies);
 
 //            return disposeCurrentVersions;
 
@@ -594,21 +594,22 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var data = new NativeList<PlanarData>(Allocator.TempJob);
             var dataCount = new NativeList<int>(Allocator.TempJob);
             var dataOffsets = new NativeList<int>(Allocator.TempJob);
-            var gatherPlanars = new GatherPlanarJobV2()
+            inputDependencies = new GatherPlanarJobV2()
             {
                 Chunk = chunk,
                 CulledFaces = culledFaceLookup,
                 Data = data,
-                DataCount = dataCount, DataOffsets = dataOffsets,
+                DataCount = dataCount,
+                DataOffsets = dataOffsets,
                 Materials = materialLookup,
                 EntityType = entityType,
                 Shapes = blockShapeLookup,
                 SkipEntity = ignore,
                 SubMaterials = subMaterialLookup,
-                UniqueBatchCounts = uniqueBatchDataCount,
-                UniqueBatchOffsets = uniqueBatchDataOffset,
-                UniqueBatchValues = uniqueBatchData,
-            }.Schedule(disposeCurrentVersions);
+                UniqueBatchCounts = uniqueBatchDataCount.AsDeferredJobArray(),
+                UniqueBatchOffsets = uniqueBatchDataOffset.AsDeferredJobArray(),
+                UniqueBatchValues = uniqueBatchData.AsDeferredJobArray(),
+            }.Schedule(inputDependencies);
 
 
             var dynamicNativeMesh = new UnivoxRenderingJobs.DynamicNativeMeshContainer(0, 0, Allocator.TempJob);
@@ -617,11 +618,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var trianglesOffsets = new NativeList<int>(Allocator.TempJob);
             var trianglesCounts = new NativeList<int>(Allocator.TempJob);
 
-            var genJob = new GenerateCubeBoxelMeshJobV2()
+            inputDependencies= new GenerateCubeBoxelMeshJobV2()
             {
-                BatchCount = uniqueBatchDataCount.AsArray(),
-                DataCounts = dataCount,
-                DataOffsets = dataOffsets,
+                BatchCount = uniqueBatchDataCount.AsDeferredJobArray(),
+                DataCounts = dataCount.AsDeferredJobArray(),
+                DataOffsets = dataOffsets.AsDeferredJobArray(),
                 Ignore = ignore,
                 Indexes = dynamicNativeMesh.Indexes,
                 NativeCube = new NativeCubeBuilder(Allocator.TempJob),
@@ -635,30 +636,38 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 Vertexes = dynamicNativeMesh.Vertexes,
                 VertexSizes = vertexCounts,
                 VertexOffsets = vertexOffsets,
-            }.Schedule(gatherPlanars);
+            }.Schedule(inputDependencies);
 
             //TODO
             var batchGroupIds = new NativeList<BatchGroupIdentity>(Allocator.TempJob);
 
-            var collectBatchGroupIds = new GatherBatchIds()
+            inputDependencies= new GatherBatchIds()
             {
                 BatchIds = batchGroupIds,
                 Chunk = chunk,
                 ChunkIdComponentType = GetArchetypeChunkComponentType<ChunkIdComponent>(),
                 Ignore = ignore,
-                UniqueMaterialCounts = uniqueBatchDataCount,
-                UniqueMaterials = uniqueBatchData,
-                UniqueMaterialOffsets = uniqueBatchDataOffset
-            }.Schedule(gatherPlanars);
+                UniqueMaterialCounts = uniqueBatchDataCount.AsDeferredJobArray(),
+                UniqueMaterials = uniqueBatchData.AsDeferredJobArray(),
+                UniqueMaterialOffsets = uniqueBatchDataOffset.AsDeferredJobArray()
+            }.Schedule(inputDependencies);
 
-            JobHandle disposalJobDepend = collectBatchGroupIds;
-            disposalJobDepend =
-                new DisposeArrayJob<BlockMaterialIdentityComponent>(uniqueBatchData).Schedule(disposalJobDepend);
+            JobHandle disposalJobDepend = inputDependencies;
+
+
+            disposalJobDepend = uniqueBatchData.Dispose(disposalJobDepend);
+            disposalJobDepend = data.Dispose(disposalJobDepend);
+            disposalJobDepend = dataCount.Dispose(disposalJobDepend);
+            disposalJobDepend = dataOffsets.Dispose(disposalJobDepend);
+//            disposalJobDepend = uniqueBatchData.Dispose(disposalJobDepend);
+//            disposalJobDepend = uniqueBatchData.Dispose(disposalJobDepend);
+//                new DisposeArrayJob<BlockMaterialIdentityComponent>(uniqueBatchData.AsDeferredJobArray()).Schedule(disposalJobDepend);
 //            dipsosalJobDepend = new DisposeArrayJob<int>(uniqueBatchDataCount).Schedule(dipsosalJobDepend);
-            disposalJobDepend = new DisposeArrayJob<int>(uniqueBatchDataOffset).Schedule(disposalJobDepend);
-            disposalJobDepend = new DisposeArrayJob<PlanarData>(data).Schedule(disposalJobDepend);
-            disposalJobDepend = new DisposeArrayJob<int>(dataCount).Schedule(disposalJobDepend);
-            disposalJobDepend = new DisposeArrayJob<int>(dataOffsets).Schedule(disposalJobDepend);
+//            disposalJobDepend = new DisposeArrayJob<int>(uniqueBatchDataOffset.AsDeferredJobArray()).Schedule(disposalJobDepend);
+//            disposalJobDepend = new DisposeArrayJob<PlanarData>(data.AsDeferredJobArray()).Schedule(disposalJobDepend);
+//            disposalJobDepend = new DisposeArrayJob<int>(dataCount.AsDeferredJobArray()).Schedule(disposalJobDepend);
+//            disposalJobDepend = new DisposeArrayJob<int>(dataOffsets.AsDeferredJobArray()).Schedule(disposalJobDepend);
+//            disposalJobDepend = new DisposeArrayJob<int>(dataOffsets.AsDeferredJobArray()).Schedule(disposalJobDepend);
 //            dipsosalJobDepend = new DisposeArrayJob<bool>(ignore).Schedule(dipsosalJobDepend);
 
 
@@ -722,9 +731,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
     {
         public ArchetypeChunk Chunk;
         public ArchetypeChunkComponentType<ChunkIdComponent> ChunkIdComponentType;
-        public NativeList<BlockMaterialIdentityComponent> UniqueMaterials;
-        public NativeList<int> UniqueMaterialCounts;
-        public NativeList<int> UniqueMaterialOffsets;
+        public NativeArray<BlockMaterialIdentityComponent> UniqueMaterials;
+        public NativeArray<int> UniqueMaterialCounts;
+        public NativeArray<int> UniqueMaterialOffsets;
         public NativeArray<bool> Ignore;
         public NativeList<BatchGroupIdentity> BatchIds;
 
