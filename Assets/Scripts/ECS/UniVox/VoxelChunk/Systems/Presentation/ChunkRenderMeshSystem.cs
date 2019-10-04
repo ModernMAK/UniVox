@@ -164,7 +164,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                 if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
                 {
-                    Debug.LogWarning($"No Mesh For {chunkRenderMesh.Batch}!");
+                    Debug.LogError($"No Mesh For {chunkRenderMesh.Batch}!");
                     continue;
                 }
 

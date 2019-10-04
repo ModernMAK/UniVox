@@ -226,6 +226,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         for (var k = 0; k < batches; k++)
                         {
                             var id = cached.Identities[runningTotal];
+                            
+                            
                             var vertexCount = cached.VertexCounts[runningTotal];
                             var vertexOffset = cached.VertexOffsets[runningTotal];
                             var triangleOffset = cached.TriangleOffsets[runningTotal];
@@ -235,7 +237,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                             verts.AddRange(cached.DNMC.Vertexes.AsArray().GetSubArray(vertexOffset, vertexCount));
                             indexes.AddRange(cached.DNMC.Indexes.AsArray().GetSubArray(triangleOffset, triangleCount));
 
-                            var mesh = UnivoxRenderingJobs.CreateMesh(cached.DNMC.ToDeferred(), vertexOffset,
+                            var mesh = UnivoxRenderingJobs.CreateMesh(cached.DNMC.AsArray(), vertexOffset,
                                 vertexCount, triangleOffset, triangleCount);
                             _renderSystem.UploadMesh(id, mesh);
                             mesh.UploadMeshData(true);
@@ -251,8 +253,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                             meshData.SubMesh = 0;
                             meshData.Batch = id;
+
+                            
                             buffer[j] = meshData;
 //                    EntityManager.SetComponentData(entity, meshData);
+                            runningTotal++;
                         }
 
                         var collider = MeshCollider.Create(verts, indexes);
@@ -618,7 +623,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var trianglesOffsets = new NativeList<int>(Allocator.TempJob);
             var trianglesCounts = new NativeList<int>(Allocator.TempJob);
 
-            inputDependencies= new GenerateCubeBoxelMeshJobV2()
+            inputDependencies = new GenerateCubeBoxelMeshJobV2()
             {
                 BatchCount = uniqueBatchDataCount.AsDeferredJobArray(),
                 DataCounts = dataCount.AsDeferredJobArray(),
@@ -641,7 +646,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             //TODO
             var batchGroupIds = new NativeList<BatchGroupIdentity>(Allocator.TempJob);
 
-            inputDependencies= new GatherBatchIds()
+            inputDependencies = new GatherBatchIds()
             {
                 BatchIds = batchGroupIds,
                 Chunk = chunk,
@@ -659,16 +664,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             disposalJobDepend = data.Dispose(disposalJobDepend);
             disposalJobDepend = dataCount.Dispose(disposalJobDepend);
             disposalJobDepend = dataOffsets.Dispose(disposalJobDepend);
-//            disposalJobDepend = uniqueBatchData.Dispose(disposalJobDepend);
-//            disposalJobDepend = uniqueBatchData.Dispose(disposalJobDepend);
-//                new DisposeArrayJob<BlockMaterialIdentityComponent>(uniqueBatchData.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            dipsosalJobDepend = new DisposeArrayJob<int>(uniqueBatchDataCount).Schedule(dipsosalJobDepend);
-//            disposalJobDepend = new DisposeArrayJob<int>(uniqueBatchDataOffset.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            disposalJobDepend = new DisposeArrayJob<PlanarData>(data.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            disposalJobDepend = new DisposeArrayJob<int>(dataCount.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            disposalJobDepend = new DisposeArrayJob<int>(dataOffsets.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            disposalJobDepend = new DisposeArrayJob<int>(dataOffsets.AsDeferredJobArray()).Schedule(disposalJobDepend);
-//            dipsosalJobDepend = new DisposeArrayJob<bool>(ignore).Schedule(dipsosalJobDepend);
+            disposalJobDepend = uniqueBatchDataOffset.Dispose(disposalJobDepend);
 
 
             var entityCache =

@@ -36,7 +36,7 @@ namespace ECS.UniVox.VoxelChunk.Components
 
         public override string ToString()
         {
-            return $"({Chunk})-({MaterialIdentity})";
+            return $"Chunk:({Chunk}), Material:({MaterialIdentity})";
         }
     }
 }

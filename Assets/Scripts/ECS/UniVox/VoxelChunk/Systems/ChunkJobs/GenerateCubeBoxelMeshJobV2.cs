@@ -315,10 +315,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                     for (var dataIndex = 0; dataIndex < dataCount; dataIndex++)
                     {
                         ProcessPlanar(dataStart + dataIndex, offsetVerts, offsetTris, meshVerts, meshTris,
-                            out var addedVerts, out var
-                                addedTris);
+                            out var addedVerts, out var addedTris);
                         meshVerts += addedVerts;
-                        meshTris += addedVerts;
+                        meshTris += addedTris;
                     }
 
                     VertexSizes.Add(meshVerts);

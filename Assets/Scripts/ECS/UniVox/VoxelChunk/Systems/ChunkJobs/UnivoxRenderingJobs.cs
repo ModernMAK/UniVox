@@ -412,7 +412,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 Indexes = new NativeList<int>(indexes, allocator);
             }
 
-            public NativeMeshContainer ToDeferred()
+            public NativeMeshContainer AsArray()
             {
                 return new NativeMeshContainer(this);
             }
@@ -449,11 +449,11 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
             public NativeMeshContainer(DynamicNativeMeshContainer dnmc)
             {
-                Vertexes = dnmc.Vertexes.AsDeferredJobArray();
-                Normals = dnmc.Normals.AsDeferredJobArray();
-                Tangents = dnmc.Tangents.AsDeferredJobArray();
-                TextureMap0 = dnmc.TextureMap0.AsDeferredJobArray();
-                Indexes = dnmc.Indexes.AsDeferredJobArray();
+                Vertexes = dnmc.Vertexes.AsArray();
+                Normals = dnmc.Normals.AsArray();
+                Tangents = dnmc.Tangents.AsArray();
+                TextureMap0 = dnmc.TextureMap0.AsArray();
+                Indexes = dnmc.Indexes.AsArray();
             }
 
 
