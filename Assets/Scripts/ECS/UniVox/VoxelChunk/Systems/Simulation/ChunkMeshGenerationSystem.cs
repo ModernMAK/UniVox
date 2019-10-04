@@ -192,7 +192,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             var getBuffer = GetBufferFromEntity<ChunkMeshBuffer>();
             var len = _jobCache.Count;
-            for (var i = 0; i < len; i++)
+            for (var cacheIndex = 0; cacheIndex < len; cacheIndex++)
             {
                 var cached = _jobCache.Dequeue();
 
@@ -205,16 +205,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Iterate over Chunk (entities)
                 var entities = cached.Entities;
                 var runningTotal = 0;
-                for (var j = 0; j < entities.Length; j++)
+                for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
                 {
-                    if (cached.Ignores[j])
+                    if (cached.Ignores[entityIndex])
                         continue;
 
-                    var entity = entities[j]; //.GetEntity(_entityCache);
+                    var entity = entities[entityIndex]; //.GetEntity(_entityCache);
 
                     var buffer = getBuffer[entity];
 
-                    var batches = cached.BatchCounts[j];
+                    var batches = cached.BatchCounts[entityIndex];
                     buffer.ResizeUninitialized(batches);
 
                     //Iterate over batches
@@ -223,11 +223,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     using (var indexes = new NativeList<int>(Allocator.Temp))
                     {
-                        for (var k = 0; k < batches; k++)
+                        for (var batchIndex = 0; batchIndex < batches; batchIndex++)
                         {
                             var id = cached.Identities[runningTotal];
-                            
-                            
+
+
                             var vertexCount = cached.VertexCounts[runningTotal];
                             var vertexOffset = cached.VertexOffsets[runningTotal];
                             var triangleOffset = cached.TriangleOffsets[runningTotal];
@@ -243,7 +243,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                             mesh.UploadMeshData(true);
 
 
-                            var meshData = buffer[j];
+                            var meshData = buffer[batchIndex];
 //                    var meshData = EntityManager.GetComponentData<ChunkRenderMesh>(entity);
 
 
@@ -251,11 +251,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
                             meshData.ReceiveShadows = true;
                             meshData.Layer = 0; // = VoxelLayer //TODO
 
-                            meshData.SubMesh = 0;
+//                            meshData.SubMesh = 0;
                             meshData.Batch = id;
 
-                            
-                            buffer[j] = meshData;
+
+                            buffer[batchIndex] = meshData;
 //                    EntityManager.SetComponentData(entity, meshData);
                             runningTotal++;
                         }

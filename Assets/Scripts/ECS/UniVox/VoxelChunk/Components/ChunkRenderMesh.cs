@@ -50,8 +50,16 @@ namespace ECS.UniVox.VoxelChunk.Components
 
         public bool ReceiveShadows;
 
-        public int SubMesh;
+
+//        public int SubMesh;
 
         public int Layer;
+
+        public override string ToString()
+        {
+            return
+                $"Batch:({Batch}), ShadowCasting:{CastShadows}, ShadowReceiving:{ReceiveShadows}, RenderLayer{Layer}";
+            return base.ToString();
+        }
     }
 }

@@ -177,8 +177,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 }
 
 
-                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, chunkRenderMesh.SubMesh,
-                    default, chunkRenderMesh.CastShadows, chunkRenderMesh.ReceiveShadows);
+                const int SubmeshIndex = 0;
+                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, SubmeshIndex, default,
+                    chunkRenderMesh.CastShadows, chunkRenderMesh.ReceiveShadows);
             }
         }
 
