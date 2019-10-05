@@ -63,8 +63,7 @@ namespace ECS.UniVox.VoxelChunk.Components
         public override string ToString()
         {
             return
-                $"Batch:({Batch}), ShadowCasting:{CastShadows}, ShadowReceiving:{ReceiveShadows}, RenderLayer{Layer}";
-            return base.ToString();
+                $"Batch:({Batch}), Cast Shadows:{CastShadows}, Receive Shadows:{ReceiveShadows}, Layer:{Layer}";
         }
     }
 }

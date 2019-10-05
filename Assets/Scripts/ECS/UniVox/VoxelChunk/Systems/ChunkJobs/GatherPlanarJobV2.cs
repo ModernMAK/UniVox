@@ -52,7 +52,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         [ReadOnly] public ArchetypeChunkEntityType EntityType;
         [ReadOnly] public BufferFromEntity<VoxelBlockMaterialIdentity> Materials;
         [ReadOnly] public BufferFromEntity<VoxelBlockSubMaterial> SubMaterials;
-        [ReadOnly] public BufferFromEntity<BlockShapeComponent> Shapes;
+        [ReadOnly] public BufferFromEntity<VoxelBlockShape> Shapes;
         [ReadOnly] public BufferFromEntity<VoxelBlockCullingFlag> CulledFaces;
 
 

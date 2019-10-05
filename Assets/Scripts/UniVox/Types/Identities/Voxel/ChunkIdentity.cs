@@ -5,7 +5,7 @@ using UniVox.Utility;
 namespace UniVox.Types.Identities.Voxel
 {
     /// <summary>
-    ///     A Universal Id, capable of grabbing any Chunk, or World in the Universe
+    ///     A Universal Id, capable of telling us what world we are in.
     /// </summary>
     public struct WorldIdentity : IEquatable<WorldIdentity>, IComparable<WorldIdentity>
     {
@@ -70,7 +70,7 @@ namespace UniVox.Types.Identities.Voxel
 
         public override string ToString()
         {
-            return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y} Z:{ChunkId.z}";
+            return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y}, Z:{ChunkId.z}";
         }
 
 

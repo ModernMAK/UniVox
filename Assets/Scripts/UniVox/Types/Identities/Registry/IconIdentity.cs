@@ -12,14 +12,9 @@ namespace UniVox.Types.Identities
             Icon = mesh;
         }
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{Icon}";
-        }
-
         public override string ToString()
         {
-            return ToString("~");
+            return $"Mod:({Mod}), Icon:({Icon})";
         }
 
         public static explicit operator IconIdentity(ModIdentity identity)

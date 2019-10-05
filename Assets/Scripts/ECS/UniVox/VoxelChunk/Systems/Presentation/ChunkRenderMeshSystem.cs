@@ -28,7 +28,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
         private EntityQuery _chunkComponentGroup;
         private EntityQuery _chunkBufferGroup;
         private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
-        private EntityQuery _chunkGroup;
 
         private Dictionary<BatchGroupIdentity, Mesh> _meshCache;
 
@@ -36,7 +35,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             //@TODO: Support SetFilter with EntityQueryDesc syntax
 
-            _chunkGroup = GetEntityQuery(new EntityQueryDesc
+            _chunkComponentGroup = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {

@@ -21,6 +21,12 @@ namespace UniVox.Types.Identities.Voxel
         public short VoxelId { get; }
 
 
+        
+        public override string ToString()
+        {
+            return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y} Z:{ChunkId.z}, I:{VoxelId}";
+        }
+        
         //WE order By World, Then By Chunk (YXZ), Then By Block (Index)
         public int CompareTo(VoxelIdentity other)
         {

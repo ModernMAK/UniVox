@@ -26,6 +26,10 @@ namespace ECS.UniVox.VoxelChunk.Components
             return new VoxelBlockShape(value);
         }
 
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
 
         public int CompareTo(VoxelBlockShape other)
         {

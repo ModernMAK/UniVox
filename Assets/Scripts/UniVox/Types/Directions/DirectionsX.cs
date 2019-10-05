@@ -6,13 +6,6 @@ using UnityEngine;
 
 namespace UniVox.Types
 {
-    public enum Axis
-    {
-        X,
-        Y,
-        Z
-    }
-
     public static class DirectionsX
     {
         public const Directions AllFlag = (Directions) 0b00111111;

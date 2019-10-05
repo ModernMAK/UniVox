@@ -28,6 +28,11 @@ namespace ECS.UniVox.VoxelChunk.Components
         private bool Value { get; }
 
 
+        public override string ToString()
+        {
+            return Value ? "Active" : "Inactive";
+        }
+
         public static implicit operator bool(VoxelActive element)
         {
             return element.Value;

@@ -26,7 +26,7 @@ public class BlockButtonDisabler : MonoBehaviour
 
     public void Register(BlockAsset block, Button btn)
     {
-        if (GameManager.Registry.Blocks.TryGetIdentity(block.blockKey, out var blockIdentity))
+        if (GameManager.Registry.Blocks.TryGetIdentity(block.Key, out var blockIdentity))
             btn.onClick.AddListener(() => HandleClick(blockIdentity.Block, btn));
     }
 

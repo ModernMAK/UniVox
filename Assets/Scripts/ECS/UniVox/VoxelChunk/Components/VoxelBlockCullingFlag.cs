@@ -26,6 +26,12 @@ namespace ECS.UniVox.VoxelChunk.Components
             return new VoxelBlockCullingFlag(value);
         }
 
+        
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+        
         /// <summary>
         ///     Checks if the direction is culled.
         /// </summary>

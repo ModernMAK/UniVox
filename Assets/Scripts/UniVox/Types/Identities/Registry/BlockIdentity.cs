@@ -15,14 +15,9 @@ namespace UniVox.Types.Identities
         public int Block;
 
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{Block}";
-        }
-
         public override string ToString()
         {
-            return ToString("~");
+            return $"Mod:({Mod}), Block:({Block})";
         }
 
         public bool Equals(BlockIdentity other)

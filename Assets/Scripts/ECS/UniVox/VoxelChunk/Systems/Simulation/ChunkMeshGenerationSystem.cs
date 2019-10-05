@@ -132,7 +132,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         protected override void OnDestroy()
         {
             //TODO also destroy Entities
-            _entityCache.DisposeEnumerable();
+            _entityCache.DisposeElements();
             _entityCache.Clear();
         }
 

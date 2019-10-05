@@ -12,6 +12,150 @@ using VoxelWorld = UniVox.VoxelData.World;
 
 namespace UniVox
 {
+    public struct WorldPosition
+    {
+        public WorldPosition(int3 worldPosition)
+        {
+            Value = worldPosition;
+        }
+
+        private int3 Value { get; }
+
+
+        public static implicit operator int3(WorldPosition worldPosition)
+        {
+            return worldPosition.Value;
+        }
+
+        public static explicit operator WorldPosition(int3 worldPosition)
+        {
+            return new WorldPosition(worldPosition);
+        }
+
+        public static explicit operator WorldPosition(ChunkPosition chunkPosition)
+        {
+            return (WorldPosition) UnivoxUtil.ToWorldPosition(chunkPosition, int3.zero);
+        }
+
+        public static explicit operator WorldPosition(BlockPosition blockPosition)
+        {
+            return (WorldPosition) UnivoxUtil.ToWorldPosition(int3.zero, blockPosition);
+        }
+        
+        public static explicit operator WorldPosition(BlockIndex blockIndex)
+        {
+            return (WorldPosition) (BlockPosition) blockIndex;
+        }
+
+        public static WorldPosition operator +(WorldPosition lhs, WorldPosition rhs)
+        {
+            return (WorldPosition) (lhs.Value + rhs.Value);
+        }
+
+
+        public static WorldPosition operator -(WorldPosition lhs, WorldPosition rhs)
+        {
+            return (WorldPosition) (lhs.Value - rhs.Value);
+        }
+    }
+
+    public struct ChunkPosition
+
+    {
+        public ChunkPosition(int3 chunkPosition)
+        {
+            Value = chunkPosition;
+        }
+
+        private int3 Value { get; }
+
+
+        public static implicit operator int3(ChunkPosition chunkPosition)
+        {
+            return chunkPosition.Value;
+        }
+
+        public static explicit operator ChunkPosition(int3 chunkPosition)
+        {
+            return new ChunkPosition(chunkPosition);
+        }
+
+        public static explicit operator ChunkPosition(WorldPosition worldPosition)
+        {
+            return (ChunkPosition) UnivoxUtil.ToChunkPosition(worldPosition);
+        }
+    }
+
+    public struct BlockPosition
+    {
+        public BlockPosition(int3 blockPosition)
+        {
+            Value = blockPosition;
+        }
+
+        private int3 Value { get; }
+
+        public static implicit operator int3(BlockPosition blockPosition)
+        {
+            return blockPosition.Value;
+        }
+
+        public static explicit operator BlockPosition(int3 blockPosition)
+        {
+            return new BlockPosition(blockPosition);
+        }
+
+        public static explicit operator BlockPosition(WorldPosition worldPosition)
+        {
+            return (BlockPosition) UnivoxUtil.ToBlockPosition(worldPosition);
+        }
+
+        public static explicit operator BlockPosition(BlockIndex blockIndex)
+        {
+            return (BlockPosition) UnivoxUtil.GetPosition3(blockIndex);
+        }
+    }
+
+    public struct BlockIndex
+    {
+        public BlockIndex(short blockIndex)
+        {
+            Value = blockIndex;
+        }
+
+        public BlockIndex(int blockIndex)
+        {
+            Value = (short) blockIndex;
+        }
+
+        private short Value { get; }
+
+        public static implicit operator int(BlockIndex blockIndex)
+        {
+            return blockIndex.Value;
+        }
+
+        public static explicit operator BlockIndex(int blockIndex)
+        {
+            return new BlockIndex(blockIndex);
+        }
+
+        public static explicit operator BlockIndex(short blockIndex)
+        {
+            return new BlockIndex(blockIndex);
+        }
+
+        public static explicit operator BlockIndex(BlockPosition blockPosition)
+        {
+            return (BlockIndex) UnivoxUtil.GetIndex(blockPosition);
+        }
+        public static explicit operator BlockIndex(WorldPosition blockPosition)
+        {
+            return (BlockIndex) (BlockPosition) blockPosition;
+        }
+    }
+
+
     public class UnivoxStartup : MonoBehaviour
     {
         private Queue<ChunkIdentity> _requests;
@@ -85,7 +229,7 @@ namespace UniVox
             var world = GameManager.Universe[chunkIdentity.WorldId];
 
             var chunkPos = chunkIdentity.ChunkId;
-            if (!world.ContainsKey(chunkPos))
+            if (!world.TryGetValue(chunkPos, out var entity))
                 return false;
 
             var blockReg = GameManager.Registry.Blocks;
@@ -100,16 +244,8 @@ namespace UniVox
                 throw new AssetNotFoundException(BaseGameMod.SandBlock.ToString());
 
             var em = world.EntityManager;
-            var entityArchetype = world.EntityManager.CreateArchetype(
-                typeof(VoxelChunkIdentity),
-                typeof(VoxelActive), typeof(VoxelBlockIdentity),
-                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
-                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag)
-            );
 
-            var entity = world.GetOrCreate(chunkPos, entityArchetype);
 
-            var activeArray = em.GetBuffer<VoxelActive>(entity);
             var blockIdentities = em.GetBuffer<VoxelBlockIdentity>(entity);
             em.DirtyComponent<BlockActiveVersion>(entity);
             em.DirtyComponent<VoxelBlockIdentityVersion>(entity);

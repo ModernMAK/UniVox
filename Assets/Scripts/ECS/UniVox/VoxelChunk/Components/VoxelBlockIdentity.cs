@@ -20,6 +20,10 @@ namespace ECS.UniVox.VoxelChunk.Components
         {
             return new VoxelBlockIdentity {Value = identity};
         }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
 
 
         public int CompareTo(VoxelBlockIdentity other)

@@ -30,6 +30,10 @@ namespace ECS.UniVox.VoxelChunk.Components
             return new VoxelBlockSubMaterial(value);
         }
 
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
 
         public int CompareTo(VoxelBlockSubMaterial other)
         {

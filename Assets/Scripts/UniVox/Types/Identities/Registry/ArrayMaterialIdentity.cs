@@ -4,6 +4,7 @@ namespace UniVox.Types.Identities
 {
     public struct ArrayMaterialIdentity : IEquatable<ArrayMaterialIdentity>, IComparable<ArrayMaterialIdentity>
     {
+        
         public ModIdentity Mod;
         public int ArrayMaterial;
 
@@ -14,14 +15,10 @@ namespace UniVox.Types.Identities
             ArrayMaterial = mesh;
         }
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{ArrayMaterial}";
-        }
 
         public override string ToString()
         {
-            return ToString("~");
+            return $"Mod:{Mod}, Material:{ArrayMaterial}";
         }
 
         public static explicit operator ArrayMaterialIdentity(ModIdentity identity)
