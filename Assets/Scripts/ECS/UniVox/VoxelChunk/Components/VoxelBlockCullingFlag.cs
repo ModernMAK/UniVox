@@ -63,19 +63,19 @@ namespace ECS.UniVox.VoxelChunk.Components
             return Value.GetHashCode();
         }
 
-        public struct BlockCullFlagVersion : ISystemStateComponentData, IEquatable<BlockCullFlagVersion>,
-            IVersionDirtyProxy<BlockCullFlagVersion>
+        public struct Version : ISystemStateComponentData, IEquatable<Version>,
+            IVersionDirtyProxy<Version>
         {
             public uint Value;
 
-            public bool Equals(BlockCullFlagVersion other)
+            public bool Equals(Version other)
             {
                 return Value == other.Value;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is BlockCullFlagVersion other && Equals(other);
+                return obj is Version other && Equals(other);
             }
 
             public override int GetHashCode()
@@ -83,26 +83,26 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return (int) Value;
             }
 
-            public static implicit operator uint(BlockCullFlagVersion blockCullFlagVersion)
+            public static implicit operator uint(Version version)
             {
-                return blockCullFlagVersion.Value;
+                return version.Value;
             }
 
-            public static implicit operator BlockCullFlagVersion(uint value)
+            public static implicit operator Version(uint value)
             {
-                return new BlockCullFlagVersion {Value = value};
+                return new Version {Value = value};
             }
 
-            public bool DidChange(BlockCullFlagVersion other)
+            public bool DidChange(Version other)
             {
                 return ChangeVersionUtility.DidChange(Value, other.Value);
             }
 
-            public BlockCullFlagVersion GetDirty()
+            public Version GetDirty()
             {
                 var temp = Value;
                 ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
-                return new BlockCullFlagVersion {Value = temp};
+                return new Version {Value = temp};
             }
 
             public override string ToString()

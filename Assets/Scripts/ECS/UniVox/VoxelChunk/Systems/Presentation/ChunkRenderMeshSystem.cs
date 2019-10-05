@@ -7,6 +7,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
@@ -17,7 +18,7 @@ using UniVox.Types.Keys;
 namespace ECS.UniVox.VoxelChunk.Systems
 {
     /// <summary>
-    ///     Renders all Entities containing both RenderMesh & LocalToWorld components.
+    ///     Renders all Entities containing both RenderComponent & LocalToWorld components.
     /// </summary>
     [ExecuteAlways]
     //@TODO: Necessary due to empty component group. When Component group and archetype chunks are unified this should be removed
@@ -70,10 +71,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            Profiler.BeginSample("Complete Dependencies");
             inputDeps.Complete(); // #todo
+            Profiler.EndSample();
 
+            Profiler.BeginSample("Render Components");
             ComponentPass(_chunkComponentGroup);
+            Profiler.EndSample();
+            Profiler.BeginSample("Render Buffers");
             BufferPass(_chunkBufferGroup);
+            Profiler.EndSample();
 
             return new JobHandle();
         }
@@ -90,7 +97,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     var chunkRenderMeshes = chunk.GetNativeArray(chunkRenderMeshType);
                     var matrixes = chunk.GetNativeArray(matrixType);
 
-                    RenderChunk(chunkRenderMeshes, matrixes);
+                    RenderComponent(chunkRenderMeshes, matrixes);
                 }
             }
         }
@@ -111,14 +118,14 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         var entity = entities[i];
                         var chunkRenderMeshes = chunkRenderMeshBuffer[entity];
 
-                        RenderChunk(chunkRenderMeshes.AsNativeArray(), matrixes[i]);
+                        RenderBuffer(chunkRenderMeshes.AsNativeArray(), matrixes[i]);
                     }
                 }
             }
         }
 
 
-        private void RenderChunk(NativeArray<ChunkRenderMesh> chunkRenderMeshes, NativeArray<LocalToWorld> matrixes)
+        private void RenderComponent(NativeArray<ChunkRenderMesh> chunkRenderMeshes, NativeArray<LocalToWorld> matrixes)
         {
             for (var i = 0; i < chunkRenderMeshes.Length; i++)
             {
@@ -145,7 +152,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
-        private void RenderChunk(NativeArray<ChunkMeshBuffer> chunkRenderMeshes, LocalToWorld matrixes)
+        private void RenderBuffer(NativeArray<ChunkMeshBuffer> chunkRenderMeshes, LocalToWorld matrixes)
         {
             var matrix = matrixes.Value;
             for (var i = 0; i < chunkRenderMeshes.Length; i++)

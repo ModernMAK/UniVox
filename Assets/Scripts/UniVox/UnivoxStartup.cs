@@ -226,6 +226,7 @@ namespace UniVox
 
         private bool SetupChunk(ChunkIdentity chunkIdentity)
         {
+            return true;
             var world = GameManager.Universe[chunkIdentity.WorldId];
 
             var chunkPos = chunkIdentity.ChunkId;
@@ -247,7 +248,7 @@ namespace UniVox
 
 
             var blockIdentities = em.GetBuffer<VoxelBlockIdentity>(entity);
-            em.DirtyComponent<BlockActiveVersion>(entity);
+//            em.DirtyComponent<BlockActiveVersion>(entity);
             em.DirtyComponent<VoxelBlockIdentityVersion>(entity);
 
             for (var i = 0; i < UnivoxDefine.CubeSize; i++)

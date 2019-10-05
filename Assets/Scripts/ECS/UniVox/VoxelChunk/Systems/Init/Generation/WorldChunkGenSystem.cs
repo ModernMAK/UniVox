@@ -8,6 +8,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
 using UniVox;
+using UniVox.Types.Identities;
 
 namespace Unity.Entities
 {
@@ -81,59 +82,74 @@ namespace Unity.Entities
         private JobHandle GenerateChunkEntity(Entity entity, int3 chunkPos, JobHandle inputDependencies)
         {
             const int Octaves = 4;
-            var octaveSamples = new NativeArray<float>[Octaves];
-            var gatherOctaveSamples = inputDependencies;
+//            var octaveSamples = new NativeArray<float>[Octaves];
+//            var gatherOctaveSamples = inputDependencies;
 
 //            var constant = GetConstant(Octaves);
-            for (var i = 0; i < Octaves; i++)
-            {
-                octaveSamples[i] = new NativeArray<float>(UnivoxDefine.CubeSize, Allocator.TempJob);
+//            for (var i = 0; i < Octaves; i++)
+//            {
+//                octaveSamples[i] = new NativeArray<float>(UnivoxDefine.CubeSize, Allocator.TempJob);
+//
+//                var gatherSamples = new GatherChunkSimplexNoiseJob
+//                {
+//                    ChunkPosition = chunkPos,
+//                    Values = octaveSamples[i],
+//                    Sampler = GetSampler(i)
+//                }.Schedule(GatherChunkSimplexNoiseJob.JobSize, BatchCount, gatherOctaveSamples);
+//
+//                gatherOctaveSamples = gatherSamples;
+//
+////                gatherOctaveSamples = JobHandle.CombineDependencies(gatherOctaveSamples, gatherSamples);
+//            }
 
-                var gatherSamples = new GatherChunkSimplexNoiseJob
-                {
-                    ChunkPosition = chunkPos,
-                    Values = octaveSamples[i],
-                    Sampler = GetSampler(i)
-                }.Schedule(GatherChunkSimplexNoiseJob.JobSize, BatchCount, gatherOctaveSamples);
-
-                gatherOctaveSamples = gatherSamples;
-
-//                gatherOctaveSamples = JobHandle.CombineDependencies(gatherOctaveSamples, gatherSamples);
-            }
-
-            var summedJob = AddElementArrayJob.SumAll(gatherOctaveSamples, octaveSamples);
+//            var summedJob = AddElementArrayJob.SumAll(gatherOctaveSamples, octaveSamples);
 //            var avgJob = new DivideByConstantJob()
 //            {
 //                LeftAndResult = octaveSamples[0],
 //                Constant = constant
 //            }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
-            var active = new NativeArray<bool>(UnivoxDefine.CubeSize, Allocator.TempJob,
-                NativeArrayOptions.UninitializedMemory);
-            var blockActive = new ConvertSampleToActiveJob
-            {
-                Active = active,
-                Sample = octaveSamples[0],
-                Threshold = 0.8f
-            }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
+//            var active = new NativeArray<bool>(UnivoxDefine.CubeSize, Allocator.TempJob,
+//                NativeArrayOptions.UninitializedMemory);
+//            var blockActive = new ConvertSampleToActiveJob
+//            {
+//                Identity = active,
+//                Sample = octaveSamples[0],
+//                Threshold = 0.8f
+//            }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
+//
+//            var setActive = new SetBlockActiveFromArrayJob
+//            {
+//                Identity = active,
+//                GetBlockActiveBuffer = GetBufferFromEntity<VoxelActive>(),
+//                Entity = entity
+//            }.Schedule(blockActive);
 
-            var setActive = new SetBlockActiveJob
+
+            inputDependencies = new SetBlockActiveJob
             {
-                Active = active,
+                Active = true,
                 GetBlockActiveBuffer = GetBufferFromEntity<VoxelActive>(),
                 Entity = entity
-            }.Schedule(blockActive);
-
-
-            var disposeOctaves = setActive;
-            for (var i = 0; i < Octaves; i++)
+            }.Schedule(inputDependencies);
+            inputDependencies = new SetBlockIdentityJob
             {
-                var disposeArr = new DisposeArrayJob<float>(octaveSamples[i]).Schedule(disposeOctaves);
-                disposeOctaves = disposeArr;
-            }
+                //Hard coded, probably dirt, but more importantly probably not grass
+                Identity = new BlockIdentity(0, 1),
+                GetBlockIdentityBuffer = GetBufferFromEntity<VoxelBlockIdentity>(),
+                Entity = entity
+            }.Schedule(inputDependencies);
 
-            var disposeActive = new DisposeArrayJob<bool>(active).Schedule(disposeOctaves);
 
-            return disposeActive;
+//            var disposeOctaves = setActive;
+//            for (var i = 0; i < Octaves; i++)
+//            {
+//                var disposeArr = new DisposeArrayJob<float>(octaveSamples[i]).Schedule(disposeOctaves);
+//                disposeOctaves = disposeArr;
+//            }
+//
+//            var disposeActive = new DisposeArrayJob<bool>(active).Schedule(disposeOctaves);
+
+            return inputDependencies;
         }
 
         private JobHandle GeneratePass(EntityQuery query, JobHandle inputs)

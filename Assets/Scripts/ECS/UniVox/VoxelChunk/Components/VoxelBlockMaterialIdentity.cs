@@ -46,19 +46,19 @@ namespace ECS.UniVox.VoxelChunk.Components
             return Value.GetHashCode();
         }
 
-        public struct VersionProxyDirty : ISystemStateComponentData, IEquatable<VersionProxyDirty>,
-            IVersionDirtyProxy<VersionProxyDirty>
+        public struct Version : ISystemStateComponentData, IEquatable<Version>,
+            IVersionDirtyProxy<Version>
         {
             public uint Value;
 
-            public bool Equals(VersionProxyDirty other)
+            public bool Equals(Version other)
             {
                 return Value == other.Value;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is VersionProxyDirty other && Equals(other);
+                return obj is Version other && Equals(other);
             }
 
             public override int GetHashCode()
@@ -66,27 +66,27 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return (int) Value;
             }
 
-            public static implicit operator uint(VersionProxyDirty versionProxyDirty)
+            public static implicit operator uint(Version version)
             {
-                return versionProxyDirty.Value;
+                return version.Value;
             }
 
-            public static implicit operator VersionProxyDirty(uint value)
+            public static implicit operator Version(uint value)
             {
-                return new VersionProxyDirty {Value = value};
+                return new Version {Value = value};
             }
 
 
-            public bool DidChange(VersionProxyDirty other)
+            public bool DidChange(Version other)
             {
                 return ChangeVersionUtility.DidChange(Value, other.Value);
             }
 
-            public VersionProxyDirty GetDirty()
+            public Version GetDirty()
             {
                 var temp = Value;
                 ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
-                return new VersionProxyDirty {Value = temp};
+                return new Version {Value = temp};
             }
 
             public override string ToString()

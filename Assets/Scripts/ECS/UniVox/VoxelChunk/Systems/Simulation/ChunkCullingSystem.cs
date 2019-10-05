@@ -39,7 +39,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<VoxelBlockCullingFlag>(),
                     ComponentType.ReadOnly<VoxelActive>(),
 
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
                 },
                 None = new[]
@@ -56,7 +56,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<VoxelBlockCullingFlag>(),
                     ComponentType.ReadOnly<VoxelActive>(),
 
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
                 },
                 None = new[]
@@ -73,7 +73,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<VoxelBlockCullingFlag>(),
                     ComponentType.ReadOnly<VoxelActive>(),
 
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
                 },
                 None = new[]
@@ -91,7 +91,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<VoxelBlockCullingFlag>(),
                     ComponentType.ReadOnly<VoxelActive>(),
 
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
                 },
                 All = new[]
@@ -108,7 +108,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<VoxelBlockCullingFlag>(),
                     ComponentType.ReadOnly<VoxelActive>(),
 
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
                 },
                 All = new[]
@@ -126,7 +126,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
                 var blockCulledVersionType =
-                    GetArchetypeChunkComponentType<VoxelBlockCullingFlag.BlockCullFlagVersion>();
+                    GetArchetypeChunkComponentType<VoxelBlockCullingFlag.Version>();
                 var blockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveVersion>(true);
                 var blockActiveType = GetArchetypeChunkBufferType<VoxelActive>(true);
                 var entityType = GetArchetypeChunkEntityType();
@@ -177,7 +177,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         IgnoreEntity = ignore
                     }.Schedule(disposeCurrentVersions);
 
-                    var dirtyVersionJob = new DirtyVersionJob<VoxelBlockCullingFlag.BlockCullFlagVersion>
+                    var dirtyVersionJob = new DirtyVersionJob<VoxelBlockCullingFlag.Version>
                     {
                         Chunk = ecsChunk,
                         VersionType = blockCulledVersionType,

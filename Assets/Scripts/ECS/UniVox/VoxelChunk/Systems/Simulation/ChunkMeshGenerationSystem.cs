@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
@@ -12,6 +13,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
+using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types.Identities;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Utility;
@@ -22,7 +24,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
-        private EntityArchetype _archetype;
+//        private EntityArchetype _archetype;
         private EntityQuery _cleanupQuery;
 
 
@@ -36,23 +38,23 @@ namespace ECS.UniVox.VoxelChunk.Systems
         private EntityQuery _setupQuery;
 
 
-        private void SetupArchetype()
-        {
-            _archetype = EntityManager.CreateArchetype(
-                //Rendering
-                typeof(ChunkRenderMesh),
-                typeof(LocalToWorld),
-//Physics
-                typeof(Translation),
-                typeof(Rotation),
-                typeof(PhysicsCollider));
-        }
+//        private void SetupArchetype()
+//        {
+//            _archetype = EntityManager.CreateArchetype(
+//                //Rendering
+//                typeof(ChunkRenderMesh),
+//                typeof(LocalToWorld),
+////Physics
+//                typeof(Translation),
+//                typeof(Rotation),
+//                typeof(PhysicsCollider));
+//        }
 
         protected override void OnCreate()
         {
             _frameCaches = new Queue<FrameCache>();
 //            _universe = GameManager.Universe;
-            SetupArchetype();
+//            SetupArchetype();
             _renderSystem = World.GetOrCreateSystem<ChunkRenderMeshSystem>();
             _renderQuery = GetEntityQuery(new EntityQueryDesc
             {
@@ -62,7 +64,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<SystemVersion>(),
 
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity>(),
-                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
                     ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
@@ -86,7 +88,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity>(),
-                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
                     ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
@@ -109,7 +111,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity>(),
-                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
                     ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
@@ -137,58 +139,58 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
-        private NativeArray<Entity> GetResizedCache(ChunkIdentity identity, int desiredLength)
-        {
-            ResizeCache(identity, desiredLength);
-            return _entityCache[identity];
-        }
-
-        private void ResizeCache(ChunkIdentity identity, int desiredLength)
-        {
-            if (_entityCache.TryGetValue(identity, out var cached))
-            {
-                if (cached.Length > desiredLength)
-                {
-                    var temp = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
-                        NativeArrayOptions.UninitializedMemory);
-                    var excess = new NativeArray<Entity>(cached.Length - desiredLength, Allocator.Temp,
-                        NativeArrayOptions.UninitializedMemory);
-
-                    NativeArray<Entity>.Copy(cached, temp, temp.Length);
-                    NativeArray<Entity>.Copy(cached, temp.Length, excess, 0, excess.Length);
-
-                    EntityManager.DestroyEntity(excess);
-                    excess.Dispose();
-
-                    _entityCache[identity] = temp;
-                    cached.Dispose();
-                }
-                else if (cached.Length < desiredLength)
-                {
-                    var temp = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
-                        NativeArrayOptions.UninitializedMemory);
-                    var requested = new NativeArray<Entity>(desiredLength - cached.Length, Allocator.Temp,
-                        NativeArrayOptions.UninitializedMemory);
-
-
-                    NativeArray<Entity>.Copy(cached, temp, cached.Length);
-                    EntityManager.CreateEntity(_archetype, requested);
-                    NativeArray<Entity>.Copy(requested, 0, temp, cached.Length, requested.Length);
-
-                    requested.Dispose();
-
-                    _entityCache[identity] = temp;
-                    cached.Dispose();
-                }
-            }
-            else
-            {
-                var requested = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
-                    NativeArrayOptions.UninitializedMemory);
-                EntityManager.CreateEntity(_archetype, requested);
-                _entityCache[identity] = requested;
-            }
-        }
+//        private NativeArray<Entity> GetResizedCache(ChunkIdentity identity, int desiredLength)
+//        {
+//            ResizeCache(identity, desiredLength);
+//            return _entityCache[identity];
+//        }
+//
+//        private void ResizeCache(ChunkIdentity identity, int desiredLength)
+//        {
+//            if (_entityCache.TryGetValue(identity, out var cached))
+//            {
+//                if (cached.Length > desiredLength)
+//                {
+//                    var temp = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
+//                        NativeArrayOptions.UninitializedMemory);
+//                    var excess = new NativeArray<Entity>(cached.Length - desiredLength, Allocator.Temp,
+//                        NativeArrayOptions.UninitializedMemory);
+//
+//                    NativeArray<Entity>.Copy(cached, temp, temp.Length);
+//                    NativeArray<Entity>.Copy(cached, temp.Length, excess, 0, excess.Length);
+//
+//                    EntityManager.DestroyEntity(excess);
+//                    excess.Dispose();
+//
+//                    _entityCache[identity] = temp;
+//                    cached.Dispose();
+//                }
+//                else if (cached.Length < desiredLength)
+//                {
+//                    var temp = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
+//                        NativeArrayOptions.UninitializedMemory);
+//                    var requested = new NativeArray<Entity>(desiredLength - cached.Length, Allocator.Temp,
+//                        NativeArrayOptions.UninitializedMemory);
+//
+//
+//                    NativeArray<Entity>.Copy(cached, temp, cached.Length);
+//                    EntityManager.CreateEntity(_archetype, requested);
+//                    NativeArray<Entity>.Copy(requested, 0, temp, cached.Length, requested.Length);
+//
+//                    requested.Dispose();
+//
+//                    _entityCache[identity] = temp;
+//                    cached.Dispose();
+//                }
+//            }
+//            else
+//            {
+//                var requested = new NativeArray<Entity>(desiredLength, Allocator.Persistent,
+//                    NativeArrayOptions.UninitializedMemory);
+//                EntityManager.CreateEntity(_archetype, requested);
+//                _entityCache[identity] = requested;
+//            }
+//        }
 
         private void InitializeEntities(NativeArray<Entity> entities, float3 position)
         {
@@ -215,7 +217,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 //            var culledFaceType = GetArchetypeChunkBufferType<BlockCulledFacesComponent>(true);
 
             var materialVersionType =
-                GetArchetypeChunkComponentType<VoxelBlockMaterialIdentity.VersionProxyDirty>(true);
+                GetArchetypeChunkComponentType<VoxelBlockMaterialIdentity.Version>(true);
             var subMaterialVersionType =
                 GetArchetypeChunkComponentType<VoxelBlockSubMaterial.VersionProxyDirty>(true);
             var blockShapeVersionType = GetArchetypeChunkComponentType<VoxelBlockShape.Version>(true);
@@ -254,7 +256,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         Profiler.BeginSample("Process Render Chunk");
                         var results = GenerateBoxelMeshes(voxelChunkEntity, new JobHandle());
                         Profiler.EndSample();
-                        _frameCaches.Enqueue(new FrameCache {Identity = id, Results = results});
+                        _frameCaches.Enqueue(new FrameCache
+                        {
+                            Entity = voxelChunkEntity,
+                            Identity = id,
+                            Results = results
+                        });
 
                         systemVersions[i] = currentVersion;
                     }
@@ -325,7 +332,35 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 indexAndSizeJobHandle.Complete();
 
                 //GEnerate the mesh
-                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMesh(planarBatch, indexAndSizeJob);
+//                var genMeshJob = UnivoxRenderingJobs.CreateGenerateCubeBoxelMesh(planarBatch, indexAndSizeJob);
+
+                var nativeMesh = new NativeMeshContainer(indexAndSizeJob.VertexTotalSize,
+                    indexAndSizeJob.TriangleTotalSize, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+                var genMeshJob = new GenerateCubeBoxelMeshJob
+                {
+                    PlanarBatch = planarBatch.AsDeferredJobArray(),
+
+                    Offset = new float3(1f / 2f),
+
+                    NativeCube = new NativeCubeBuilder(Allocator.TempJob),
+
+                    Vertexes = nativeMesh
+                        .Vertexes, // new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Normals = nativeMesh
+                        .Normals, // new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Tangents = nativeMesh
+                        .Tangents, //new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    TextureMap0 =
+                        nativeMesh
+                            .TextureMap0, // new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+//                TextureMap1 = new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Triangles = nativeMesh
+                        .Indexes, // new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
+
+                    TriangleOffsets = indexAndSizeJob.TriangleOffsets,
+                    VertexOffsets = indexAndSizeJob.VertexOffsets
+                };
+
                 //Dispose unneccessary native arrays
                 indexAndSizeJob.TriangleTotalSize.Dispose();
                 indexAndSizeJob.VertexTotalSize.Dispose();
@@ -337,7 +372,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 planarBatch.Dispose();
                 meshes[i] = new RenderResult
                 {
-                    Mesh = UnivoxRenderingJobs.CreateMesh(genMeshJob),
+//                    Entity = 
+                    NativeMesh = nativeMesh,
+//                    Mesh = UnivoxRenderingJobs.CreateMesh(genMeshJob),
                     Material = materialId
                 };
                 Profiler.EndSample();
@@ -351,50 +388,42 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         private void ProcessFrameCache()
         {
-            Profiler.BeginSample("CreateNative Mesh Entities");
+            Profiler.BeginSample("Create Native Mesh Entities");
             while (_frameCaches.Count > 0)
             {
                 var cached = _frameCaches.Dequeue();
                 var id = cached.Identity;
                 var results = cached.Results;
 
-                var renderEntities = GetResizedCache(id, results.Length);
-                InitializeEntities(renderEntities,
-                    id.ChunkId * UnivoxDefine.AxisSize); //ChunkID doubles as unscaled position
+//                var renderEntities = GetResizedCache(id, results.Length);
+//                InitializeEntities(renderEntities,
+//                    id.ChunkId * UnivoxDefine.AxisSize); //ChunkID doubles as unscaled position
 
 
-                for (var j = 0; j < renderEntities.Length; j++)
+                var getMeshBuffer = GetBufferFromEntity<ChunkMeshBuffer>();
+                var meshBuffer = getMeshBuffer[cached.Entity];
+
+                var physicsVerts = new NativeList<float3>(ushort.MaxValue, Allocator.Temp);
+                var physicsIndexes = new NativeList<int>(ushort.MaxValue * 3, Allocator.Temp);
+
+                meshBuffer.ResizeUninitialized(results.Length);
+
+                for (var j = 0; j < results.Length; j++)
                 {
-                    var renderEntity = renderEntities[j];
+//                    var renderEntity = renderEntities[j];
 
 
-                    var meshData = EntityManager.GetComponentData<ChunkRenderMesh>(renderEntity);
-                    var mesh = results[j].Mesh;
+                    var meshData = meshBuffer[j];
+                    var nativeMesh = results[j].NativeMesh;
+                    var mesh = CommonRenderingJobs.CreateMesh(nativeMesh.Vertexes, nativeMesh.Normals,
+                        nativeMesh.Tangents, nativeMesh.TextureMap0, nativeMesh.Indexes);
                     var materialId = results[j].Material;
                     var batchId = new BatchGroupIdentity {Chunk = id, MaterialIdentity = materialId};
-
-                    var meshVerts = mesh.vertices;
-                    var nativeMeshVerts = new NativeArray<float3>(meshVerts.Length, Allocator.Temp,
-                        NativeArrayOptions.UninitializedMemory);
-                    for (var i = 0; i < meshVerts.Length; i++)
-                        nativeMeshVerts[i] = meshVerts[i];
-
-                    var meshTris = mesh.triangles;
-                    var nativeMeshTris = new NativeArray<int>(meshTris.Length, Allocator.Temp,
-                        NativeArrayOptions.UninitializedMemory);
-                    for (var i = 0; i < meshTris.Length; i++)
-                        nativeMeshTris[i] = meshTris[i];
-
-                    var collider = MeshCollider.Create(nativeMeshVerts, nativeMeshTris, CollisionFilter.Default);
-
-
-                    nativeMeshTris.Dispose();
-                    nativeMeshVerts.Dispose();
 
 
                     meshData.CastShadows = ShadowCastingMode.On;
                     meshData.ReceiveShadows = true;
-//                    meshData.layer = VoxelLayer //TODO
+                    meshData.Layer = 0; // = VoxelLayer //TODO
                     mesh.UploadMeshData(true);
 //                    meshData.Mesh = mesh;
                     meshData.Batch = batchId;
@@ -402,9 +431,34 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     _renderSystem.UploadMesh(batchId, mesh);
 
 
-                    EntityManager.SetComponentData(renderEntity, new PhysicsCollider {Value = collider});
-                    EntityManager.SetComponentData(renderEntity, meshData);
+                    meshBuffer[j] = meshData;
+
+                    var indexOffset = physicsVerts.Length;
+                    physicsVerts.AddRange(nativeMesh.Vertexes);
+                    for (var k = 0; k < nativeMesh.Indexes.Length; k++)
+                        physicsIndexes.Add(nativeMesh.Indexes[k] + indexOffset);
+
+                    nativeMesh.Dispose();
                 }
+
+//                var meshVerts = mesh.vertices;
+//                var nativeMeshVerts = new NativeArray<float3>(meshVerts.Length, Allocator.Temp,
+//                    NativeArrayOptions.UninitializedMemory);
+//                for (var i = 0; i < meshVerts.Length; i++)
+//                    nativeMeshVerts[i] = meshVerts[i];
+//
+//                var meshTris = mesh.triangles;
+//                var nativeMeshTris = new NativeArray<int>(meshTris.Length, Allocator.Temp,
+//                    NativeArrayOptions.UninitializedMemory);
+//                for (var i = 0; i < meshTris.Length; i++)
+//                    nativeMeshTris[i] = meshTris[i];
+
+                var collider = MeshCollider.Create(physicsVerts, physicsIndexes, CollisionFilter.Default);
+
+
+                physicsVerts.Dispose();
+                physicsIndexes.Dispose();
+                EntityManager.SetComponentData(cached.Entity, new PhysicsCollider {Value = collider});
             }
 
             Profiler.EndSample();
@@ -459,7 +513,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public struct RenderResult
         {
-            public Mesh Mesh;
+            public NativeMeshContainer NativeMesh;
+            [Obsolete] public Mesh Mesh;
             public ArrayMaterialIdentity Material;
         }
 
@@ -467,6 +522,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             public ChunkIdentity Identity;
             public RenderResult[] Results;
+            public Entity Entity;
         }
     }
 }
