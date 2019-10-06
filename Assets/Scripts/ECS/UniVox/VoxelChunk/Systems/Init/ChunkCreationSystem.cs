@@ -5,6 +5,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Physics;
 using Unity.Transforms;
+using UniVox;
+using UniVox.Types.Identities.Voxel;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -14,19 +16,18 @@ namespace ECS.UniVox.VoxelChunk.Systems
     {
         private EntityArchetype _blockChunkArchetype;
         private EntityQuery _eventQuery;
-        private EndInitializationEntityCommandBufferSystem _updateEnd;
+        private EntityCommandBufferSystem _bufferSystem;
 
         private EntityArchetype CreateBlockChunkArchetype()
         {
             return EntityManager.CreateArchetype(
+                //Voxel Components
                 typeof(VoxelChunkIdentity),
                 typeof(VoxelActive), typeof(VoxelBlockIdentity),
                 typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
                 typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag),
-
-                
                 typeof(LocalToWorld), typeof(Translation), typeof(Rotation),
-                
+
                 //Rendering & Physics
                 typeof(ChunkMeshBuffer), typeof(PhysicsCollider),
 
@@ -42,7 +43,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             _blockChunkArchetype = CreateBlockChunkArchetype();
 
 
-            _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+            _bufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         }
 
 
@@ -61,9 +62,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     var eventitiesInChunk = ecsChunk.GetNativeArray(eventityType);
                     var eventityData = ecsChunk.GetNativeArray(eventityDataType);
 //                    var createdChunks = new NativeArray<Entity>(eventitiesInChunk.Length, Allocator.TempJob);
-                    var initChunkJob = new CreateVoxelChunkJob
+                    var initChunkJob = new CreateVoxelChunkFromEventitiyJob
                     {
-                        Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
+                        Buffer = _bufferSystem.CreateCommandBuffer().ToConcurrent(),
                         Archetype = _blockChunkArchetype,
 //                        Created = createdChunks,
                         Eventities = eventitiesInChunk,
@@ -71,7 +72,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     }.Schedule(inputDependencies);
                     //eventitiesInChunk.Length, BatchSize, inputDependencies);
 
-                    _updateEnd.AddJobHandleForProducer(initChunkJob);
+                    _bufferSystem.AddJobHandleForProducer(initChunkJob);
                     result = JobHandle.CombineDependencies(result, initChunkJob);
                 }
 
@@ -85,8 +86,54 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return ProcessEventQuery(inputDeps);
         }
 
+        public JobHandle CreateChunks(byte world, NativeHashMap<ChunkPosition, Entity> map,
+            NativeArray<ChunkPosition> requests, JobHandle inputDependencies)
+        {
+            inputDependencies = new CreateVoxelChunkFromRequests()
+            {
+                Buffer = _bufferSystem.CreateCommandBuffer(),
+                WorldId = world,
+                ChunkMap = map,
+                Archetype = _blockChunkArchetype,
+                Requests = requests,
+
+            }.Schedule(inputDependencies);
+            _bufferSystem.AddJobHandleForProducer(inputDependencies);
+            return inputDependencies;
+        }
+
+        private struct CreateVoxelChunkFromRequests : IJob
+        {
+            public EntityCommandBuffer Buffer;
+            [ReadOnly] public EntityArchetype Archetype;
+            [ReadOnly] public byte WorldId;
+            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
+            [ReadOnly] public NativeArray<ChunkPosition> Requests;
+
+
+//            [WriteOnly] public NativeArray<Entity> Created;
+
+            public void Execute()
+            {
+                for (var entityIndex = 0; entityIndex < Requests.Length; entityIndex++)
+                {
+                    var entity = Buffer.CreateEntity(Archetype);
+                    var chunkPos = Requests[entityIndex];
+                    ChunkMap[chunkPos] = entity;
+//                //Seperate statements, ChunkEntities is WRITE ONLY
+//                Created[entityIndex] = entity;
+//                    var chunkPos = EventityData[entityIndex].ChunkPosition;
+                    Buffer.SetComponent(entity, (VoxelChunkIdentity) new ChunkIdentity(WorldId, chunkPos));
+
+
+//                    Buffer.DestroyEntity(entityIndex, Eventities[entityIndex]);
+                }
+            }
+        }
+
+
 //        [BurstCompile]
-        private struct CreateVoxelChunkJob : IJob
+        private struct CreateVoxelChunkFromEventitiyJob : IJob
         {
             public EntityCommandBuffer.Concurrent Buffer;
             [ReadOnly] public EntityArchetype Archetype;

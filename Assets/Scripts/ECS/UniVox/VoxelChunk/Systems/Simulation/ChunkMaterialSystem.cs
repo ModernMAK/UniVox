@@ -108,21 +108,17 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         private JobHandle RenderPass(JobHandle dependencies)
         {
-//            const int BatchSize = 64;
             using (var chunkArray = _updateMaterialQuery.CreateArchetypeChunkArray(Allocator.TempJob))
             {
-//                dependencies = JobHandle.CombineDependencies(dependencies, handle);
                 var entityVersionType = GetArchetypeChunkComponentType<EntityVersion>();
                 var systemVersionType = GetArchetypeChunkComponentType<SystemVersion>();
 
                 var blockCulledVersionType =
-                    GetArchetypeChunkComponentType<VoxelBlockCullingFlag.BlockCullFlagVersion>();
-//                var blockCulledType = GetArchetypeChunkComponentType<BlockCulledFacesComponent.Version>();
+                    GetArchetypeChunkComponentType<VoxelBlockCullingFlag.Version>();
+
                 var blockIdentityVersionType =
                     GetArchetypeChunkComponentType<VoxelBlockIdentityVersion>();
                 var blockIdentityType = GetArchetypeChunkBufferType<VoxelBlockIdentity>();
-
-//                var VoxelChunkEntityArchetype = GetArchetypeChunkEntityType();
 
                 Profiler.BeginSample("Process ECS Chunk");
                 foreach (var ecsChunk in chunkArray)
@@ -136,12 +132,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         continue;
 
                     ecsChunk.SetChunkComponentData(systemVersionType, currentSystemVersion);
-
-//                    var entityVersions = ecsChunk.GetNativeArray(entityVersionType);
-//                    var activeVersions = ecsChunk.GetNativeArray(blockActiveVersionType);
-//                    var blockCulledVersions = ecsChunk.GetNativeArray(blockCulledVersionType);
-//                    ecsChunk.GetNativeArray(VoxelChunkEntityArchetype);
-
 
                     var ignore = new NativeArray<bool>(ecsChunk.Count, Allocator.TempJob,
                         NativeArrayOptions.UninitializedMemory);
@@ -168,7 +158,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     var updateMaterialJob = UpdateMaterial(ecsChunk, ignore, disposeCurrentVersions);
 
 
-                    var dirtyVersionJob = new DirtyVersionJob<VoxelBlockCullingFlag.BlockCullFlagVersion>
+                    var dirtyVersionJob = new DirtyVersionJob<VoxelBlockCullingFlag.Version>
                     {
                         Chunk = ecsChunk,
                         VersionType = blockCulledVersionType, //blockCulledVersions,
@@ -254,13 +244,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
             [ReadOnly] public ArchetypeChunkEntityType EntityType; //GetArchetypeChunkEntityType()
 
             public BufferFromEntity<VoxelBlockIdentity> BlockId;
-            //var blockIdLookup = GetBufferFromEntity<BlockIdentityComponent>(true);
 
             public BufferFromEntity<VoxelBlockMaterialIdentity> BlockMat;
-            //            var blockMatLookup = GetBufferFromEntity<BlockMaterialIdentityComponent>();
 
             public BufferFromEntity<VoxelBlockSubMaterial> BlockSubMat;
-            //            var blockSubMatLookup = GetBufferFromEntity<BlockSubMaterialIdentityComponent>();
 
             [ReadOnly] public ArchetypeChunk Chunk;
             [ReadOnly] public NativeArray<bool> Ignore;
@@ -300,6 +287,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
+        /// <summary>
+        /// The cached version for the system, this is a CHUNK component
+        /// </summary>
         public struct SystemVersion : ISystemStateComponentData, IVersionProxy<SystemVersion>
         {
             public uint IdentityVersion;
@@ -310,6 +300,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
         }
 
+        /// <summary>
+        /// The cached version for the entity, this is an ENTITY component
+        /// </summary>
         public struct EntityVersion : ISystemStateComponentData, IVersionProxy<EntityVersion>
         {
             public uint IdentityVersion;

@@ -1,18 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
 namespace UniVox.VoxelData
 {
-    public class World : IDisposable, IReadOnlyDictionary<int3, Entity>
+    public class World : IDisposable, IReadOnlyDictionary<ChunkPosition, Entity>
     {
+        //Without resizing, how many chunks do we expect to have
+        //Assuming 10 chunks in each direction; 1000
+        //Rounded to 1024 because I like (Arbitrarily) powers of two
+        private const int DefaultChunksLoaded = 1024;
         private bool disposed;
 
         public World(string name = default)
         {
-            Records = new Dictionary<int3, Entity>();
+            _records = new NativeHashMap<ChunkPosition, Entity>(DefaultChunksLoaded, Allocator.Persistent);
 
 
 //            DefaultWorldInitialization.Initialize(name,false);
@@ -20,7 +25,13 @@ namespace UniVox.VoxelData
 //            EntityWorld = new Unity.Entities.World(name);
         }
 
-        public Dictionary<int3, Entity> Records { get; }
+        private NativeHashMap<ChunkPosition, Entity> _records;
+
+        public NativeHashMap<ChunkPosition, Entity> GetNativeMap()
+        {
+            return _records;
+        }
+
 
         public Unity.Entities.World EntityWorld { get; }
 
@@ -31,59 +42,73 @@ namespace UniVox.VoxelData
             if (disposed)
                 return;
             disposed = true;
-            foreach (var recordValue in Records.Values) EntityManager.DestroyEntity(recordValue);
+            using (var entities = _records.GetValueArray(Allocator.Temp))
+                foreach (var recordValue in entities)
+                    EntityManager.DestroyEntity(recordValue);
+            _records.Dispose();
         }
 
-        public bool ContainsKey(int3 key)
+        public bool ContainsKey(ChunkPosition key)
         {
-            return Records.ContainsKey(key);
+            return _records.ContainsKey(key);
         }
 
-        public bool TryGetValue(int3 key, out Entity value)
+        public bool TryGetValue(ChunkPosition key, out Entity value)
         {
-            return Records.TryGetValue(key, out value);
+            return _records.TryGetValue(key, out value);
         }
 
-        public Entity this[int3 index] => Records[index];
-        public IEnumerable<int3> Keys => ((IReadOnlyDictionary<int3, Entity>) Records).Keys;
+        public Entity this[ChunkPosition index] => _records[index];
 
-        public IEnumerable<Entity> Values => ((IReadOnlyDictionary<int3, Entity>) Records).Values;
+        public IEnumerable<ChunkPosition> Keys =>
+            throw new NotImplementedException(
+                "Underlying type is native; an appropriate interface will be implemented later.");
+//        ((IReadOnlyDictionary<ChunkPosition, Entity>) NativeRecords).Keys;
 
-        public IEnumerator<KeyValuePair<int3, Entity>> GetEnumerator()
+        public IEnumerable<Entity> Values =>
+            throw new NotImplementedException(
+                "Underlying type is native; an appropriate interface will be implemented later.");
+//        ((IReadOnlyDictionary<ChunkPosition, Entity>) NativeRecords).Values;
+
+        public IEnumerator<KeyValuePair<ChunkPosition, Entity>> GetEnumerator()
         {
-            return Records.GetEnumerator();
+            throw new NotImplementedException(
+                "Underlying type is native; an appropriate interface will be implemented later.");
+//            return NativeRecords.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable) Records).GetEnumerator();
+            throw new NotImplementedException(
+                "Underlying type is native; an appropriate interface will be implemented later.");
+//            return ((IEnumerable) NativeRecords).GetEnumerator();
         }
 
-        public int Count => Records.Count;
+        public int Count => _records.Length;
 
         //TODO - Something better than this workaround
-        public void Register(int3 index, Entity entity)
+        public void Register(ChunkPosition index, Entity entity)
         {
-            Records[index] = entity;
+            _records[index] = entity;
         }
 
-        public Entity GetOrCreate(int3 chunkId, EntityArchetype archetype)
+        public Entity GetOrCreate(ChunkPosition chunkId, EntityArchetype archetype)
         {
             if (TryGetValue(chunkId, out var record)) return record;
 
 //            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
-            Records[chunkId] = record = EntityManager.CreateEntity(archetype);
+            _records[chunkId] = record = EntityManager.CreateEntity(archetype);
             return record;
         }
 
         public void ClearChunkEntities()
         {
-            Records.Clear();
+            _records.Clear();
         }
 
-        public void UpdateChunkEntity(int3 chunkId, Entity entity)
+        public void UpdateChunkEntity(ChunkPosition chunkId, Entity entity)
         {
-            Records[chunkId] = entity;
+            _records[chunkId] = entity;
         }
     }
 }

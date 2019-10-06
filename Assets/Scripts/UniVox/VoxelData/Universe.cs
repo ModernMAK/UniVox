@@ -30,6 +30,37 @@ namespace UniVox.VoxelData
 
         public IEnumerable<World> Values => ((IReadOnlyDictionary<byte, VoxelWorld>) _records).Values;
 
+        public bool TryFindWorld(Unity.Entities.World world, out VoxelWorld record)
+        {
+            foreach (var value in _records.Values)
+            {
+                if (value.EntityWorld == world)
+                {
+                    record=value;
+                    return true;
+                }
+            }
+
+            record = default;
+            return false;
+        }
+        public bool TryFindWorld(Unity.Entities.World world, out byte id, out VoxelWorld record)
+        {
+            foreach (var pair in _records)
+            {
+                if (pair.Value.EntityWorld == world)
+                {
+                    id = pair.Key;
+                    record=pair.Value;
+                    return true;
+                }
+            }
+
+            id = default;
+            record = default;
+            return false;
+        }
+        
         public bool TryGetValue(byte worldId, out VoxelWorld record)
         {
             return _records.TryGetValue(worldId, out record);
@@ -47,11 +78,23 @@ namespace UniVox.VoxelData
 
         public int Count => _records.Count;
 
+        
         public VoxelWorld GetOrCreate(byte worldId, string name = default)
         {
             if (!TryGetValue(worldId, out var world)) _records[worldId] = world = new VoxelWorld();
 
             return world;
+        }
+        public VoxelWorld GetOrCreate(Unity.Entities.World world, out byte id, string name = default)
+        {
+            if (!TryFindWorld(world, out id, out var record))
+            {
+                //TODO use an unused ID instead of 0
+                id = 0;
+                record = GetOrCreate(0, name);
+            }
+
+            return record;
         }
     }
 }

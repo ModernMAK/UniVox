@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
@@ -9,7 +8,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
-using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
@@ -67,11 +65,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
-                    ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockSubMaterial.Version>(),
 
 
                     ComponentType.ReadOnly<VoxelBlockCullingFlag>(),
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
 
                     ComponentType.ReadOnly<VoxelActive>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
@@ -91,10 +89,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
-                    ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockSubMaterial.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockCullingFlag>(),
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
 
                     ComponentType.ReadOnly<VoxelActive>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
@@ -114,10 +112,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelBlockMaterialIdentity.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockSubMaterial>(),
-                    ComponentType.ReadOnly<VoxelBlockSubMaterial.VersionProxyDirty>(),
+                    ComponentType.ReadOnly<VoxelBlockSubMaterial.Version>(),
 
                     ComponentType.ReadOnly<VoxelBlockCullingFlag>(),
-                    ComponentType.ReadOnly<VoxelBlockCullingFlag.BlockCullFlagVersion>(),
+                    ComponentType.ReadOnly<VoxelBlockCullingFlag.Version>(),
 
                     ComponentType.ReadOnly<VoxelActive>(),
                     ComponentType.ReadOnly<BlockActiveVersion>()
@@ -219,10 +217,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var materialVersionType =
                 GetArchetypeChunkComponentType<VoxelBlockMaterialIdentity.Version>(true);
             var subMaterialVersionType =
-                GetArchetypeChunkComponentType<VoxelBlockSubMaterial.VersionProxyDirty>(true);
+                GetArchetypeChunkComponentType<VoxelBlockSubMaterial.Version>(true);
             var blockShapeVersionType = GetArchetypeChunkComponentType<VoxelBlockShape.Version>(true);
             var culledFaceVersionType =
-                GetArchetypeChunkComponentType<VoxelBlockCullingFlag.BlockCullFlagVersion>(true);
+                GetArchetypeChunkComponentType<VoxelBlockCullingFlag.Version>(true);
 
 
             var chunkArchetype = GetArchetypeChunkEntityType();
@@ -514,7 +512,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
         public struct RenderResult
         {
             public NativeMeshContainer NativeMesh;
-            [Obsolete] public Mesh Mesh;
             public ArrayMaterialIdentity Material;
         }
 
