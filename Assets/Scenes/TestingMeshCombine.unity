@@ -1776,7 +1776,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _size:
-    x: 1
+    x: 2
     y: 1
     z: 1
   _framesPerUpdate: 60

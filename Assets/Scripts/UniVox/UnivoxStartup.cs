@@ -223,31 +223,31 @@ namespace UniVox
         }
 
 
-        private void ProcessQueue(int count)
-        {
-            var setupTries = 0;
-            while (count > 0 && _setup.Count > 0 && setupTries < _setup.Count)
-            {
-                var data = _setup.Dequeue();
-                if (!SetupChunk(data))
-                {
-                    _setup.Enqueue(data);
-                    setupTries++;
-                }
-                else
-                {
-                    count--;
-                    setupTries--;
-                }
-            }
-
-            while (count > 0 && _requests.Count > 0)
-            {
-                var data = _requests.Dequeue();
-                CreateChunk(data);
-                count--;
-            }
-        }
+//        private void ProcessQueue(int count)
+//        {
+//            var setupTries = 0;
+//            while (count > 0 && _setup.Count > 0 && setupTries < _setup.Count)
+//            {
+//                var data = _setup.Dequeue();
+//                if (!SetupChunk(data))
+//                {
+//                    _setup.Enqueue(data);
+//                    setupTries++;
+//                }
+//                else
+//                {
+//                    count--;
+//                    setupTries--;
+//                }
+//            }
+//
+//            while (count > 0 && _requests.Count > 0)
+//            {
+//                var data = _requests.Dequeue();
+//                CreateChunk(data);
+//                count--;
+//            }
+//        }
 
         private bool SetupChunk(ChunkIdentity chunkIdentity)
         {
@@ -305,21 +305,22 @@ namespace UniVox
             return true;
         }
 
-        private void CreateChunk(ChunkIdentity chunkIdentity)
-        {
-            var world = GameManager.Universe[chunkIdentity.WorldId];
-            var chunkPos = chunkIdentity.ChunkId;
-            if (world.ContainsKey(chunkPos))
-            {
-                Debug.Log($"Chunk {chunkPos} already exists!");
-                return;
-            }
-
-            var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
-            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity {ChunkPosition = chunkIdentity});
-
-            _setup.Enqueue(chunkIdentity);
-        }
+//        private void CreateChunk(ChunkIdentity chunkIdentity)
+//        {
+//            var world = GameManager.Universe[chunkIdentity.WorldId];
+//            var chunkPos = chunkIdentity.ChunkId;
+//            
+////            if (world.ContainsKey(chunkPos))
+////            {
+////                Debug.Log($"Chunk {chunkPos} already exists!");
+////                return;
+////            }
+//
+//            var eventity = world.EntityManager.CreateEntity(ComponentType.ReadOnly<CreateChunkEventity>());
+//            world.EntityManager.SetComponentData(eventity, new CreateChunkEventity {ChunkPosition = chunkIdentity});
+//
+//            _setup.Enqueue(chunkIdentity);
+//        }
 
         private void OnApplicationQuit()
         {
@@ -334,10 +335,10 @@ namespace UniVox
         }
 
         // Update is called once per frame
-        private void Update()
-        {
-            ProcessQueue(MaxItemsPerFrame);
-        }
+//        private void Update()
+//        {
+////            ProcessQueue(MaxItemsPerFrame);
+//        }
 
         public class EntityDataStreamer
         {

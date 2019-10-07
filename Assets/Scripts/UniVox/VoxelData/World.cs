@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
+using UniVox.Types.Exceptions;
 
 namespace UniVox.VoxelData
 {
@@ -48,52 +50,72 @@ namespace UniVox.VoxelData
             _records.Dispose();
         }
 
+        [Obsolete]
         public bool ContainsKey(ChunkPosition key)
         {
+            throw new ObsoleteException();
             return _records.ContainsKey(key);
         }
 
+        [Obsolete]
         public bool TryGetValue(ChunkPosition key, out Entity value)
         {
+            
+            throw new ObsoleteException();
             return _records.TryGetValue(key, out value);
         }
 
-        public Entity this[ChunkPosition index] => _records[index];
+        [Obsolete] public Entity this[ChunkPosition index] => 
+            throw new ObsoleteException();//_records[index];
 
+        [Obsolete]
         public IEnumerable<ChunkPosition> Keys =>
-            throw new NotImplementedException(
-                "Underlying type is native; an appropriate interface will be implemented later.");
+            throw new ObsoleteException();
+//            throw new NotImplementedException(
+//                "Underlying type is native; an appropriate interface will be implemented later.");
 //        ((IReadOnlyDictionary<ChunkPosition, Entity>) NativeRecords).Keys;
 
+        [Obsolete]
         public IEnumerable<Entity> Values =>
-            throw new NotImplementedException(
-                "Underlying type is native; an appropriate interface will be implemented later.");
+            throw new ObsoleteException();
+//            throw new NotImplementedException(
+//                "Underlying type is native; an appropriate interface will be implemented later.");
 //        ((IReadOnlyDictionary<ChunkPosition, Entity>) NativeRecords).Values;
 
+        [Obsolete]
         public IEnumerator<KeyValuePair<ChunkPosition, Entity>> GetEnumerator()
         {
-            throw new NotImplementedException(
-                "Underlying type is native; an appropriate interface will be implemented later.");
+            throw new ObsoleteException();
+//            throw new NotImplementedException(
+//                "Underlying type is native; an appropriate interface will be implemented later.");
 //            return NativeRecords.GetEnumerator();
         }
 
+        [Obsolete]
         IEnumerator IEnumerable.GetEnumerator()
         {
+            throw new ObsoleteException();
             throw new NotImplementedException(
                 "Underlying type is native; an appropriate interface will be implemented later.");
 //            return ((IEnumerable) NativeRecords).GetEnumerator();
         }
 
-        public int Count => _records.Length;
+        [Obsolete]
+        public int Count => 
+            throw new ObsoleteException();//_records.Length;
 
+        [Obsolete]
         //TODO - Something better than this workaround
         public void Register(ChunkPosition index, Entity entity)
         {
+            throw new ObsoleteException();
             _records[index] = entity;
         }
 
+        [Obsolete]
         public Entity GetOrCreate(ChunkPosition chunkId, EntityArchetype archetype)
         {
+            throw new ObsoleteException();
             if (TryGetValue(chunkId, out var record)) return record;
 
 //            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
@@ -101,13 +123,17 @@ namespace UniVox.VoxelData
             return record;
         }
 
+        [Obsolete]
         public void ClearChunkEntities()
         {
+            throw new ObsoleteException();
             _records.Clear();
         }
 
+        [Obsolete]
         public void UpdateChunkEntity(ChunkPosition chunkId, Entity entity)
         {
+            throw new ObsoleteException();
             _records[chunkId] = entity;
         }
     }

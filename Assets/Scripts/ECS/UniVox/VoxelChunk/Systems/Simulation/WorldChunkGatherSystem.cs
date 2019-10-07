@@ -7,6 +7,7 @@ using Unity.Jobs;
 namespace UniVox
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [DisableAutoCreation]
     public class WorldChunkGatherSystem : JobComponentSystem
     {
         private EntityQuery _cleanupQuery;

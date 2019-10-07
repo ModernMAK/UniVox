@@ -6,6 +6,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UniVox;
 using VoxelWorld = UniVox.VoxelData.World;
 
@@ -71,7 +72,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         var distance = streamData[entityIndex].Distance;
                         for (var dx = -distance.x; dx <= distance.x; dx++)
                         for (var dy = -distance.y; dy <= distance.y; dy++)
-                        for (var dz = -distance.z; dy <= distance.z; dz++)
+                        for (var dz = -distance.z; dz <= distance.z; dz++)
                             Requests.Add((ChunkPosition) (voxelSpaceChunkPosition + new int3(dx, dy, dz)));
                     }
                 }
@@ -124,60 +125,66 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected JobHandle LoadPass(EntityQuery query, JobHandle inputDeps)
         {
-            var requests = new NativeList<ChunkPosition>(Allocator.TempJob);
-            var unique = new NativeList<ChunkPosition>(Allocator.TempJob);
-            var loadedFlags = new NativeList<bool>(Allocator.TempJob);
-            var unloadedRequests = new NativeList<ChunkPosition>(Allocator.TempJob);
+            const Allocator jobAlloc = Allocator.TempJob;
+            var requests = new NativeList<ChunkPosition>(jobAlloc);
+            var unique = new NativeList<ChunkPosition>(jobAlloc);
+            var loadedFlags = new NativeList<bool>(jobAlloc);
+            var unloadedRequests = new NativeList<ChunkPosition>(jobAlloc);
 
-            using (var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob))
+            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var createHandle);
+            inputDeps = JobHandle.CombineDependencies(inputDeps, createHandle);
+          
+
+            //GATHER EVERY REQUEST IN THE QUERY
+            inputDeps = new GatherRequestsJob()
             {
-                //GATHER EVERY REQUEST IN THE QUERY
-                inputDeps = new GatherRequestsJob()
-                {
-                    Chunks = chunks,
-                    Requests = requests,
-                    LocalToWorldType = GetArchetypeChunkComponentType<LocalToWorld>(),
-                    StreamTargetType = GetArchetypeChunkComponentType<ChunkStreamingTarget>()
-                }.Schedule(inputDeps);
+                Chunks = chunks,
+                Requests = requests,
+                LocalToWorldType = GetArchetypeChunkComponentType<LocalToWorld>(),
+                StreamTargetType = GetArchetypeChunkComponentType<ChunkStreamingTarget>()
+            }.Schedule(inputDeps);
+//            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
+//            inputDeps = requests.Dispose(inputDeps);
+//            return inputDeps; //TEST to see how far we get before we crash
 
-                //FILTER OUT DUPLICATES
-                inputDeps = new FindUniquesJob<ChunkPosition>()
-                {
-                    Source = requests.AsDeferredJobArray(),
-                    Unique = unique
-                }.Schedule(inputDeps);
+            //FILTER OUT DUPLICATES
+            inputDeps = new FindUniquesJob<ChunkPosition>()
+            {
+                Source = requests.AsDeferredJobArray(),
+                Unique = unique
+            }.Schedule(inputDeps);
 
-                //cleanup
-                inputDeps = requests.Dispose(inputDeps);
+            //cleanup
+            inputDeps = requests.Dispose(inputDeps);
 
-                //DETERMINE WHAT IS LOADED
-                inputDeps = new MapHasKeyJob<ChunkPosition, Entity>()
-                {
-                    Map = _nativeMap,
-                    Keys = unique.AsDeferredJobArray(),
-                    Results = loadedFlags
-                }.Schedule(inputDeps);
+            //DETERMINE WHAT IS LOADED
+            inputDeps = new MapHasKeyJob<ChunkPosition, Entity>()
+            {
+                Map = _nativeMap,
+                Keys = unique.AsDeferredJobArray(),
+                Results = loadedFlags
+            }.Schedule(inputDeps);
 
-                //FILTER OUT LOADED (we want unloaded)
-                inputDeps = new FilterJob<ChunkPosition>()
-                {
-                    FilteredValues = unloadedRequests,
-                    Filters = loadedFlags.AsDeferredJobArray(),
-                    FilterToMatch = false,
-                    Values = unique.AsDeferredJobArray()
-                }.Schedule(inputDeps);
+            //FILTER OUT LOADED (we want unloaded)
+            inputDeps = new FilterJob<ChunkPosition>()
+            {
+                FilteredValues = unloadedRequests,
+                Filters = loadedFlags.AsDeferredJobArray(),
+                FilterToMatch = false,
+                Values = unique.AsDeferredJobArray()
+            }.Schedule(inputDeps);
 
-                //cleanup
-                inputDeps = loadedFlags.Dispose(inputDeps);
-                inputDeps = unique.Dispose(inputDeps);
+            //cleanup
+            inputDeps = loadedFlags.Dispose(inputDeps);
+            inputDeps = unique.Dispose(inputDeps);
 
-                //LOAD UNLOADED CHUNKS
-                inputDeps = _creationSystem.CreateChunks(_worldId, _nativeMap, unloadedRequests.AsDeferredJobArray(),
-                    inputDeps);
+            //LOAD UNLOADED CHUNKS
+            inputDeps = _creationSystem.CreateChunks(_worldId, _nativeMap, unloadedRequests.AsDeferredJobArray(),
+                inputDeps);
 
-                //cleanup
-                inputDeps = unloadedRequests.Dispose(inputDeps);
-            }
+            //cleanup
+            inputDeps = unloadedRequests.Dispose(inputDeps);
+            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
 
             return inputDeps;
         }
@@ -185,7 +192,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps = LoadPass(_query, inputDeps);
+//            return inputDeps;
+            try
+            {
+                inputDeps = LoadPass(_query, inputDeps);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
             return inputDeps;
         }
     }
