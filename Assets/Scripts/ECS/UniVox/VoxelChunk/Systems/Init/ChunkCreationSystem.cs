@@ -1,3 +1,4 @@
+using System;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
@@ -12,6 +13,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateBefore(typeof(ChunkInitializationSystem))]
+    [DisableAutoCreation]
     public class ChunkCreationSystem : JobComponentSystem
     {
         private EntityArchetype _blockChunkArchetype;
@@ -47,6 +49,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
 
 
+        [Obsolete]
         private JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
             var eventityDataType = GetArchetypeChunkComponentType<CreateChunkEventity>(true);
@@ -133,6 +136,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
 
 //        [BurstCompile]
+[Obsolete]
         private struct CreateVoxelChunkFromEventitiyJob : IJob
         {
             public EntityCommandBuffer.Concurrent Buffer;
