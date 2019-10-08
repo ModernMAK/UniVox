@@ -91,7 +91,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             int subMaterial)
         {
             return plane.Inspected[spanIndex] ||
-                   !Voxels[chunkSpanIndex].Equals(Voxels[chunkIndex]) ||
+                   !Voxels[chunkSpanIndex].BlockIdentity.Equals(Voxels[chunkIndex].BlockIdentity) ||
                    RenderData[chunkSpanIndex].CullingFlags.HasDirection(plane.direction) ||
                    !RenderData[chunkSpanIndex].MaterialIdentity.Equals(BatchIdentity) ||
                    RenderData[chunkSpanIndex].SubMaterialIdentityPerFace[plane.direction] != subMaterial;

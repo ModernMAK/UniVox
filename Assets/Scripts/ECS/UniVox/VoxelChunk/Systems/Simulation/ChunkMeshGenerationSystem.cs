@@ -3,6 +3,7 @@ using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using ECS.UniVox.VoxelChunk.Systems.Presentation;
 using ECS.UniVox.VoxelChunk.Tags;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -140,7 +141,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
             ProcessFrameCache();
         }
 
-        
 
         private RenderResult[] GenerateBoxelMeshes(Entity chunk, JobHandle handle)
         {
@@ -148,21 +148,44 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             handle.Complete();
 
-            var getVoxelBuffer = GetBufferFromEntity<VoxelData>(true);
+            var getVoxelBuffer = GetBufferFromEntity<VoxelData>();
 
             var voxels = getVoxelBuffer[chunk];
             var renderData =
-                VoxelRenderData.CreateNativeArray(Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+                VoxelRenderData.CreateNativeArray(Allocator.TempJob);
+
+            //TODO CREATE GATHER JOB --- voxels => renderData
+            handle = new CullEntityFacesJob()
+            {
+                RenderData = renderData,
+                Entity = chunk,
+                GetVoxelBuffer = getVoxelBuffer
+            }.Schedule(handle);
+
+            handle = new UpdateEntityMaterialJob()
+            {
+                RenderData = renderData,
+                Entity = chunk,
+                GetVoxelBuffer = getVoxelBuffer,
+                BlockReferences = GameManager.NativeRegistry.Blocks
+            }.Schedule(handle);
+
+
+            //TODO CREATE A SEPARATE MATERIAL JOB --- renderData => materials
             var materials = new NativeArray<ArrayMaterialIdentity>(UnivoxDefine.CubeSize, Allocator.TempJob,
                 NativeArrayOptions.UninitializedMemory);
 
-
-            //TODO CREATE GATHER JOB --- voxels => renderData
-            //TODO CREATE A SEPARATE MATERIAL JOB --- renderData => materials
+            handle = new FetchMaterialsFromEntityMaterials()
+            {
+                RenderData = renderData,
+                Materials = materials
+            }.Schedule(handle);
+            handle.Complete();
 
 
             Profiler.BeginSample("CreateNative Batches");
             var uniqueBatchData = UnivoxRenderingJobs.GatherUnique(materials);
+            materials.Dispose();
             Profiler.EndSample();
 
             var meshes = new RenderResult[uniqueBatchData.Length];
@@ -181,6 +204,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 };
                 writerToReaderJob.Schedule(gatherPlanerJobHandle).Complete();
                 queue.Dispose();
+                renderData.Dispose();
                 var planarBatch = writerToReaderJob.OutList;
 
                 //Calculate the Size Each Voxel Will Use
@@ -358,6 +382,23 @@ namespace ECS.UniVox.VoxelChunk.Systems
             public ChunkIdentity Identity;
             public RenderResult[] Results;
             public Entity Entity;
+        }
+    }
+
+    [BurstCompile]
+    public struct FetchMaterialsFromEntityMaterials : IJob
+    {
+        [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
+        [WriteOnly] public NativeArray<ArrayMaterialIdentity> Materials;
+
+
+        public void Execute()
+        {
+            for (var i = 0; i < RenderData.Length; i++)
+            {
+                var rd = RenderData[i];
+                Materials[i] = rd.MaterialIdentity;
+            }
         }
     }
 }

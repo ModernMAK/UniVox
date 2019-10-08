@@ -17,7 +17,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
     [Obsolete()]
     [DisableAutoCreation]
-    public class ChunkCullingSystem : JobComponentSystem
+    public partial class ChunkCullingSystem : JobComponentSystem
     {
         private EntityQuery _cleanupEntityVersionQuery;
         private EntityQuery _cleanupSystemVersionQuery;
@@ -324,62 +324,9 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             public void Execute()
             {
-                var Entities = Chunk.GetNativeArray(EntityType);
-                for (var entityIndex = 0; entityIndex < Entities.Length; entityIndex++)
-                    ProcessEntity(entityIndex, Entities);
-            }
-        }
-
-
-        [BurstCompile]
-        public struct CullEntityFacesJob : IJob
-        {
-            [ReadOnly] public Entity Entity;
-
-            [ReadOnly] public ArchetypeChunkEntityType EntityType;
-
-
-            public BufferFromEntity<VoxelData> GetVoxelBuffer;
-            [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
-
-
-            public void Execute()
-            {
-                var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
-
-                var voxelBuffer = GetVoxelBuffer[Entity];
-
-                for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
-                {
-                    var blockPos = UnivoxUtil.GetPosition3(blockIndex);
-                    var voxel = voxelBuffer[blockIndex];
-                    var render = RenderData[blockIndex];
-
-                    var primaryActive = voxel.Active;
-
-                    var hidden = DirectionsX.AllFlag;
-
-                    for (var dirIndex = 0; dirIndex < directions.Length; dirIndex++)
-                    {
-                        var direction = directions[dirIndex];
-                        var neighborPos = blockPos + direction.ToInt3();
-                        var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
-                        var neighborActive = false;
-
-                        if (UnivoxUtil.IsPositionValid(neighborPos))
-                        {
-                            var neighborVoxel = voxelBuffer[neighborIndex];
-                            neighborActive = neighborVoxel.Active;
-                        }
-
-                        if (primaryActive && !neighborActive) hidden &= ~direction.ToFlag();
-                    }
-
-                    render = render.SetCullingFlags(hidden);
-                    RenderData[blockIndex] = render;
-                }
-
-                directions.Dispose();
+                var entities = Chunk.GetNativeArray(EntityType);
+                for (var entityIndex = 0; entityIndex < entities.Length; entityIndex++)
+                    ProcessEntity(entityIndex, entities);
             }
         }
     }
