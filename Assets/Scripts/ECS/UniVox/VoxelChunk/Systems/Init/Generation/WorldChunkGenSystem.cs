@@ -1,6 +1,5 @@
 using ECS.UniVox.Systems.Jobs;
 using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -111,14 +110,14 @@ namespace ECS.UniVox.Systems
 //                NativeArrayOptions.UninitializedMemory);
 //            var blockActive = new ConvertSampleToActiveJob
 //            {
-//                Identity = active,
+//                BlockIdentity = active,
 //                Sample = octaveSamples[0],
 //                Threshold = 0.8f
 //            }.Schedule(UnivoxDefine.CubeSize, BatchCount, summedJob);
 //
 //            var setActive = new SetBlockActiveFromArrayJob
 //            {
-//                Identity = active,
+//                BlockIdentity = active,
 //                GetBlockActiveBuffer = GetBufferFromEntity<VoxelActive>(),
 //                Entity = entity
 //            }.Schedule(blockActive);

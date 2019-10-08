@@ -7,14 +7,13 @@ namespace ECS.UniVox.VoxelChunk.Components
 {
     //7 bytes
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
-    public struct VoxelData : IBufferElementData,
-        IComparable<VoxelData> //, IEquatable<VoxelData>
+    public struct VoxelData : IBufferElementData, IComparable<VoxelData>
     {
         private const byte ActiveFlag = 1 << 0;
 
-        public VoxelData(BlockIdentity blockID, bool active, BlockShape shape)
+        public VoxelData(BlockIdentity blockId, bool active, BlockShape shape)
         {
-            BlockIdentity = blockID;
+            BlockIdentity = blockId;
             //Update Flags
             _flags = 0;
             if (active)
@@ -61,12 +60,4 @@ namespace ECS.UniVox.VoxelChunk.Components
             return Shape - other.Shape;
         }
     }
-
-
-    //30 bytes
-
-    //This does not implement IVersion, as we assume that Proxies contain multiple values
-
-
-    //This does not implement IVersion, as we assume that Proxies contain multiple values
 }

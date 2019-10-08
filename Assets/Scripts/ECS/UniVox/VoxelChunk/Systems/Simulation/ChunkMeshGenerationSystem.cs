@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ECS.UniVox.Systems;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.Presentation;
-using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;

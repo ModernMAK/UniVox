@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace ECS.UniVox.VoxelChunk.Tags
+namespace ECS.UniVox
 {
     /// <summary>
     ///     Specifies the given chunk is INVALID

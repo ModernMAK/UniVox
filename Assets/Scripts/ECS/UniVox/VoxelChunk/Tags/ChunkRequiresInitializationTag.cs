@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace ECS.UniVox.VoxelChunk.Tags
+namespace ECS.UniVox
 {
     public struct ChunkRequiresInitializationTag : IComponentData
     {

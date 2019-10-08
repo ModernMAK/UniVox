@@ -1,3 +1,4 @@
+using System;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,23 +8,37 @@ using UniVox.Types;
 
 namespace ECS.UniVox.Systems
 {
+    [Flags]
+    public enum VoxelDataFlags : byte
+    {
+        BlockIdentity = (1 << 0),
+        Shape = (1 << 1),
+        Active = (1 << 2),
+    }
+
+    public static class VoxelDataFlagsX
+    {
+        public static bool AreFlagsSet(this VoxelDataFlags flags, VoxelDataFlags flag)
+        {
+            return (flags & flag) == flag;
+        }
+    }
+
     public class ChunkRaycastingSystem : JobComponentSystem
     {
         private EntityCommandBufferSystem _commandBuffer;
-        private EntityQuery _setBlockActiveIdentityQuery;
-        private EntityQuery _setBlockActiveQuery;
-
-
-        private EntityQuery _setBlockIdentityQuery;
+        private EntityQuery _query;
         private WorldMap _worldMap;
 
 
         public void RemoveBlockEventity(WorldPosition worldBlockPosition)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockActiveData));
-            var eventityData = new SetBlockActiveData
+            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
+            var eventityData = new SetVoxelData()
             {
-                Active = false,
+                Data = new VoxelData(default, false, default),
+                Flags = VoxelDataFlags.Active,
+
                 WorldPosition = worldBlockPosition
             };
             EntityManager.SetComponentData(eventity, eventityData);
@@ -31,11 +46,12 @@ namespace ECS.UniVox.Systems
 
         public void PlaceBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityAndActiveData));
-            var eventityData = new SetBlockIdentityAndActiveData
+            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
+            var eventityData = new SetVoxelData()
             {
-                BlockIdentity = blockIdentity,
-                Active = true,
+                Data = new VoxelData(blockIdentity, true, default),
+                Flags = VoxelDataFlags.BlockIdentity | VoxelDataFlags.Active,
+
                 WorldPosition = worldBlockPosition
             };
             EntityManager.SetComponentData(eventity, eventityData);
@@ -43,10 +59,12 @@ namespace ECS.UniVox.Systems
 
         public void AlterBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityData));
-            var eventityData = new SetBlockIdentityData
+            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
+            var eventityData = new SetVoxelData()
             {
-                BlockIdentity = blockIdentity,
+                Data = new VoxelData(blockIdentity, default, default),
+                Flags = VoxelDataFlags.BlockIdentity,
+
                 WorldPosition = worldBlockPosition
             };
             EntityManager.SetComponentData(eventity, eventityData);
@@ -54,76 +72,27 @@ namespace ECS.UniVox.Systems
 
         protected override void OnCreate()
         {
-            _setBlockIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityData));
-            _setBlockActiveIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityAndActiveData));
-            _setBlockActiveQuery = GetEntityQuery(typeof(SetBlockActiveData));
+            _query = GetEntityQuery(typeof(SetVoxelData));
             _commandBuffer = World.Active.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
 
             _worldMap = GameManager.Universe.GetOrCreate(World.Active, out _);
         }
 
-        private JobHandle BlockIdentityPass(EntityQuery query, JobHandle inputDeps)
+        private JobHandle QueryPass(EntityQuery query, JobHandle inputDeps)
         {
             var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
             inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
 
             inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
             var map = _worldMap.GetNativeMap();
-            inputDeps = new SetBlockIdentityJob
+            inputDeps = new SetVoxelJob
             {
                 Chunks = chunks,
                 CommandBuffer = _commandBuffer.CreateCommandBuffer(),
                 EntityType = GetArchetypeChunkEntityType(),
                 GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
                 GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityData>(),
-                WorldChunkMap = map
-            }.Schedule(inputDeps);
-            _worldMap.AddNativeMapDependency(inputDeps);
-
-            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
-            return inputDeps;
-        }
-
-        private JobHandle BlockActiveIdentityPass(EntityQuery query, JobHandle inputDeps)
-        {
-            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
-            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
-
-
-            inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
-            var map = _worldMap.GetNativeMap();
-            inputDeps = new SetBlockIdentityAndActiveJob
-            {
-                Chunks = chunks,
-                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
-                EntityType = GetArchetypeChunkEntityType(),
-                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
-                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityAndActiveData>(),
-                WorldChunkMap = map
-            }.Schedule(inputDeps);
-            _worldMap.AddNativeMapDependency(inputDeps);
-
-            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
-            return inputDeps;
-        }
-
-        private JobHandle BlockActivePass(EntityQuery query, JobHandle inputDeps)
-        {
-            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
-            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
-
-            inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
-            var map = _worldMap.GetNativeMap();
-            inputDeps = new SetBlockActiveJob
-            {
-                Chunks = chunks,
-                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
-                EntityType = GetArchetypeChunkEntityType(),
-                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
-                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockActiveData>(),
+                JobDataType = GetArchetypeChunkComponentType<SetVoxelData>(),
                 WorldChunkMap = map
             }.Schedule(inputDeps);
             _worldMap.AddNativeMapDependency(inputDeps);
@@ -134,25 +103,17 @@ namespace ECS.UniVox.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps = BlockActivePass(_setBlockActiveQuery, inputDeps);
-            inputDeps = BlockIdentityPass(_setBlockIdentityQuery, inputDeps);
-            inputDeps = BlockActiveIdentityPass(_setBlockActiveIdentityQuery, inputDeps);
+            inputDeps = QueryPass(_query, inputDeps);
             _commandBuffer.AddJobHandleForProducer(inputDeps);
             return inputDeps;
         }
 
-        public struct SetBlockIdentityData : IComponentData
-        {
-            public WorldPosition WorldPosition;
-            public BlockIdentity BlockIdentity;
-        }
-
-        public struct SetBlockIdentityJob : IJob
+        public struct SetVoxelJob : IJob
         {
             [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
 
 
-            [ReadOnly] public ArchetypeChunkComponentType<SetBlockIdentityData> JobDataType;
+            [ReadOnly] public ArchetypeChunkComponentType<SetVoxelData> JobDataType;
             [ReadOnly] public ArchetypeChunkEntityType EntityType;
 
             public EntityCommandBuffer CommandBuffer;
@@ -180,7 +141,13 @@ namespace ECS.UniVox.Systems
                         var voxelBuffer = GetVoxelBuffer[chunkEntity];
                         var voxel = voxelBuffer[blockIndex];
 
-                        voxel = voxel.SetBlockIdentity(jobData.BlockIdentity);
+                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.BlockIdentity))
+                            voxel = voxel.SetBlockIdentity(jobData.Data.BlockIdentity);
+                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Active))
+                            voxel = voxel.SetActive(jobData.Data.Active);
+                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Shape))
+                            voxel = voxel.SetShape(jobData.Data.Shape);
+
                         CommandBuffer.SetComponent(chunkEntity, GetVersion[chunkEntity].GetDirty());
 
                         voxelBuffer[blockIndex] = voxel;
@@ -191,109 +158,11 @@ namespace ECS.UniVox.Systems
             }
         }
 
-        public struct SetBlockIdentityAndActiveData : IComponentData
+        public struct SetVoxelData : IComponentData
         {
             public WorldPosition WorldPosition;
-            public BlockIdentity BlockIdentity;
-            public bool Active;
-        }
-
-        public struct SetBlockIdentityAndActiveJob : IJob
-        {
-            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-
-
-            [ReadOnly] public ArchetypeChunkComponentType<SetBlockIdentityAndActiveData> JobDataType;
-            [ReadOnly] public ArchetypeChunkEntityType EntityType;
-
-            public EntityCommandBuffer CommandBuffer;
-
-            public BufferFromEntity<VoxelData> GetVoxelBuffer;
-            public ComponentDataFromEntity<VoxelDataVersion> GetVersion;
-
-            public NativeHashMap<ChunkPosition, Entity> WorldChunkMap;
-
-            public void Execute()
-            {
-                for (var chunkIndex = 0; chunkIndex < Chunks.Length; chunkIndex++)
-                {
-                    var chunk = Chunks[chunkIndex];
-                    var entities = chunk.GetNativeArray(EntityType);
-                    var jobDataArray = chunk.GetNativeArray(JobDataType);
-                    for (var i = 0; i < jobDataArray.Length; i++)
-                    {
-                        var jobData = jobDataArray[i];
-
-                        var worldPosition = jobData.WorldPosition;
-                        var chunkPosition = (ChunkPosition) worldPosition;
-                        var blockIndex = (BlockIndex) worldPosition;
-                        var chunkEntity = WorldChunkMap[chunkPosition];
-                        var voxelBuffer = GetVoxelBuffer[chunkEntity];
-                        var voxel = voxelBuffer[blockIndex];
-
-                        voxel = voxel.SetActive(jobData.Active).SetBlockIdentity(jobData.BlockIdentity);
-                        CommandBuffer.SetComponent(chunkEntity, GetVersion[chunkEntity].GetDirty());
-
-                        voxelBuffer[blockIndex] = voxel;
-
-                        CommandBuffer.DestroyEntity(entities[i]);
-                    }
-                }
-            }
-        }
-
-
-        public struct SetBlockActiveData : IComponentData
-        {
-            public WorldPosition WorldPosition;
-            public bool Active;
-        }
-
-        public struct SetBlockActiveJob : IJob
-        {
-            [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
-
-
-            [ReadOnly] public ArchetypeChunkComponentType<SetBlockActiveData> JobDataType;
-            [ReadOnly] public ArchetypeChunkEntityType EntityType;
-
-            public EntityCommandBuffer CommandBuffer;
-
-            public BufferFromEntity<VoxelData> GetVoxelBuffer;
-            public ComponentDataFromEntity<VoxelDataVersion> GetVersion;
-
-            public NativeHashMap<ChunkPosition, Entity> WorldChunkMap;
-
-            public void Execute()
-            {
-                for (var chunkIndex = 0; chunkIndex < Chunks.Length; chunkIndex++)
-                {
-                    var chunk = Chunks[chunkIndex];
-                    var entities = chunk.GetNativeArray(EntityType);
-                    var jobDataArray = chunk.GetNativeArray(JobDataType);
-                    for (var i = 0; i < jobDataArray.Length; i++)
-                    {
-                        var jobData = jobDataArray[i];
-
-                        var worldPosition = jobData.WorldPosition;
-                        var chunkPosition = (ChunkPosition) worldPosition;
-                        var blockIndex = (BlockIndex) worldPosition;
-//                        var chunkEntity = WorldChunkMap[chunkPosition];
-                        if (WorldChunkMap.TryGetValue(chunkPosition, out var chunkEntity))
-                        {
-                            var voxelBuffer = GetVoxelBuffer[chunkEntity];
-                            var voxel = voxelBuffer[blockIndex];
-
-                            voxel = voxel.SetActive(jobData.Active);
-                            CommandBuffer.SetComponent(chunkEntity, GetVersion[chunkEntity].GetDirty());
-
-                            voxelBuffer[blockIndex] = voxel;
-
-                            CommandBuffer.DestroyEntity(entities[i]);
-                        }
-                    }
-                }
-            }
+            public VoxelData Data;
+            public VoxelDataFlags Flags;
         }
     }
 }

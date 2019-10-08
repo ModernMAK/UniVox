@@ -1,5 +1,4 @@
 ﻿using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
