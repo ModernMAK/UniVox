@@ -23,15 +23,12 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         private ChunkCreationProxy _creationProxy;
         private VoxelWorld _world;
-
-        private NativeHashMap<ChunkPosition, Entity> _nativeMap;
         private byte _worldId;
 
         protected override void OnCreate()
         {
             _creationProxy = new ChunkCreationProxy(World.Active);
             _world = GameManager.Universe.GetOrCreate(World.Active, out _worldId);
-            _nativeMap = _world.GetNativeMap();
             _query = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new[]
@@ -157,10 +154,16 @@ namespace ECS.UniVox.VoxelChunk.Systems
             //cleanup
             inputDeps = requests.Dispose(inputDeps);
 
+            //'Load' map
+            inputDeps = _world.GetNativeMapDependency(inputDeps);
+            var map = _world.GetNativeMap();
+
+
             //DETERMINE WHAT IS LOADED
+
             inputDeps = new MapHasKeyJob<ChunkPosition, Entity>()
             {
-                Map = _nativeMap,
+                Map = map,
                 Keys = unique.AsDeferredJobArray(),
                 Results = loadedFlags
             }.Schedule(inputDeps);
@@ -179,8 +182,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
             inputDeps = unique.Dispose(inputDeps);
 
             //LOAD UNLOADED CHUNKS
-            inputDeps = _creationProxy.CreateChunks(_worldId, _nativeMap, unloadedRequests.AsDeferredJobArray(),
-                inputDeps);
+            inputDeps = _world.GetNativeMapDependency(inputDeps);
+            inputDeps = _creationProxy.CreateChunks(_worldId, unloadedRequests.AsDeferredJobArray(), inputDeps);
+
+            //'Release' map
+            _world.AddNativeMapDependency(inputDeps);
 
             //cleanup
             inputDeps = unloadedRequests.Dispose(inputDeps);

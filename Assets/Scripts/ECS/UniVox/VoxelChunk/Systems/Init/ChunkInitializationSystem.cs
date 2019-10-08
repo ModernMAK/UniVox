@@ -8,6 +8,7 @@ using Unity.Transforms;
 using UniVox;
 using UniVox.Types;
 using UniVox.Types.Identities;
+using VoxelWorld = UniVox.VoxelData.World;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -16,10 +17,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
     {
         private EntityQuery _chunkQuery;
         private EndInitializationEntityCommandBufferSystem _updateEnd;
-
+        private VoxelWorld _world;
 
         protected override void OnCreate()
         {
+            _world = GameManager.Universe.GetOrCreate(World.Active, out _);
             _chunkQuery = GetEntityQuery(typeof(VoxelChunkIdentity),
                 typeof(VoxelData), typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
 
@@ -27,6 +29,25 @@ namespace ECS.UniVox.VoxelChunk.Systems
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
+
+        [BurstCompile]
+        private struct UpdateMapJob : IJob
+        {
+            [ReadOnly] public NativeArray<Entity> Entities;
+            [ReadOnly] public NativeArray<VoxelChunkIdentity> Ids;
+
+            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
+
+            public void Execute()
+            {
+                for (var i = 0; i < Entities.Length; i++)
+                {
+                    var cPos = Ids[i].Value.ChunkId;
+                    var entity = Entities[i];
+                    ChunkMap[cPos] = entity;
+                }
+            }
+        }
 
         private JobHandle ProcessEventQuery(JobHandle inputDependencies)
         {
@@ -47,14 +68,24 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         translations[i] = new Translation() {Value = UnivoxDefine.AxisSize * ids[i].Value.ChunkId};
 
 
-                    var resizeAndInitJob = ResizeAndInitAllBuffers(entities, inputDependencies);
-                    var markValid = new RemoveComponentJob<ChunkRequiresInitializationTag>
+                    inputDependencies = ResizeAndInitAllBuffers(entities, inputDependencies);
+                    inputDependencies = new RemoveComponentJob<ChunkRequiresInitializationTag>
                     {
                         Buffer = _updateEnd.CreateCommandBuffer().ToConcurrent(),
                         ChunkEntities = entities
-                    }.Schedule(entities.Length, batchSize, resizeAndInitJob);
-                    _updateEnd.AddJobHandleForProducer(markValid);
-                    inputDependencies = markValid;
+                    }.Schedule(entities.Length, batchSize, inputDependencies);
+
+                    inputDependencies = _world.GetNativeMapDependency(inputDependencies);
+                    var map = _world.GetNativeMap();
+                    inputDependencies = new UpdateMapJob()
+                    {
+                        Entities = entities,
+                        Ids = ids,
+                        ChunkMap = map
+                    }.Schedule(inputDependencies);
+                    _world.AddNativeMapDependency(inputDependencies);
+
+                    _updateEnd.AddJobHandleForProducer(inputDependencies);
                 }
             }
 
@@ -72,7 +103,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
             where TComponent : struct, IBufferElementData
         {
             const int bufferSize = UnivoxDefine.CubeSize;
-            var jobSize = entities.Length;
             var bufferAccessor = GetBufferFromEntity<TComponent>();
 
             var resizeJob = new ResizeBufferJob<TComponent>

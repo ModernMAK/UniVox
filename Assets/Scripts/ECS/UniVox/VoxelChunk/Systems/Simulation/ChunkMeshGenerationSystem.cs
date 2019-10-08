@@ -204,7 +204,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 };
                 writerToReaderJob.Schedule(gatherPlanerJobHandle).Complete();
                 queue.Dispose();
-                renderData.Dispose();
+//                renderData.Dispose();
                 var planarBatch = writerToReaderJob.OutList;
 
                 //Calculate the Size Each Voxel Will Use
@@ -258,7 +258,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }
 
             Profiler.EndSample();
-
+            renderData.Dispose();
             uniqueBatchData.Dispose();
             return meshes;
         }

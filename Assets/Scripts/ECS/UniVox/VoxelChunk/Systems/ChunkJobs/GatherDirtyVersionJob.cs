@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 {
     [BurstCompile]
     public struct GatherDirtyVersionJob<TVersion> : IJob

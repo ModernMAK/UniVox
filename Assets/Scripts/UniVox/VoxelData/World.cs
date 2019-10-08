@@ -21,7 +21,7 @@ namespace UniVox.VoxelData
         {
             _records = new NativeHashMap<ChunkPosition, Entity>(DefaultChunksLoaded, Allocator.Persistent);
 
-
+            _handle = new JobHandle();
 //            DefaultWorldInitialization.Initialize(name,false);
             EntityWorld = Unity.Entities.World.Active; //TODO use custom world
 //            EntityWorld = new Unity.Entities.World(name);
@@ -36,6 +36,18 @@ namespace UniVox.VoxelData
 
 
         public Unity.Entities.World EntityWorld { get; }
+
+        private JobHandle _handle;
+
+        public void AddNativeMapDependency(JobHandle handle)
+        {
+            _handle = JobHandle.CombineDependencies(handle, _handle);
+        }
+
+        public JobHandle GetNativeMapDependency(JobHandle handle)
+        {
+            return JobHandle.CombineDependencies(handle, _handle);
+        }
 
         public EntityManager EntityManager => EntityWorld.EntityManager;
 
@@ -60,13 +72,13 @@ namespace UniVox.VoxelData
         [Obsolete]
         public bool TryGetValue(ChunkPosition key, out Entity value)
         {
-            
             throw new ObsoleteException();
 //            return _records.TryGetValue(key, out value);
         }
 
-        [Obsolete] public Entity this[ChunkPosition index] => 
-            throw new ObsoleteException();//_records[index];
+        [Obsolete]
+        public Entity this[ChunkPosition index] =>
+            throw new ObsoleteException(); //_records[index];
 
         [Obsolete]
         public IEnumerable<ChunkPosition> Keys =>
@@ -95,8 +107,8 @@ namespace UniVox.VoxelData
         }
 
         [Obsolete]
-        public int Count => 
-            throw new ObsoleteException();//_records.Length;
+        public int Count =>
+            throw new ObsoleteException(); //_records.Length;
 
         [Obsolete]
         public void Register(ChunkPosition index, Entity entity)

@@ -9,6 +9,7 @@ using Unity.Physics;
 using Unity.Transforms;
 using UniVox;
 using UniVox.Types.Identities.Voxel;
+using VoxelWorld = UniVox.VoxelData.World;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -24,9 +25,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Voxel Components
                 typeof(VoxelChunkIdentity),
                 typeof(VoxelData),
-//                typeof(VoxelBlockIdentity),
-//                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
-//                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag),
+
+                //Positions
                 typeof(LocalToWorld), typeof(Translation), typeof(Rotation),
 
                 //Rendering & Physics
@@ -40,14 +40,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
             _bufferSystem = world.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         }
 
-        public JobHandle CreateChunks(byte world, NativeHashMap<ChunkPosition, Entity> map,
-            NativeArray<ChunkPosition> requests, JobHandle inputDependencies)
+        public JobHandle CreateChunks(byte worldId, NativeArray<ChunkPosition> requests, JobHandle inputDependencies)
         {
             inputDependencies = new CreateVoxelChunkFromRequests()
             {
                 Buffer = _bufferSystem.CreateCommandBuffer(),
-                WorldId = world,
-                ChunkMap = map,
+                WorldId = worldId,
+//                ChunkMap = world.GetNativeMap(),
                 Archetype = _blockChunkArchetype,
                 Requests = requests,
             }.Schedule(inputDependencies);
@@ -59,8 +58,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             public EntityCommandBuffer Buffer;
             [ReadOnly] public EntityArchetype Archetype;
+
             [ReadOnly] public byte WorldId;
-            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
+
+//            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
             [ReadOnly] public NativeArray<ChunkPosition> Requests;
 
             public void Execute()
@@ -69,7 +70,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 {
                     var entity = Buffer.CreateEntity(Archetype);
                     var chunkPos = Requests[entityIndex];
-                    ChunkMap[chunkPos] = entity;
+//                    ChunkMap[chunkPos] = entity;
                     Buffer.SetComponent(entity, (VoxelChunkIdentity) new ChunkIdentity(WorldId, chunkPos));
                 }
             }
