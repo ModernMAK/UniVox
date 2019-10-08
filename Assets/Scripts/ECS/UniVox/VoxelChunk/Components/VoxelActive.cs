@@ -14,6 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Components
     /// </code>
     /// </example>
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
+    [Obsolete("Use " + nameof(VoxelData) + " instead!")]
     public struct VoxelActive : IBufferElementData, IComparable<VoxelActive>, IEquatable<VoxelActive>
     {
         private VoxelActive(bool value)

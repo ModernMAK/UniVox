@@ -28,8 +28,8 @@ namespace Unity.Entities
                 {
                     ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
-                    ComponentType.ReadWrite<VoxelActive>(),
-                    ComponentType.ReadWrite<BlockActiveVersion>(),
+                    ComponentType.ReadWrite<VoxelData>(),
+                    ComponentType.ReadWrite<VoxelDataVersion>(),
 
                     ComponentType.ReadWrite<ChunkRequiresGenerationTag>()
                 },
@@ -125,17 +125,19 @@ namespace Unity.Entities
 //            }.Schedule(blockActive);
 
 
+            var getVoxelBuffer = GetBufferFromEntity<VoxelData>();
+
             inputDependencies = new SetBlockActiveJob
             {
                 Active = true,
-                GetBlockActiveBuffer = GetBufferFromEntity<VoxelActive>(),
+                GetVoxelBuffer = getVoxelBuffer,
                 Entity = entity
             }.Schedule(inputDependencies);
             inputDependencies = new SetBlockIdentityJob
             {
                 //Hard coded, probably dirt, but more importantly probably not grass
                 Identity = new BlockIdentity(0, 1),
-                GetBlockIdentityBuffer = GetBufferFromEntity<VoxelBlockIdentity>(),
+                GetVoxelBuffer = getVoxelBuffer,
                 Entity = entity
             }.Schedule(inputDependencies);
 

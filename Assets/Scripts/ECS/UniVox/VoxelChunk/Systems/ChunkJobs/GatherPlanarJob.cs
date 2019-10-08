@@ -2,6 +2,7 @@ using System;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UniVox;
@@ -13,10 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
     [BurstCompile]
     internal struct GatherPlanarJob : IJobParallelFor
     {
-        public static GatherPlanarJob Create(NativeArray<VoxelBlockShape> shapes,
-            NativeArray<VoxelBlockCullingFlag> culled,
-            NativeArray<VoxelBlockSubMaterial> subMaterials,
-            NativeArray<VoxelBlockMaterialIdentity> materialIdentities,
+        public static GatherPlanarJob Create(DynamicBuffer<VoxelData> voxels, NativeArray<VoxelRenderData> renderData,
             ArrayMaterialIdentity batchIdentity, out NativeQueue<PlanarData> data)
         {
             data = new NativeQueue<PlanarData>(Allocator.TempJob);
@@ -24,10 +22,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             {
                 Data = data.AsParallelWriter(),
                 BatchIdentity = batchIdentity,
-                Shapes = shapes,
-                CulledFaces = culled,
-                Materials = materialIdentities,
-                SubMaterials = subMaterials
+                Voxels = voxels.AsNativeArray(),
+                RenderData = renderData,
             };
         }
 
@@ -95,10 +91,10 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             int subMaterial)
         {
             return plane.Inspected[spanIndex] ||
-                   !Shapes[chunkSpanIndex].Equals(Shapes[chunkIndex]) ||
-                   CulledFaces[chunkSpanIndex].IsCulled(plane.direction) ||
-                   !Materials[chunkSpanIndex].Equals(BatchIdentity) ||
-                   SubMaterials[chunkSpanIndex][plane.direction] != subMaterial;
+                   !Voxels[chunkSpanIndex].Equals(Voxels[chunkIndex]) ||
+                   RenderData[chunkSpanIndex].CullingFlags.HasDirection(plane.direction) ||
+                   !RenderData[chunkSpanIndex].MaterialIdentity.Equals(BatchIdentity) ||
+                   RenderData[chunkSpanIndex].SubMaterialIdentityPerFace[plane.direction] != subMaterial;
         }
 
         private void ProccessPlane(PlaneInfo plane)
@@ -112,9 +108,11 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 if (plane.Inspected[planeIndex])
                     continue;
 //                plane.Inspected[yzIndex] = true;
+                var renderData = RenderData[chunkIndex];
 
-                if (CulledFaces[chunkIndex].IsCulled(plane.direction) ||
-                    !Materials[chunkIndex].Equals(BatchIdentity))
+
+                if (renderData.CullingFlags.HasDirection(plane.direction) ||
+                    !renderData.MaterialIdentity.Equals(BatchIdentity))
                 {
                     plane.Inspected[planeIndex] = true;
                     continue;
@@ -122,7 +120,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
                 //Size excludes it's own voxel
                 var size = int2.zero;
-                var subMat = SubMaterials[chunkIndex][plane.direction];
+                var subMat = renderData.SubMaterialIdentityPerFace[plane.direction];
                 var cantMerge = false;
                 for (var majorSpan = 0; majorSpan < UnivoxDefine.AxisSize - major; majorSpan++)
                     if (majorSpan == 0)
@@ -168,7 +166,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 {
                     Direction = plane.direction,
                     Position = UnivoxUtil.GetPosition3(chunkIndex),
-                    Shape = Shapes[chunkIndex],
+                    Shape = Voxels[chunkIndex].Shape,
                     Size = size,
                     SubMaterial = subMat
                 });
@@ -176,10 +174,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
         [ReadOnly] public ArrayMaterialIdentity BatchIdentity;
-        [ReadOnly] public NativeArray<VoxelBlockMaterialIdentity> Materials;
-        [ReadOnly] public NativeArray<VoxelBlockSubMaterial> SubMaterials;
-        [ReadOnly] public NativeArray<VoxelBlockShape> Shapes;
-        [ReadOnly] public NativeArray<VoxelBlockCullingFlag> CulledFaces;
+        [ReadOnly] public NativeArray<VoxelData> Voxels;
+        [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
         [WriteOnly] public NativeQueue<PlanarData>.ParallelWriter Data;
 
 

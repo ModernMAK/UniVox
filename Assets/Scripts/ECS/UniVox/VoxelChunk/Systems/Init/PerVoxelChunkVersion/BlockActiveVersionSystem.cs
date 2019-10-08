@@ -4,6 +4,7 @@ using Unity.Entities;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
+    [Obsolete]
     public struct BlockActiveVersion : ISystemStateComponentData, IEquatable<BlockActiveVersion>,
         IVersionDirtyProxy<BlockActiveVersion>, IVersionProxy<BlockActiveVersion>
     {
@@ -57,6 +58,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         }
     }
 
+    [Obsolete]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     public class BlockActiveVersionSystem : ChunkComponentDirtySystem<VoxelActive, BlockActiveVersion>

@@ -127,6 +127,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         private void RenderComponent(NativeArray<ChunkRenderMesh> chunkRenderMeshes, NativeArray<LocalToWorld> matrixes)
         {
+            const int SubMesh = 0;
             for (var i = 0; i < chunkRenderMeshes.Length; i++)
             {
                 var chunkRenderMesh = chunkRenderMeshes[i];
@@ -138,7 +139,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     continue;
                 }
 
-//                    continue; //TODO throw a warning
                 if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
                 {
                     var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
@@ -147,7 +147,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 }
 
 
-                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, chunkRenderMesh.SubMesh,
+                Graphics.DrawMesh(mesh, matrix, material, chunkRenderMesh.Layer, default, SubMesh,
                     default, chunkRenderMesh.CastShadows, chunkRenderMesh.ReceiveShadows);
             }
         }
@@ -165,7 +165,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     continue;
                 }
 
-//                    continue; //TODO throw a warning
                 if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
                 {
                     var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");

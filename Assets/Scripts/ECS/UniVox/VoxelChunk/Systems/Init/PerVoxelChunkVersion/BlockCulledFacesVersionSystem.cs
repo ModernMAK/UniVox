@@ -1,20 +1,70 @@
+using System;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Entities;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
+    public struct VoxelDataVersion : ISystemStateComponentData, IEquatable<VoxelDataVersion>,
+        IVersionDirtyProxy<VoxelDataVersion>, IVersionProxy<VoxelDataVersion>
+    {
+        public VoxelDataVersion(uint value)
+        {
+            Value = value;
+        }
+
+        private uint Value { get; }
+
+        public bool Equals(VoxelDataVersion other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is VoxelDataVersion other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int) Value;
+        }
+
+        public static implicit operator uint(VoxelDataVersion blockActiveVersion)
+        {
+            return blockActiveVersion.Value;
+        }
+
+        public static implicit operator VoxelDataVersion(uint value)
+        {
+            return new VoxelDataVersion(value);
+        }
+
+        public bool DidChange(VoxelDataVersion other)
+        {
+            return ChangeVersionUtility.DidChange(Value, other.Value);
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
+        public VoxelDataVersion GetDirty()
+        {
+            var temp = Value;
+            ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
+            return new VoxelDataVersion(temp);
+        }
+    }
+
+
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
-    public class
-        BlockCulledFacesVersionSystem : ChunkComponentDirtySystem<VoxelBlockCullingFlag,
-            VoxelBlockCullingFlag.Version>
+    public class VoxelDataVersionSystem : ChunkComponentDirtySystem<VoxelData, VoxelDataVersion>
     {
-        protected override VoxelBlockCullingFlag.Version GetInitialVersion()
+        protected override VoxelDataVersion GetInitialVersion()
         {
-            return new VoxelBlockCullingFlag.Version
-            {
-                Value = ChangeVersionUtility.InitialGlobalSystemVersion
-            };
+            return new VoxelDataVersion(ChangeVersionUtility.InitialGlobalSystemVersion);
         }
     }
 }

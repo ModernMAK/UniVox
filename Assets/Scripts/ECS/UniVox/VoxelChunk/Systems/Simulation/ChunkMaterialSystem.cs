@@ -201,7 +201,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             EntityManager.RemoveComponent<EntityVersion>(_cleanupEntityVersionQuery);
             EntityManager.RemoveChunkComponentData<SystemVersion>(_cleanupSystemVersionQuery);
-            //TODO, lazy right now, but we need to cleanup the cache
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)

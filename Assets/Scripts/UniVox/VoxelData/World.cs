@@ -86,18 +86,12 @@ namespace UniVox.VoxelData
         public IEnumerator<KeyValuePair<ChunkPosition, Entity>> GetEnumerator()
         {
             throw new ObsoleteException();
-//            throw new NotImplementedException(
-//                "Underlying type is native; an appropriate interface will be implemented later.");
-//            return NativeRecords.GetEnumerator();
         }
 
         [Obsolete]
         IEnumerator IEnumerable.GetEnumerator()
         {
             throw new ObsoleteException();
-            throw new NotImplementedException(
-                "Underlying type is native; an appropriate interface will be implemented later.");
-//            return ((IEnumerable) NativeRecords).GetEnumerator();
         }
 
         [Obsolete]
@@ -105,11 +99,9 @@ namespace UniVox.VoxelData
             throw new ObsoleteException();//_records.Length;
 
         [Obsolete]
-        //TODO - Something better than this workaround
         public void Register(ChunkPosition index, Entity entity)
         {
             throw new ObsoleteException();
-            _records[index] = entity;
         }
 
         [Obsolete]
