@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ECS.UnityEdits.Hybrid_Renderer;
+using ECS.UniVox.Components;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Collections;
 using Unity.Entities;

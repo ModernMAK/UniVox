@@ -1,7 +1,7 @@
 using System;
 using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Components
+namespace ECS.UniVox.Components
 {
     public struct BatchGroupIdentity : IEquatable<BatchGroupIdentity>, IComparable<BatchGroupIdentity>
     {

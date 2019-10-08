@@ -62,7 +62,7 @@ namespace ECS.UniVox.Systems
             var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
             var eventityData = new SetVoxelData()
             {
-                Data = new VoxelData(blockIdentity, default, default),
+                Data = new VoxelData(blockIdentity, default(byte), default),
                 Flags = VoxelDataFlags.BlockIdentity,
 
                 WorldPosition = worldBlockPosition
