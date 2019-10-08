@@ -6,6 +6,7 @@ using UniVox.Types.Identities;
 namespace ECS.UniVox.VoxelChunk.Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
+    [Obsolete("Use " + nameof(VoxelData) + " instead!")]
     public struct VoxelBlockIdentity : IBufferElementData,
         IComparable<VoxelBlockIdentity>, IEquatable<VoxelBlockIdentity>
     {

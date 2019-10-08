@@ -6,6 +6,7 @@ using UniVox.Types;
 namespace ECS.UniVox.VoxelChunk.Components
 {
     [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
+    [Obsolete("Use " + nameof(VoxelRenderData) + " instead!")]
     public struct VoxelBlockSubMaterial : IBufferElementData,
         IComparable<VoxelBlockSubMaterial>, IEquatable<VoxelBlockSubMaterial>
     {
@@ -13,7 +14,7 @@ namespace ECS.UniVox.VoxelChunk.Components
         {
             Value = value;
         }
-        
+
 
         private FaceSubMaterial Value { get; }
 

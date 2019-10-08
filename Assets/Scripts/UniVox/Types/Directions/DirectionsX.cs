@@ -248,7 +248,7 @@ namespace UniVox.Types
                 return Direction.Forward;
             if (dir.z < -FloatError)
                 return Direction.Backward;
-            throw new NotImplementedException();
+            throw new NotSupportedException("We can't guess the direction based on the input provided!");
         }
 
         public static Vector3Int ToVector3Int(this Direction direction)

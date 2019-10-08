@@ -24,10 +24,6 @@ namespace ECS.UniVox.VoxelChunk.Components
         /// </summary>
         public bool ReceiveShadows;
 
-
-        //TODO this is always 0; safely remove it
-        public int SubMesh;
-
         /// <summary>
         /// The Layer to render to? TODO remember what this does again
         /// </summary>

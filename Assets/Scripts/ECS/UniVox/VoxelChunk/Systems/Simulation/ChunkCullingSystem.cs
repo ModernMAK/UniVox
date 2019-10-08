@@ -1,3 +1,4 @@
+using System;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using ECS.UniVox.VoxelChunk.Tags;
@@ -14,6 +15,8 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
+    [Obsolete("")]
+    [DisableAutoCreation]
     public class ChunkCullingSystem : JobComponentSystem
     {
         private EntityQuery _cleanupEntityVersionQuery;
@@ -206,7 +209,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
         {
             EntityManager.RemoveComponent<EntityVersion>(_cleanupEntityVersionQuery);
             EntityManager.RemoveChunkComponentData<SystemVersion>(_cleanupSystemVersionQuery);
-            //TODO, lazy right now, but we need to cleanup the cache
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -325,6 +327,59 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 var Entities = Chunk.GetNativeArray(EntityType);
                 for (var entityIndex = 0; entityIndex < Entities.Length; entityIndex++)
                     ProcessEntity(entityIndex, Entities);
+            }
+        }
+
+
+        [BurstCompile]
+        public struct CullEntityFacesJob : IJob
+        {
+            [ReadOnly] public Entity Entity;
+
+            [ReadOnly] public ArchetypeChunkEntityType EntityType;
+
+
+            public BufferFromEntity<VoxelData> GetVoxelBuffer;
+            [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
+
+
+            public void Execute()
+            {
+                var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+
+                var voxelBuffer = GetVoxelBuffer[Entity];
+
+                for (var blockIndex = 0; blockIndex < UnivoxDefine.CubeSize; blockIndex++)
+                {
+                    var blockPos = UnivoxUtil.GetPosition3(blockIndex);
+                    var voxel = voxelBuffer[blockIndex];
+                    var render = RenderData[blockIndex];
+
+                    var primaryActive = voxel.Active;
+
+                    var hidden = DirectionsX.AllFlag;
+
+                    for (var dirIndex = 0; dirIndex < directions.Length; dirIndex++)
+                    {
+                        var direction = directions[dirIndex];
+                        var neighborPos = blockPos + direction.ToInt3();
+                        var neighborIndex = UnivoxUtil.GetIndex(neighborPos);
+                        var neighborActive = false;
+
+                        if (UnivoxUtil.IsPositionValid(neighborPos))
+                        {
+                            var neighborVoxel = voxelBuffer[neighborIndex];
+                            neighborActive = neighborVoxel.Active;
+                        }
+
+                        if (primaryActive && !neighborActive) hidden &= ~direction.ToFlag();
+                    }
+
+                    render = render.SetCullingFlags(hidden);
+                    RenderData[blockIndex] = render;
+                }
+
+                directions.Dispose();
             }
         }
     }
