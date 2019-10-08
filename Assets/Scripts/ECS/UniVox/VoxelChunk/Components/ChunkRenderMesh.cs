@@ -2,6 +2,7 @@ using System;
 using Unity.Entities;
 using UnityEngine.Rendering;
 using ECS.UniVox.VoxelChunk.Systems;
+using ECS.UniVox.VoxelChunk.Systems.Presentation;
 
 namespace ECS.UniVox.VoxelChunk.Components
 {

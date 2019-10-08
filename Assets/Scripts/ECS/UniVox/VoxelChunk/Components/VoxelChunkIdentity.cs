@@ -54,30 +54,30 @@ namespace ECS.UniVox.VoxelChunk.Components
         }
 
 
-        public bool TryGetChunkEntity(Universe universe, out Entity record)
-        {
-            if (universe.TryGetValue(Value.WorldId, out var universeRecord))
-                return TryGetChunkEntity(universeRecord, out record);
+//        public bool TryGetChunkEntity(Universe universe, out Entity record)
+//        {
+//            if (universe.TryGetValue(Value.WorldId, out var universeRecord))
+//                return TryGetChunkEntity(universeRecord, out record);
+//
+//            record = default;
+//            return false;
+//        }
+//
+//        public Entity GetChunkEntity(Universe universe)
+//        {
+//            return GetChunkEntity(GetWorld(universe));
+//        }
 
-            record = default;
-            return false;
-        }
 
-        public Entity GetChunkEntity(Universe universe)
-        {
-            return GetChunkEntity(GetWorld(universe));
-        }
-
-
-        public bool TryGetChunkEntity(World chunkMap, out Entity record)
-        {
-            return chunkMap.TryGetValue(Value.ChunkId, out record);
-        }
-
-        public Entity GetChunkEntity(World chunkMap)
-        {
-            return chunkMap[Value.ChunkId];
-        }
+//        public bool TryGetChunkEntity(World chunkMap, out Entity record)
+//        {
+//            return chunkMap.TryGetValue(Value.ChunkId, out record);
+//        }
+//
+//        public Entity GetChunkEntity(World chunkMap)
+//        {
+//            return chunkMap[Value.ChunkId];
+//        }
 
         public override string ToString()
         {

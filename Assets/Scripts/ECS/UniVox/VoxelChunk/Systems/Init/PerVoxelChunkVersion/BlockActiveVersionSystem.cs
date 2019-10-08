@@ -57,15 +57,4 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return new BlockActiveVersion(temp);
         }
     }
-
-    [Obsolete]
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateAfter(typeof(ChunkInitializationSystem))]
-    public class BlockActiveVersionSystem : ChunkComponentDirtySystem<VoxelActive, BlockActiveVersion>
-    {
-        protected override BlockActiveVersion GetInitialVersion()
-        {
-            return new BlockActiveVersion(ChangeVersionUtility.InitialGlobalSystemVersion);
-        }
-    }
 }

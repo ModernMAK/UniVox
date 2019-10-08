@@ -6,10 +6,14 @@ namespace UniVox.Asset_Management
 {
     public class BlockRegister : MonoBehaviour
     {
+        //Disable assignment warnings
+#pragma warning disable CS0649
         [SerializeField] private BlockButtonDisabler blockButtonDisabler;
         [SerializeField] private Transform blockPanel;
         [SerializeField] private BlockAsset[] blocks;
         [SerializeField] private GameObject btnPreFab;
+        //Renable assignment warnings
+#pragma warning restore CS0649
 
         // Start is called before the first frame update
         private void Start()

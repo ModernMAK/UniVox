@@ -10,13 +10,12 @@ using UniVox.Types.Identities;
 using UniVox.VoxelData;
 using Entity = Unity.Entities.Entity;
 using RaycastHit = Unity.Physics.RaycastHit;
+using VoxelDataElement = ECS.UniVox.VoxelChunk.Components.VoxelData;
 
 namespace UniVox
 {
     public class UnivoxRaycaster : MonoBehaviour
     {
-        private const byte idLimit = 4;
-
         private Camera _camera;
         private ClickMode _clickMode = ClickMode.Single;
 
@@ -53,7 +52,10 @@ namespace UniVox
                 var bIndex = UnivoxUtil.GetIndex(bPos);
 
                 if (GameManager.Universe.TryGetValue(0, out var world))
+                    //todo move to eventities
+#pragma warning disable 612
                     if (world.TryGetValue(cPos, out var chunkRecord))
+#pragma warning restore 612
                     {
 //                    var chunk = chunkRecord.Chunk;
 //                    var block = chunk.GetAccessor(bIndex);
@@ -84,10 +86,14 @@ namespace UniVox
                 {
                     var em = voxelInfo.World.EntityManager;
 
-                    var blockIdentityArray = em.GetBuffer<VoxelBlockIdentity>(voxelInfo.ChunkEntity);
+                    var voxelBuffer = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
                     em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
 
-                    blockIdentityArray[voxelInfo.BlockIndex] = new BlockIdentity {Mod = 0, Block = id};
+
+                    var voxel = voxelBuffer[voxelInfo.BlockIndex];
+                    voxel = voxel.SetBlockIdentity(new BlockIdentity {Mod = 0, Block = id});
+                    voxelBuffer[voxelInfo.BlockIndex] = voxel;
+
 
                     _lastVoxel = voxelInfo.WorldPosition;
                     _hitPoint = hit.Position;
@@ -108,13 +114,15 @@ namespace UniVox
 
                     if (UnivoxUtil.IsPositionValid(blockPos))
                     {
-                        var blockActiveArray = em.GetBuffer<VoxelActive>(voxelInfo.ChunkEntity);
-                        var blockIdentityArray = em.GetBuffer<VoxelBlockIdentity>(voxelInfo.ChunkEntity);
-                        em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
-                        em.DirtyComponent<BlockActiveVersion>(voxelInfo.ChunkEntity);
+                        var voxelBuffer = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
+//                        var blockIdentityArray = em.GetBuffer<VoxelBlockIdentity>(voxelInfo.ChunkEntity);
+//                        em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
+                        em.DirtyComponent<VoxelDataVersion>(voxelInfo.ChunkEntity);
 
-                        blockActiveArray[blockIndex] = true;
-                        blockIdentityArray[blockIndex] = new BlockIdentity {Mod = 0, Block = id};
+                        var voxel = voxelBuffer[blockIndex];
+                        voxel = voxel.SetActive(true).SetBlockIdentity(new BlockIdentity {Mod = 0, Block = id});
+
+                        voxelBuffer[blockIndex] = voxel;
 
                         _lastVoxel = UnivoxUtil.ToWorldPosition(voxelInfo.ChunkPosition, blockPos);
                         _hitPoint = hit.Position;
@@ -137,10 +145,14 @@ namespace UniVox
                     {
                         var em = voxelInfo.World.EntityManager;
 
-                        var blockActiveArray = em.GetBuffer<VoxelActive>(voxelInfo.ChunkEntity);
-                        em.DirtyComponent<BlockActiveVersion>(voxelInfo.ChunkEntity);
+                        var voxels = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
+                        em.DirtyComponent<VoxelDataVersion>(voxelInfo.ChunkEntity);
 
-                        blockActiveArray[voxelInfo.BlockIndex] = false;
+                        var voxel = voxels[voxelInfo.BlockIndex];
+                        
+                        voxel = voxel.SetActive(false);
+
+                        voxels[voxelInfo.BlockIndex] = voxel;
 
                         _lastVoxel = voxelInfo.WorldPosition;
                         _hitPoint = hit.Position;
@@ -166,12 +178,18 @@ namespace UniVox
                             var tmpWorldPosition = worldPosition + up * x + right * y;
                             var chunk = UnivoxUtil.ToChunkPosition(tmpWorldPosition);
                             var block = UnivoxUtil.ToBlockPosition(tmpWorldPosition);
+                            //TODO move to an eventity system instead
+#pragma warning disable 612
                             if (voxelInfo.World.TryGetValue(chunk, out var entity))
+#pragma warning restore 612
                             {
-                                var blockActiveArray = em.GetBuffer<VoxelActive>(entity);
-                                em.DirtyComponent<BlockActiveVersion>(entity);
+                                var voxelBuffer = em.GetBuffer<ECS.UniVox.VoxelChunk.Components.VoxelData>(entity);
+                                var voxelIndex = UnivoxUtil.GetIndex(block);
+                                em.DirtyComponent<VoxelDataVersion>(entity);
 
-                                blockActiveArray[UnivoxUtil.GetIndex(block)] = false;
+                                var voxel = voxelBuffer[voxelIndex];
+                                voxel.SetActive(false);
+                                voxelBuffer[voxelIndex] = voxel;
                             }
                         }
 

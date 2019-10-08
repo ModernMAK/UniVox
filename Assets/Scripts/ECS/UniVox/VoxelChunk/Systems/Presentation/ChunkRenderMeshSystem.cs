@@ -15,7 +15,7 @@ using UniVox.Types.Identities;
 using UniVox.Types.Identities.Voxel;
 using UniVox.Types.Keys;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.VoxelChunk.Systems.Presentation
 {
     /// <summary>
     ///     Renders all Entities containing both RenderComponent & LocalToWorld components.

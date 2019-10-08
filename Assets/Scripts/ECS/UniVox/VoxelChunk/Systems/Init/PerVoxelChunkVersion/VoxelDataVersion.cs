@@ -56,15 +56,4 @@ namespace ECS.UniVox.VoxelChunk.Systems
             return new VoxelDataVersion(temp);
         }
     }
-
-
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateAfter(typeof(ChunkInitializationSystem))]
-    public class VoxelDataVersionSystem : ChunkComponentDirtySystem<VoxelData, VoxelDataVersion>
-    {
-        protected override VoxelDataVersion GetInitialVersion()
-        {
-            return new VoxelDataVersion(ChangeVersionUtility.InitialGlobalSystemVersion);
-        }
-    }
 }

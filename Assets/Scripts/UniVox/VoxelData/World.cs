@@ -15,7 +15,7 @@ namespace UniVox.VoxelData
         //Assuming 10 chunks in each direction; 1000
         //Rounded to 1024 because I like (Arbitrarily) powers of two
         private const int DefaultChunksLoaded = 1024;
-        private bool disposed;
+        private bool _disposed;
 
         public World(string name = default)
         {
@@ -41,9 +41,9 @@ namespace UniVox.VoxelData
 
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
                 return;
-            disposed = true;
+            _disposed = true;
             using (var entities = _records.GetValueArray(Allocator.Temp))
                 foreach (var recordValue in entities)
                     EntityManager.DestroyEntity(recordValue);
@@ -54,7 +54,7 @@ namespace UniVox.VoxelData
         public bool ContainsKey(ChunkPosition key)
         {
             throw new ObsoleteException();
-            return _records.ContainsKey(key);
+//            return _records.ContainsKey(key);
         }
 
         [Obsolete]
@@ -62,7 +62,7 @@ namespace UniVox.VoxelData
         {
             
             throw new ObsoleteException();
-            return _records.TryGetValue(key, out value);
+//            return _records.TryGetValue(key, out value);
         }
 
         [Obsolete] public Entity this[ChunkPosition index] => 
@@ -108,25 +108,25 @@ namespace UniVox.VoxelData
         public Entity GetOrCreate(ChunkPosition chunkId, EntityArchetype archetype)
         {
             throw new ObsoleteException();
-            if (TryGetValue(chunkId, out var record)) return record;
-
-//            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
-            _records[chunkId] = record = EntityManager.CreateEntity(archetype);
-            return record;
+//            if (TryGetValue(chunkId, out var record)) return record;
+//
+////            var chunk = new Chunk(); //.ArraySize, args.Allocator, args.Options);
+//            _records[chunkId] = record = EntityManager.CreateEntity(archetype);
+//            return record;
         }
 
         [Obsolete]
         public void ClearChunkEntities()
         {
             throw new ObsoleteException();
-            _records.Clear();
+//            _records.Clear();
         }
 
         [Obsolete]
         public void UpdateChunkEntity(ChunkPosition chunkId, Entity entity)
         {
             throw new ObsoleteException();
-            _records[chunkId] = entity;
+//            _records[chunkId] = entity;
         }
     }
 }

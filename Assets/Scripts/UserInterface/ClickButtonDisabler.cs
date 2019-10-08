@@ -6,24 +6,28 @@ namespace UserInterface
 {
     public class ClickButtonDisabler : MonoBehaviour
     {
-        private Button last;
+        //Disable assignment warnings
+#pragma warning disable CS0649
+        private Button _last;
 
         [SerializeField] private UnivoxRaycaster physics;
 
         [SerializeField] private Button single, drag, square, circle;
-
+        //Renable assignment warnings
+#pragma warning restore CS0649
+        
         // Start is called before the first frame update
         private void Start()
         {
-            last = single;
+            _last = single;
         }
 
         private void HandleClick(Button btn, ClickMode btnMode)
         {
-            if (last != null)
-                last.interactable = true;
+            if (_last != null)
+                _last.interactable = true;
 
-            last = btn;
+            _last = btn;
             btn.interactable = false;
             physics.SetClickMode(btnMode);
         }

@@ -21,10 +21,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         protected override void OnCreate()
         {
             _chunkQuery = GetEntityQuery(typeof(VoxelChunkIdentity),
-                typeof(VoxelActive), typeof(VoxelBlockIdentity),
-                typeof(VoxelBlockShape), typeof(VoxelBlockMaterialIdentity),
-                typeof(VoxelBlockSubMaterial), typeof(VoxelBlockCullingFlag),
-                typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
+                typeof(VoxelData), typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
 
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
@@ -74,9 +71,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             JobHandle inputDependencies)
             where TComponent : struct, IBufferElementData
         {
-            const int maxExpectedWorkers = 4; //How many maximum
             const int bufferSize = UnivoxDefine.CubeSize;
-            const int batchSize = bufferSize / maxExpectedWorkers;
             var jobSize = entities.Length;
             var bufferAccessor = GetBufferFromEntity<TComponent>();
 
@@ -103,35 +98,11 @@ namespace ECS.UniVox.VoxelChunk.Systems
             const bool defaultActive = false;
             var defaultId = new BlockIdentity(0, -1);
             const BlockShape defaultShape = BlockShape.Cube;
-            var defaultSubMatId = FaceSubMaterial.CreateAll(-1);
-            const Directions defaultCulled = DirectionsX.AllFlag;
+            var defaultVoxel = new VoxelData(defaultId, defaultActive, defaultShape);
 
-            var defaultMatId = new ArrayMaterialIdentity(0, -1);
+            inputDependencies = ResizeAndInitBuffer(entities, defaultVoxel, inputDependencies);
 
-            var blockActiveJob =
-                ResizeAndInitBuffer<VoxelActive>(entities, defaultActive, inputDependencies);
-
-            var blockIdentityJob =
-                ResizeAndInitBuffer<VoxelBlockIdentity>(entities, defaultId, inputDependencies);
-
-            var blockShapeJob = ResizeAndInitBuffer<VoxelBlockShape>(entities, defaultShape, inputDependencies);
-
-            var blockMatJob =
-                ResizeAndInitBuffer<VoxelBlockMaterialIdentity>(entities, defaultMatId, inputDependencies);
-
-            var blockSubMatJob =
-                ResizeAndInitBuffer<VoxelBlockSubMaterial>(entities, defaultSubMatId,
-                    inputDependencies);
-
-            var blockCulledJob =
-                ResizeAndInitBuffer<VoxelBlockCullingFlag>(entities, defaultCulled, inputDependencies);
-
-
-            //Combines all jobs
-            return JobHandle.CombineDependencies(
-                JobHandle.CombineDependencies(blockActiveJob, blockIdentityJob, blockShapeJob),
-                JobHandle.CombineDependencies(blockMatJob, blockSubMatJob, blockCulledJob)
-            );
+            return inputDependencies;
         }
 
 

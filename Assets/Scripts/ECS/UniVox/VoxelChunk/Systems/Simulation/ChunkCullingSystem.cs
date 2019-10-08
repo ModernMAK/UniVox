@@ -15,7 +15,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     [UpdateBefore(typeof(ChunkMeshGenerationSystem))]
-    [Obsolete("")]
+    [Obsolete()]
     [DisableAutoCreation]
     public class ChunkCullingSystem : JobComponentSystem
     {

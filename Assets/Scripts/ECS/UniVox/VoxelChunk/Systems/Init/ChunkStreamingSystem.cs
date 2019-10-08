@@ -21,7 +21,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
     {
         private EntityQuery _query;
 
-        private ChunkCreationSystem _creationSystem;
+        private ChunkCreationProxy _creationProxy;
         private VoxelWorld _world;
 
         private NativeHashMap<ChunkPosition, Entity> _nativeMap;
@@ -29,7 +29,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         protected override void OnCreate()
         {
-            _creationSystem = World.Active.GetOrCreateSystem<ChunkCreationSystem>();
+            _creationProxy = new ChunkCreationProxy(World.Active);
             _world = GameManager.Universe.GetOrCreate(World.Active, out _worldId);
             _nativeMap = _world.GetNativeMap();
             _query = GetEntityQuery(new EntityQueryDesc()
@@ -133,7 +133,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
             var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var createHandle);
             inputDeps = JobHandle.CombineDependencies(inputDeps, createHandle);
-          
+
 
             //GATHER EVERY REQUEST IN THE QUERY
             inputDeps = new GatherRequestsJob()
@@ -179,7 +179,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             inputDeps = unique.Dispose(inputDeps);
 
             //LOAD UNLOADED CHUNKS
-            inputDeps = _creationSystem.CreateChunks(_worldId, _nativeMap, unloadedRequests.AsDeferredJobArray(),
+            inputDeps = _creationProxy.CreateChunks(_worldId, _nativeMap, unloadedRequests.AsDeferredJobArray(),
                 inputDeps);
 
             //cleanup

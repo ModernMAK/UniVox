@@ -1,16 +1,14 @@
 using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems;
-using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
-using ECS.UniVox.VoxelChunk.Systems.Generation;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Types.Identities;
 
-namespace Unity.Entities
+namespace ECS.UniVox.VoxelChunk.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]
@@ -81,7 +79,7 @@ namespace Unity.Entities
 
         private JobHandle GenerateChunkEntity(Entity entity, int3 chunkPos, JobHandle inputDependencies)
         {
-            const int Octaves = 4;
+//            const int Octaves = 4;
 //            var octaveSamples = new NativeArray<float>[Octaves];
 //            var gatherOctaveSamples = inputDependencies;
 
@@ -141,16 +139,6 @@ namespace Unity.Entities
                 Entity = entity
             }.Schedule(inputDependencies);
 
-
-//            var disposeOctaves = setActive;
-//            for (var i = 0; i < Octaves; i++)
-//            {
-//                var disposeArr = new DisposeArrayJob<float>(octaveSamples[i]).Schedule(disposeOctaves);
-//                disposeOctaves = disposeArr;
-//            }
-//
-//            var disposeActive = new DisposeArrayJob<bool>(active).Schedule(disposeOctaves);
-
             return inputDependencies;
         }
 
@@ -159,7 +147,7 @@ namespace Unity.Entities
             const int BatchSize = 64;
             var EntityType = GetArchetypeChunkEntityType();
             var ChunkPositionType = GetArchetypeChunkComponentType<VoxelChunkIdentity>();
-            var chunkBlockActiveVersionType = GetArchetypeChunkComponentType<BlockActiveVersion>();
+            var voxelVersionType = GetArchetypeChunkComponentType<VoxelDataVersion>();
 
 
             using (var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob))
@@ -170,7 +158,7 @@ namespace Unity.Entities
                     var chunkHandle = inputs;
                     var entities = chunk.GetNativeArray(EntityType);
                     var chunkPositions = chunk.GetNativeArray(ChunkPositionType);
-                    var activeVersion = chunk.GetNativeArray(chunkBlockActiveVersionType);
+                    var voxelVersions = chunk.GetNativeArray(voxelVersionType);
 
 
                     for (var i = 0; i < entities.Length; i++)
@@ -180,7 +168,7 @@ namespace Unity.Entities
                         chunkHandle = JobHandle.CombineDependencies(chunkHandle, genJob);
 
 
-                        activeVersion[i] = activeVersion[i].GetDirty();
+                        voxelVersions[i] = voxelVersions[i].GetDirty();
                     }
 
                     var markGen = new RemoveComponentJob<ChunkRequiresGenerationTag>
