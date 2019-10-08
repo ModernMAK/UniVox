@@ -11,6 +11,13 @@ namespace ECS.UniVox.VoxelChunk.Components
     {
         private const byte ActiveFlag = 1 << 0;
 
+        internal VoxelData(BlockIdentity blockId, byte flags, BlockShape shape)
+        {
+            BlockIdentity = blockId;
+            _flags = flags;
+            Shape = shape;
+        }
+
         public VoxelData(BlockIdentity blockId, bool active, BlockShape shape)
         {
             BlockIdentity = blockId;
@@ -46,6 +53,9 @@ namespace ECS.UniVox.VoxelChunk.Components
 
         //1 byte
         public BlockShape Shape { get; }
+
+        //
+        internal byte Flags => _flags;
 
         //1 byte
         private readonly byte _flags;
