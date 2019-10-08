@@ -5,14 +5,6 @@ using UniVox.Managers;
 
 public class BlockButtonDisabler : MonoBehaviour
 {
-    //Disable assignment warnings
-#pragma warning disable CS0649
-    private Button _last;
-
-    [SerializeField] private UnivoxRaycaster physics;
-    //Renable assignment warnings
-#pragma warning restore CS0649
-
     // Start is called before the first frame update
     private void Start()
     {
@@ -38,4 +30,11 @@ public class BlockButtonDisabler : MonoBehaviour
     private void Update()
     {
     }
+    //Disable assignment warnings
+#pragma warning disable CS0649
+    private Button _last;
+
+    [SerializeField] private UnivoxRaycaster physics;
+    //Renable assignment warnings
+#pragma warning restore CS0649
 }

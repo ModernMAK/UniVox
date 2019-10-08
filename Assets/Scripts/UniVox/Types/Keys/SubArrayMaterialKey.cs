@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Types.Keys
+namespace UniVox.Types
 {
     public struct SubArrayMaterialKey : IEquatable<SubArrayMaterialKey>, IComparable<SubArrayMaterialKey>
     {
@@ -16,7 +16,7 @@ namespace UniVox.Types.Keys
 
         public string ToString(string seperator)
         {
-            return $"{ArrayMaterial.ToString(seperator)}{seperator}{ArrayMaterial}";
+            return $"{ArrayMaterial.ToString(seperator)}{seperator}{SubArrayMaterial}";
         }
 
         public override string ToString()

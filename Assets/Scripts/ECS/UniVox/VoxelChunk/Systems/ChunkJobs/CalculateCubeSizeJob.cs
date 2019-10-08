@@ -1,9 +1,8 @@
-using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     //TODO Deprecate this, as it does nothing
     [BurstCompile]

@@ -2,7 +2,7 @@
 using UnityEngine;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Types.Keys;
+using UniVox.Types;
 
 namespace UniVox.Managers
 {
@@ -15,15 +15,15 @@ namespace UniVox.Managers
     [CreateAssetMenu(menuName = "Custom Assets/Block")]
     public class BlockAsset : ScriptableObject
     {
-        
-        //NOTE TO FALCON - I was confused as to why this was public, since it wasnt used at all for the creation script
-        //I made the variable into a field (a getter and setter, in this case it uses an automatic variable when it compiles)
-        public BlockKey Key { get; private set; }
         public string blockName;
         public Sprite icon;
         public Material material;
         public RenderType renderType;
         public int top, side, bottom, all;
+
+        //NOTE TO FALCON - I was confused as to why this was public, since it wasnt used at all for the creation script
+        //I made the variable into a field (a getter and setter, in this case it uses an automatic variable when it compiles)
+        public BlockKey Key { get; private set; }
 
         // enum (render type)
         // 3 nums (side top bottom, all, none) for texture index

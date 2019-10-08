@@ -2,7 +2,7 @@ using System;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Entities;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     public struct VoxelDataVersion : ISystemStateComponentData, IEquatable<VoxelDataVersion>,
         IVersionDirtyProxy<VoxelDataVersion>, IVersionProxy<VoxelDataVersion>

@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems.Generic
 {
     [UpdateAfter(typeof(ChunkInitializationSystem))]
     public abstract class ChunkComponentDirtySystem<TComponent, TVersionComponent> : JobComponentSystem

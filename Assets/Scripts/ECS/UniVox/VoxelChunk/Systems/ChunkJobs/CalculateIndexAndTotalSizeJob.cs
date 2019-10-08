@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UniVox.Types.Native;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct CalculateIndexAndTotalSizeJob : IJob

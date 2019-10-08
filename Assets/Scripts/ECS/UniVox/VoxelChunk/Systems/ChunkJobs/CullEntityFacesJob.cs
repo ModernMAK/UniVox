@@ -6,7 +6,7 @@ using Unity.Jobs;
 using UniVox;
 using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct CullEntityFacesJob : IJob

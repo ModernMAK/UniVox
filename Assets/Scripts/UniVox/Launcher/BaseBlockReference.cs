@@ -1,8 +1,6 @@
 using UnityEngine;
 using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
-using UniVox.Types.Identities;
-using UniVox.Types.Keys;
 
 namespace UniVox.Launcher
 {

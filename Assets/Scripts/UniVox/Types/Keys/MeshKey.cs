@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Types.Keys
+namespace UniVox.Types
 {
     public struct IconKey : IEquatable<IconKey>, IComparable<IconKey>
     {

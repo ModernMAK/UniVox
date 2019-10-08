@@ -1,21 +1,146 @@
 using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Physics;
 using UniVox;
 using UniVox.Types;
-using UniVox.Types.Identities;
-using UniVox.Types.Identities.Voxel;
-using VoxelWorld = UniVox.VoxelData.World;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     public class ChunkRaycastingSystem : JobComponentSystem
     {
+        private EntityCommandBufferSystem _commandBuffer;
+        private EntityQuery _setBlockActiveIdentityQuery;
+        private EntityQuery _setBlockActiveQuery;
+
+
+        private EntityQuery _setBlockIdentityQuery;
+        private WorldMap _worldMap;
+
+
+        public void RemoveBlockEventity(WorldPosition worldBlockPosition)
+        {
+            var eventity = EntityManager.CreateEntity(typeof(SetBlockActiveData));
+            var eventityData = new SetBlockActiveData
+            {
+                Active = false,
+                WorldPosition = worldBlockPosition
+            };
+            EntityManager.SetComponentData(eventity, eventityData);
+        }
+
+        public void PlaceBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
+        {
+            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityAndActiveData));
+            var eventityData = new SetBlockIdentityAndActiveData
+            {
+                BlockIdentity = blockIdentity,
+                Active = true,
+                WorldPosition = worldBlockPosition
+            };
+            EntityManager.SetComponentData(eventity, eventityData);
+        }
+
+        public void AlterBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
+        {
+            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityData));
+            var eventityData = new SetBlockIdentityData
+            {
+                BlockIdentity = blockIdentity,
+                WorldPosition = worldBlockPosition
+            };
+            EntityManager.SetComponentData(eventity, eventityData);
+        }
+
+        protected override void OnCreate()
+        {
+            _setBlockIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityData));
+            _setBlockActiveIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityAndActiveData));
+            _setBlockActiveQuery = GetEntityQuery(typeof(SetBlockActiveData));
+            _commandBuffer = World.Active.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
+
+            _worldMap = GameManager.Universe.GetOrCreate(World.Active, out _);
+        }
+
+        private JobHandle BlockIdentityPass(EntityQuery query, JobHandle inputDeps)
+        {
+            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
+            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
+
+            inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
+            var map = _worldMap.GetNativeMap();
+            inputDeps = new SetBlockIdentityJob
+            {
+                Chunks = chunks,
+                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
+                EntityType = GetArchetypeChunkEntityType(),
+                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
+                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
+                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityData>(),
+                WorldChunkMap = map
+            }.Schedule(inputDeps);
+            _worldMap.AddNativeMapDependency(inputDeps);
+
+            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
+            return inputDeps;
+        }
+
+        private JobHandle BlockActiveIdentityPass(EntityQuery query, JobHandle inputDeps)
+        {
+            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
+            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
+
+
+            inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
+            var map = _worldMap.GetNativeMap();
+            inputDeps = new SetBlockIdentityAndActiveJob
+            {
+                Chunks = chunks,
+                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
+                EntityType = GetArchetypeChunkEntityType(),
+                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
+                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
+                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityAndActiveData>(),
+                WorldChunkMap = map
+            }.Schedule(inputDeps);
+            _worldMap.AddNativeMapDependency(inputDeps);
+
+            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
+            return inputDeps;
+        }
+
+        private JobHandle BlockActivePass(EntityQuery query, JobHandle inputDeps)
+        {
+            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
+            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
+
+            inputDeps = _worldMap.GetNativeMapDependency(inputDeps);
+            var map = _worldMap.GetNativeMap();
+            inputDeps = new SetBlockActiveJob
+            {
+                Chunks = chunks,
+                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
+                EntityType = GetArchetypeChunkEntityType(),
+                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
+                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
+                JobDataType = GetArchetypeChunkComponentType<SetBlockActiveData>(),
+                WorldChunkMap = map
+            }.Schedule(inputDeps);
+            _worldMap.AddNativeMapDependency(inputDeps);
+
+            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
+            return inputDeps;
+        }
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            inputDeps = BlockActivePass(_setBlockActiveQuery, inputDeps);
+            inputDeps = BlockIdentityPass(_setBlockIdentityQuery, inputDeps);
+            inputDeps = BlockActiveIdentityPass(_setBlockActiveIdentityQuery, inputDeps);
+            _commandBuffer.AddJobHandleForProducer(inputDeps);
+            return inputDeps;
+        }
+
         public struct SetBlockIdentityData : IComponentData
         {
             public WorldPosition WorldPosition;
@@ -169,137 +294,6 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     }
                 }
             }
-        }
-
-
-        public void RemoveBlockEventity(WorldPosition worldBlockPosition)
-        {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockActiveData));
-            var eventityData = new SetBlockActiveData()
-            {
-                Active = false,
-                WorldPosition = worldBlockPosition
-            };
-            EntityManager.SetComponentData(eventity, eventityData);
-        }
-
-        public void PlaceBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
-        {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityAndActiveData));
-            var eventityData = new SetBlockIdentityAndActiveData()
-            {
-                BlockIdentity = blockIdentity,
-                Active = true,
-                WorldPosition = worldBlockPosition
-            };
-            EntityManager.SetComponentData(eventity, eventityData);
-        }
-
-        public void AlterBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
-        {
-            var eventity = EntityManager.CreateEntity(typeof(SetBlockIdentityData));
-            var eventityData = new SetBlockIdentityData()
-            {
-                BlockIdentity = blockIdentity,
-                WorldPosition = worldBlockPosition
-            };
-            EntityManager.SetComponentData(eventity, eventityData);
-        }
-
-
-        private EntityQuery _setBlockIdentityQuery;
-        private EntityQuery _setBlockActiveIdentityQuery;
-        private EntityQuery _setBlockActiveQuery;
-        private EntityCommandBufferSystem _commandBuffer;
-        private VoxelWorld _world;
-
-        protected override void OnCreate()
-        {
-            _setBlockIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityData));
-            _setBlockActiveIdentityQuery = GetEntityQuery(typeof(SetBlockIdentityAndActiveData));
-            _setBlockActiveQuery = GetEntityQuery(typeof(SetBlockActiveData));
-            _commandBuffer = World.Active.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
-
-            _world = GameManager.Universe.GetOrCreate(World.Active, out _);
-        }
-
-        private JobHandle BlockIdentityPass(EntityQuery query, JobHandle inputDeps)
-        {
-            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
-            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
-
-            inputDeps = _world.GetNativeMapDependency(inputDeps);
-            var map = _world.GetNativeMap();
-            inputDeps = new SetBlockIdentityJob()
-            {
-                Chunks = chunks,
-                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
-                EntityType = GetArchetypeChunkEntityType(),
-                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
-                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityData>(),
-                WorldChunkMap = map
-            }.Schedule(inputDeps);
-            _world.AddNativeMapDependency(inputDeps);
-
-            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
-            return inputDeps;
-        }
-
-        private JobHandle BlockActiveIdentityPass(EntityQuery query, JobHandle inputDeps)
-        {
-            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
-            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
-
-
-            inputDeps = _world.GetNativeMapDependency(inputDeps);
-            var map = _world.GetNativeMap();
-            inputDeps = new SetBlockIdentityAndActiveJob()
-            {
-                Chunks = chunks,
-                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
-                EntityType = GetArchetypeChunkEntityType(),
-                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
-                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockIdentityAndActiveData>(),
-                WorldChunkMap = map
-            }.Schedule(inputDeps);
-            _world.AddNativeMapDependency(inputDeps);
-
-            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
-            return inputDeps;
-        }
-
-        private JobHandle BlockActivePass(EntityQuery query, JobHandle inputDeps)
-        {
-            var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob, out var queryJob);
-            inputDeps = JobHandle.CombineDependencies(inputDeps, queryJob);
-
-            inputDeps = _world.GetNativeMapDependency(inputDeps);
-            var map = _world.GetNativeMap();
-            inputDeps = new SetBlockActiveJob()
-            {
-                Chunks = chunks,
-                CommandBuffer = _commandBuffer.CreateCommandBuffer(),
-                EntityType = GetArchetypeChunkEntityType(),
-                GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
-                GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetBlockActiveData>(),
-                WorldChunkMap = map
-            }.Schedule(inputDeps);
-            _world.AddNativeMapDependency(inputDeps);
-
-            inputDeps = new DisposeArrayJob<ArchetypeChunk>(chunks).Schedule(inputDeps);
-            return inputDeps;
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            inputDeps = BlockActivePass(_setBlockActiveQuery, inputDeps);
-            inputDeps = BlockIdentityPass(_setBlockIdentityQuery, inputDeps);
-            inputDeps = BlockActiveIdentityPass(_setBlockActiveIdentityQuery, inputDeps);
-            _commandBuffer.AddJobHandleForProducer(inputDeps);
-            return inputDeps;
         }
     }
 }

@@ -1,5 +1,5 @@
 using UniVox.Managers.Game.Accessor;
-using UniVox.Types.Keys;
+using UniVox.Types;
 
 namespace UniVox.Launcher
 {

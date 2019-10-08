@@ -82,12 +82,14 @@ namespace UniVox.Types
             }
         }
 
-        public static void GetPlaneDirections(this Axis axis, out Direction normal, out Direction tangent, out Direction bitangent)
+        public static void GetPlaneDirections(this Axis axis, out Direction normal, out Direction tangent,
+            out Direction bitangent)
         {
             normal = axis.GetNormal();
             tangent = axis.GetTangent();
             bitangent = axis.GetBitangent();
         }
+
         public static void GetPlaneVectors(this Axis axis, out int3 normal, out int3 tangent, out int3 bitangent)
         {
             axis.GetPlaneDirections(out var n, out var t, out var b);

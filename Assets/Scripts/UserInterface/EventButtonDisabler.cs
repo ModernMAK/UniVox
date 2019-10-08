@@ -4,16 +4,6 @@ using UniVox;
 
 public class EventButtonDisabler : MonoBehaviour
 {
-
-    //Disable assignment warnings
-#pragma warning disable CS0649
-    private Button _last;
-    [SerializeField] private UnivoxRaycaster physics;
-
-    [SerializeField] private Button place, delete, alter;
-    //Renable assignment warnings
-#pragma warning restore CS0649
-
     // Start is called before the first frame update
     private void Start()
     {
@@ -37,4 +27,13 @@ public class EventButtonDisabler : MonoBehaviour
         delete.onClick.AddListener(() => HandleClick(delete, EventMode.Delete));
         alter.onClick.AddListener(() => HandleClick(alter, EventMode.Alter));
     }
+
+    //Disable assignment warnings
+#pragma warning disable CS0649
+    private Button _last;
+    [SerializeField] private UnivoxRaycaster physics;
+
+    [SerializeField] private Button place, delete, alter;
+    //Renable assignment warnings
+#pragma warning restore CS0649
 }

@@ -1,16 +1,15 @@
 using System;
 using Unity.Entities;
-using UniVox.Types.Identities.Voxel;
-using UniVox.VoxelData;
-using World = UniVox.VoxelData.World;
+using UniVox;
+using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Components
 {
     public struct VoxelChunkIdentity : IComponentData, IEquatable<VoxelChunkIdentity>, IComparable<VoxelChunkIdentity>
     {
         /*
-         * A note because i keep thinking i need to do this. BECAUSE entities are stored on a per World Basis, we dont need to use a Shared Component To GRoup Them
-         * We do still need the WorldID since we dont store a reference to the World (Even though we know the entity knows the EntityWorld their in)
+         * A note because i keep thinking i need to do this. BECAUSE entities are stored on a per WorldMap Basis, we dont need to use a Shared Component To GRoup Them
+         * We do still need the WorldID since we dont store a reference to the WorldMap (Even though we know the entity knows the EntityWorld their in)
          */
         public ChunkIdentity Value;
 
@@ -43,12 +42,12 @@ namespace ECS.UniVox.VoxelChunk.Components
 
 
         //Helper functions
-        public World GetWorld(Universe universe)
+        public WorldMap GetWorld(Universe universe)
         {
             return universe[Value.WorldId];
         }
 
-        public bool TryGetWorld(Universe universe, out World record)
+        public bool TryGetWorld(Universe universe, out WorldMap record)
         {
             return universe.TryGetValue(Value.WorldId, out record);
         }
@@ -69,12 +68,12 @@ namespace ECS.UniVox.VoxelChunk.Components
 //        }
 
 
-//        public bool TryGetChunkEntity(World chunkMap, out Entity record)
+//        public bool TryGetChunkEntity(WorldMap chunkMap, out Entity record)
 //        {
 //            return chunkMap.TryGetValue(Value.ChunkId, out record);
 //        }
 //
-//        public Entity GetChunkEntity(World chunkMap)
+//        public Entity GetChunkEntity(WorldMap chunkMap)
 //        {
 //            return chunkMap[Value.ChunkId];
 //        }

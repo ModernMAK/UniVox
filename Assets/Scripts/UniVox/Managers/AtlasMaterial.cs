@@ -4,8 +4,6 @@ using UniVox.Types;
 
 namespace UniVox
 {
-
-
     [Serializable]
     public class NamedRect : NamedValue<Rect>
     {

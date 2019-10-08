@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using ECS.UniVox.Systems;
 using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using ECS.UniVox.VoxelChunk.Systems.Presentation;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Burst;
@@ -13,10 +13,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Rendering.MeshPrefabGen;
-using UniVox.Types.Identities;
-using UniVox.Types.Identities.Voxel;
-using UniVox.Utility;
-using MeshCollider = Unity.Physics.MeshCollider;
+using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
@@ -47,7 +44,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadWrite<SystemVersion>(),
 
                     ComponentType.ReadOnly<VoxelData>(),
-                    ComponentType.ReadOnly<VoxelDataVersion>(),
+                    ComponentType.ReadOnly<VoxelDataVersion>()
                 },
                 None = new[]
                 {
@@ -61,7 +58,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
                     ComponentType.ReadOnly<VoxelData>(),
-                    ComponentType.ReadOnly<VoxelDataVersion>(),
+                    ComponentType.ReadOnly<VoxelDataVersion>()
                 },
                 None = new[]
                 {
@@ -75,7 +72,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                     ComponentType.ReadOnly<VoxelChunkIdentity>(),
 
                     ComponentType.ReadOnly<VoxelData>(),
-                    ComponentType.ReadOnly<VoxelDataVersion>(),
+                    ComponentType.ReadOnly<VoxelDataVersion>()
                 },
                 All = new[]
                 {
@@ -154,15 +151,14 @@ namespace ECS.UniVox.VoxelChunk.Systems
             var renderData =
                 VoxelRenderData.CreateNativeArray(Allocator.TempJob);
 
-            //TODO CREATE GATHER JOB --- voxels => renderData
-            handle = new CullEntityFacesJob()
+            handle = new CullEntityFacesJob
             {
                 RenderData = renderData,
                 Entity = chunk,
                 GetVoxelBuffer = getVoxelBuffer
             }.Schedule(handle);
 
-            handle = new UpdateEntityMaterialJob()
+            handle = new UpdateEntityMaterialJob
             {
                 RenderData = renderData,
                 Entity = chunk,
@@ -171,11 +167,10 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }.Schedule(handle);
 
 
-            //TODO CREATE A SEPARATE MATERIAL JOB --- renderData => materials
             var materials = new NativeArray<ArrayMaterialIdentity>(UnivoxDefine.CubeSize, Allocator.TempJob,
                 NativeArrayOptions.UninitializedMemory);
 
-            handle = new FetchMaterialsFromEntityMaterials()
+            handle = new FetchMaterialsFromEntityMaterials
             {
                 RenderData = renderData,
                 Materials = materials

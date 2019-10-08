@@ -1,3 +1,4 @@
+using ECS.UniVox.Systems.Jobs;
 using ECS.UniVox.VoxelChunk.Components;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
@@ -6,9 +7,9 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
 using UniVox;
-using UniVox.Types.Identities;
+using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]

@@ -1,4 +1,5 @@
 using System;
+using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -11,7 +12,8 @@ using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types.Native;
 using Collider = Unity.Physics.Collider;
 using MeshCollider = Unity.Physics.MeshCollider;
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct FindUniquesJob<T> : IJob where T : struct, IComparable<T> //, IEquatable<T>
@@ -125,13 +127,11 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 var count = 0;
 
                 for (var i = 0; i < source.Length; i++)
-                {
                     if (Insert(source[i], start, end))
                     {
                         end++;
                         count++;
                     }
-                }
 
                 Count.Add(count);
                 Offset.Add(start);
@@ -156,13 +156,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 if (delta == 0)
                     return true;
                 if (delta < 0) //-
-                {
                     max = mid - 1;
-                }
                 else //+
-                {
                     min = mid + 1;
-                }
             }
         }
 
@@ -172,8 +168,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
         /// <summary>
-        /// Returns TRUE IF ADDED
-        /// RETURNS FALSE IF FOUND
+        ///     Returns TRUE IF ADDED
+        ///     RETURNS FALSE IF FOUND
         /// </summary>
         /// <param name="value"></param>
         /// <param name="min"></param>
@@ -215,13 +211,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 if (delta == 0)
                     return false; //Material is Unique and present
                 if (delta < 0) //-
-                {
                     max = mid - 1;
-                }
                 else //+
-                {
                     min = mid + 1;
-                }
             }
         }
 
@@ -320,9 +312,11 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         }
 
         public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
-            DynamicBuffer<IndexBufferComponent> indexes) =>
-            CreateMeshCollider(vertexes, indexes, CollisionFilter.Default);
-         
+            DynamicBuffer<IndexBufferComponent> indexes)
+        {
+            return CreateMeshCollider(vertexes, indexes, CollisionFilter.Default);
+        }
+
 
         public static BlobAssetReference<Collider> CreateMeshCollider(DynamicBuffer<VertexBufferComponent> vertexes,
             DynamicBuffer<IndexBufferComponent> indexes, CollisionFilter filter)
@@ -424,35 +418,35 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 //            const Allocator allocator = Allocator.TempJob;
             const NativeArrayOptions options = NativeArrayOptions.UninitializedMemory;
             meshContainer = new NativeMeshContainer(indexAndSizeJob.VertexTotalSize, indexAndSizeJob.TriangleTotalSize,
-                    allocator, options);
+                allocator, options);
             return new GenerateCubeBoxelMeshJob
-            {
-                PlanarBatch = planarBatch.AsDeferredJobArray(),
+                {
+                    PlanarBatch = planarBatch.AsDeferredJobArray(),
 
-                Offset = new float3(1f / 2f),
+                    Offset = new float3(1f / 2f),
 
-                NativeCube = new NativeCubeBuilder(allocator),
+                    NativeCube = new NativeCubeBuilder(allocator),
 
-                Vertexes = meshContainer
-                    .Vertexes, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
-                Normals = meshContainer
-                    .Normals, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
-                Tangents = meshContainer
-                    .Tangents, //new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
-                TextureMap0 =
-                    meshContainer
-                        .TextureMap0, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Vertexes = meshContainer
+                        .Vertexes, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Normals = meshContainer
+                        .Normals, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    Tangents = meshContainer
+                        .Tangents, //new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
+                    TextureMap0 =
+                        meshContainer
+                            .TextureMap0, //new NativeArray<float3>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
 //                TextureMap1 = new NativeArray<float4>(indexAndSizeJob.VertexTotalSize.Value, allocator, options),
-                Triangles = meshContainer
-                    .Indexes, //new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
+                    Triangles = meshContainer
+                        .Indexes, //new NativeArray<int>(indexAndSizeJob.TriangleTotalSize.Value, allocator, options),
 
-                TriangleOffsets = indexAndSizeJob.TriangleOffsets,
-                VertexOffsets = indexAndSizeJob.VertexOffsets
-            }
-            ;
+                    TriangleOffsets = indexAndSizeJob.TriangleOffsets,
+                    VertexOffsets = indexAndSizeJob.VertexOffsets
+                }
+                ;
         }
 
-        
+
         public struct DynamicNativeMeshContainer : IDisposable
         {
             public DynamicNativeMeshContainer(int vertexes, int indexes, Allocator allocator)

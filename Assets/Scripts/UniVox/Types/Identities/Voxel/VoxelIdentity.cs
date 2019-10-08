@@ -2,10 +2,10 @@ using System;
 using Unity.Mathematics;
 using UniVox.Utility;
 
-namespace UniVox.Types.Identities.Voxel
+namespace UniVox.Types
 {
     /// <summary>
-    ///     A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or World in the Universe
+    ///     A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or WorldMap in the Universe
     /// </summary>
     public struct VoxelIdentity : IEquatable<VoxelIdentity>, IComparable<VoxelIdentity>
     {
@@ -21,13 +21,12 @@ namespace UniVox.Types.Identities.Voxel
         public short VoxelId { get; }
 
 
-        
         public override string ToString()
         {
             return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y} Z:{ChunkId.z}, I:{VoxelId}";
         }
-        
-        //WE order By World, Then By Chunk (YXZ), Then By Block (Index)
+
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
         public int CompareTo(VoxelIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

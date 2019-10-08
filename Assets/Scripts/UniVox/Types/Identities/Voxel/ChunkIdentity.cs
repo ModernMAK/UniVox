@@ -2,7 +2,7 @@ using System;
 using Unity.Mathematics;
 using UniVox.Utility;
 
-namespace UniVox.Types.Identities.Voxel
+namespace UniVox.Types
 {
     /// <summary>
     ///     A Universal Id, capable of telling us what world we are in.
@@ -16,7 +16,7 @@ namespace UniVox.Types.Identities.Voxel
 
         public byte WorldId { get; }
 
-        //WE order By World, Then By Chunk (YXZ), Then By Block (Index)
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
         public int CompareTo(WorldIdentity other)
         {
             return WorldId.CompareTo(other.WorldId);
@@ -46,7 +46,7 @@ namespace UniVox.Types.Identities.Voxel
 
 
     /// <summary>
-    ///     A Universal Id, capable of grabbing any Chunk, or World in the Universe
+    ///     A Universal Id, capable of grabbing any Chunk, or WorldMap in the Universe
     /// </summary>
     public struct ChunkIdentity : IEquatable<ChunkIdentity>, IComparable<ChunkIdentity>
     {
@@ -59,7 +59,7 @@ namespace UniVox.Types.Identities.Voxel
         public byte WorldId { get; }
         public int3 ChunkId { get; }
 
-        //WE order By World, Then By Chunk (YXZ), Then By Block (Index)
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
         public int CompareTo(ChunkIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

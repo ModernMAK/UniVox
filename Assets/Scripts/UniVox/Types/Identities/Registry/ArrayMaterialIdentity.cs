@@ -1,10 +1,9 @@
 using System;
 
-namespace UniVox.Types.Identities
+namespace UniVox.Types
 {
     public struct ArrayMaterialIdentity : IEquatable<ArrayMaterialIdentity>, IComparable<ArrayMaterialIdentity>
     {
-        
         public ModIdentity Mod;
         public int ArrayMaterial;
 

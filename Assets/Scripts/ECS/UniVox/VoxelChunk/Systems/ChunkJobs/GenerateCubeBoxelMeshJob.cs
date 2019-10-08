@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct GenerateCubeBoxelMeshJob : IJobParallelFor

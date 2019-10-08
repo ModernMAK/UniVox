@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Types.Identities
+namespace UniVox.Types
 {
     public struct BlockIdentity : IEquatable<BlockIdentity>, IComparable<BlockIdentity>
     {

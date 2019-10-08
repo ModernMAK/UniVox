@@ -7,46 +7,24 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UniVox;
 using UniVox.Types;
-using UniVox.Types.Identities;
-using VoxelWorld = UniVox.VoxelData.World;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChunkInitializationSystem : JobComponentSystem
     {
         private EntityQuery _chunkQuery;
         private EndInitializationEntityCommandBufferSystem _updateEnd;
-        private VoxelWorld _world;
+        private WorldMap _worldMap;
 
         protected override void OnCreate()
         {
-            _world = GameManager.Universe.GetOrCreate(World.Active, out _);
+            _worldMap = GameManager.Universe.GetOrCreate(World.Active, out _);
             _chunkQuery = GetEntityQuery(typeof(VoxelChunkIdentity),
                 typeof(VoxelData), typeof(ChunkInvalidTag), typeof(ChunkRequiresInitializationTag));
 
 
             _updateEnd = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
-        }
-
-
-        [BurstCompile]
-        private struct UpdateMapJob : IJob
-        {
-            [ReadOnly] public NativeArray<Entity> Entities;
-            [ReadOnly] public NativeArray<VoxelChunkIdentity> Ids;
-
-            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
-
-            public void Execute()
-            {
-                for (var i = 0; i < Entities.Length; i++)
-                {
-                    var cPos = Ids[i].Value.ChunkId;
-                    var entity = Entities[i];
-                    ChunkMap[cPos] = entity;
-                }
-            }
         }
 
         private JobHandle ProcessEventQuery(JobHandle inputDependencies)
@@ -65,7 +43,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
                     var entities = ecsChunk.GetNativeArray(entityType);
                     for (var i = 0; i < entities.Length; i++)
-                        translations[i] = new Translation() {Value = UnivoxDefine.AxisSize * ids[i].Value.ChunkId};
+                        translations[i] = new Translation {Value = UnivoxDefine.AxisSize * ids[i].Value.ChunkId};
 
 
                     inputDependencies = ResizeAndInitAllBuffers(entities, inputDependencies);
@@ -75,15 +53,15 @@ namespace ECS.UniVox.VoxelChunk.Systems
                         ChunkEntities = entities
                     }.Schedule(entities.Length, batchSize, inputDependencies);
 
-                    inputDependencies = _world.GetNativeMapDependency(inputDependencies);
-                    var map = _world.GetNativeMap();
-                    inputDependencies = new UpdateMapJob()
+                    inputDependencies = _worldMap.GetNativeMapDependency(inputDependencies);
+                    var map = _worldMap.GetNativeMap();
+                    inputDependencies = new UpdateMapJob
                     {
                         Entities = entities,
                         Ids = ids,
                         ChunkMap = map
                     }.Schedule(inputDependencies);
-                    _world.AddNativeMapDependency(inputDependencies);
+                    _worldMap.AddNativeMapDependency(inputDependencies);
 
                     _updateEnd.AddJobHandleForProducer(inputDependencies);
                 }
@@ -133,6 +111,26 @@ namespace ECS.UniVox.VoxelChunk.Systems
             inputDependencies = ResizeAndInitBuffer(entities, defaultVoxel, inputDependencies);
 
             return inputDependencies;
+        }
+
+
+        [BurstCompile]
+        private struct UpdateMapJob : IJob
+        {
+            [ReadOnly] public NativeArray<Entity> Entities;
+            [ReadOnly] public NativeArray<VoxelChunkIdentity> Ids;
+
+            public NativeHashMap<ChunkPosition, Entity> ChunkMap;
+
+            public void Execute()
+            {
+                for (var i = 0; i < Entities.Length; i++)
+                {
+                    var cPos = Ids[i].Value.ChunkId;
+                    var entity = Entities[i];
+                    ChunkMap[cPos] = entity;
+                }
+            }
         }
 
 

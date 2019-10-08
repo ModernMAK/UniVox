@@ -1,17 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using VoxelWorld = UniVox.VoxelData.World;
+using Unity.Entities;
 
-namespace UniVox.VoxelData
+namespace UniVox
 {
-    public class Universe : IDisposable, IReadOnlyDictionary<byte, World>
+    public class Universe : IDisposable, IReadOnlyDictionary<byte, WorldMap>
     {
-        private readonly Dictionary<byte, VoxelWorld> _records;
+        private readonly Dictionary<byte, WorldMap> _records;
 
         public Universe()
         {
-            _records = new Dictionary<byte, VoxelWorld>();
+            _records = new Dictionary<byte, WorldMap>();
         }
 
         public void Dispose()
@@ -25,48 +25,17 @@ namespace UniVox.VoxelData
         }
 
 
-        public VoxelWorld this[byte worldId] => _records[worldId];
-        public IEnumerable<byte> Keys => ((IReadOnlyDictionary<byte, VoxelWorld>) _records).Keys;
+        public WorldMap this[byte worldId] => _records[worldId];
+        public IEnumerable<byte> Keys => ((IReadOnlyDictionary<byte, WorldMap>) _records).Keys;
 
-        public IEnumerable<World> Values => ((IReadOnlyDictionary<byte, VoxelWorld>) _records).Values;
+        public IEnumerable<WorldMap> Values => ((IReadOnlyDictionary<byte, WorldMap>) _records).Values;
 
-        public bool TryFindWorld(Unity.Entities.World world, out VoxelWorld record)
-        {
-            foreach (var value in _records.Values)
-            {
-                if (value.EntityWorld == world)
-                {
-                    record=value;
-                    return true;
-                }
-            }
-
-            record = default;
-            return false;
-        }
-        public bool TryFindWorld(Unity.Entities.World world, out byte id, out VoxelWorld record)
-        {
-            foreach (var pair in _records)
-            {
-                if (pair.Value.EntityWorld == world)
-                {
-                    id = pair.Key;
-                    record=pair.Value;
-                    return true;
-                }
-            }
-
-            id = default;
-            record = default;
-            return false;
-        }
-        
-        public bool TryGetValue(byte worldId, out VoxelWorld record)
+        public bool TryGetValue(byte worldId, out WorldMap record)
         {
             return _records.TryGetValue(worldId, out record);
         }
 
-        public IEnumerator<KeyValuePair<byte, World>> GetEnumerator()
+        public IEnumerator<KeyValuePair<byte, WorldMap>> GetEnumerator()
         {
             return _records.GetEnumerator();
         }
@@ -78,14 +47,43 @@ namespace UniVox.VoxelData
 
         public int Count => _records.Count;
 
-        
-        public VoxelWorld GetOrCreate(byte worldId, string name = default)
+        public bool TryFindWorld(World world, out WorldMap record)
         {
-            if (!TryGetValue(worldId, out var world)) _records[worldId] = world = new VoxelWorld();
+            foreach (var value in _records.Values)
+                if (value.EntityWorld == world)
+                {
+                    record = value;
+                    return true;
+                }
+
+            record = default;
+            return false;
+        }
+
+        public bool TryFindWorld(World world, out byte id, out WorldMap record)
+        {
+            foreach (var pair in _records)
+                if (pair.Value.EntityWorld == world)
+                {
+                    id = pair.Key;
+                    record = pair.Value;
+                    return true;
+                }
+
+            id = default;
+            record = default;
+            return false;
+        }
+
+
+        public WorldMap GetOrCreate(byte worldId, string name = default)
+        {
+            if (!TryGetValue(worldId, out var world)) _records[worldId] = world = new WorldMap();
 
             return world;
         }
-        public VoxelWorld GetOrCreate(Unity.Entities.World world, out byte id, string name = default)
+
+        public WorldMap GetOrCreate(World world, out byte id, string name = default)
         {
             if (!TryFindWorld(world, out id, out var record))
             {

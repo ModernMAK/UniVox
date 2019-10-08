@@ -1,14 +1,11 @@
-﻿using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems;
+﻿using ECS.UniVox.Systems;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UniVox.Types;
-using UniVox.Types.Identities;
-using UniVox.VoxelData;
-using Entity = Unity.Entities.Entity;
 using RaycastHit = Unity.Physics.RaycastHit;
 using VoxelDataElement = ECS.UniVox.VoxelChunk.Components.VoxelData;
 
@@ -31,7 +28,7 @@ namespace UniVox
         private void Start()
         {
             _camera = GetComponent<Camera>();
-            _raycastingSystem = Unity.Entities.World.Active.GetOrCreateSystem<ChunkRaycastingSystem>();
+            _raycastingSystem = World.Active.GetOrCreateSystem<ChunkRaycastingSystem>();
         }
 
 
@@ -44,7 +41,7 @@ namespace UniVox
         private static bool VoxelRaycast(RaycastInput input, out RaycastHit hitinfo,
             out VoxelRaycastHit voxelInfo)
         {
-            var physicsSystem = Unity.Entities.World.Active.GetOrCreateSystem<BuildPhysicsWorld>();
+            var physicsSystem = World.Active.GetOrCreateSystem<BuildPhysicsWorld>();
             var collisionWorld = physicsSystem.PhysicsWorld.CollisionWorld;
 
             if (collisionWorld.CastRay(input, out hitinfo))
@@ -53,7 +50,7 @@ namespace UniVox
 //                UnivoxUtil.SplitPosition(voxSpace, out var cPos, out var bPos);
 //                var bIndex = UnivoxUtil.GetIndex(bPos);
 
-                voxelInfo = new VoxelRaycastHit()
+                voxelInfo = new VoxelRaycastHit
                 {
                     WorldPosition = (WorldPosition) voxSpace
                 };
@@ -70,7 +67,7 @@ namespace UniVox
 //                        voxelInfo = new VoxelRaycastHit
 //                        {
 //                            WorldPosition =
-//                            World = world,
+//                            WorldMap = world,
 ////                        Chunk = chunk,
 ////                        Block = block,
 ////                            BlockPosition = bPos,
@@ -96,7 +93,7 @@ namespace UniVox
 
                     _raycastingSystem.AlterBlockEventity(voxelInfo.WorldPosition, blockId);
 
-//                    var em = voxelInfo.World.EntityManager;
+//                    var em = voxelInfo.WorldMap.EntityManager;
 //
 //                    var voxelBuffer = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
 //                    em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
@@ -129,7 +126,7 @@ namespace UniVox
                     _lastVoxel = worldPos;
                     _hitPoint = hit.Position;
 
-//                    var em = voxelInfo.World.EntityManager;
+//                    var em = voxelInfo.WorldMap.EntityManager;
 //
 //                    var blockPos = voxelInfo.BlockPosition + new int3(hit.SurfaceNormal);
 //                    var blockIndex = UnivoxUtil.GetIndex(blockPos);
@@ -170,7 +167,7 @@ namespace UniVox
 
                         _lastVoxel = voxelInfo.WorldPosition;
                         _hitPoint = hit.Position;
-//                        var em = voxelInfo.World.EntityManager;
+//                        var em = voxelInfo.WorldMap.EntityManager;
 //
 //                        var voxels = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
 //                        em.DirtyComponent<VoxelDataVersion>(voxelInfo.ChunkEntity);
@@ -193,7 +190,7 @@ namespace UniVox
                 {
                     if (VoxelRaycast(input, out var hit, out var voxelInfo))
                     {
-//                        var em = voxelInfo.World.EntityManager;
+//                        var em = voxelInfo.WorldMap.EntityManager;
                         var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
                         dir.ToAxis().GetPlane(out var up, out var right);
 
@@ -209,7 +206,7 @@ namespace UniVox
 
 
 //#pragma warning disable 612
-//                            if (voxelInfo.World.TryGetValue(chunk, out var entity))
+//                            if (voxelInfo.WorldMap.TryGetValue(chunk, out var entity))
 //#pragma warning restore 612
 //                            {
 //                                var voxelBuffer = em.GetBuffer<ECS.UniVox.VoxelChunk.Components.VoxelData>(entity);
@@ -296,7 +293,7 @@ namespace UniVox
 
         private struct VoxelRaycastHit
         {
-//            public World World;
+//            public WorldMap WorldMap;
 
 //        [Obsolete]
 //        public Chunk Chunk;

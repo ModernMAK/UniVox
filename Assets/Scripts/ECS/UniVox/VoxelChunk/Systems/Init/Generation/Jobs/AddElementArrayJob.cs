@@ -2,7 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace Unity.Entities
+namespace ECS.UniVox.Systems.Jobs
 {
     [BurstCompile]
     public struct AddElementArrayJob : IJobParallelFor
@@ -20,7 +20,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="inputDependency"></param>
         /// <param name="octaveSamples"></param>

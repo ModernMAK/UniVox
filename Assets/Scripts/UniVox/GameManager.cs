@@ -4,8 +4,7 @@ using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
 using UniVox.Managers.Game.Native;
 using UniVox.Managers.Game.Structure;
-using UniVox.Types.Identities;
-using UniVox.VoxelData;
+using UniVox.Types;
 
 namespace UniVox
 {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UniVox.Types.Identities;
-using UniVox.Types.Keys;
+using UniVox.Types;
 
 namespace UniVox.Managers.Game.Accessor
 {

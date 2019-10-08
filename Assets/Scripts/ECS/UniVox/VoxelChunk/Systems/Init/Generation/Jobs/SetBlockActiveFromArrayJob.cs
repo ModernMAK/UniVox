@@ -1,10 +1,11 @@
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
-using UniVox.Types.Identities;
+using UniVox.Types;
 
-namespace Unity.Entities
+namespace ECS.UniVox.Systems.Jobs
 {
     [BurstCompile]
     public struct SetBlockActiveFromArrayJob : IJob
@@ -20,7 +21,7 @@ namespace Unity.Entities
             {
                 var voxel = voxelBuffer[index];
                 var active = Active[index];
-                
+
                 voxel = voxel.SetActive(active);
 
                 voxelBuffer[index] = voxel;
@@ -40,17 +41,16 @@ namespace Unity.Entities
             var voxelBuffer = GetVoxelBuffer[Entity];
             for (var index = 0; index < voxelBuffer.Length; index++)
             {
-                
                 var voxel = voxelBuffer[index];
-                
+
                 voxel = voxel.SetActive(Active);
 
                 voxelBuffer[index] = voxel;
             }
         }
     }
-    
-    
+
+
     [BurstCompile]
     public struct SetBlockIdentityFromArrayJob : IJob
     {
@@ -65,8 +65,8 @@ namespace Unity.Entities
             {
                 var voxel = voxelBuffer[index];
                 var identity = Identity[index];
-                
-                
+
+
                 voxel = voxel.SetBlockIdentity(identity);
 
                 voxelBuffer[index] = voxel;
@@ -86,9 +86,8 @@ namespace Unity.Entities
             var voxelBuffer = GetVoxelBuffer[Entity];
             for (var index = 0; index < voxelBuffer.Length; index++)
             {
-                
                 var voxel = voxelBuffer[index];
-                
+
                 voxel = voxel.SetBlockIdentity(Identity);
 
                 voxelBuffer[index] = voxel;

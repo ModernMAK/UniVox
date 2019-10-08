@@ -1,6 +1,5 @@
 using System;
-using UniVox.Types.Identities;
-using UniVox.Types.Identities.Voxel;
+using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Components
 {

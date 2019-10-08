@@ -11,9 +11,7 @@ using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Types.Identities;
-using UniVox.Types.Identities.Voxel;
-using UniVox.Types.Keys;
+using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Systems.Presentation
 {
@@ -26,9 +24,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class ChunkRenderMeshSystem : JobComponentSystem
     {
-        private EntityQuery _chunkComponentGroup;
-        private EntityQuery _chunkBufferGroup;
         private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
+        private EntityQuery _chunkBufferGroup;
+        private EntityQuery _chunkComponentGroup;
 
         private Dictionary<BatchGroupIdentity, Mesh> _meshCache;
 
@@ -50,18 +48,18 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
                 }
             });
 
-            _chunkBufferGroup = GetEntityQuery(new EntityQueryDesc()
+            _chunkBufferGroup = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<ChunkMeshBuffer>(),
-                    ComponentType.ReadOnly<LocalToWorld>(),
+                    ComponentType.ReadOnly<LocalToWorld>()
                 },
                 None = new[]
                 {
                     ComponentType.ReadOnly<DontRenderTag>(),
-                    ComponentType.ReadOnly<ChunkInvalidTag>(),
-                },
+                    ComponentType.ReadOnly<ChunkInvalidTag>()
+                }
             });
             _arrayMaterialRegistry = GameManager.Registry.ArrayMaterials;
 

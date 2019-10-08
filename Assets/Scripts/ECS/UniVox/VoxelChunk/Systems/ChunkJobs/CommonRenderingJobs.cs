@@ -1,8 +1,9 @@
+using ECS.UniVox.VoxelChunk.Systems;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     public static class CommonRenderingJobs
     {

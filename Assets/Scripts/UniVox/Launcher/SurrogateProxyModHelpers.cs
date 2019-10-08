@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UniVox.Launcher.Surrogate;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types;
-using UniVox.Types.Identities;
 
 namespace UniVox.Launcher
 {

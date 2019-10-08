@@ -7,9 +7,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UniVox;
 using UniVox.Types;
-using UniVox.Types.Identities;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     internal struct GatherPlanarJob : IJobParallelFor
@@ -23,7 +22,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
                 Data = data.AsParallelWriter(),
                 BatchIdentity = batchIdentity,
                 Voxels = voxels.AsNativeArray(),
-                RenderData = renderData,
+                RenderData = renderData
             };
         }
 
@@ -49,7 +48,10 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             }
         }
 
-        private Direction GetDir(Axis mode, bool positive) => mode.ToDirection(positive);
+        private Direction GetDir(Axis mode, bool positive)
+        {
+            return mode.ToDirection(positive);
+        }
 
         private int GetChunkIndex(PlaneInfo plane, int major, int minor)
         {

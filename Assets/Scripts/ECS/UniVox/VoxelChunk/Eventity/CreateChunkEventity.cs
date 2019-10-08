@@ -1,8 +1,7 @@
-using ECS.UniVox.VoxelChunk.Systems.ChunkJobs;
 using Unity.Entities;
-using UniVox.Types.Identities.Voxel;
+using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox
 {
     public struct CreateChunkEventity : IComponentData
     {

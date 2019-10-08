@@ -2,7 +2,7 @@ using Unity.Collections;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
 using UniVox.Managers.Game.Native;
-using UniVox.Types.Identities;
+using UniVox.Types;
 
 namespace UniVox.Managers.Game.Structure
 {

@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct GenerateCubeBoxelMeshJobV2 : IJob
@@ -139,8 +139,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
 
         private bool DetermineWinding(Direction direction)
         {
-            return (direction == Direction.Backward || direction == Direction.Down ||
-                    direction == Direction.Right);
+            return direction == Direction.Backward || direction == Direction.Down ||
+                   direction == Direction.Right;
         }
 
         private bool DetermineFlip(Direction direction)
@@ -176,7 +176,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
         private int2 ApplyVertex(int2 size, int vertex, bool invertWindingOrder = false)
         {
             if (invertWindingOrder)
-                vertex = 3 - (vertex % 4);
+                vertex = 3 - vertex % 4;
 
             switch (vertex % 4)
             {
@@ -298,10 +298,8 @@ namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
             for (var entityIndex = 0; entityIndex < BatchCount.Length; entityIndex++)
             {
                 if (Ignore[entityIndex])
-                {
-//                    skipped++;
+                    //                    skipped++;
                     continue;
-                }
 
                 var batchSize = BatchCount[entityIndex];
                 //entityIndexProcessed (I.E entityIndex-skipped) * batchSize[entity]

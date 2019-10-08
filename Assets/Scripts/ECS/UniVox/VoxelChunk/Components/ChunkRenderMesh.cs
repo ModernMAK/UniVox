@@ -1,8 +1,7 @@
 using System;
+using ECS.UniVox.VoxelChunk.Systems.Presentation;
 using Unity.Entities;
 using UnityEngine.Rendering;
-using ECS.UniVox.VoxelChunk.Systems;
-using ECS.UniVox.VoxelChunk.Systems.Presentation;
 
 namespace ECS.UniVox.VoxelChunk.Components
 {
@@ -10,23 +9,23 @@ namespace ECS.UniVox.VoxelChunk.Components
     public struct ChunkRenderMesh : IComponentData
     {
         /// <summary>
-        /// The value used to lookup the mesh in the ChunkRender System;
-        /// <see cref="ChunkRenderMeshSystem"/> for more info.
+        ///     The value used to lookup the mesh in the ChunkRender System;
+        ///     <see cref="ChunkRenderMeshSystem" /> for more info.
         /// </summary>
         public BatchGroupIdentity Batch;
 
         /// <summary>
-        /// Shadow casting settings. <see cref="ShadowCastingMode"/>
+        ///     Shadow casting settings. <see cref="ShadowCastingMode" />
         /// </summary>
         public ShadowCastingMode CastShadows;
 
         /// <summary>
-        /// Whether the mesh should receive shadows
+        ///     Whether the mesh should receive shadows
         /// </summary>
         public bool ReceiveShadows;
 
         /// <summary>
-        /// The Layer to render to? TODO remember what this does again
+        ///     The Layer to render to?
         /// </summary>
         public int Layer;
     }

@@ -6,16 +6,6 @@ namespace UserInterface
 {
     public class ClickButtonDisabler : MonoBehaviour
     {
-        //Disable assignment warnings
-#pragma warning disable CS0649
-        private Button _last;
-
-        [SerializeField] private UnivoxRaycaster physics;
-
-        [SerializeField] private Button single, drag, square, circle;
-        //Renable assignment warnings
-#pragma warning restore CS0649
-        
         // Start is called before the first frame update
         private void Start()
         {
@@ -40,5 +30,14 @@ namespace UserInterface
             drag.onClick.AddListener(() => HandleClick(drag, ClickMode.Drag));
             circle.onClick.AddListener(() => HandleClick(circle, ClickMode.Circle));
         }
+        //Disable assignment warnings
+#pragma warning disable CS0649
+        private Button _last;
+
+        [SerializeField] private UnivoxRaycaster physics;
+
+        [SerializeField] private Button single, drag, square, circle;
+        //Renable assignment warnings
+#pragma warning restore CS0649
     }
 }

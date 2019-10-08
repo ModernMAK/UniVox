@@ -2,7 +2,7 @@ using System;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Entities;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     [Obsolete]
     public struct BlockActiveVersion : ISystemStateComponentData, IEquatable<BlockActiveVersion>,

@@ -1,7 +1,8 @@
+using ECS.UniVox.Systems.Generic;
 using ECS.UniVox.VoxelChunk.Components;
 using Unity.Entities;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ChunkInitializationSystem))]

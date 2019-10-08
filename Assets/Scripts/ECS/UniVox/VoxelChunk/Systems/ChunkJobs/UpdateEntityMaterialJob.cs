@@ -6,9 +6,8 @@ using Unity.Jobs;
 using UniVox;
 using UniVox.Launcher;
 using UniVox.Types;
-using UniVox.Types.Identities;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     [BurstCompile]
     public struct UpdateEntityMaterialJob : IJob
@@ -36,17 +35,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 var voxel = voxelBuffer[blockIndex];
 
                 if (BlockReferences.TryGetValue(voxel.BlockIdentity, out var blockRef))
-                {
                     render = render
                         .SetMaterialIdentity(blockRef.Material)
                         .SetSubMaterialIdentityPerFace(blockRef.SubMaterial);
-                }
                 else
-                {
                     render = render
                         .SetMaterialIdentity(defaultMaterial)
                         .SetSubMaterialIdentityPerFace(defaultSubMaterial);
-                }
 
                 RenderData[blockIndex] = render;
             }

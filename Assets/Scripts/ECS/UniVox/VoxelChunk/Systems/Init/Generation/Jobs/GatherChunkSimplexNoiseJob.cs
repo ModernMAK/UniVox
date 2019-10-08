@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UniVox;
 
-namespace Unity.Entities
+namespace ECS.UniVox.Systems.Jobs
 {
     /// <summary>
     ///     Samples the chunk with the given seed, provides some sampler controls in the form of frequency, amplitude, shift

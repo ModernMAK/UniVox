@@ -1,17 +1,13 @@
-using System;
 using ECS.UniVox.VoxelChunk.Components;
-using ECS.UniVox.VoxelChunk.Systems.Generation;
 using ECS.UniVox.VoxelChunk.Tags;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Physics;
 using Unity.Transforms;
-using UniVox;
-using UniVox.Types.Identities.Voxel;
-using VoxelWorld = UniVox.VoxelData.World;
+using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems
+namespace ECS.UniVox.Systems
 {
     public class ChunkCreationProxy
     {
@@ -42,13 +38,13 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         public JobHandle CreateChunks(byte worldId, NativeArray<ChunkPosition> requests, JobHandle inputDependencies)
         {
-            inputDependencies = new CreateVoxelChunkFromRequests()
+            inputDependencies = new CreateVoxelChunkFromRequests
             {
                 Buffer = _bufferSystem.CreateCommandBuffer(),
                 WorldId = worldId,
 //                ChunkMap = world.GetNativeMap(),
                 Archetype = _blockChunkArchetype,
-                Requests = requests,
+                Requests = requests
             }.Schedule(inputDependencies);
             _bufferSystem.AddJobHandleForProducer(inputDependencies);
             return inputDependencies;

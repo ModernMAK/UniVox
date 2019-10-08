@@ -1,7 +1,7 @@
 using System;
 using Unity.Mathematics;
 
-namespace Unity.Entities
+namespace ECS.UniVox.Systems
 {
     //Container to make passing this information easier
     [Serializable]

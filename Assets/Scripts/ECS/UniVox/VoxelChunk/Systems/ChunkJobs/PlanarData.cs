@@ -1,7 +1,7 @@
 using Unity.Mathematics;
 using UniVox.Types;
 
-namespace ECS.UniVox.VoxelChunk.Systems.ChunkJobs
+namespace ECS.UniVox.Systems
 {
     public struct PlanarData
     {

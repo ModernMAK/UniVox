@@ -2,7 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace ECS.UniVox.VoxelChunk.Systems.Generation
+namespace ECS.UniVox.Systems.Jobs
 {
     [BurstCompile]
     public struct ConvertSampleToActiveJob : IJobParallelFor
