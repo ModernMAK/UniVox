@@ -1,4 +1,7 @@
-﻿using ECS.UniVox.Systems;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using ECS.UniVox.Systems;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -47,40 +50,36 @@ namespace UniVox
             if (collisionWorld.CastRay(input, out hitinfo))
             {
                 var voxSpace = UnivoxUtil.ToVoxelSpace(hitinfo.Position, hitinfo.SurfaceNormal);
-//                UnivoxUtil.SplitPosition(voxSpace, out var cPos, out var bPos);
-//                var bIndex = UnivoxUtil.GetIndex(bPos);
-
                 voxelInfo = new VoxelRaycastHit
                 {
                     WorldPosition = (WorldPosition) voxSpace
                 };
                 return true;
-//                if (GameManager.Universe.TryGetValue(0, out var world))
-//                    //todo move to eventities
-//#pragma warning disable 612
-//                    if (world.TryGetValue(cPos, out var chunkRecord))
-//#pragma warning restore 612
-//                    {
-////                    var chunk = chunkRecord.Chunk;
-////                    var block = chunk.GetAccessor(bIndex);
-//
-//                        voxelInfo = new VoxelRaycastHit
-//                        {
-//                            WorldPosition =
-//                            WorldMap = world,
-////                        Chunk = chunk,
-////                        Block = block,
-////                            BlockPosition = bPos,
-////                            BlockIndex = bIndex,
-////                            ChunkPosition = cPos,
-//                            ChunkEntity = chunkRecord
-//                        };
-//                        return true;
-//                    }
             }
 
             voxelInfo = default;
             return false;
+        }
+
+        private IEnumerable<int3> GatherPositionsFromClickMode(ClickMode clickMode, Direction normal, int size)
+        {
+            switch (clickMode)
+            {
+                case ClickMode.Single:
+                    return new[] {int3.zero};
+                    break;
+                case ClickMode.Drag:
+                    throw new NotImplementedException();
+                    break;
+                case ClickMode.Square:
+                    return GetSquareOffsets(normal.ToAxis(), new int2(size));
+                    break;
+                case ClickMode.Circle:
+                    return GetCircleOffsets(normal.ToAxis(), size);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(clickMode), clickMode, null);
+            }
         }
 
         private void HandleEvent(RaycastInput input)
@@ -90,18 +89,14 @@ namespace UniVox
                 if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
                     var blockId = new BlockIdentity {Mod = 0, Block = id};
+                    var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
 
-                    _raycastingSystem.AlterBlockEventity(voxelInfo.WorldPosition, blockId);
 
-//                    var em = voxelInfo.WorldMap.EntityManager;
-//
-//                    var voxelBuffer = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
-//                    em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
-//
-//
-//                    var voxel = voxelBuffer[voxelInfo.BlockIndex];
-//                    voxel = voxel.SetBlockIdentity();
-//                    voxelBuffer[voxelInfo.BlockIndex] = voxel;
+                    foreach (var offset in GatherPositionsFromClickMode(_clickMode, dir, 3))
+                    {
+                        var tempPos = voxelInfo.WorldPosition + offset;
+                        _raycastingSystem.AlterBlockEventity((WorldPosition) tempPos, blockId);
+                    }
 
 
                     _lastVoxel = voxelInfo.WorldPosition;
@@ -119,116 +114,98 @@ namespace UniVox
                     var worldPos = voxelInfo.WorldPosition + new int3(hit.SurfaceNormal);
 
                     var blockId = new BlockIdentity {Mod = 0, Block = id};
+                    var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
+
+
+                    foreach (var offset in GatherPositionsFromClickMode(_clickMode, dir, 3))
+                    {
+                        var tempPos = worldPos + offset;
+                        _raycastingSystem.AlterBlockEventity((WorldPosition) tempPos, blockId);
+                    }
+
 
                     _raycastingSystem.PlaceBlockEventity((WorldPosition) worldPos, blockId);
 
 
                     _lastVoxel = worldPos;
                     _hitPoint = hit.Position;
-
-//                    var em = voxelInfo.WorldMap.EntityManager;
-//
-//                    var blockPos = voxelInfo.BlockPosition + new int3(hit.SurfaceNormal);
-//                    var blockIndex = UnivoxUtil.GetIndex(blockPos);
-//
-//                    if (UnivoxUtil.IsPositionValid(blockPos))
-//                    {
-//                        var voxelBuffer = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
-////                        var blockIdentityArray = em.GetBuffer<VoxelBlockIdentity>(voxelInfo.ChunkEntity);
-////                        em.DirtyComponent<VoxelBlockIdentityVersion>(voxelInfo.ChunkEntity);
-//                        em.DirtyComponent<VoxelDataVersion>(voxelInfo.ChunkEntity);
-//
-//                        var voxel = voxelBuffer[blockIndex];
-//                        voxel = voxel.SetActive(true).SetBlockIdentity(new BlockIdentity {Mod = 0, Block = id});
-//
-//                        voxelBuffer[blockIndex] = voxel;
-//
-//                        _lastVoxel = UnivoxUtil.ToWorldPosition(voxelInfo.ChunkPosition, blockPos);
-//                        _hitPoint = hit.Position;
-//                    }
-//                    else
-//                    {
-//                        Debug.Log($"OOB CreateNative : {hit.Position} -> {blockPos} -> {hit.SurfaceNormal}");
-//                    }
                 }
                 else
                 {
-                    Debug.Log($"Missed CreateNative : {hit.Position} -> {hit.SurfaceNormal}");
+                    Debug.Log($"Missed Create : {hit.Position} -> {hit.SurfaceNormal}");
                 }
             }
             else if (_eventMode == EventMode.Delete)
             {
-                if (_clickMode == ClickMode.Single)
+                if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
-                    if (VoxelRaycast(input, out var hit, out var voxelInfo))
-                    {
-                        _raycastingSystem.RemoveBlockEventity(voxelInfo.WorldPosition);
+                    var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
 
 
-                        _lastVoxel = voxelInfo.WorldPosition;
-                        _hitPoint = hit.Position;
-//                        var em = voxelInfo.WorldMap.EntityManager;
-//
-//                        var voxels = em.GetBuffer<VoxelDataElement>(voxelInfo.ChunkEntity);
-//                        em.DirtyComponent<VoxelDataVersion>(voxelInfo.ChunkEntity);
-//
-//                        var voxel = voxels[voxelInfo.BlockIndex];
-//                        
-//                        voxel = voxel.SetActive(false);
-//
-//                        voxels[voxelInfo.BlockIndex] = voxel;
-//
-//                        _lastVoxel = voxelInfo.WorldPosition;
-//                        _hitPoint = hit.Position;
-                    }
-                    else
+                    foreach (var offset in GatherPositionsFromClickMode(_clickMode, dir, 3))
                     {
-                        Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
+                        var tempPos = voxelInfo.WorldPosition + offset;
+                        _raycastingSystem.RemoveBlockEventity((WorldPosition) tempPos);
                     }
+
+
+                    _lastVoxel = voxelInfo.WorldPosition;
+                    _hitPoint = hit.Position;
                 }
-                else if (_clickMode == ClickMode.Square)
+                else
                 {
-                    if (VoxelRaycast(input, out var hit, out var voxelInfo))
-                    {
-//                        var em = voxelInfo.WorldMap.EntityManager;
-                        var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
-                        dir.ToAxis().GetPlane(out var up, out var right);
-
-                        var worldPosition = voxelInfo.WorldPosition;
-
-                        for (var x = -1; x < 2; x++)
-                        for (var y = -1; y < 2; y++)
-                        {
-                            var tmpWorldPosition = worldPosition + up * x + right * y;
-
-
-                            _raycastingSystem.RemoveBlockEventity((WorldPosition) tmpWorldPosition);
-
-
-//#pragma warning disable 612
-//                            if (voxelInfo.WorldMap.TryGetValue(chunk, out var entity))
-//#pragma warning restore 612
-//                            {
-//                                var voxelBuffer = em.GetBuffer<ECS.UniVox.VoxelChunk.Components.VoxelData>(entity);
-//                                var voxelIndex = UnivoxUtil.GetIndex(block);
-//                                em.DirtyComponent<VoxelDataVersion>(entity);
-//
-//                                var voxel = voxelBuffer[voxelIndex];
-//                                voxel.SetActive(false);
-//                                voxelBuffer[voxelIndex] = voxel;
-//                            }
-                        }
-
-                        _lastVoxel = voxelInfo.WorldPosition;
-                        _hitPoint = hit.Position;
-                    }
-                    else
-                    {
-                        Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
-                    }
+                    Debug.Log($"Missed Destroy : {hit.Position} -> {hit.SurfaceNormal}");
                 }
             }
         }
+
+
+        private IEnumerable<int3> GetSquareOffsets(Axis axis, int2 halfSize)
+        {
+            axis.GetPlane(out var uDir, out var vDir);
+            for (var u = -halfSize.x; u <= halfSize.x; u++)
+            for (var v = -halfSize.y; v <= halfSize.y; v++)
+                yield return (uDir * u + vDir * v);
+        }
+
+        private IEnumerable<int3> GetCubeOffsets(int3 halfSize)
+        {
+            for (var dx = -halfSize.x; dx <= halfSize.x; dx++)
+            for (var dy = -halfSize.y; dy <= halfSize.y; dy++)
+            for (var dz = -halfSize.z; dz <= halfSize.z; dz++)
+                yield return new int3(dx, dy, dz);
+        }
+
+        private IEnumerable<int3> GetCircleOffsets(Axis axis, int radius)
+        {
+            var radSqr = radius * radius;
+            foreach (var offset in GetSquareOffsets(axis, new int2(radius)))
+            {
+                //Validate in circle
+                if (GetSquaredMagnitude(offset) <= radSqr)
+                {
+                    yield return offset;
+                }
+            }
+        }
+
+        private IEnumerable<int3> GetSphereOffsets(int radius)
+        {
+            var radSqr = radius * radius;
+            foreach (var offset in GetCubeOffsets(new int3(radius)))
+            {
+                //Validate in circle
+                if (GetSquaredMagnitude(offset) <= radSqr)
+                {
+                    yield return offset;
+                }
+            }
+        }
+
+        private int GetSquaredMagnitude(int3 value) => value.x * value.x + value.y * value.y + value.z * value.z;
+        private int GetSquaredMagnitude(int2 value) => value.x * value.x + value.y * value.y;
+        private int GetSquaredMagnitude(int value) => value * value;
+
 
         private RaycastInput GetRaycastInput()
         {
