@@ -14,7 +14,7 @@ namespace UniVox.Types.Native
 {
     /// <summary>
     ///     <para>
-    ///         A NativeValue exposes a buffer of native memory to managed code, making it possible to share data between
+    ///         A NativeValue exposes a pointer of native memory to managed code, making it possible to share a blittable piece of data between
     ///         managed and native without marshalling costs.
     ///     </para>
     /// </summary>

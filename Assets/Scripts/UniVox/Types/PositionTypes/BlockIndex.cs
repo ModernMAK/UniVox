@@ -1,6 +1,9 @@
+using System;
+
 namespace UniVox.Types
 {
-    public struct BlockIndex
+    
+    public struct BlockIndex : IEquatable<BlockIndex>, IComparable<BlockIndex>
     {
         public BlockIndex(short blockIndex)
         {
@@ -12,6 +15,8 @@ namespace UniVox.Types
             Value = (short) blockIndex;
         }
 
+        
+        
         private short Value { get; }
 
         public static implicit operator int(BlockIndex blockIndex)
@@ -42,6 +47,26 @@ namespace UniVox.Types
         public static explicit operator BlockIndex(WorldPosition blockPosition)
         {
             return (BlockIndex) (BlockPosition) blockPosition;
+        }
+
+        public bool Equals(BlockIndex other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BlockIndex other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public int CompareTo(BlockIndex other)
+        {
+            return Value.CompareTo(other.Value);
         }
     }
 }
