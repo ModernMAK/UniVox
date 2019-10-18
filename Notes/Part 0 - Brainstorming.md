@@ -1,6 +1,18 @@
 # Mechanics
+## Recipes / Crafting
+No matter what, i like the idea of multiple crafting stations. This unfortunately creates some problems.
+Recipes vs Patterns. Patterns are engaging, but multiple crafting stations with similiar patterns can be confusing. This does give us some leeway with the crafting grid, since it can use slots.
+Recipes are simple, and if recipes are used, they need to be more engaging than a name in a list. Recipes make autocrafting simple (since we just create a queue of recipes.)
+
+Something we should avoid is restricting recipes to 'tiers' a-la a tier 1 machine cant but a tier 2 can, if they are seperate machines, then they should be named differently, and hopefully act differently. 
+
+Perhaps, allow the player to use any crafting bench nearby. 'Terraria already does that'
+
+
+
 ## Wires & Pipes
 Stolen from Minecraft's many 'Tech' Mods. Variants should include; Power Wires, Item, Liquid, Gas, Maybe more?
+
 ## Jobs & Towns & Economy & Citizens
 ### Towns 
 Towns can be constructed. Not sure how yet. Towns need Townies
@@ -75,7 +87,6 @@ Alternatively Jobs could act as State Machines, I will call these BEHAVIOURS
 
 The main difference i See is that BEHAVIOURS dictate their future BEHAVIOURS (and thus know state), while CHORES do not. The downside i see to behaviours is that transitions would need to be defined, where as chores could be chosen by using a blackboard of information, and weighting it against Chores, then selecting the highest. (Find L4D Speach AI GDC for an example)
 
-
 # Chunk Streaming & Async Pipelines
 ## Chunk Creation
 Chunks need to be valid when present in the World, a chunk is not valid until all steps of creation are completed.
@@ -97,5 +108,3 @@ Perhaps a pipeline which uses flags to let us know what state chunks are in and 
 -> Creating | Valid | RequestingRender  
 
 This couples our code though
-
- 
