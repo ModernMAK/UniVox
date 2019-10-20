@@ -32,6 +32,13 @@ namespace UniVox
         {
             _camera = GetComponent<Camera>();
             _raycastingSystem = World.Active.GetOrCreateSystem<ChunkRaycastingSystem>();
+
+
+            foreach (var offset in GetSphereOffsets(3))
+            {
+                var tempPos = (int3) (float3) transform.position + offset;
+                _raycastingSystem.RemoveBlockEventity((WorldPosition) tempPos);
+            }
         }
 
 
@@ -120,11 +127,11 @@ namespace UniVox
                     foreach (var offset in GatherPositionsFromClickMode(_clickMode, dir, 3))
                     {
                         var tempPos = worldPos + offset;
-                        _raycastingSystem.AlterBlockEventity((WorldPosition) tempPos, blockId);
+                        _raycastingSystem.PlaceBlockEventity((WorldPosition) tempPos, blockId);
                     }
 
 
-                    _raycastingSystem.PlaceBlockEventity((WorldPosition) worldPos, blockId);
+//                    _raycastingSystem.PlaceBlockEventity((WorldPosition) worldPos, blockId);
 
 
                     _lastVoxel = worldPos;

@@ -16,6 +16,10 @@ namespace UniVox.Types
         }
 
         
+        public override string ToString()
+        {
+            return $"BlockIndex {Value}";
+        }
         
         private short Value { get; }
 

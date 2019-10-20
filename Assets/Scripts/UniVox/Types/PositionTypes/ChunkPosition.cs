@@ -42,6 +42,11 @@ namespace UniVox.Types
             return Value.Equals(other.Value);
         }
 
+        public override string ToString()
+        {
+            return $"ChunkPos {Value.x}x {Value.y}y {Value.z}z";
+        }
+
         public override bool Equals(object obj)
         {
             return obj is ChunkPosition other && Equals(other);

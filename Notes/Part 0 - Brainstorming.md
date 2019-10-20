@@ -1,3 +1,17 @@
+# Hotbars - Handling Items
+Minecraft got it right with the hotbar.
+Factorio got it right with MULTIPLE hotbars.
+Dragon Quest (Builders) got it right with DEDICATED hotbars.
+
+So, i think the plan is a seperate 'hotbar' for tools and weapons. (maybe seperate them into their own hotbars)
+And a dedicated building hotbar. 
+
+Maybe quick menus? As Mario Maker and Fallout show, these can suck or they can suck. But quick menus would allow us to have maybe 4 menus which would allow us to quickly jump between 'tools/weapons/survival/building'
+
+Something to think about.
+
+
+
 # Mechanics
 ## Wires & Pipes
 Stolen from Minecraft's many 'Tech' Mods. Variants should include; Power Wires, Item, Liquid, Gas, Maybe more?

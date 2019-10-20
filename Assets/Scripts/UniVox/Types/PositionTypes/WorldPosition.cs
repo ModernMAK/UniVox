@@ -11,6 +11,10 @@ namespace UniVox.Types
 
         private int3 Value { get; }
 
+        public override string ToString()
+        {
+            return $"GlobalPos {Value.x}x {Value.y}y {Value.z}z";
+        }
 
         public static implicit operator int3(WorldPosition worldPosition)
         {

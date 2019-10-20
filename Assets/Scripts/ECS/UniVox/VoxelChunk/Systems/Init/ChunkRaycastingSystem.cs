@@ -33,8 +33,8 @@ namespace ECS.UniVox.Systems
 
         public void RemoveBlockEventity(WorldPosition worldBlockPosition)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
-            var eventityData = new SetVoxelData()
+            var eventity = EntityManager.CreateEntity(typeof(AlterVoxelEventData));
+            var eventityData = new AlterVoxelEventData()
             {
                 Data = new VoxelData(default, false, default),
                 Flags = VoxelDataFlags.Active,
@@ -46,8 +46,8 @@ namespace ECS.UniVox.Systems
 
         public void PlaceBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
-            var eventityData = new SetVoxelData()
+            var eventity = EntityManager.CreateEntity(typeof(AlterVoxelEventData));
+            var eventityData = new AlterVoxelEventData()
             {
                 Data = new VoxelData(blockIdentity, true, default),
                 Flags = VoxelDataFlags.BlockIdentity | VoxelDataFlags.Active,
@@ -59,8 +59,8 @@ namespace ECS.UniVox.Systems
 
         public void AlterBlockEventity(WorldPosition worldBlockPosition, BlockIdentity blockIdentity)
         {
-            var eventity = EntityManager.CreateEntity(typeof(SetVoxelData));
-            var eventityData = new SetVoxelData()
+            var eventity = EntityManager.CreateEntity(typeof(AlterVoxelEventData));
+            var eventityData = new AlterVoxelEventData()
             {
                 Data = new VoxelData(blockIdentity, default(byte), default),
                 Flags = VoxelDataFlags.BlockIdentity,
@@ -72,7 +72,7 @@ namespace ECS.UniVox.Systems
 
         protected override void OnCreate()
         {
-            _query = GetEntityQuery(typeof(SetVoxelData));
+            _query = GetEntityQuery(typeof(AlterVoxelEventData));
             _commandBuffer = World.Active.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
 
             _worldMap = GameManager.Universe.GetOrCreate(World.Active, out _);
@@ -92,7 +92,7 @@ namespace ECS.UniVox.Systems
                 EntityType = GetArchetypeChunkEntityType(),
                 GetVersion = GetComponentDataFromEntity<VoxelDataVersion>(),
                 GetVoxelBuffer = GetBufferFromEntity<VoxelData>(),
-                JobDataType = GetArchetypeChunkComponentType<SetVoxelData>(),
+                JobDataType = GetArchetypeChunkComponentType<AlterVoxelEventData>(),
                 WorldChunkMap = map
             }.Schedule(inputDeps);
             _worldMap.AddNativeMapDependency(inputDeps);
@@ -113,7 +113,7 @@ namespace ECS.UniVox.Systems
             [ReadOnly] public NativeArray<ArchetypeChunk> Chunks;
 
 
-            [ReadOnly] public ArchetypeChunkComponentType<SetVoxelData> JobDataType;
+            [ReadOnly] public ArchetypeChunkComponentType<AlterVoxelEventData> JobDataType;
             [ReadOnly] public ArchetypeChunkEntityType EntityType;
 
             public EntityCommandBuffer CommandBuffer;
@@ -132,33 +132,38 @@ namespace ECS.UniVox.Systems
                     var jobDataArray = chunk.GetNativeArray(JobDataType);
                     for (var i = 0; i < jobDataArray.Length; i++)
                     {
+                        var entity = entities[i];
                         var jobData = jobDataArray[i];
 
                         var worldPosition = jobData.WorldPosition;
                         var chunkPosition = (ChunkPosition) worldPosition;
                         var blockIndex = (BlockIndex) worldPosition;
-                        var chunkEntity = WorldChunkMap[chunkPosition];
-                        var voxelBuffer = GetVoxelBuffer[chunkEntity];
-                        var voxel = voxelBuffer[blockIndex];
+                        if (WorldChunkMap.TryGetValue(chunkPosition, out var chunkEntity))
+                        {
+                            var voxelBuffer = GetVoxelBuffer[chunkEntity];
+                            var voxel = voxelBuffer[blockIndex];
 
-                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.BlockIdentity))
-                            voxel = voxel.SetBlockIdentity(jobData.Data.BlockIdentity);
-                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Active))
-                            voxel = voxel.SetActive(jobData.Data.Active);
-                        if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Shape))
-                            voxel = voxel.SetShape(jobData.Data.Shape);
+                            if (jobData.Flags.AreFlagsSet(VoxelDataFlags.BlockIdentity))
+                                voxel = voxel.SetBlockIdentity(jobData.Data.BlockIdentity);
+                            if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Active))
+                                voxel = voxel.SetActive(jobData.Data.Active);
+                            if (jobData.Flags.AreFlagsSet(VoxelDataFlags.Shape))
+                                voxel = voxel.SetShape(jobData.Data.Shape);
+                            var version = GetVersion[chunkEntity];
+                            var dirtyVersion = version.GetDirty();
 
-                        CommandBuffer.SetComponent(chunkEntity, GetVersion[chunkEntity].GetDirty());
+                            CommandBuffer.SetComponent(chunkEntity, dirtyVersion);
 
-                        voxelBuffer[blockIndex] = voxel;
+                            voxelBuffer[blockIndex] = voxel;
 
-                        CommandBuffer.DestroyEntity(entities[i]);
+                            CommandBuffer.DestroyEntity(entity);
+                        }
                     }
                 }
             }
         }
 
-        public struct SetVoxelData : IComponentData
+        public struct AlterVoxelEventData : IComponentData
         {
             public WorldPosition WorldPosition;
             public VoxelData Data;
