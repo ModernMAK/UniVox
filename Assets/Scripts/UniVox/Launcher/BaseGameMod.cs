@@ -23,7 +23,7 @@ namespace UniVox.Launcher
         private const string SandBlockPath = "Sand";
         private const string StoneBlockPath = "Stone";
 
-        public static readonly ArrayMaterialKey GrassDirtMaterialKey = new ArrayMaterialKey(ModPath, GrassDirtMatPath);
+        public static readonly MaterialKey GrassDirtMaterialKey = new MaterialKey(ModPath, GrassDirtMatPath);
 
         public static readonly SubArrayMaterialKey GrassSubMaterialKey =
             new SubArrayMaterialKey(GrassDirtMaterialKey, GrassSubMatPath);
@@ -34,8 +34,8 @@ namespace UniVox.Launcher
         public static readonly SubArrayMaterialKey DirtSubMaterialKey =
             new SubArrayMaterialKey(GrassDirtMaterialKey, DirtSubMatPath);
 
-        public static readonly ArrayMaterialKey StoneMaterialKey = new ArrayMaterialKey(ModPath, StoneMatPath);
-        public static readonly ArrayMaterialKey SandMaterialKey = new ArrayMaterialKey(ModPath, SandMatPath);
+        public static readonly MaterialKey StoneMaterialKey = new MaterialKey(ModPath, StoneMatPath);
+        public static readonly MaterialKey SandMaterialKey = new MaterialKey(ModPath, SandMatPath);
         public static readonly BlockKey GrassBlock = new BlockKey(ModPath, GrassBlockPath);
         public static readonly BlockKey DirtBlock = new BlockKey(ModPath, DirtBlockPath);
         public static readonly BlockKey SandBlock = new BlockKey(ModPath, SandBlockPath);

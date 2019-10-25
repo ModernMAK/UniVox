@@ -6,6 +6,6 @@ namespace ECS.UniVox
     public struct CreateChunkMeshEventity : IComponentData
     {
         public ChunkIdentity Identity;
-        public ArrayMaterialIdentity Material;
+        public MaterialIdentity Material;
     }
 }

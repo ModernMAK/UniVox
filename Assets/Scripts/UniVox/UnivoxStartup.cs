@@ -15,9 +15,9 @@ namespace UniVox
         // Start is called before the first frame update
         private void Start()
         {
-            if (!GameManager.Registry.Mods.IsRegistered(BaseGameMod.ModPath))
-                GameManager.Registry.Mods.Register(BaseGameMod.ModPath);
-            GameManager.Registry.ArrayMaterials.Register(new ArrayMaterialKey(BaseGameMod.ModPath, "Default"),
+//            if (!GameManager.Registry.Mods.IsRegistered(BaseGameMod.ModPath))
+//                GameManager.Registry.Mods.Register(BaseGameMod.ModPath);
+            GameManager.Registry.Materials.Register(new MaterialKey(BaseGameMod.ModPath, "Default"),
                 defaultMat);
 
             var world = GameManager.Universe.GetOrCreate(0, "UniVox");

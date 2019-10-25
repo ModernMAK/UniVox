@@ -167,7 +167,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
             }.Schedule(handle);
 
 
-            var materials = new NativeArray<ArrayMaterialIdentity>(UnivoxDefine.CubeSize, Allocator.TempJob,
+            var materials = new NativeArray<MaterialIdentity>(UnivoxDefine.CubeSize, Allocator.TempJob,
                 NativeArrayOptions.UninitializedMemory);
 
             handle = new FetchMaterialsFromEntityMaterials
@@ -205,7 +205,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Calculate the Size Each Voxel Will Use
                 var cubeSizeJob = UnivoxRenderingJobs.CreateCalculateCubeSizeJobV2(planarBatch);
 
-                //Calculate the Size of the Mesh and the position to write to per voxel
+                //Calculate the Size of the Value and the position to write to per voxel
                 var indexAndSizeJob = UnivoxRenderingJobs.CreateCalculateIndexAndTotalSizeJob(cubeSizeJob);
                 //Schedule the jobs
                 var cubeSizeJobHandle = cubeSizeJob.Schedule(planarBatch.Length, maxBatchSize);
@@ -241,7 +241,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //Schedule the generation
                 var genMeshHandle = genMeshJob.Schedule(planarBatch.Length, maxBatchSize, indexAndSizeJobHandle);
 
-                //Finish and CreateNative the Mesh
+                //Finish and CreateNative the Value
                 genMeshHandle.Complete();
                 planarBatch.Dispose();
                 meshes[i] = new RenderResult
@@ -260,7 +260,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
 
         private void ProcessFrameCache()
         {
-            Profiler.BeginSample("Create Native Mesh Entities");
+            Profiler.BeginSample("Create Native Value Entities");
             while (_frameCaches.Count > 0)
             {
                 var cached = _frameCaches.Dequeue();
@@ -369,7 +369,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
         public struct RenderResult
         {
             public NativeMeshContainer NativeMesh;
-            public ArrayMaterialIdentity Material;
+            public MaterialIdentity Material;
         }
 
         private struct FrameCache
@@ -384,7 +384,7 @@ namespace ECS.UniVox.VoxelChunk.Systems
     public struct FetchMaterialsFromEntityMaterials : IJob
     {
         [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
-        [WriteOnly] public NativeArray<ArrayMaterialIdentity> Materials;
+        [WriteOnly] public NativeArray<MaterialIdentity> Materials;
 
 
         public void Execute()

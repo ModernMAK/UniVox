@@ -103,7 +103,7 @@ namespace ECS.UniVox.Systems
         private JobHandle ResizeAndInitAllBuffers(NativeArray<Entity> entities, JobHandle inputDependencies)
         {
             const bool defaultActive = false;
-            var defaultId = new BlockIdentity(0, -1);
+            var defaultId = new BlockIdentity( -1);
             const BlockShape defaultShape = BlockShape.Cube;
             var defaultVoxel = new VoxelData(defaultId, defaultActive, defaultShape);
 

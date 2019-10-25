@@ -13,7 +13,7 @@ namespace ECS.UniVox.VoxelChunk.Components
             return new NativeArray<VoxelRenderData>(UnivoxDefine.CubeSize, allocator, options);
         }
 
-        public VoxelRenderData(ArrayMaterialIdentity materialId, FaceSubMaterial faceSubMaterial,
+        public VoxelRenderData(MaterialIdentity materialId, FaceSubMaterial faceSubMaterial,
             Directions cullingFlags)
         {
             MaterialIdentity = materialId;
@@ -22,7 +22,7 @@ namespace ECS.UniVox.VoxelChunk.Components
         }
 
 
-        public VoxelRenderData SetMaterialIdentity(ArrayMaterialIdentity materialIdentity)
+        public VoxelRenderData SetMaterialIdentity(MaterialIdentity materialIdentity)
         {
             return new VoxelRenderData(materialIdentity, SubMaterialIdentityPerFace, CullingFlags);
         }
@@ -38,7 +38,7 @@ namespace ECS.UniVox.VoxelChunk.Components
         }
 
         //5 bytes
-        public ArrayMaterialIdentity MaterialIdentity { get; }
+        public MaterialIdentity MaterialIdentity { get; }
 
         //24 bytes
         public FaceSubMaterial SubMaterialIdentityPerFace { get; }

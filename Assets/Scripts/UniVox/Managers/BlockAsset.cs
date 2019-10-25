@@ -12,7 +12,7 @@ namespace UniVox.Managers
         All
     }
 
-    [CreateAssetMenu(menuName = "Custom Assets/Block")]
+    [CreateAssetMenu(menuName = "Custom Assets/Value")]
     public class BlockAsset : ScriptableObject
     {
         public string blockName;
@@ -31,11 +31,11 @@ namespace UniVox.Managers
 
         public void CreateBlockReference()
         {
-            var materialKey = new ArrayMaterialKey(BaseGameMod.ModPath, blockName);
-            GameManager.Registry.ArrayMaterials.Register(materialKey, material, out var materialIdentity);
+            var materialKey = new MaterialKey(BaseGameMod.ModPath, blockName);
+            var materialIdentity = GameManager.Registry.Materials.Register(materialKey, material);
 
-            var iconKey = new IconKey(BaseGameMod.ModPath, blockName);
-            GameManager.Registry.Icons.Register(iconKey, icon, out var iconIdentity);
+            var iconKey = new SpriteKey(BaseGameMod.ModPath, blockName);
+            var iconIdentity = GameManager.Registry.Sprites.Register(iconKey, icon);
 
             Key = new BlockKey(BaseGameMod.ModPath, blockName);
             BaseBlockReference blockReference;
@@ -51,7 +51,7 @@ namespace UniVox.Managers
                     throw new ArgumentOutOfRangeException();
             }
 
-            GameManager.Registry.Blocks.Register(Key, blockReference, out var identity);
+            var identity = GameManager.Registry.Blocks.Register(Key, blockReference);
 
             GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
         }

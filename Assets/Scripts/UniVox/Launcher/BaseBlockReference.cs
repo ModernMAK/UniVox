@@ -7,9 +7,9 @@ namespace UniVox.Launcher
     public abstract class BaseBlockReference
     {
         protected BlockKey BlockKey;
-        protected IconKey IconKey;
+        protected SpriteKey SpriteKey;
 
-        public abstract ArrayMaterialIdentity GetMaterial();
+        public abstract MaterialIdentity GetMaterial();
         public abstract FaceSubMaterial GetSubMaterial();
 
         public abstract Sprite GetBlockIcon();
@@ -30,7 +30,7 @@ namespace UniVox.Launcher
             SubMaterial = blockRef.GetSubMaterial();
         }
 
-        public ArrayMaterialIdentity Material;
+        public MaterialIdentity Material;
         public FaceSubMaterial SubMaterial;
     }
 }

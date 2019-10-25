@@ -24,7 +24,7 @@ namespace ECS.UniVox.Systems
 
         public void Execute()
         {
-            var defaultMaterial = new ArrayMaterialIdentity(0, -1);
+            var defaultMaterial = new MaterialIdentity( -1);
             var defaultSubMaterial = FaceSubMaterial.CreateAll(-1);
 
 

@@ -2,6 +2,7 @@ using System;
 
 namespace UniVox.Types
 {
+    [Obsolete("Use SpriteKey", true)]
     public struct IconKey : IEquatable<IconKey>, IComparable<IconKey>
     {
         public IconKey(ModKey mod, string array)
@@ -66,7 +67,7 @@ namespace UniVox.Types
 //        
 //        public static explicit operator string(MeshKey mey)
 //        {
-//            return mey.Mesh;
+//            return mey.Value;
 //        }
 
         public static implicit operator MeshKey(ModKey value)

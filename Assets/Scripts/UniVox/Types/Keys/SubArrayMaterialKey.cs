@@ -4,19 +4,19 @@ namespace UniVox.Types
 {
     public struct SubArrayMaterialKey : IEquatable<SubArrayMaterialKey>, IComparable<SubArrayMaterialKey>
     {
-        public SubArrayMaterialKey(ArrayMaterialKey arrayMaterial, string subArrayMaterial)
+        public SubArrayMaterialKey(MaterialKey material, string subArrayMaterial)
         {
-            ArrayMaterial = arrayMaterial;
+            Material = material;
             SubArrayMaterial = subArrayMaterial;
         }
 
-//        public ModKey Mod => Icon.Mod;
-        public ArrayMaterialKey ArrayMaterial;
+//        public ModKey Mod => Value.Mod;
+        public MaterialKey Material;
         public string SubArrayMaterial;
 
         public string ToString(string seperator)
         {
-            return $"{ArrayMaterial.ToString(seperator)}{seperator}{SubArrayMaterial}";
+            return $"{Material.ToString(seperator)}{seperator}{SubArrayMaterial}";
         }
 
         public override string ToString()
@@ -26,7 +26,7 @@ namespace UniVox.Types
 
         public bool Equals(SubArrayMaterialKey other)
         {
-            return ArrayMaterial.Equals(other.ArrayMaterial) && string.Equals(SubArrayMaterial, other.SubArrayMaterial);
+            return Material.Equals(other.Material) && string.Equals(SubArrayMaterial, other.SubArrayMaterial);
         }
 
         public override bool Equals(object obj)
@@ -38,14 +38,14 @@ namespace UniVox.Types
         {
             unchecked
             {
-                return (ArrayMaterial.GetHashCode() * 397) ^
+                return (Material.GetHashCode() * 397) ^
                        (SubArrayMaterial != null ? SubArrayMaterial.GetHashCode() : 0);
             }
         }
 
         public int CompareTo(SubArrayMaterialKey other)
         {
-            var materialComparison = ArrayMaterial.CompareTo(other.ArrayMaterial);
+            var materialComparison = Material.CompareTo(other.Material);
             if (materialComparison != 0) return materialComparison;
             return string.Compare(SubArrayMaterial, other.SubArrayMaterial, StringComparison.Ordinal);
         }

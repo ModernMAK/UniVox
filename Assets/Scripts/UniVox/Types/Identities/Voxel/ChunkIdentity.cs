@@ -16,7 +16,7 @@ namespace UniVox.Types
 
         public byte WorldId { get; }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
         public int CompareTo(WorldIdentity other)
         {
             return WorldId.CompareTo(other.WorldId);
@@ -59,7 +59,7 @@ namespace UniVox.Types
         public byte WorldId { get; }
         public int3 ChunkId { get; }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
         public int CompareTo(ChunkIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

@@ -1,7 +1,14 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine.Rendering.LookDev;
 
 namespace UniVox.Managers.Game.Accessor
 {
+    //Whats nice about registries, is that they want to be 3-way dictionaries, but they are readonly.
+    //Instead of 6 dictionaries, we only need 3; one per Key,Id,Value, and then an array for the pair
+    //In our case, ID double as the index, so we only need 2
+
+    [Obsolete]
     public abstract class RegistryWrapper<TKey, TIdentity, TValue>
     {
         public TValue this[TKey key] => GetValue(key);

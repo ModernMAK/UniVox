@@ -14,7 +14,7 @@ namespace ECS.UniVox.Systems
     internal struct GatherPlanarJob : IJobParallelFor
     {
         public static GatherPlanarJob Create(DynamicBuffer<VoxelData> voxels, NativeArray<VoxelRenderData> renderData,
-            ArrayMaterialIdentity batchIdentity, out NativeQueue<PlanarData> data)
+            MaterialIdentity batchIdentity, out NativeQueue<PlanarData> data)
         {
             data = new NativeQueue<PlanarData>(Allocator.TempJob);
             return new GatherPlanarJob
@@ -175,7 +175,7 @@ namespace ECS.UniVox.Systems
             }
         }
 
-        [ReadOnly] public ArrayMaterialIdentity BatchIdentity;
+        [ReadOnly] public MaterialIdentity BatchIdentity;
         [ReadOnly] public NativeArray<VoxelData> Voxels;
         [ReadOnly] public NativeArray<VoxelRenderData> RenderData;
         [WriteOnly] public NativeQueue<PlanarData>.ParallelWriter Data;

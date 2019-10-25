@@ -134,7 +134,7 @@ namespace ECS.UniVox.Systems
             inputDependencies = new SetBlockIdentityJob
             {
                 //Hard coded, probably dirt, but more importantly probably not grass
-                Identity = new BlockIdentity(0, 1),
+                Identity = new BlockIdentity(1),
                 GetVoxelBuffer = getVoxelBuffer,
                 Entity = entity
             }.Schedule(inputDependencies);

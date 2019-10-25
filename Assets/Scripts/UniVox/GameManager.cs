@@ -35,10 +35,10 @@ namespace UniVox
             Blocks.Dispose();
         }
 
-        public void UpdateBlocksFromRegistry(BlockRegistryAccessor accessor)
+        public void UpdateBlocksFromRegistry(BlockRegistry accessor)
         {
             Blocks.Dispose();
-            Blocks = accessor.CreateNativeBlockMap();
+            Blocks = accessor.CreateNative(Allocator.Persistent);
         }
     }
 }

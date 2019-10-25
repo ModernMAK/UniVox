@@ -6,7 +6,7 @@ namespace ECS.UniVox.Components
     public struct BatchGroupIdentity : IEquatable<BatchGroupIdentity>, IComparable<BatchGroupIdentity>
     {
         public ChunkIdentity Chunk;
-        public ArrayMaterialIdentity MaterialIdentity;
+        public MaterialIdentity MaterialIdentity;
 
         public bool Equals(BatchGroupIdentity other)
         {

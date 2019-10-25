@@ -8,7 +8,7 @@ namespace ECS.UniVox.Systems
     public static class CommonRenderingJobs
     {
         /// <summary>
-        ///     Creates A Mesh. The Mesh is sent to teh GPU and is no longer readable.
+        ///     Creates A Value. The Value is sent to teh GPU and is no longer readable.
         /// </summary>
         /// <param name="vertexes"></param>
         /// <param name="normals"></param>
@@ -26,9 +26,9 @@ namespace ECS.UniVox.Systems
             mesh.SetUVs(0, uvs);
             //            mesh.SetUVs(2, uv1s);
             mesh.SetIndices(indexes, MeshTopology.Triangles, 0, false);
-            //Optimizes the Mesh, might not be neccessary
+            //Optimizes the Value, might not be neccessary
             mesh.Optimize();
-            //Recalculates the Mesh's Boundary
+            //Recalculates the Value's Boundary
             mesh.RecalculateBounds();
             //Frees the mesh from CPU, but makes it unreadable.
             //            mesh.UploadMeshData(true);
@@ -46,9 +46,9 @@ namespace ECS.UniVox.Systems
             mesh.SetUVs(0, uvs, vStart, vLen);
             //            mesh.SetUVs(2, uv1s);
             mesh.SetIndices(indexes, iStart, iLen, MeshTopology.Triangles, 0, false);
-            //Optimizes the Mesh, might not be neccessary
+            //Optimizes the Value, might not be neccessary
             mesh.Optimize();
-            //Recalculates the Mesh's Boundary
+            //Recalculates the Value's Boundary
             mesh.RecalculateBounds();
             //Frees the mesh from CPU, but makes it unreadable.
             //            mesh.UploadMeshData(true);
@@ -69,9 +69,9 @@ namespace ECS.UniVox.Systems
 
             mesh.SetIndices(indexes, MeshTopology.Triangles, 0, false);
 
-            //Optimizes the Mesh, might not be neccessary
+            //Optimizes the Value, might not be neccessary
             mesh.Optimize();
-            //Recalculates the Mesh's Boundary
+            //Recalculates the Value's Boundary
             mesh.RecalculateBounds();
 
             return mesh;

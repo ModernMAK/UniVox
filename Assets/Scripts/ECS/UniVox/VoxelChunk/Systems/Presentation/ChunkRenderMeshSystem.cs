@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Launcher;
-using UniVox.Managers.Game.Accessor;
+using UniVox.Managers.Game.Structure;
 using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Systems.Presentation
@@ -24,7 +24,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class ChunkRenderMeshSystem : JobComponentSystem
     {
-        private ArrayMaterialRegistryAccessor _arrayMaterialRegistry;
+        private MaterialRegistry _materialRegistry;
         private EntityQuery _chunkBufferGroup;
         private EntityQuery _chunkComponentGroup;
 
@@ -61,7 +61,7 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
                     ComponentType.ReadOnly<ChunkInvalidTag>()
                 }
             });
-            _arrayMaterialRegistry = GameManager.Registry.ArrayMaterials;
+            _materialRegistry = GameManager.Registry.Materials;
 
             _meshCache = new Dictionary<BatchGroupIdentity, Mesh>();
         }
@@ -133,14 +133,14 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
 
                 if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
                 {
-                    Debug.LogWarning($"No Mesh For {chunkRenderMesh.Batch}!");
+                    Debug.LogWarning($"No Value For {chunkRenderMesh.Batch}!");
                     continue;
                 }
 
-                if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
+                if (!_materialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
                 {
-                    var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
-                    if (!_arrayMaterialRegistry.TryGetValue(defaultError, out material))
+                    var defaultError = new MaterialKey(BaseGameMod.ModPath, "Default");
+                    if (!_materialRegistry.TryGetValue(defaultError, out material))
                         continue; //TODO throw a warning
                 }
 
@@ -159,14 +159,14 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
 
                 if (!_meshCache.TryGetValue(chunkRenderMesh.Batch, out var mesh))
                 {
-                    Debug.LogError($"No Mesh For {chunkRenderMesh.Batch}!");
+                    Debug.LogError($"No Value For {chunkRenderMesh.Batch}!");
                     continue;
                 }
 
-                if (!_arrayMaterialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
+                if (!_materialRegistry.TryGetValue(chunkRenderMesh.Batch.MaterialIdentity, out var material))
                 {
-                    var defaultError = new ArrayMaterialKey(BaseGameMod.ModPath, "Default");
-                    if (!_arrayMaterialRegistry.TryGetValue(defaultError, out material))
+                    var defaultError = new MaterialKey(BaseGameMod.ModPath, "Default");
+                    if (!_materialRegistry.TryGetValue(defaultError, out material))
                         continue; //TODO throw a warning
                 }
 
@@ -178,18 +178,18 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
         }
 
         public static BatchGroupIdentity CreateBatchGroupIdentity(ChunkIdentity chunk,
-            ArrayMaterialIdentity arrayMaterialIdentity)
+            MaterialIdentity materialIdentity)
         {
             return new BatchGroupIdentity
             {
                 Chunk = chunk,
-                MaterialIdentity = arrayMaterialIdentity
+                MaterialIdentity = materialIdentity
             };
         }
 
-        public void UploadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh)
+        public void UploadMesh(ChunkIdentity chunk, MaterialIdentity materialIdentity, Mesh mesh)
         {
-            UploadMesh(CreateBatchGroupIdentity(chunk, arrayMaterialIdentity), mesh);
+            UploadMesh(CreateBatchGroupIdentity(chunk, materialIdentity), mesh);
         }
 
         public void UploadMesh(BatchGroupIdentity groupIdentity, Mesh mesh)
@@ -197,9 +197,9 @@ namespace ECS.UniVox.VoxelChunk.Systems.Presentation
             _meshCache[groupIdentity] = mesh;
         }
 
-        public void UnloadMesh(ChunkIdentity chunk, ArrayMaterialIdentity arrayMaterialIdentity, Mesh mesh)
+        public void UnloadMesh(ChunkIdentity chunk, MaterialIdentity materialIdentity, Mesh mesh)
         {
-            UnloadMesh(CreateBatchGroupIdentity(chunk, arrayMaterialIdentity));
+            UnloadMesh(CreateBatchGroupIdentity(chunk, materialIdentity));
         }
 
         public void UnloadMesh(BatchGroupIdentity groupIdentity)

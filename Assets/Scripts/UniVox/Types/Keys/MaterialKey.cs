@@ -1,10 +1,11 @@
 using System;
+using UnityEngine;
 
 namespace UniVox.Types
 {
-    public struct ArrayMaterialKey : IEquatable<ArrayMaterialKey>, IComparable<ArrayMaterialKey>
+    public struct MaterialKey : IEquatable<MaterialKey>, IComparable<MaterialKey>
     {
-        public ArrayMaterialKey(ModKey mod, string array)
+        public MaterialKey(ModKey mod, string array)
         {
             Mod = mod;
             ArrayMaterial = array;
@@ -23,14 +24,14 @@ namespace UniVox.Types
             return ToString("~");
         }
 
-        public bool Equals(ArrayMaterialKey other)
+        public bool Equals(MaterialKey other)
         {
             return Mod.Equals(other.Mod) && string.Equals(ArrayMaterial, other.ArrayMaterial);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ArrayMaterialKey other && Equals(other);
+            return obj is MaterialKey other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -41,7 +42,7 @@ namespace UniVox.Types
             }
         }
 
-        public int CompareTo(ArrayMaterialKey other)
+        public int CompareTo(MaterialKey other)
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;

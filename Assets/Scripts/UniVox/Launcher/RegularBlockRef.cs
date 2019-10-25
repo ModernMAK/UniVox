@@ -7,20 +7,20 @@ namespace UniVox.Launcher
 {
     public class RegularBlockRef : BaseBlockReference
     {
-        private readonly ArrayMaterialIdentity _material;
+        private readonly MaterialIdentity _material;
         private readonly FaceSubMaterial _subMat;
 
-        public RegularBlockRef(ArrayMaterialIdentity materialIdentity, BlockKey blockKey, IconKey iconKey,
+        public RegularBlockRef(MaterialIdentity materialIdentity, BlockKey blockKey, SpriteKey spriteKey,
             int subMat = 0)
         {
             _material = materialIdentity;
             _subMat = FaceSubMaterial.CreateAll(subMat);
             BlockKey = blockKey;
-            IconKey = iconKey;
+            SpriteKey = spriteKey;
         }
 
 
-        public override ArrayMaterialIdentity GetMaterial()
+        public override MaterialIdentity GetMaterial()
         {
             return _material;
         }
@@ -32,8 +32,8 @@ namespace UniVox.Launcher
 
         public override Sprite GetBlockIcon()
         {
-            if (!GameManager.Registry.Icons.TryGetValue(IconKey, out var sprite))
-                throw new AssetNotFoundException(nameof(IconKey), IconKey.ToString());
+            if (!GameManager.Registry.Sprites.TryGetValue(SpriteKey, out var sprite))
+                throw new AssetNotFoundException(nameof(SpriteKey), SpriteKey.ToString());
             return sprite;
         }
 

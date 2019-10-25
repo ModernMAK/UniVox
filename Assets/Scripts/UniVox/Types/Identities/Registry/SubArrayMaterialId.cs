@@ -4,23 +4,23 @@ namespace UniVox.Types
 {
     public struct SubArrayMaterialId : IComparable<SubArrayMaterialId>, IEquatable<SubArrayMaterialId>
     {
-        public SubArrayMaterialId(ArrayMaterialIdentity identity, int subMaterialId)
+        public SubArrayMaterialId(MaterialIdentity identity, int subMaterialId)
         {
-            ArrayMaterial = identity;
+            Material = identity;
             SubArrayMaterial = subMaterialId;
         }
 
-        public ArrayMaterialIdentity ArrayMaterial;
+        public MaterialIdentity Material;
         public int SubArrayMaterial;
 
-        public static explicit operator SubArrayMaterialId(ArrayMaterialIdentity identity)
+        public static explicit operator SubArrayMaterialId(MaterialIdentity identity)
         {
             return new SubArrayMaterialId(identity, 0);
         }
 
-        public static implicit operator ArrayMaterialIdentity(SubArrayMaterialId value)
+        public static implicit operator MaterialIdentity(SubArrayMaterialId value)
         {
-            return value.ArrayMaterial;
+            return value.Material;
         }
 
         public static implicit operator int(SubArrayMaterialId value)
@@ -30,14 +30,14 @@ namespace UniVox.Types
 
         public int CompareTo(SubArrayMaterialId other)
         {
-            var modComparison = ArrayMaterial.CompareTo(other.ArrayMaterial);
+            var modComparison = Material.CompareTo(other.Material);
             if (modComparison != 0) return modComparison;
             return SubArrayMaterial.CompareTo(other.SubArrayMaterial);
         }
 
         public bool Equals(SubArrayMaterialId other)
         {
-            return ArrayMaterial.Equals(other.ArrayMaterial) && SubArrayMaterial == other.SubArrayMaterial;
+            return Material.Equals(other.Material) && SubArrayMaterial == other.SubArrayMaterial;
         }
 
         public override bool Equals(object obj)
@@ -49,7 +49,7 @@ namespace UniVox.Types
         {
             unchecked
             {
-                return (ArrayMaterial.GetHashCode() * 397) ^ SubArrayMaterial;
+                return (Material.GetHashCode() * 397) ^ SubArrayMaterial;
             }
         }
     }

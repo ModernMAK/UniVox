@@ -95,7 +95,7 @@ namespace UniVox
             {
                 if (VoxelRaycast(input, out var hit, out var voxelInfo))
                 {
-                    var blockId = new BlockIdentity {Mod = 0, Block = id};
+                    var blockId = new BlockIdentity(id);
                     var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
 
 
@@ -120,7 +120,7 @@ namespace UniVox
                 {
                     var worldPos = voxelInfo.WorldPosition + new int3(hit.SurfaceNormal);
 
-                    var blockId = new BlockIdentity {Mod = 0, Block = id};
+                    var blockId = new BlockIdentity(id);
                     var dir = DirectionsX.UnsafeDirectionGuesser(hit.SurfaceNormal);
 
 
@@ -283,7 +283,7 @@ namespace UniVox
 //        public Chunk Chunk;
 //            public Entity ChunkEntity;
 //        [Obsolete]
-//        public Chunk.Accessor Block;
+//        public Chunk.Accessor Value;
 
             public ChunkPosition ChunkPosition => (ChunkPosition) WorldPosition;
             public BlockPosition BlockPosition => (BlockPosition) WorldPosition;

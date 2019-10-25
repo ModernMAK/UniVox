@@ -4,25 +4,33 @@ namespace UniVox.Types
 {
     public struct BlockIdentity : IEquatable<BlockIdentity>, IComparable<BlockIdentity>
     {
-        public BlockIdentity(ModIdentity mod, int block)
+        public BlockIdentity(int value)
         {
-            Mod = mod;
-            Block = block;
+            Value = (short) value;
         }
 
-        public ModIdentity Mod;
+        public BlockIdentity(short value)
+        {
+            Value = value;
+        }
 
-        public int Block;
+
+        private short Value { get; }
 
 
         public override string ToString()
         {
-            return $"Mod:({Mod}), Block:({Block})";
+            return $"Block:{Value:X}";
         }
+
+        public static implicit operator short(BlockIdentity id) => id.Value;
+        public static implicit operator int(BlockIdentity id) => id.Value;
+        public static implicit operator BlockIdentity(short value) => new BlockIdentity(value);
+        public static implicit operator BlockIdentity(int value) => new BlockIdentity(value);
 
         public bool Equals(BlockIdentity other)
         {
-            return Mod == other.Mod && Block == other.Block;
+            return Value == other.Value;
         }
 
         public override bool Equals(object obj)
@@ -32,17 +40,12 @@ namespace UniVox.Types
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return (Mod * 397) ^ Block;
-            }
+            return Value;
         }
 
         public int CompareTo(BlockIdentity other)
         {
-            var modComparison = Mod.CompareTo(other.Mod);
-            if (modComparison != 0) return modComparison;
-            return Block.CompareTo(other.Block);
+            return Value.CompareTo(other.Value);
         }
     }
 }

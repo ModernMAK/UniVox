@@ -26,7 +26,7 @@ namespace UniVox.Types
             return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y} Z:{ChunkId.z}, I:{VoxelId}";
         }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Block (Index)
+        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
         public int CompareTo(VoxelIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

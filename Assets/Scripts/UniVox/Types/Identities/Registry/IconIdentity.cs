@@ -2,46 +2,39 @@ namespace UniVox.Types
 {
     public struct IconIdentity
     {
-        public ModIdentity Mod;
-        public int Icon;
+        public int Value { get; }
 
 
-        public IconIdentity(ModIdentity identity, int mesh)
+        public IconIdentity(int mesh)
         {
-            Mod = identity;
-            Icon = mesh;
+            Value = mesh;
+        }
+
+        public IconIdentity(short mesh)
+        {
+            Value = mesh;
         }
 
         public override string ToString()
         {
-            return $"Mod:({Mod}), Icon:({Icon})";
+            return $"Value:{Value:X}";
         }
 
-        public static explicit operator IconIdentity(ModIdentity identity)
-        {
-            return new IconIdentity(identity, 0);
-        }
+        public static implicit operator IconIdentity(int value) => new IconIdentity(value);
+        public static implicit operator IconIdentity(short value) => new IconIdentity(value);
 
-        public static implicit operator ModIdentity(IconIdentity value)
-        {
-            return value.Mod;
-        }
+        public static implicit operator short(IconIdentity id) => (short) id.Value;
 
-        public static implicit operator int(IconIdentity value)
-        {
-            return value.Icon;
-        }
+        public static implicit operator int(IconIdentity id) => id.Value;
 
         public int CompareTo(IconIdentity other)
         {
-            var modComparison = Mod.CompareTo(other.Mod);
-            if (modComparison != 0) return modComparison;
-            return Icon.CompareTo(other.Icon);
+            return Value.CompareTo(other.Value);
         }
 
         public bool Equals(IconIdentity other)
         {
-            return Mod.Equals(other.Mod) && Icon == other.Icon;
+            return Value == other.Value;
         }
 
         public override bool Equals(object obj)
@@ -51,10 +44,7 @@ namespace UniVox.Types
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return (Mod.GetHashCode() * 397) ^ Icon;
-            }
+            return Value;
         }
     }
 }
