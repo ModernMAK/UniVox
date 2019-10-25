@@ -17,8 +17,8 @@ namespace UniVox.Types
 
         public int CompareTo(ModKey other)
         {
-            //TODO deal with this warning, it IS relevant for latter
-            return string.Compare(Value, other.Value);
+            //TODO relearn what string comparison is
+            return string.Compare(Value, other.Value, StringComparison.Ordinal);
         }
 
         public bool Equals(ModKey other) => Value == other.Value;

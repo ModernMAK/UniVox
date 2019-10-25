@@ -1,4 +1,4 @@
-using UniVox.Managers.Game.Structure;
+using UniVox.Managers;
 
 namespace UniVox.Launcher
 {

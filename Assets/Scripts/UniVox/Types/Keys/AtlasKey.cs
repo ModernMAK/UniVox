@@ -2,9 +2,9 @@ using System;
 
 namespace UniVox.Types
 {
-    public struct SpriteKey : IEquatable<SpriteKey>, IComparable<SpriteKey>
+    public struct AtlasKey : IEquatable<AtlasKey>, IComparable<AtlasKey>
     {
-        public SpriteKey(ModKey mod, string array)
+        public AtlasKey(ModKey mod, string array)
         {
             Mod = mod;
             Value = array;
@@ -17,10 +17,10 @@ namespace UniVox.Types
         public override string ToString() => $"{Mod}~{Value}";
 
 
-        public bool Equals(SpriteKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
+        public bool Equals(AtlasKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
         
 
-        public override bool Equals(object obj) => obj is SpriteKey other && Equals(other);
+        public override bool Equals(object obj) => obj is AtlasKey other && Equals(other);
         
 
         public override int GetHashCode()
@@ -31,7 +31,7 @@ namespace UniVox.Types
             }
         }
 
-        public int CompareTo(SpriteKey other)
+        public int CompareTo(AtlasKey other)
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;

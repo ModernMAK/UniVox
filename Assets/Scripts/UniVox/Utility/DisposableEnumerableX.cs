@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UniVox.Utility
 {
-    public static class DictionaryX
+    public static class DisposableEnumerableX
     {
         public static void DisposeElements<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
             where TValue : IDisposable

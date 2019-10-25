@@ -1,44 +1,34 @@
 using System;
-using UniVox.Types;
 
-namespace UniVox.Managers.Game.Accessor
+namespace UniVox.Types
 {
+   
     public struct BlockKey : IEquatable<BlockKey>, IComparable<BlockKey>
     {
-        public BlockKey(ModKey mod, string block)
+        public BlockKey(ModKey mod, string array)
         {
             Mod = mod;
-            Block = block;
+            Value = array;
         }
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{Block}";
-        }
+        public ModKey Mod { get; }
+        public string Value { get; }
 
-        public override string ToString()
-        {
-            return ToString("~");
-        }
 
-        public ModKey Mod;
-        public string Block;
+        public override string ToString() => $"{Mod}~{Value}";
 
-        public bool Equals(BlockKey other)
-        {
-            return Mod.Equals(other.Mod) && string.Equals(Block, other.Block);
-        }
 
-        public override bool Equals(object obj)
-        {
-            return obj is BlockKey other && Equals(other);
-        }
+        public bool Equals(BlockKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
+        
+
+        public override bool Equals(object obj) => obj is BlockKey other && Equals(other);
+        
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Mod.GetHashCode() * 397) ^ (Block != null ? Block.GetHashCode() : 0);
+                return (Mod.GetHashCode() * 397) ^ (Value != null ? Value.GetHashCode() : 0);
             }
         }
 
@@ -46,7 +36,7 @@ namespace UniVox.Managers.Game.Accessor
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;
-            return string.Compare(Block, other.Block, StringComparison.Ordinal);
+            return string.Compare(Value, other.Value, StringComparison.Ordinal);
         }
     }
 }

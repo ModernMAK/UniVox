@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UniVox.Managers;
+using UniVox.Managers.Registration;
 
 namespace UserInterface
 {

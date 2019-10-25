@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UniVox.Managers.Game.Accessor
+namespace UniVox.Managers
 {
     public abstract class BaseRegistry<TKey, TIdentity, TValue> : IReadOnlyCollection<TValue>
     {

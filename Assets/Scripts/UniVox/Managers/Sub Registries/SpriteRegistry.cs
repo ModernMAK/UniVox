@@ -1,8 +1,7 @@
 using UnityEngine;
-using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
 
-namespace UniVox.Managers.Game.Structure
+namespace UniVox.Managers
 {
     public class SpriteRegistry : BaseRegistry<SpriteKey, SpriteIdentity, Sprite>
     {

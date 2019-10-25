@@ -1,4 +1,3 @@
-using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
 
 namespace UniVox.Launcher
@@ -25,14 +24,14 @@ namespace UniVox.Launcher
 
         public static readonly MaterialKey GrassDirtMaterialKey = new MaterialKey(ModPath, GrassDirtMatPath);
 
-        public static readonly SubArrayMaterialKey GrassSubMaterialKey =
-            new SubArrayMaterialKey(GrassDirtMaterialKey, GrassSubMatPath);
+        public static readonly SubMaterialKey GrassSubMaterialKey =
+            new SubMaterialKey(GrassDirtMaterialKey, GrassSubMatPath);
 
-        public static readonly SubArrayMaterialKey GrassSideSubMaterialKey =
-            new SubArrayMaterialKey(GrassDirtMaterialKey, GrassSideSubMatPath);
+        public static readonly SubMaterialKey GrassSideSubMaterialKey =
+            new SubMaterialKey(GrassDirtMaterialKey, GrassSideSubMatPath);
 
-        public static readonly SubArrayMaterialKey DirtSubMaterialKey =
-            new SubArrayMaterialKey(GrassDirtMaterialKey, DirtSubMatPath);
+        public static readonly SubMaterialKey DirtSubMaterialKey =
+            new SubMaterialKey(GrassDirtMaterialKey, DirtSubMatPath);
 
         public static readonly MaterialKey StoneMaterialKey = new MaterialKey(ModPath, StoneMatPath);
         public static readonly MaterialKey SandMaterialKey = new MaterialKey(ModPath, SandMatPath);

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
 using UniVox.Types.Exceptions;
 
@@ -11,8 +10,7 @@ namespace UniVox.Launcher
         private readonly FaceSubMaterial _subMat;
         private readonly SpriteIdentity _spriteIdentity;
 
-        public RegularBlockRef(MaterialIdentity materialIdentity, SpriteIdentity spriteKey,
-            int subMat = 0)
+        public RegularBlockRef(MaterialIdentity materialIdentity, SpriteIdentity spriteKey, int subMat = 0)
         {
             _material = materialIdentity;
             _subMat = FaceSubMaterial.CreateAll(subMat);

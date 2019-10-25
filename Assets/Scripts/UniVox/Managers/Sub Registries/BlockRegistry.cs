@@ -1,9 +1,8 @@
 using Unity.Collections;
 using UniVox.Launcher;
-using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
 
-namespace UniVox.Managers.Game.Structure
+namespace UniVox.Managers
 {
     public class BlockRegistry : BaseRegistry<BlockKey, BlockIdentity, AbstractBlock>
     {

@@ -3,42 +3,33 @@ using UnityEngine;
 
 namespace UniVox.Types
 {
+   
     public struct MaterialKey : IEquatable<MaterialKey>, IComparable<MaterialKey>
     {
         public MaterialKey(ModKey mod, string array)
         {
             Mod = mod;
-            ArrayMaterial = array;
+            Value = array;
         }
 
-        public ModKey Mod;
-        public string ArrayMaterial;
+        public ModKey Mod { get; }
+        public string Value { get; }
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{ArrayMaterial}";
-        }
 
-        public override string ToString()
-        {
-            return ToString("~");
-        }
+        public override string ToString() => $"{Mod}~{Value}";
 
-        public bool Equals(MaterialKey other)
-        {
-            return Mod.Equals(other.Mod) && string.Equals(ArrayMaterial, other.ArrayMaterial);
-        }
 
-        public override bool Equals(object obj)
-        {
-            return obj is MaterialKey other && Equals(other);
-        }
+        public bool Equals(MaterialKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
+        
+
+        public override bool Equals(object obj) => obj is MaterialKey other && Equals(other);
+        
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Mod.GetHashCode() * 397) ^ (ArrayMaterial != null ? ArrayMaterial.GetHashCode() : 0);
+                return (Mod.GetHashCode() * 397) ^ (Value != null ? Value.GetHashCode() : 0);
             }
         }
 
@@ -46,7 +37,7 @@ namespace UniVox.Types
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;
-            return string.Compare(ArrayMaterial, other.ArrayMaterial, StringComparison.Ordinal);
+            return string.Compare(Value, other.Value, StringComparison.Ordinal);
         }
     }
 }

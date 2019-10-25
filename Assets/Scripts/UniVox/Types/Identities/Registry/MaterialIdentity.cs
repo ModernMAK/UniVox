@@ -24,7 +24,7 @@ namespace UniVox.Types
         {
             return $"Material:{Value:X}";
         }
-        
+
         public bool Equals(MaterialIdentity other) => Value == other.Value;
         public override bool Equals(object obj) => obj is MaterialIdentity other && Equals(other);
         public override int GetHashCode() => Value;

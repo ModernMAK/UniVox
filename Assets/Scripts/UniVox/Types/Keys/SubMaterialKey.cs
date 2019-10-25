@@ -2,12 +2,17 @@ using System;
 
 namespace UniVox.Types
 {
-    public struct SpriteKey : IEquatable<SpriteKey>, IComparable<SpriteKey>
+    public struct SubMaterialKey : IEquatable<SubMaterialKey>, IComparable<SubMaterialKey>
     {
-        public SpriteKey(ModKey mod, string array)
+        public SubMaterialKey(ModKey mod, string value)
         {
             Mod = mod;
-            Value = array;
+            Value = value;
+        }
+        public SubMaterialKey(MaterialKey material, string value)
+        {
+            Mod = material.Mod;
+            Value = $"{material.Value}~{value}";
         }
 
         public ModKey Mod { get; }
@@ -17,10 +22,10 @@ namespace UniVox.Types
         public override string ToString() => $"{Mod}~{Value}";
 
 
-        public bool Equals(SpriteKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
+        public bool Equals(SubMaterialKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
         
 
-        public override bool Equals(object obj) => obj is SpriteKey other && Equals(other);
+        public override bool Equals(object obj) => obj is SubMaterialKey other && Equals(other);
         
 
         public override int GetHashCode()
@@ -31,7 +36,7 @@ namespace UniVox.Types
             }
         }
 
-        public int CompareTo(SpriteKey other)
+        public int CompareTo(SubMaterialKey other)
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;

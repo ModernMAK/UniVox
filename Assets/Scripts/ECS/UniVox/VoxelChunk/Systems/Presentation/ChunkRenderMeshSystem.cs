@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UniVox;
 using UniVox.Launcher;
-using UniVox.Managers.Game.Structure;
+using UniVox.Managers;
 using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Systems.Presentation

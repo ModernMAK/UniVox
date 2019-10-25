@@ -1,10 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using UniVox.Launcher;
-using UniVox.Managers.Game.Accessor;
 using UniVox.Types;
 
-namespace UniVox.Managers
+namespace UniVox.Managers.Registration
 {
     public enum RenderType
     {
@@ -21,9 +20,6 @@ namespace UniVox.Managers
         public RenderType renderType;
         public int top, side, bottom, all;
 
-        //NOTE TO FALCON - I was confused as to why this was public, since it wasnt used at all for the creation script
-        //I made the variable into a field (a getter and setter, in this case it uses an automatic variable when it compiles)
-        public BlockKey Key { get; private set; }
 
         // enum (render type)
         // 3 nums (side top bottom, all, none) for texture index
@@ -37,7 +33,7 @@ namespace UniVox.Managers
             var iconKey = new SpriteKey(BaseGameMod.ModPath, blockName);
             var iconIdentity = GameManager.Registry.Sprites.Register(iconKey, icon);
 
-            Key = new BlockKey(BaseGameMod.ModPath, blockName);
+            var key = new BlockKey(BaseGameMod.ModPath, blockName);
             AbstractBlock block;
             switch (renderType)
             {
@@ -51,7 +47,7 @@ namespace UniVox.Managers
                     throw new ArgumentOutOfRangeException();
             }
 
-            var identity = GameManager.Registry.Blocks.Register(Key, block);
+            var identity = GameManager.Registry.Blocks.Register(key, block);
 
             GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
             return identity;

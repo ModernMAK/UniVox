@@ -1,6 +1,6 @@
 using System;
 
-namespace UniVox.Managers.Game.Structure
+namespace UniVox.Managers
 {
     public class EntityRegistryRecord
     {

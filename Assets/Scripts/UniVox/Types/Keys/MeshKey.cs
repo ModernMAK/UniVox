@@ -2,53 +2,41 @@ using System;
 
 namespace UniVox.Types
 {
+    
     public struct MeshKey : IEquatable<MeshKey>, IComparable<MeshKey>
     {
-        public MeshKey(ModKey mod, string mesh)
+        public MeshKey(ModKey mod, string array)
         {
             Mod = mod;
-            Mesh = mesh;
+            Value = array;
         }
 
-        //Why not just use string? IF i ever change it, changes will propgate across types
-        //Admittedly, I can't imagine ever changing it
-        public ModKey Mod;
+        public ModKey Mod { get; }
+        public string Value { get; }
 
-        public string Mesh;
 
-        public static implicit operator MeshKey(ModKey value)
+        public override string ToString() => $"{Mod}~{Value}";
+
+
+        public bool Equals(MeshKey other) => Mod.Equals(other.Mod) && string.Equals(Value, other.Value);
+        
+
+        public override bool Equals(object obj) => obj is MeshKey other && Equals(other);
+        
+
+        public override int GetHashCode()
         {
-            return new MeshKey(value, "");
-        }
-
-        public static implicit operator ModKey(MeshKey value)
-        {
-            return value.Mod;
+            unchecked
+            {
+                return (Mod.GetHashCode() * 397) ^ (Value != null ? Value.GetHashCode() : 0);
+            }
         }
 
         public int CompareTo(MeshKey other)
         {
             var modComparison = Mod.CompareTo(other.Mod);
             if (modComparison != 0) return modComparison;
-            return string.Compare(Mesh, other.Mesh, StringComparison.Ordinal);
-        }
-
-        public bool Equals(MeshKey other)
-        {
-            return Mod.Equals(other.Mod) && string.Equals(Mesh, other.Mesh);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is MeshKey other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Mod.GetHashCode() * 397) ^ (Mesh != null ? Mesh.GetHashCode() : 0);
-            }
+            return string.Compare(Value, other.Value, StringComparison.Ordinal);
         }
     }
 }
