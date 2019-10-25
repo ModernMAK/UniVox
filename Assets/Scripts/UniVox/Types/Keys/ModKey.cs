@@ -9,42 +9,29 @@ namespace UniVox.Types
             Value = value;
         }
 
-        public string Value;
+        private string Value { get; }
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => Value;
+
+        
 
         public int CompareTo(ModKey other)
         {
             //TODO deal with this warning, it IS relevant for latter
-            return Value.CompareTo(other.Value);
+            return string.Compare(Value, other.Value);
         }
 
-        public bool Equals(ModKey other)
-        {
-            return Value == other.Value;
-        }
+        public bool Equals(ModKey other) => Value == other.Value;
 
-        public override bool Equals(object obj)
-        {
-            return obj is ModKey other && Equals(other);
-        }
 
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
+        public override bool Equals(object obj) => obj is ModKey other && Equals(other);
 
-        public static implicit operator string(ModKey mey)
-        {
-            return mey.Value;
-        }
 
-        public static implicit operator ModKey(string value)
-        {
-            return new ModKey(value);
-        }
+        public override int GetHashCode() => Value.GetHashCode();
+
+        public static implicit operator string(ModKey mey) => mey.Value;
+
+
+        public static implicit operator ModKey(string value) => new ModKey(value);
     }
 }

@@ -13,7 +13,7 @@ namespace UniVox.Types
 
         public override string ToString()
         {
-            return $"BlockPos {Value.x}x {Value.y}y {Value.z}z";
+            return $"BlockPos {Value.x}x, {Value.y}y, {Value.z}z";
         }
         public static implicit operator int3(BlockPosition blockPosition)
         {

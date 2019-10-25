@@ -4,7 +4,7 @@ using UniVox.Types;
 
 namespace UniVox.Launcher
 {
-    public abstract class BaseBlockReference
+    public abstract class AbstractBlock
     {
 
         public abstract MaterialIdentity GetMaterial();
@@ -13,15 +13,15 @@ namespace UniVox.Launcher
         public abstract Sprite GetBlockIcon();
 
 
-        public NativeBaseBlockReference GetNative()
+        public NativeBlock GetNative()
         {
-            return new NativeBaseBlockReference(this);
+            return new NativeBlock(this);
         }
     }
 
-    public struct NativeBaseBlockReference
+    public struct NativeBlock
     {
-        public NativeBaseBlockReference(BaseBlockReference blockRef)
+        public NativeBlock(AbstractBlock blockRef)
         {
             Material = blockRef.GetMaterial();
             SubMaterial = blockRef.GetSubMaterial();

@@ -5,7 +5,7 @@ using UniVox.Types.Exceptions;
 
 namespace UniVox.Launcher
 {
-    public class RegularBlockRef : BaseBlockReference
+    public class RegularBlockRef : AbstractBlock
     {
         private readonly MaterialIdentity _material;
         private readonly FaceSubMaterial _subMat;

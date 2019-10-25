@@ -7,60 +7,32 @@ namespace UniVox.Types
     /// </summary>
     public struct MaterialIdentity : IEquatable<MaterialIdentity>, IComparable<MaterialIdentity>
     {
-        private short Value { get; }
-
-
         public MaterialIdentity(int value)
         {
-            Value = (short)value;
+            Value = (short) value;
         }
+
         public MaterialIdentity(short value)
         {
             Value = value;
         }
+
+        private short Value { get; }
 
 
         public override string ToString()
         {
             return $"Material:{Value:X}";
         }
+        
+        public bool Equals(MaterialIdentity other) => Value == other.Value;
+        public override bool Equals(object obj) => obj is MaterialIdentity other && Equals(other);
+        public override int GetHashCode() => Value;
+        public int CompareTo(MaterialIdentity other) => Value.CompareTo(other.Value);
 
-
-        public static implicit operator int(MaterialIdentity id)
-        {
-            return id.Value;
-        }
-        public static implicit operator MaterialIdentity(int value)
-        {
-            return new MaterialIdentity(value);
-        }
-        public static implicit operator MaterialIdentity(short value)
-        {
-            return new MaterialIdentity(value);
-        }
-        public static implicit operator short(MaterialIdentity id)
-        {
-            return id.Value;
-        }
-
-        public int CompareTo(MaterialIdentity other)
-        {
-            return Value.CompareTo(other.Value);
-        }
-
-        public bool Equals(MaterialIdentity other)
-        {
-            return  Value == other.Value;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is MaterialIdentity other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value;
-        }
+        public static implicit operator short(MaterialIdentity id) => id.Value;
+        public static implicit operator int(MaterialIdentity id) => id.Value;
+        public static implicit operator MaterialIdentity(short value) => new MaterialIdentity(value);
+        public static implicit operator MaterialIdentity(int value) => new MaterialIdentity(value);
     }
 }

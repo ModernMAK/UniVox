@@ -20,7 +20,7 @@ namespace ECS.UniVox.Systems
         public NativeArray<VoxelRenderData> RenderData;
 
 
-        [ReadOnly] public NativeHashMap<BlockIdentity, NativeBaseBlockReference> BlockReferences;
+        [ReadOnly] public NativeHashMap<BlockIdentity, NativeBlock> BlockReferences;
 
         public void Execute()
         {

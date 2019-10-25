@@ -44,7 +44,7 @@ namespace UniVox.Types
 
         public override string ToString()
         {
-            return $"ChunkPos {Value.x}x {Value.y}y {Value.z}z";
+            return $"ChunkPos {Value.x}x, {Value.y}y, {Value.z}z";
         }
 
         public override bool Equals(object obj)

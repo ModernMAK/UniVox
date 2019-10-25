@@ -2,6 +2,7 @@ using System;
 
 namespace UniVox.Types
 {
+    [Obsolete("Use RegionKey")]
     public struct SubArrayMaterialKey : IEquatable<SubArrayMaterialKey>, IComparable<SubArrayMaterialKey>
     {
         public SubArrayMaterialKey(MaterialKey material, string subArrayMaterial)

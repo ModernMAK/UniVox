@@ -2,7 +2,6 @@ using System;
 using Unity.Collections;
 using UniVox.Launcher;
 using UniVox.Managers.Game.Accessor;
-using UniVox.Managers.Game.Native;
 using UniVox.Managers.Game.Structure;
 using UniVox.Types;
 
@@ -17,21 +16,21 @@ namespace UniVox
 
     public class NativeGameRegistry : IDisposable
     {
-        private bool dispose;
+        private bool _dispose;
 
         public NativeGameRegistry()
         {
-            Blocks = new NativeHashMap<BlockIdentity, NativeBaseBlockReference>(0, Allocator.Persistent);
+            Blocks = new NativeHashMap<BlockIdentity, NativeBlock>(0, Allocator.Persistent);
         }
 
-        public NativeHashMap<BlockIdentity, NativeBaseBlockReference> Blocks { get; private set; }
+        public NativeHashMap<BlockIdentity, NativeBlock> Blocks { get; private set; }
 
         public void Dispose()
         {
-            if (dispose)
+            if (_dispose)
                 return;
 
-            dispose = true;
+            _dispose = true;
             Blocks.Dispose();
         }
 

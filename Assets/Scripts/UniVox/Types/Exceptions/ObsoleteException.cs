@@ -36,10 +36,5 @@ namespace UniVox.Types.Exceptions
             return $"'{original}' is obsolete, please use '{substitution}' instead.";
         }
 
-//        public ObsoleteException(string message, string funcName) : 
-//        {
-//            
-//        }
-//        public ObsoleteException(string message, string funcName, string substitution)
     }
 }

@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UniVox.Managers;
 
-namespace UniVox.Asset_Management
+namespace UserInterface
 {
     public class BlockRegister : MonoBehaviour
     {
@@ -11,12 +11,12 @@ namespace UniVox.Asset_Management
         {
             foreach (var block in blocks)
             {
-                block.CreateBlockReference();
+                var identity= block.CreateBlockReference();
                 var btnBase = Instantiate(btnPreFab, blockPanel, true);
                 btnBase.transform.localPosition = Vector3.zero;
                 var btn = btnBase.GetComponent<Button>();
                 ((Image) btn.targetGraphic).sprite = block.icon;
-                blockButtonDisabler.Register(block, btn);
+                blockButtonDisabler.Register(identity, btn);
             }
         }
         //Disable assignment warnings

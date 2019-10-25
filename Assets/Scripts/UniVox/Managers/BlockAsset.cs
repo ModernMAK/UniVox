@@ -38,20 +38,20 @@ namespace UniVox.Managers
             var iconIdentity = GameManager.Registry.Sprites.Register(iconKey, icon);
 
             Key = new BlockKey(BaseGameMod.ModPath, blockName);
-            BaseBlockReference blockReference;
+            AbstractBlock block;
             switch (renderType)
             {
                 case RenderType.SideTopBottom:
-                    blockReference = new TopSideBlockRef(materialIdentity, iconIdentity, top, side, bottom);
+                    block = new TopSideBlockRef(materialIdentity, iconIdentity, top, side, bottom);
                     break;
                 case RenderType.All:
-                    blockReference = new RegularBlockRef(materialIdentity, iconIdentity, all);
+                    block = new RegularBlockRef(materialIdentity, iconIdentity, all);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            var identity = GameManager.Registry.Blocks.Register(Key, blockReference);
+            var identity = GameManager.Registry.Blocks.Register(Key, block);
 
             GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
             return identity;

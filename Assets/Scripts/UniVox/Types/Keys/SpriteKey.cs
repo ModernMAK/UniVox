@@ -13,15 +13,9 @@ namespace UniVox.Types
         public ModKey Mod { get; }
         public string Value { get; }
 
-        public string ToString(string seperator)
-        {
-            return $"{Mod}{seperator}{Value}";
-        }
 
-        public override string ToString()
-        {
-            return ToString("~");
-        }
+        public override string ToString() => $"{Mod}~{Value}";
+
 
         public bool Equals(SpriteKey other)
         {
