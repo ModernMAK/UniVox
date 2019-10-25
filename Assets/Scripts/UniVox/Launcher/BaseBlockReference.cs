@@ -6,14 +6,11 @@ namespace UniVox.Launcher
 {
     public abstract class BaseBlockReference
     {
-        protected BlockKey BlockKey;
-        protected SpriteKey SpriteKey;
 
         public abstract MaterialIdentity GetMaterial();
         public abstract FaceSubMaterial GetSubMaterial();
 
         public abstract Sprite GetBlockIcon();
-        public abstract BlockIdentity GetBlockId();
 
 
         public NativeBaseBlockReference GetNative()

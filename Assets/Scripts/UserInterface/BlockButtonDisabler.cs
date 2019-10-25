@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UniVox;
 using UniVox.Managers;
+using UniVox.Types;
 
 public class BlockButtonDisabler : MonoBehaviour
 {
@@ -20,10 +21,9 @@ public class BlockButtonDisabler : MonoBehaviour
         physics.SetBlockId(id);
     }
 
-    public void Register(BlockAsset block, Button btn)
+    public void Register(BlockIdentity identity, Button btn)
     {
-        if (GameManager.Registry.Blocks.TryGetIdentity(block.Key, out var blockIdentity))
-            btn.onClick.AddListener(() => HandleClick(blockIdentity, btn));
+        btn.onClick.AddListener(() => HandleClick(identity, btn));
     }
 
     // Update is called once per frame

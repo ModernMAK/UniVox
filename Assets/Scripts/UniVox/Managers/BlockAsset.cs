@@ -29,7 +29,7 @@ namespace UniVox.Managers
         // 3 nums (side top bottom, all, none) for texture index
         // function create block reference in basegamemod
 
-        public void CreateBlockReference()
+        public BlockIdentity CreateBlockReference()
         {
             var materialKey = new MaterialKey(BaseGameMod.ModPath, blockName);
             var materialIdentity = GameManager.Registry.Materials.Register(materialKey, material);
@@ -42,10 +42,10 @@ namespace UniVox.Managers
             switch (renderType)
             {
                 case RenderType.SideTopBottom:
-                    blockReference = new TopSideBlockRef(materialIdentity, Key, iconKey, top, side, bottom);
+                    blockReference = new TopSideBlockRef(materialIdentity, iconIdentity, top, side, bottom);
                     break;
                 case RenderType.All:
-                    blockReference = new RegularBlockRef(materialIdentity, Key, iconKey, all);
+                    blockReference = new RegularBlockRef(materialIdentity, iconIdentity, all);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -54,6 +54,7 @@ namespace UniVox.Managers
             var identity = GameManager.Registry.Blocks.Register(Key, blockReference);
 
             GameManager.NativeRegistry.UpdateBlocksFromRegistry(GameManager.Registry.Blocks);
+            return identity;
         }
     }
 }

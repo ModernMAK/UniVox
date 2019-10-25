@@ -9,8 +9,9 @@ namespace UniVox.Launcher
     {
         private readonly MaterialIdentity _material;
         private readonly FaceSubMaterial _subMaterial;
+        private readonly SpriteIdentity _spriteIdentity;
 
-        public TopSideBlockRef(MaterialIdentity materialIdentity, BlockKey blockKey, SpriteKey spriteKey, int top,
+        public TopSideBlockRef(MaterialIdentity materialIdentity, SpriteIdentity spriteKey, int top,
             int side, int bot)
         {
             _material = materialIdentity;
@@ -18,8 +19,7 @@ namespace UniVox.Launcher
 //                _grassSubMat = top;
 //                _grassSideSubMat = side;
 //                _dirtSubMat = bot;
-            BlockKey = blockKey;
-            SpriteKey = spriteKey;
+            _spriteIdentity = spriteKey;
         }
 
         //Cache to avoid dictionary lookups
@@ -37,18 +37,7 @@ namespace UniVox.Launcher
             return _subMaterial;
         }
 
-        public override Sprite GetBlockIcon()
-        {
-            if (!GameManager.Registry.Sprites.TryGetValue(SpriteKey, out var sprite))
-                throw new AssetNotFoundException(nameof(SpriteKey), SpriteKey.ToString());
-            return sprite;
-        }
+        public override Sprite GetBlockIcon() => GameManager.Registry.Sprites[_spriteIdentity];
 
-        public override BlockIdentity GetBlockId()
-        {
-            if (!GameManager.Registry.Blocks.TryGetIdentity(BlockKey, out var blockIdentity))
-                throw new AssetNotFoundException(nameof(BlockKey), BlockKey.ToString());
-            return blockIdentity;
-        }
     }
 }
