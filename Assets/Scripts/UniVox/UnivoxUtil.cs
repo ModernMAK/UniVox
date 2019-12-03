@@ -18,6 +18,7 @@ namespace UniVox
             return math.all(min) && math.all(max);
         }
 
+        /// <remarks>Deprecated</remarks>
         public static bool IsIndexValid(int index)
         {
             return index >= 0 && index < CubeSize;

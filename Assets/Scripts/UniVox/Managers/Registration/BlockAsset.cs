@@ -5,11 +5,13 @@ using UniVox.Types;
 
 namespace UniVox.Managers.Registration
 {
+
     public enum RenderType
     {
         SideTopBottom,
         All
     }
+
 
     [CreateAssetMenu(menuName = "Custom Assets/Value")]
     public class BlockAsset : ScriptableObject

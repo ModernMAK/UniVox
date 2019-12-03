@@ -1,3 +1,5 @@
+using Unity.Mathematics;
+
 namespace UniVox
 {
     //Defines constants we use
@@ -15,6 +17,7 @@ namespace UniVox
         public const int AxisSize = 1 << AxisBits;
         public const int SquareSize = AxisSize * AxisSize;
         public const int CubeSize = SquareSize * AxisSize;
+
 
         
         //Why define these? Well, we assume that Dynamic Buffers can store enough elements for a ByteCube

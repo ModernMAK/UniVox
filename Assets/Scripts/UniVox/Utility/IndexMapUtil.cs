@@ -4,6 +4,25 @@ namespace UniVox.Utility
 {
     public static class IndexMapUtil
     {
+        public struct MapMatrix2D
+        {
+            public int Size { get; }
+            public int Flatten(int x, int y) => x + y * Size;
+            public int Flatten(int2 value) => value.x + value.y * Size;
+            public int2 Expand(int value) => new int2(value % Size, value / Size);
+        }
+
+        public struct MapMatrix3D
+        {
+            public int2 Size { get; }
+            private int SizeX => Size.x;
+            private int SizeY => Size.y;
+            private int SizeXY => Size.y * Size.x;
+            public int Flatten(int x, int y, int z) => x + y * SizeX + z * SizeXY;
+            public int Flatten(int3 value) => value.x + value.y * SizeX + value.z * SizeXY;
+            public int3 Expand(int value) => new int3(value % SizeX, (value / SizeX) % SizeY, value / SizeXY);
+        }
+
         //2D
         public static int ToIndex(int x, int y, int xSize)
         {

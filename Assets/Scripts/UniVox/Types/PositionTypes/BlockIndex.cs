@@ -2,9 +2,10 @@ using System;
 
 namespace UniVox.Types
 {
-    
     public struct BlockIndex : IEquatable<BlockIndex>, IComparable<BlockIndex>
     {
+        #region Constructors
+
         public BlockIndex(short blockIndex)
         {
             Value = blockIndex;
@@ -15,13 +16,24 @@ namespace UniVox.Types
             Value = (short) blockIndex;
         }
 
-        
-        public override string ToString()
-        {
-            return $"BlockIndex {Value}";
-        }
-        
+        #endregion
+
         private short Value { get; }
+
+
+        public bool Valid => Value >= 0 && Value < UnivoxDefine.CubeSize;
+
+        #region Conversion Methods
+
+        public BlockPosition ToBlockPosition() => new BlockPosition(UnivoxUtil.GetPosition3(Value));
+
+
+        public WorldPosition ToWorldPosition(ChunkPosition chunkPosition = default) =>
+            new WorldPosition(UnivoxUtil.ToWorldPosition(chunkPosition, UnivoxUtil.GetPosition3(Value)));
+
+        #endregion
+
+        #region Conversion Operators
 
         public static implicit operator int(BlockIndex blockIndex)
         {
@@ -33,24 +45,35 @@ namespace UniVox.Types
             return blockIndex.Value;
         }
 
-        public static explicit operator BlockIndex(int blockIndex)
+
+        public static implicit operator BlockIndex(int blockIndex)
         {
             return new BlockIndex(blockIndex);
         }
 
-        public static explicit operator BlockIndex(short blockIndex)
+        public static implicit operator BlockIndex(short blockIndex)
         {
             return new BlockIndex(blockIndex);
         }
 
+        [Obsolete]
         public static explicit operator BlockIndex(BlockPosition blockPosition)
         {
-            return (BlockIndex) UnivoxUtil.GetIndex(blockPosition);
+            return UnivoxUtil.GetIndex(blockPosition);
         }
 
+        [Obsolete]
         public static explicit operator BlockIndex(WorldPosition blockPosition)
         {
             return (BlockIndex) (BlockPosition) blockPosition;
+        }
+
+        #endregion
+
+
+        public override string ToString()
+        {
+            return $"BlockIndex {Value}";
         }
 
         public bool Equals(BlockIndex other)

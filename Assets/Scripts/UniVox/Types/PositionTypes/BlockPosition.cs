@@ -1,3 +1,4 @@
+using System;
 using Unity.Mathematics;
 
 namespace UniVox.Types
@@ -20,16 +21,18 @@ namespace UniVox.Types
             return blockPosition.Value;
         }
 
-        public static explicit operator BlockPosition(int3 blockPosition)
+        public static implicit operator BlockPosition(int3 blockPosition)
         {
             return new BlockPosition(blockPosition);
         }
 
+        [Obsolete]
         public static explicit operator BlockPosition(WorldPosition worldPosition)
         {
             return (BlockPosition) UnivoxUtil.ToBlockPosition(worldPosition);
         }
 
+        [Obsolete]
         public static explicit operator BlockPosition(BlockIndex blockIndex)
         {
             return (BlockPosition) UnivoxUtil.GetPosition3(blockIndex);
