@@ -15,6 +15,27 @@ using UniVox.Types;
 
 namespace ECS.UniVox.VoxelChunk.Systems.Presentation
 {
+    namespace Rewrite
+    {
+        [AlwaysUpdateSystem]
+        [UpdateInGroup(typeof(PresentationSystemGroup))]
+        public class ChunkRenderMeshSystem : JobComponentSystem
+        {
+            protected override JobHandle OnUpdate(JobHandle inputDeps)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+        /// <summary>
+        /// A proxy-like class. Used to render the block.
+        /// </summary>
+        public abstract class VoxelRenderSystem
+        {
+            
+        }
+        
+    }
+
     /// <summary>
     ///     Renders all Entities containing both RenderComponent & LocalToWorld components.
     /// </summary>
