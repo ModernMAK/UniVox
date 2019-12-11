@@ -9,14 +9,52 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
+using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types;
+using MeshCollider = Unity.Physics.MeshCollider;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
+    namespace Rewrite
+    {
+        [AlwaysUpdateSystem]
+        [UpdateInGroup(typeof(PresentationSystemGroup))]
+        public class ChunkGenerateMeshSystem : JobComponentSystem
+        {
+            protected override JobHandle OnUpdate(JobHandle inputDeps)
+            {
+                //Gather changed chunks
+                //Calculate unique batches (unique blockIds, could be stored in a chunkside component)
+                //PER BATCH
+                //    Create a mesh buffer
+                //    Pass buffer and render information to proxy
+                //    Add handle to dependency, 
+                
+                //.....
+                
+                //Iterate over incomplete handles
+                //IF COMPLETE
+                //    Convert buffer to mesh
+                throw new System.NotImplementedException();
+            }
+        }
+        
+        
+        /// <summary>
+        /// A proxy-like class. Used to render the block.
+        /// </summary>
+        public abstract class VoxelRenderSystem
+        {
+            
+            
+            
+        }
+        
+    }
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {
