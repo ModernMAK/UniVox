@@ -12,6 +12,7 @@ namespace UniVox.Managers
         public NativeGameRegistry()
         {
             Blocks = new NativeHashMap<BlockIdentity, NativeBlock>(0, Allocator.Persistent);
+            _dispose = false;
         }
 
         public NativeHashMap<BlockIdentity, NativeBlock> Blocks { get; private set; }

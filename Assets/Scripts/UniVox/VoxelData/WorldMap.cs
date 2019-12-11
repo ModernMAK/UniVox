@@ -12,7 +12,7 @@ namespace UniVox
         //Assuming 2 chunks in each direction; 125
         //Rounded to 128 because I like (Arbitrarily) powers of two
         private const int DefaultChunksLoaded = 128;
-        private bool _disposed;
+        private bool _dispose;
 
         private JobHandle _handle;
 
@@ -21,7 +21,7 @@ namespace UniVox
         public WorldMap(string name = default)
         {
             _records = new NativeHashMap<ChunkPosition, Entity>(DefaultChunksLoaded, Allocator.Persistent);
-
+            _dispose = false;
             _handle = new JobHandle();
 //            DefaultWorldInitialization.Initialize(name,false);
             EntityWorld = World.Active; //TODO use custom world
@@ -34,9 +34,9 @@ namespace UniVox
 
         public void Dispose()
         {
-            if (_disposed)
+            if (_dispose)
                 return;
-            _disposed = true;
+            _dispose = true;
             using (var entities = _records.GetValueArray(Allocator.Temp))
             {
                 foreach (var recordValue in entities)

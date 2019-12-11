@@ -137,7 +137,7 @@ namespace ECS.UniVox.Systems
 
                         var worldPosition = jobData.WorldPosition;
                         var chunkPosition = (ChunkPosition) worldPosition;
-                        var blockIndex = (BlockIndex) worldPosition;
+                        var blockIndex = worldPosition.ToBlockPosition().ToBlockIndex();
                         if (WorldChunkMap.TryGetValue(chunkPosition, out var chunkEntity))
                         {
                             var voxelBuffer = GetVoxelBuffer[chunkEntity];

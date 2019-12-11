@@ -74,16 +74,16 @@ namespace UniVox
             {
                 case ClickMode.Single:
                     return new[] {int3.zero};
-                    break;
+                
                 case ClickMode.Drag:
                     throw new NotImplementedException();
-                    break;
+               
                 case ClickMode.Square:
                     return GetSquareOffsets(normal.ToAxis(), new int2(size));
-                    break;
+            
                 case ClickMode.Circle:
                     return GetCircleOffsets(normal.ToAxis(), size);
-                    break;
+                    
                 default:
                     throw new ArgumentOutOfRangeException(nameof(clickMode), clickMode, null);
             }
@@ -165,6 +165,7 @@ namespace UniVox
                 }
             }
         }
+
 
 
         private IEnumerable<int3> GetSquareOffsets(Axis axis, int2 halfSize)
@@ -286,8 +287,8 @@ namespace UniVox
 //        public Chunk.Accessor Value;
 
             public ChunkPosition ChunkPosition => (ChunkPosition) WorldPosition;
-            public BlockPosition BlockPosition => (BlockPosition) WorldPosition;
-            public BlockIndex BlockIndex => (BlockIndex) WorldPosition;
+            public BlockPosition BlockPosition => WorldPosition.ToBlockPosition();
+            public BlockIndex BlockIndex => BlockPosition.ToBlockIndex();
 
             public WorldPosition WorldPosition; // => UnivoxUtil.ToWorldPosition(ChunkPosition, BlockPosition);
         }

@@ -26,16 +26,16 @@ namespace UniVox.Types
             return new BlockPosition(blockPosition);
         }
 
-        [Obsolete]
-        public static explicit operator BlockPosition(WorldPosition worldPosition)
-        {
-            return (BlockPosition) UnivoxUtil.ToBlockPosition(worldPosition);
-        }
+        
+        #region Conversion Methods
 
-        [Obsolete]
-        public static explicit operator BlockPosition(BlockIndex blockIndex)
-        {
-            return (BlockPosition) UnivoxUtil.GetPosition3(blockIndex);
-        }
+        public BlockIndex ToBlockIndex() => new BlockIndex(UnivoxUtil.GetIndex(Value));
+
+
+        public WorldPosition ToWorldPosition(ChunkPosition chunkPosition = default) =>
+            new WorldPosition(UnivoxUtil.ToWorldPosition(chunkPosition, Value));
+
+        #endregion
+        
     }
 }

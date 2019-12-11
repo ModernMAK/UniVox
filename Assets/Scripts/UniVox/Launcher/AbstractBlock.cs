@@ -34,7 +34,6 @@ namespace UniVox.Launcher
 
     /// <summary>
     /// This is the Native Block Type.
-    /// This struct cannot 
     /// This is a struct-only, simplified version of it's sister-type: <seealso cref="AbstractBlock"/>
     /// </summary>
     /// See <see cref="AbstractBlock"/> for the Non-Native Variant.

@@ -21,8 +21,11 @@ namespace UniVox.Types
         private short Value { get; }
 
 
+        //When CubeSize is greater than the size of a short
+        #pragma warning disable 0652
         public bool Valid => Value >= 0 && Value < UnivoxDefine.CubeSize;
-
+        #pragma warning restore 0652
+        
         #region Conversion Methods
 
         public BlockPosition ToBlockPosition() => new BlockPosition(UnivoxUtil.GetPosition3(Value));
@@ -60,12 +63,6 @@ namespace UniVox.Types
         public static explicit operator BlockIndex(BlockPosition blockPosition)
         {
             return UnivoxUtil.GetIndex(blockPosition);
-        }
-
-        [Obsolete]
-        public static explicit operator BlockIndex(WorldPosition blockPosition)
-        {
-            return (BlockIndex) (BlockPosition) blockPosition;
         }
 
         #endregion

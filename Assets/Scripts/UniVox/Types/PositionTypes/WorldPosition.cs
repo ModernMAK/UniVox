@@ -1,3 +1,4 @@
+using System;
 using Unity.Mathematics;
 
 namespace UniVox.Types
@@ -21,35 +22,32 @@ namespace UniVox.Types
             return worldPosition.Value;
         }
 
-        public static explicit operator WorldPosition(int3 worldPosition)
+        public static implicit operator WorldPosition(int3 worldPosition)
         {
             return new WorldPosition(worldPosition);
         }
 
+        #region Conversion Methods
+        
+        public ChunkPosition ToChunkPosition() =>
+            new ChunkPosition(UnivoxUtil.ToChunkPosition(Value));
+
+        public BlockPosition ToBlockPosition() =>
+            new BlockPosition(UnivoxUtil.ToBlockPosition(Value));
+
+        #endregion
+
+        [Obsolete]
         public static explicit operator WorldPosition(ChunkPosition chunkPosition)
         {
             return (WorldPosition) UnivoxUtil.ToWorldPosition(chunkPosition, int3.zero);
         }
 
+        [Obsolete]
         public static explicit operator WorldPosition(BlockPosition blockPosition)
         {
             return (WorldPosition) UnivoxUtil.ToWorldPosition(int3.zero, blockPosition);
         }
 
-        public static explicit operator WorldPosition(BlockIndex blockIndex)
-        {
-            return (WorldPosition) (BlockPosition) blockIndex;
-        }
-
-        public static WorldPosition operator +(WorldPosition lhs, WorldPosition rhs)
-        {
-            return (WorldPosition) (lhs.Value + rhs.Value);
-        }
-
-
-        public static WorldPosition operator -(WorldPosition lhs, WorldPosition rhs)
-        {
-            return (WorldPosition) (lhs.Value - rhs.Value);
-        }
     }
 }
