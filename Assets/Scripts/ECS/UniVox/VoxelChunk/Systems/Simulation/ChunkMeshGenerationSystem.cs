@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using ECS.UniVox.Components;
 using ECS.UniVox.Systems;
 using ECS.UniVox.VoxelChunk.Components;
+using ECS.UniVox.VoxelChunk.Components.Rewrite;
 using ECS.UniVox.VoxelChunk.Systems.Presentation;
 using Unity.Burst;
 using Unity.Collections;
@@ -9,18 +11,153 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UniVox;
 using UniVox.Rendering.MeshPrefabGen;
 using UniVox.Types;
+using Material = UnityEngine.Material;
 using MeshCollider = Unity.Physics.MeshCollider;
+using VoxelIdentity = ECS.UniVox.VoxelChunk.Components.Rewrite.VoxelIdentity;
 
 namespace ECS.UniVox.VoxelChunk.Systems
 {
     namespace Rewrite
     {
+        /// <summary>
+        /// Helper functions for writing to native arrays/lists for meshing
+        /// </summary>
+        public static class NativeMeshUtil
+        {
+            /// <summary>
+            /// Adds a 'triangle' to a fixed buffer. Simply adds left, pivot, and right (in that order)
+            /// </summary>
+            public static void Triangle<T>(NativeArray<T> buffer, int start, T left, T pivot, T right) where T : struct
+
+            {
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+            }
+
+
+            /// <summary>
+            /// Adds a 'triangle' to a dynamic buffer. Simply adds left, pivot, and right (in that order)
+            /// </summary>
+            public static int Triangle<T>(NativeList<T> buffer, T left, T pivot, T right) where T : struct
+            {
+                var start = buffer.Length;
+                buffer.Resize(start + 3, NativeArrayOptions.UninitializedMemory);
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+                return start;
+            }
+
+            //Helper for applying a uniform value across a triangle (Normals, Tangents, Color)
+            public static void Triangle<T>(NativeArray<T> buffer, int start, T value) where T : struct =>
+                Triangle(buffer, start, value, value, value);
+
+            //Helper for applying a uniform value across a triangle (Normals, Tangents, Color)
+            public static int Triangle<T>(NativeList<T> buffer, T value) where T : struct =>
+                Triangle(buffer, value, value, value);
+
+            public static void Quad<T>(NativeArray<T> buffer, int start, T left, T pivot, T right, T opposite)
+                where T : struct
+            {
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+                buffer[start + 3] = opposite;
+            }
+
+            /// <summary>
+            /// Adds a 'quad' to a dynamic buffer. Simply adds left, pivot, right and opposite (in that order)
+            /// </summary>
+            public static int Quad<T>(NativeList<T> buffer, T left, T pivot, T right, T opposite) where T : struct
+            {
+                var start = buffer.Length;
+                buffer.Resize(start + 3, NativeArrayOptions.UninitializedMemory);
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+                buffer[start + 3] = opposite;
+                return start;
+            }
+
+            //Helper for applying a uniform value across a quad (Normals, Tangents, Color)
+            public static void Quad<T>(NativeArray<T> buffer, int start, T value) where T : struct =>
+                Quad(buffer, start, value, value, value, value);
+
+            //Helper for applying a uniform value across a quad (Normals, Tangents, Color)
+            public static int Quad<T>(NativeList<T> buffer, T value) where T : struct =>
+                Quad(buffer, value, value, value, value);
+
+            /// <summary>
+            /// Adds a quad as two triangles.
+            /// </summary>
+            /// <param name="buffer">The buffer to write to.</param>
+            /// <param name="start"></param>
+            /// <param name="left">The first part of the quad.</param>
+            /// <param name="pivot">The middle part of the quad.</param>
+            /// <param name="right">The third part of the quad (across from left).</param>
+            /// <param name="opposite">The last part of the quad (across from pivot).</param>
+            /// <typeparam name="T"></typeparam>
+            /// <remarks>This is typically used in conjunction with Quad to apply the Indexes in Triangle form.</remarks>
+            public static void QuadAsTrianglePair<T>(NativeArray<T> buffer, int start, T left, T pivot, T right,
+                T opposite)
+                where T : struct
+            {
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+
+                buffer[start + 3] = right;
+                buffer[start + 4] = opposite;
+                buffer[start + 5] = left;
+            }
+
+            /// <remarks>This is typically used in conjunction with Quad to apply the Indexes in Triangle form.</remarks>
+            public static int QuadAsTrianglePair<T>(NativeList<T> buffer, T left, T pivot, T right, T opposite)
+                where T : struct
+            {
+                var start = buffer.Length;
+                buffer.Resize(start + 6, NativeArrayOptions.UninitializedMemory);
+                buffer[start] = left;
+                buffer[start + 1] = pivot;
+                buffer[start + 2] = right;
+
+                buffer[start + 3] = right;
+                buffer[start + 4] = opposite;
+                buffer[start + 5] = left;
+                return start;
+            }
+
+            //Helper for applying a uniform value across a quad (Normals, Tangents, Color)
+            public static void QuadAsTrianglePair<T>(NativeArray<T> buffer, int start, T value) where T : struct =>
+                QuadAsTrianglePair(buffer, start, value, value, value, value);
+
+            //Helper for applying a Quad to an index buffer
+            public static void IndexAsQuadSequence(NativeArray<int> buffer, int start, int value) =>
+                QuadAsTrianglePair(buffer, start, value, value + 1, value + 2, value + 3);
+
+
+            //Helper for applying a Quad to an index buffer
+            public static int IndexAsQuadSequence(NativeList<int> buffer, int value) =>
+                QuadAsTrianglePair(buffer, value, value + 1, value + 2, value + 3);
+
+            //Helper for applying a Quad to an index buffer
+            public static void IndexAsTriangleSequence(NativeArray<int> buffer, int start, int value) =>
+                Triangle(buffer, start, value, value + 1, value + 2);
+
+
+            //Helper for applying a Quad to an index buffer
+            public static int IndexAsTriangleSequence(NativeList<int> buffer, int value) =>
+                Triangle(buffer, value, value + 1, value + 2);
+        }
+
         [AlwaysUpdateSystem]
         [UpdateInGroup(typeof(PresentationSystemGroup))]
         public class ChunkGenerateMeshSystem : JobComponentSystem
@@ -33,28 +170,285 @@ namespace ECS.UniVox.VoxelChunk.Systems
                 //    Create a mesh buffer
                 //    Pass buffer and render information to proxy
                 //    Add handle to dependency, 
-                
+
                 //.....
-                
+
                 //Iterate over incomplete handles
                 //IF COMPLETE
                 //    Convert buffer to mesh
                 throw new System.NotImplementedException();
             }
         }
-        
-        
+
+
+        public struct VoxelRenderData
+        {
+            public NativeArray<VoxelIdentity> Identities { get; }
+            public NativeArray<VoxelActive> Active { get; }
+            public NativeArray<VoxelLighting> Lighting { get; }
+            public NativeArray<VoxelCullingFlags> CullingFlags { get; }
+        }
+
         /// <summary>
         /// A proxy-like class. Used to render the block.
         /// </summary>
         public abstract class VoxelRenderSystem
         {
-            
-            
-            
+            /// <summary>
+            /// Initializes the buffer used for this mesh.
+            /// Used to setup buffer parameters that are expected in the generation step
+            /// </summary>
+            /// <remarks>
+            /// When 2020.1a17 comes out (hereafter referred to as a17) we will return a Mesh.MeshData instead
+            /// According to an API example
+            /// var writableMeshData = Mesh.AllocateWritableMeshData(meshesToWrite);
+            /// var currentBuffer = writableMeshData[0]
+            /// currentBuffer.SetIndexBufferParams(???, IndexFormat.???) // These are currently within the 2019 API, but mesh doesnt have a jobified variant
+            /// currentBuffer.SetVertexBufferParams(???, ???...) //Also currently in the API
+            /// Not applicable right now, but to apply the mesh,  Mesh.ApplyAndDisposeWritableMeshData(outputMeshData, new[]{newMesh}, MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontNotifyMeshUsers);
+            /// WHICH MEANS WE STILL NEED AN AWAIT COMPLETION thing to apply the mesh once the job is done.
+            /// </remarks>
+//            public abstract Mesh CreateMeshBuffer();
+
+//            public abstract JobHandle RenderChunk(VoxelRenderData renderData, JobHandle dependencies);
+            public abstract Mesh RenderChunk(VoxelRenderData renderData, JobHandle dependencies);
         }
-        
+
+
+        public class DefaultVoxelRenderSystem : VoxelRenderSystem
+        {
+            public VoxelIdentity Identity;
+            public SubTextureMap Map;
+            public Material Material;
+
+            private Mesh CreateMeshBuffer()
+            {
+                const int faces = 6;
+                const int vertsPerFace = 4;
+                const int trianglesPerFace = 2;
+                const int indexesPerTriangle = 3;
+                const int chunkSize = UnivoxDefine.CubeSize;
+                const int maxVerts = faces * vertsPerFace * chunkSize;
+                const int maxIndexes = faces * trianglesPerFace * indexesPerTriangle * chunkSize;
+                var mesh = new Mesh();
+                mesh.SetVertexBufferParams(maxVerts,
+                    new VertexAttributeDescriptor(VertexAttribute.Position, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.Color, dimension: 1));
+
+                mesh.SetIndexBufferParams(maxIndexes, IndexFormat.UInt32);
+
+
+                return mesh;
+            }
+
+            public Material GetMaterial() => Material;
+            
+            public override Mesh RenderChunk(VoxelRenderData renderData, JobHandle dependencies)
+            {
+                //Vertex, Normal, (Tangent Optional), Uv0(xyz), and Color
+                //Normal is required for raycasting logic (may not be requried)
+                //As of writing this, uv0 waants a z to determine the subtexture to use
+//                throw new System.NotImplementedException();
+
+                var job = new RenderVoxelJob()
+                {
+                    Map = Map,
+                    Identity = Identity,
+
+                    Active = renderData.Active,
+                    CullingFlags = renderData.CullingFlags,
+                    Ids = renderData.Identities,
+                    Lighting = renderData.Lighting,
+
+                    Normals = new NativeList<Vector3>(Allocator.TempJob),
+                    Uvs = new NativeList<Vector3>(Allocator.TempJob),
+                    Vertexes = new NativeList<Vector3>(Allocator.TempJob),
+                    Colors = new NativeList<Color>(Allocator.TempJob),
+                    Indexes = new NativeList<int>(Allocator.TempJob),
+                };
+
+                job.Schedule(dependencies).Complete();
+
+                var mesh = new Mesh();
+                mesh.SetVertexBufferParams(job.Vertexes.Length,
+                    new VertexAttributeDescriptor(VertexAttribute.Position, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, dimension: 3),
+                    new VertexAttributeDescriptor(VertexAttribute.Color, dimension: 1));
+
+                mesh.SetIndexBufferParams(job.Indexes.Length, IndexFormat.UInt32);
+
+                mesh.SetVertices(job.Vertexes.AsArray());
+                mesh.SetNormals(job.Normals.AsArray());
+                mesh.SetUVs(0, job.Uvs.AsArray());
+                mesh.SetIndices(job.Indexes.AsArray(), MeshTopology.Triangles, 0, true);
+
+                return mesh;
+            }
+
+            public struct RenderVoxelJob : IJob
+            {
+                [ReadOnly] public VoxelIdentity Identity;
+                [ReadOnly] public SubTextureMap Map;
+                [ReadOnly] public NativeArray<VoxelIdentity> Ids;
+                [ReadOnly] public NativeArray<VoxelCullingFlags> CullingFlags;
+                [ReadOnly] public NativeArray<VoxelActive> Active;
+                [ReadOnly] public NativeArray<VoxelLighting> Lighting;
+
+                [WriteOnly] public NativeList<Vector3> Vertexes;
+                [WriteOnly] public NativeList<Vector3> Normals;
+                [WriteOnly] public NativeList<Vector3> Uvs;
+                [WriteOnly] public NativeList<Color> Colors;
+                [WriteOnly] public NativeList<int> Indexes;
+
+
+                private bool DoesIdMatch(int index) => Ids[index].Equals(Identity);
+                private bool IsHidden(int index, Direction direction) => CullingFlags[index].IsCulled(direction);
+                private bool IsActive(int index) => Active[index];
+
+                private Color GetLighting(int index) => Lighting[index];
+
+
+                private void DrawVertex(Vector3 l, Vector3 p, Vector3 r, Vector3 o)
+                {
+                    var faceStart = NativeMeshUtil.Quad(Vertexes, l, p, r, o);
+                    NativeMeshUtil.IndexAsQuadSequence(Indexes, faceStart);
+                }
+
+                private void DrawNormal(Vector3 normal)
+                {
+                    NativeMeshUtil.Quad(Normals, normal);
+                }
+
+                private void DrawColors(Color color)
+                {
+                    NativeMeshUtil.Quad(Colors, color);
+                }
+
+                private void DrawUv(Vector2 l, Vector2 p, Vector2 r, Vector2 o, int subTex)
+                {
+                    NativeMeshUtil.Quad(Uvs,
+                        new float3(l, subTex),
+                        new float3(p, subTex),
+                        new float3(r, subTex),
+                        new float3(o, subTex));
+                }
+
+                private void DrawUv(int subTex)
+                {
+                    DrawUv(
+                        new float2(0, 0),
+                        new float2(0, 1),
+                        new float2(1, 1),
+                        new float2(1, 0),
+                        subTex);
+                }
+
+
+                private void DrawUp(Color lighting)
+                {
+                    float3 up = new float3(0, 1, 0);
+                    float3 forward = new float3(0, 0, 1);
+                    float3 right = new float3(1, 0, 0);
+
+                    var l = (up + right + forward) / 2;
+                    var p = (up + right - forward) / 2;
+                    var r = (up - right - forward) / 2;
+                    var o = (up - right + forward) / 2;
+
+                    DrawVertex(l, p, r, o);
+                    DrawNormal(up);
+                    DrawUv(Map.Up);
+                    DrawColors(lighting);
+                }
+
+                private void DrawDown(Color lighting)
+                {
+                    float3 up = new float3(0, 1, 0);
+                    float3 forward = new float3(0, 0, 1);
+                    float3 right = new float3(1, 0, 0);
+
+                    var l = (-up + right + forward) / 2;
+                    var p = (-up + right - forward) / 2;
+                    var r = (-up - right - forward) / 2;
+                    var o = (-up - right + forward) / 2;
+
+                    DrawVertex(l, p, r, o);
+                    DrawNormal(-up);
+                    DrawUv(Map.Down);
+                    DrawColors(lighting);
+                }
+
+                public void Execute()
+                {
+                    var directions = DirectionsX.GetDirectionsNative(Allocator.Temp);
+                    for (var i = 0; i < UnivoxDefine.CubeSize; i++)
+                    {
+                        if (!DoesIdMatch(i))
+                            continue;
+
+                        for (var d = 0; d < directions.Length; d++)
+                        {
+                            var direction = directions[d];
+                            if (IsHidden(i, direction))
+                                continue;
+
+
+                            var lighting = GetLighting(i);
+                            switch (direction)
+                            {
+                                case Direction.Up:
+                                    DrawUp(lighting);
+                                    break;
+                                case Direction.Down:
+                                    DrawDown(lighting);
+                                    break;
+                                case Direction.Right:
+                                    break;
+                                case Direction.Left:
+                                    break;
+                                case Direction.Forward:
+                                    break;
+                                case Direction.Backward:
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                            }
+                        }
+                    }
+                }
+            }
+
+            public struct SubTextureMap
+            {
+                public byte Up;
+                public byte Down;
+                public byte Left;
+                public byte Right;
+                public byte Forward;
+                public byte Backward;
+            }
+
+            public struct VertexData
+            {
+                public VertexData(Vector3 vertex, Vector3 normal, Vector2 uv, int subTex, Color color)
+                {
+                    Vertex = vertex;
+                    Normal = normal;
+                    Uv = new Vector3(uv.x, uv.y, subTex);
+                    Color = color;
+                }
+
+                public Vector3 Vertex;
+                public Vector3 Normal;
+                public Vector3 Uv;
+                public Color Color;
+            }
+        }
     }
+
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class ChunkMeshGenerationSystem : JobComponentSystem
     {

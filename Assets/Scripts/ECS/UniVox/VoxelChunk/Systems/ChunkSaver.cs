@@ -49,11 +49,11 @@ namespace ECS.UniVox.Systems
     
     //I Learned why this is dumb; refactoring prevents us reusing 'Serialize', we can only use 'Deserialize'
 //
-//    public class VoxelDataSerializer : VersionedSerializationProxy<VoxelData>
+//    public class VoxelDataSerializer : VersionedSerializationProxy<VoxelIdentity>
 //    {
-//        private class Version0 : SerializationProxy<VoxelData>
+//        private class Version0 : SerializationProxy<VoxelIdentity>
 //        {
-//            public override void Serialize(BinaryWriter writer, VoxelData value)
+//            public override void Serialize(BinaryWriter writer, VoxelIdentity value)
 //            {
 //                writer.Write(value.BlockIdentity.Mod);
 //                writer.Write(value.BlockIdentity.Value);
@@ -61,17 +61,17 @@ namespace ECS.UniVox.Systems
 //                writer.Write((byte) value.Shape);
 //            }
 //
-//            public override VoxelData Deserialize(BinaryReader stream)
+//            public override VoxelIdentity Deserialize(BinaryReader stream)
 //            {
 //                var modId = stream.ReadByte();
 //                var blockId = stream.ReadInt32();
 //                var flags = stream.ReadByte();
 //                var shape = (BlockShape) stream.ReadByte();
 //
-//                return new VoxelData(new BlockIdentity(modId, blockId), flags, shape);
+//                return new VoxelIdentity(new BlockIdentity(modId, blockId), flags, shape);
 //            }
 //
-//            public override void Deserialize(BinaryReader stream, ref VoxelData value)
+//            public override void Deserialize(BinaryReader stream, ref VoxelIdentity value)
 //            {
 //                value = Deserialize(stream);
 //            }
@@ -82,7 +82,7 @@ namespace ECS.UniVox.Systems
 //
 //        public override byte CurrentVersion => _CurrentVersion;
 //
-//        public override SerializationProxy<VoxelData> GetVersioned(int version)
+//        public override SerializationProxy<VoxelIdentity> GetVersioned(int version)
 //        {
 //            switch (version)
 //            {
@@ -94,7 +94,7 @@ namespace ECS.UniVox.Systems
 //        }
 //    }
 //
-//    public class ChunkVoxelDataSerializer : SerializationProxy<NativeArray<VoxelData>>
+//    public class ChunkVoxelDataSerializer : SerializationProxy<NativeArray<VoxelIdentity>>
 //    {
 //        public ChunkVoxelDataSerializer(Allocator allocator = Allocator.Persistent)
 //        {
@@ -103,7 +103,7 @@ namespace ECS.UniVox.Systems
 //
 //        private readonly Allocator _allocator;
 //
-//        public override void Serialize(BinaryWriter writer, NativeArray<VoxelData> value)
+//        public override void Serialize(BinaryWriter writer, NativeArray<VoxelIdentity> value)
 //        {
 //            var proxy = new VoxelDataSerializer();
 //            var version = proxy.CurrentVersion;
@@ -115,13 +115,13 @@ namespace ECS.UniVox.Systems
 //            }
 //        }
 //
-//        public override NativeArray<VoxelData> Deserialize(BinaryReader reader)
+//        public override NativeArray<VoxelIdentity> Deserialize(BinaryReader reader)
 //        {
 //            var proxy = new VoxelDataSerializer();
 //            var version = reader.ReadByte();
 //            var currentProxy = proxy.GetVersioned(version);
 //            const int len = UnivoxDefine.CubeSize;
-//            var array = new NativeArray<VoxelData>(len, _allocator, NativeArrayOptions.UninitializedMemory);
+//            var array = new NativeArray<VoxelIdentity>(len, _allocator, NativeArrayOptions.UninitializedMemory);
 //            for (var i = 0; i < len; i++)
 //            {
 //                array[i] = currentProxy.Deserialize(reader);
@@ -130,7 +130,7 @@ namespace ECS.UniVox.Systems
 //            return array;
 //        }
 //
-//        public override void Deserialize(BinaryReader reader, ref NativeArray<VoxelData> value)
+//        public override void Deserialize(BinaryReader reader, ref NativeArray<VoxelIdentity> value)
 //        {
 //            var proxy = new VoxelDataSerializer();
 //            var version = reader.ReadByte();
@@ -146,7 +146,7 @@ namespace ECS.UniVox.Systems
 
 //    public class ChunkSaver
 //    {
-//        public void SerializeBuffer(Stream stream, DynamicBuffer<VoxelData> chunkData)
+//        public void SerializeBuffer(Stream stream, DynamicBuffer<VoxelIdentity> chunkData)
 //        {
 //            using (var writer = new BinaryWriter(stream))
 //            {
@@ -155,7 +155,7 @@ namespace ECS.UniVox.Systems
 //            }
 //        }
 //
-//        public void DeserializeBuffer(Stream stream, ref DynamicBuffer<VoxelData> chunkData, Allocator allocator)
+//        public void DeserializeBuffer(Stream stream, ref DynamicBuffer<VoxelIdentity> chunkData, Allocator allocator)
 //        {
 //            using (var reader = new BinaryReader(stream))
 //            {

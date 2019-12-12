@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using UnityEngine;
 using UniVox;
 using UniVox.Types;
 
@@ -89,12 +90,12 @@ namespace ECS.UniVox.VoxelChunk.Components
         [InternalBufferCapacity(UnivoxDefine.ByteCubeSize)]
         public struct VoxelLighting : IBufferElementData, IEquatable<VoxelLighting>
         {
-            public VoxelLighting(byte active)
+            public VoxelLighting(Color active)
             {
                 _lighting = active;
             }
 
-            private readonly byte _lighting;
+            private readonly Color _lighting;
 
 
             public bool Equals(VoxelLighting other)
@@ -112,12 +113,12 @@ namespace ECS.UniVox.VoxelChunk.Components
                 return _lighting.GetHashCode();
             }
 
-            public static implicit operator VoxelLighting(byte lighting)
+            public static implicit operator VoxelLighting(Color lighting)
             {
                 return new VoxelLighting(lighting);
             }
 
-            public static implicit operator byte(VoxelLighting lighting)
+            public static implicit operator Color(VoxelLighting lighting)
             {
                 return lighting._lighting;
             }
@@ -158,6 +159,10 @@ namespace ECS.UniVox.VoxelChunk.Components
             public static implicit operator Directions(VoxelCullingFlags facesToCull)
             {
                 return facesToCull._facesToCull;
+            }
+            public bool IsCulled(Direction direction)
+            {
+                return _facesToCull.HasDirection(direction);
             }
         }
     }
