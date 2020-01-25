@@ -4,7 +4,6 @@ using Unity.Jobs;
 
 namespace ECS.UniVox.Systems.Generic
 {
-    [UpdateAfter(typeof(ChunkInitializationSystem))]
     public abstract class ChunkComponentDirtySystem<TComponent, TVersionComponent> : JobComponentSystem
         where TVersionComponent : struct, IComponentData
     {

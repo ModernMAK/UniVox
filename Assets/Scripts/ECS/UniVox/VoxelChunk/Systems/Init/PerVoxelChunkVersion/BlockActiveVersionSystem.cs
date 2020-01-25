@@ -53,7 +53,9 @@ namespace ECS.UniVox.Systems
         public BlockActiveVersion GetDirty()
         {
             var temp = Value;
-            ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
+            //TODO
+            throw new InvalidOperationException("ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);");
+//            ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
             return new BlockActiveVersion(temp);
         }
     }

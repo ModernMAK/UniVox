@@ -1,7 +1,0 @@
-ManifestFileVersion: 0
-CRC: 2222360152
-AssetBundleManifest:
-  AssetBundleInfos:
-    Info_0:
-      Name: basegame/meshes
-      Dependencies: {}

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -222,8 +223,10 @@ namespace ECS.UnityEdits.Hybrid_Renderer
                 var alreadyTrackingSubscene = m_SubsceneTagVersion.TryGetValue(subsceneTag, out _);
                 if (alreadyTrackingSubscene)
                     continue;
-
-                m_FrozenGroup.SetFilter(subsceneTag);
+                
+                //TODO
+                throw new InvalidOperationException("m_FrozenGroup.SetFilter(subsceneTag);");
+//                m_FrozenGroup.SetFilter(subsceneTag);
 
                 var filteredChunks = m_FrozenGroup.CreateArchetypeChunkArray(Allocator.TempJob);
 

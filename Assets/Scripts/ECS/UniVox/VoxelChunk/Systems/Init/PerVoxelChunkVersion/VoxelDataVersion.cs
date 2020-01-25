@@ -52,7 +52,9 @@ namespace ECS.UniVox.Systems
         public VoxelDataVersion GetDirty()
         {
             var temp = Value;
-            ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
+            //TODO
+            throw new InvalidOperationException("ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);");
+//            ChangeVersionUtility.IncrementGlobalSystemVersion(ref temp);
             return new VoxelDataVersion(temp);
         }
     }
