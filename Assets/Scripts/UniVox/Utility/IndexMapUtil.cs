@@ -2,27 +2,66 @@ using Unity.Mathematics;
 
 namespace UniVox.Utility
 {
+    public interface IIndexConverter<T>
+    {
+        T Size { get; }
+        int Flatten(T value);
+        T Expand(int value);
+    }
+
+    public struct IndexConverter2D : IIndexConverter<int2>
+    {
+        public IndexConverter2D(int2 size)
+        {
+            Size = size;
+        }
+
+        public int2 Size { get; }
+        public int Flatten(int x, int y) => x + y * Size.x;
+        public int Flatten(int2 value) => Flatten(value.x, value.y);
+        public int2 Expand(int value) => new int2(value % Size.x, value / Size.x);
+    }
+
+    public struct IndexConverter3D : IIndexConverter<int3>
+    {
+        public IndexConverter3D(int3 size)
+        {
+            Size = size;
+        }
+
+        public int3 Size { get; }
+        public int Flatten(int x, int y, int z) => x + y * Size.x + z * Size.x * Size.y;
+        public int Flatten(int3 value) => Flatten(value.x, value.y, value.z);
+
+        public int3 Expand(int value) =>
+            new int3(value % Size.x, (value / Size.x) % Size.y, value / (Size.x * Size.y));
+    }
+
+    public struct IndexConverter4D : IIndexConverter<int4>
+    {
+        public IndexConverter4D(int4 size)
+        {
+            Size = size;
+        }
+
+        public int4 Size { get; }
+
+        public int Flatten(int x, int y, int z, int w) => x +
+                                                          y * Size.x +
+                                                          z * Size.x * Size.y +
+                                                          w * Size.x * Size.y + Size.w;
+
+        public int Flatten(int4 value) => Flatten(value.x, value.y, value.z, value.w);
+
+        public int4 Expand(int value) =>
+            new int4(value % Size.x,
+                (value / Size.x) % Size.y,
+                value / (Size.x * Size.y) % Size.z,
+                value / (Size.x * Size.y * Size.z));
+    }
+
     public static class IndexMapUtil
     {
-        public struct MapMatrix2D
-        {
-            public int Size { get; }
-            public int Flatten(int x, int y) => x + y * Size;
-            public int Flatten(int2 value) => value.x + value.y * Size;
-            public int2 Expand(int value) => new int2(value % Size, value / Size);
-        }
-
-        public struct MapMatrix3D
-        {
-            public int2 Size { get; }
-            private int SizeX => Size.x;
-            private int SizeY => Size.y;
-            private int SizeXY => Size.y * Size.x;
-            public int Flatten(int x, int y, int z) => x + y * SizeX + z * SizeXY;
-            public int Flatten(int3 value) => value.x + value.y * SizeX + value.z * SizeXY;
-            public int3 Expand(int value) => new int3(value % SizeX, (value / SizeX) % SizeY, value / SizeXY);
-        }
-
         //2D
         public static int ToIndex(int x, int y, int xSize)
         {

@@ -281,10 +281,10 @@
 ////            public WorldMap WorldMap;
 //
 ////        [Obsolete]
-////        public Chunk Chunk;
+////        public VoxelChunk VoxelChunk;
 ////            public Entity ChunkEntity;
 ////        [Obsolete]
-////        public Chunk.Accessor Value;
+////        public VoxelChunk.Accessor Value;
 //
 //            public ChunkPosition ChunkPosition => (ChunkPosition) WorldPosition;
 //            public BlockPosition BlockPosition => WorldPosition.ToBlockPosition();

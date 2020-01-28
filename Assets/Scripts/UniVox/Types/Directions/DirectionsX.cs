@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UniVox.Utility;
 
 namespace UniVox.Types
 {
@@ -11,13 +12,14 @@ namespace UniVox.Types
         public const Directions AllFlag = (Directions) 0b00111111;
         public const Directions NoneFlag = 0;
 
+        private const int DirectionSize = 6;
 
         private static readonly Direction[] AllDirectionsArray = (Direction[]) Enum.GetValues(typeof(Direction));
         public static IEnumerable<Direction> AllDirections => AllDirectionsArray;
 
         public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
         {
-            return new NativeArray<Direction>(6, allocator, NativeArrayOptions.UninitializedMemory)
+            return new NativeArray<Direction>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory)
             {
                 [0] = Direction.Backward,
                 [1] = Direction.Down,
@@ -27,6 +29,43 @@ namespace UniVox.Types
                 [5] = Direction.Up
             };
         }
+
+        public static NativeArray<Directions> GetDirectionFlagsNative(NativeArray<Direction> directionArr,
+            Allocator allocator)
+        {
+            var array = new NativeArray<Directions>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory);
+
+            for (var i = 0; i < 6; i++)
+                array[i] = directionArr[i].ToFlag();
+            return array;
+        }
+
+        public static NativeArray<Directions> GetDirectionFlagsNative(Allocator allocator)
+        {
+            var temp = GetDirectionsNative(Allocator.Temp);
+            var array = GetDirectionFlagsNative(temp, allocator);
+            temp.Dispose();
+            return array;
+        }
+
+        public static NativeArray<int3> GetDirectionOffsetsNative(NativeArray<Direction> directionArr,
+            Allocator allocator)
+        {
+            var array = new NativeArray<int3>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory);
+
+            for (var i = 0; i < 6; i++)
+                array[i] = directionArr[i].ToInt3();
+            return array;
+        }
+
+        public static NativeArray<int3> GetDirectionOffsetsNative(Allocator allocator)
+        {
+            var temp = GetDirectionsNative(Allocator.Temp);
+            var array = GetDirectionOffsetsNative(temp, allocator);
+            temp.Dispose();
+            return array;
+        }
+
 
         public static Axis ToAxis(this Direction direction)
         {

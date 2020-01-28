@@ -16,7 +16,7 @@ namespace UniVox.Types
 
         public byte WorldId { get; }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
+        //WE order By WorldMap, Then By VoxelChunk (YXZ), Then By Value (Index)
         public int CompareTo(WorldIdentity other)
         {
             return WorldId.CompareTo(other.WorldId);
@@ -46,7 +46,7 @@ namespace UniVox.Types
 
 
     /// <summary>
-    ///     A Universal Id, capable of grabbing any Chunk, or WorldMap in the Universe
+    ///     A Universal Id, capable of grabbing any VoxelChunk, or WorldMap in the Universe
     /// </summary>
     public struct ChunkIdentity : IEquatable<ChunkIdentity>, IComparable<ChunkIdentity>
     {
@@ -59,7 +59,7 @@ namespace UniVox.Types
         public byte WorldId { get; }
         public int3 ChunkId { get; }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
+        //WE order By WorldMap, Then By VoxelChunk (YXZ), Then By Value (Index)
         public int CompareTo(ChunkIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

@@ -5,7 +5,7 @@ using UniVox.Utility;
 namespace UniVox.Types
 {
     /// <summary>
-    ///     A Universal Voxel Id, capable of grabbing any Voxel, Chunk, or WorldMap in the Universe
+    ///     A Universal Voxel Id, capable of grabbing any Voxel, VoxelChunk, or WorldMap in the Universe
     /// </summary>
     public struct VoxelIdentity : IEquatable<VoxelIdentity>, IComparable<VoxelIdentity>
     {
@@ -26,7 +26,7 @@ namespace UniVox.Types
             return $"W:{WorldId}, X:{ChunkId.x}, Y:{ChunkId.y} Z:{ChunkId.z}, I:{VoxelId}";
         }
 
-        //WE order By WorldMap, Then By Chunk (YXZ), Then By Value (Index)
+        //WE order By WorldMap, Then By VoxelChunk (YXZ), Then By Value (Index)
         public int CompareTo(VoxelIdentity other)
         {
             var delta = WorldId.CompareTo(other.WorldId);

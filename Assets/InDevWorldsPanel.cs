@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using Unity.Entities;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class InDevWorldsPanel : MonoBehaviour
@@ -13,6 +15,9 @@ public class InDevWorldsPanel : MonoBehaviour
     [SerializeField] private Button _loadButton;
     [SerializeField] private int _size;
     private Button _selected;
+
+    [SerializeField] private InDevWorldInformation _worldInfo;
+    [SerializeField] private SceneAsset _scene;
 
 
     private void Cleanup()
@@ -73,6 +78,10 @@ public class InDevWorldsPanel : MonoBehaviour
             var buttonText = _selected.GetComponentInChildren<TMP_Text>();
 
             Debug.Log($"TODO - Load World : {buttonText.text}");
+
+            _worldInfo.WorldName = buttonText.text;
+
+            SceneManager.LoadScene(_scene.name);
         }
     }
 }

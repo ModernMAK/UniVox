@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 
 namespace UniVox.Types.Native
 {
@@ -73,6 +74,7 @@ namespace UniVox.Types.Native
                     "{0} used in NativeValue<{1}> must be unmanaged (contain no managed types) and cannot itself be a native container type.",
                     typeof(T), typeof(T)));
         }
+
         private static unsafe void Allocate(Allocator allocator, out NativeValue<T> array)
         {
             var size = UnsafeUtility.SizeOf<T>() * (long) InternalLength;
@@ -88,8 +90,6 @@ namespace UniVox.Types.Native
             array.m_MinIndex = array.m_MaxIndex = InternalIndex;
             DisposeSentinel.Create(out array.m_Safety, out array.m_DisposeSentinel, 1, allocator);
         }
-
-
 
 
         [WriteAccessRequired]
@@ -121,8 +121,40 @@ namespace UniVox.Types.Native
             return ((int) m_Buffer * 397) ^ m_Length;
         }
 
+
         public static bool operator ==(NativeValue<T> left, NativeValue<T> right) => left.Equals(right);
 
         public static bool operator !=(NativeValue<T> left, NativeValue<T> right) => !left.Equals(right);
+
+
+        public unsafe JobHandle Dispose(JobHandle inputDeps)
+        {
+            DisposeSentinel.Clear(ref this.m_DisposeSentinel);
+            JobHandle jobHandle = new NativeValue<T>.DisposeJob()
+            {
+                Container = this
+            }.Schedule(inputDeps);
+            AtomicSafetyHandle.Release(this.m_Safety);
+            this.m_Buffer = (void*) null;
+            this.m_Length = 0;
+            return jobHandle;
+        }
+
+        private struct DisposeJob : IJob
+        {
+            public NativeValue<T> Container;
+
+            public void Execute()
+            {
+                this.Container.Deallocate();
+            }
+        }
+
+        private unsafe void Deallocate()
+        {
+            UnsafeUtility.Free(this.m_Buffer, this.m_AllocatorLabel);
+            this.m_Buffer = (void*) null;
+            this.m_Length = 0;
+        }
     }
 }
