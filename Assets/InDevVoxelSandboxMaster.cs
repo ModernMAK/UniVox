@@ -119,6 +119,7 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         _chunkGen = new VoxelChunkGenerator() {Seed = seed, Solidity = Solidity};
         _chunkSerializer = new ChunkSerializer();
         _meshGen = new NaiveMeshGeneratorProxy();
+//        _meshGen = new GreedyMeshGeneratorProxy();
 
         _universe = new VoxelUniverse();
 

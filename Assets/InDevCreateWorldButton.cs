@@ -6,10 +6,13 @@ using System.Security.AccessControl;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+
 public class InDevCreateWorldButton : MonoBehaviour
 {
+#pragma warning disable 0649
     [SerializeField] private TMP_InputField _nameField;
-
+#pragma warning restore 0649
+    
     // Start is called before the first frame update
     public void Run()
     {

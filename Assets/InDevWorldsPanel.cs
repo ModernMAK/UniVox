@@ -10,6 +10,7 @@ using UnityEngine.UI;
 
 public class InDevWorldsPanel : MonoBehaviour
 {
+#pragma warning disable 0649
     [SerializeField] private RectTransform _content;
     [SerializeField] private GameObject _buttonPrefab;
     [SerializeField] private Button _loadButton;
@@ -18,8 +19,9 @@ public class InDevWorldsPanel : MonoBehaviour
 
     [SerializeField] private InDevWorldInformation _worldInfo;
     [SerializeField] private SceneAsset _scene;
+#pragma warning restore 0649
 
-
+    
     private void Cleanup()
     {
         _loadButton.interactable = false;
