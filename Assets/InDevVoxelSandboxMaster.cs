@@ -13,13 +13,16 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
     public string singletonGameObjectName;
 
     private GameObject _singleton;
+    [SerializeField] private GameObject _naive;
+    [SerializeField] private GameObject _greedy;
     private string _worldName;
     private VoxelUniverse _universe;
     [Range(0f, 1f)] public float Solidity;
 
     private AbstractGenerator<int3, VoxelChunk> _chunkGen;
     private BinarySerializer<VoxelChunk> _chunkSerializer;
-    private MeshGeneratorProxy<RenderChunk> _meshGen;
+    private MeshGeneratorProxy<RenderChunk> _greedyMeshGen;
+    private MeshGeneratorProxy<RenderChunk> _naiveMeshGen;
 
     private RenderChunk ConvertToRender(VoxelChunk chunk, Allocator allocator)
     {
@@ -71,9 +74,11 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
     }
 
 
-    private Mesh Generate(byte worldId, int3 key)
+    private void Generate(byte worldId, int3 key, out Mesh[] meshes)
     {
-        var mesh = new Mesh() {name = $"{worldId}_{key}"};
+        var greedyMesh = new Mesh() {name = $"{worldId}_{key}_G"};
+        var naiveMesh = new Mesh() {name = $"{worldId}_{key}_N"};
+        meshes = new Mesh[2] {greedyMesh, naiveMesh};
         VoxelChunk chunk;
         JobHandle depends = default;
         var shouldSave = false;
@@ -87,15 +92,19 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
 
         using (var render = ConvertToRender(chunk, Allocator.TempJob))
         {
-            var meshArr = Mesh.AllocateWritableMeshData(1);
-            depends = _meshGen.Generate(meshArr[0], render, depends);
-            using (var bound = new NativeValue<Bounds>(Allocator.TempJob))
+            var meshArr = Mesh.AllocateWritableMeshData(2);
+            depends = _greedyMeshGen.Generate(meshArr[0], render, depends);
+            depends = _naiveMeshGen.Generate(meshArr[1], render, depends);
+            using (var gBound = new NativeValue<Bounds>(Allocator.TempJob))
+            using (var nBound = new NativeValue<Bounds>(Allocator.TempJob))
             {
-                depends = _meshGen.GenerateBound(meshArr[0], bound, depends);
+                depends = _greedyMeshGen.GenerateBound(meshArr[0], gBound, depends);
+                depends = _naiveMeshGen.GenerateBound(meshArr[1], nBound, depends);
 
                 depends.Complete();
-                Mesh.ApplyAndDisposeWritableMeshData(meshArr, mesh);
-                mesh.bounds = bound;
+                Mesh.ApplyAndDisposeWritableMeshData(meshArr, meshes);
+                greedyMesh.bounds = gBound;
+                naiveMesh.bounds = nBound;
             }
         }
 
@@ -103,7 +112,7 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
             Save(worldId, key, chunk);
 
         chunk.Dispose();
-        return mesh;
+//        return greedyMesh;
     }
 
     void Awake()
@@ -118,14 +127,13 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         var seed = _worldName.GetHashCode();
         _chunkGen = new VoxelChunkGenerator() {Seed = seed, Solidity = Solidity};
         _chunkSerializer = new ChunkSerializer();
-//        _meshGen = new NaiveMeshGeneratorProxy();
-        _meshGen = new GreedyMeshGeneratorProxy();
+        _naiveMeshGen = new NaiveMeshGeneratorProxy();
+        _greedyMeshGen = new GreedyMeshGeneratorProxy();
 
         _universe = new VoxelUniverse();
 
-        var m = Generate(0, new int3(0));
-        gameObject.AddComponent<MeshFilter>();
-
-        GetComponent<MeshFilter>().mesh = m;
+        Generate(0, new int3(0), out var meshes);
+        _greedy.GetComponent<MeshFilter>().mesh = meshes[0];
+        _naive.GetComponent<MeshFilter>().mesh = meshes[1];
     }
 }

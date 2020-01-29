@@ -30,6 +30,23 @@ namespace UniVox.Types
             };
         }
 
+        public static bool IsPositive(this Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Forward:
+                case Direction.Right:
+                case Direction.Up:
+                    return true;
+                case Direction.Down:
+                case Direction.Left:
+                case Direction.Backward:
+                    return false;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
         public static NativeArray<Directions> GetDirectionFlagsNative(NativeArray<Direction> directionArr,
             Allocator allocator)
         {

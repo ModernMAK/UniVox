@@ -54,7 +54,7 @@ namespace UniVox.Rendering
             if (IsTriangle)
                 return new Primitive<TVertex>(Right, Pivot, Left);
             else
-                return new Primitive<TVertex>(Right, Opposite, Left, Pivot);
+                return new Primitive<TVertex>(Right, Pivot, Left, Opposite);
         }
 
         public TVertex Left { get; }

@@ -410,7 +410,7 @@ namespace UniVox.Rendering
 
 
             private int _indexCount;
-            private int _vertexCount;
+            private ushort _vertexCount;
 
             //We do something stupid like this because unity safety checks
             //I cant have a job with uninitialized NativeArray (makes sense)
@@ -419,7 +419,7 @@ namespace UniVox.Rendering
             {
                 public NativeArray<Direction> DirectionArray;
                 public NativeArray<Vertex> VertexBuffer;
-                public NativeArray<int> IndexBuffer;
+                public NativeArray<ushort> IndexBuffer;
 
                 public void Dispose()
                 {
@@ -434,7 +434,7 @@ namespace UniVox.Rendering
                 {
                     DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
                     VertexBuffer = Mesh.GetVertexData<Vertex>(0),
-                    IndexBuffer = Mesh.GetIndexData<int>(),
+                    IndexBuffer = Mesh.GetIndexData<ushort>(),
                 };
                 _indexCount = 0;
                 _vertexCount = 0;
@@ -450,33 +450,44 @@ namespace UniVox.Rendering
             private Primitive<Vertex> GenPrimitiveQuad(int3 pos, int2 size, Direction direction)
             {
                 GetScanVectors(direction, out var norm, out var tan, out var bitan);
+                if (!direction.IsPositive())
+                    norm *= -1;
 
-                var fixedSize = size - new int2(1); //Ironically, we undo a +1 from the quad algo
-                var scaledTan = tan * size.x;
-                var scaledBitan = bitan * size.y;
+                var fixedSize = size - new int2(1); //because we add these scales we have to remove one
+                var scaledTan = tan * fixedSize.x;
+                var scaledBitan = bitan * fixedSize.y;
+
+                var uvTan = math.csum(pos * tan);
+                var uvBitan = math.csum(pos * bitan);
+                var uvOffset = new float2(uvTan, uvBitan);
 
                 var l = pos + (float3) (norm - tan - bitan) / 2f;
                 var p = pos + (float3) (norm + tan - bitan) / 2f + scaledTan;
                 var r = pos + (float3) (norm + tan + bitan) / 2f + scaledTan + scaledBitan;
                 var o = pos + (float3) (norm - tan + bitan) / 2f + scaledBitan;
 
+                var lUv = uvOffset + new float2(0f, 0f) * size;
+                var pUv = uvOffset + new float2(1f, 0f) * size;
+                var rUv = uvOffset + new float2(1f, 1f) * size;
+                var oUv = uvOffset + new float2(0f, 1f) * size;
+
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
-                var du = new float2(1f, 0f);
-                var dv = new float2(0f, 1f);
 
                 var left = new Vertex()
-                    {Position = (half4) new float4(l, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) 0f};
+                    {Position = (half4) new float4(l, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) lUv};
                 var pivot = new Vertex()
-                    {Position = (half4) new float4(p, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) du};
+                    {Position = (half4) new float4(p, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) pUv};
                 var right = new Vertex()
-                {
-                    Position = (half4) new float4(r, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) (du + dv)
-                };
+                    {Position = (half4) new float4(r, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) rUv};
                 var opposite = new Vertex()
-                    {Position = (half4) new float4(o, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) dv};
+                    {Position = (half4) new float4(o, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) oUv};
 
-                return new Primitive<Vertex>(left, pivot, right, opposite);
+                var primitive = new Primitive<Vertex>(left, pivot, right, opposite);
+
+                if (direction == Direction.Up || direction == Direction.Right || direction == Direction.Backward)
+                    primitive = primitive.FlipWinding();
+                return primitive;
             }
 
             private void Write<T>(NativeArray<T> buffer, int index, Primitive<T> primitive) where T : struct
