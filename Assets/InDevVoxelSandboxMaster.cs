@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using Unity.Entities.Serialization;
-using Unity.Entities.UniversalDelegates;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using UniVox.Rendering;
 using BinaryReader = System.IO.BinaryReader;
 using BinaryWriter = System.IO.BinaryWriter;
 using Random = Unity.Mathematics.Random;
@@ -31,6 +26,7 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
 
     void Awake()
     {
+        var serializer = new InDevVoxelChunkStreamer.ChunkSerializer();
         _singleton = GameObject.Find(singletonGameObjectName);
         if (_singleton == null)
             throw new NullReferenceException($"Singleton '{singletonGameObjectName}' not found!");
@@ -80,7 +76,7 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         }
     }
 
-    private struct RandomBoolJob : IJob
+    public struct RandomBoolJob : IJob
     {
         public Random Rand;
         public NativeArray<bool> Array;
@@ -93,7 +89,7 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         }
     }
 
-    private struct RandomByteJob : IJob
+    public struct RandomByteJob : IJob
     {
         public Random Rand;
         public NativeArray<byte> Array;
@@ -172,178 +168,58 @@ public static unsafe class BinarySerializatoinExtensions
 
 public static class DataManip
 {
-    public enum CountFormat : byte
-    {
-        Byte,
-        Short,
-        Int
-    }
-
     public static class RunLengthEncoder
     {
-        private static void WriteHelper(NativeList<byte> array, uint value, CountFormat format)
-        {
-            var LL = (byte) (value >> 0);
-            var LU = (byte) (value >> 8);
-            var UL = (byte) (value >> 16);
-            var UU = (byte) (value >> 24);
-
-            //Apparently you cant fall through in case statements anymore?
-            //Guess that was considired a hack or something, good for C# team for patching it out i guess?
-
-            switch (format)
-            {
-                case CountFormat.Byte:
-                    array.Add(LL);
-                    break;
-                case CountFormat.Short:
-                    array.Add(LU);
-                    array.Add(LL);
-                    break;
-                case CountFormat.Int:
-                    array.Add(UU);
-                    array.Add(UL);
-                    array.Add(LU);
-                    array.Add(LL);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
-            }
-        }
-
-        private static uint ReadHelper(NativeArray<byte> array, int index, CountFormat format)
-        {
-            uint LL = 0;
-            uint LU = 0;
-            uint UL = 0;
-            uint UU = 0;
-
-            //Apparently you cant fall through in case statements anymore?
-            //Guess that was considired a hack or something, good for C# team for patching it out i guess?
-
-            switch (format)
-            {
-                case CountFormat.Byte:
-                    LL = array[index + 0];
-                    break;
-                case CountFormat.Short:
-                    LU = array[index + 0];
-                    LL = array[index + 1];
-                    break;
-                case CountFormat.Int:
-                    UU = array[index + 0];
-                    UL = array[index + 1];
-                    LU = array[index + 2];
-                    LL = array[index + 3];
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
-            }
-
-            return (LL << 0) +
-                   (LU << 8) +
-                   (UL << 16) +
-                   (UU << 24);
-        }
-
-        private static int IndexSize(CountFormat format)
-        {
-            switch (format)
-            {
-                case CountFormat.Byte:
-
-                    return 1;
-                case CountFormat.Short:
-                    return 2;
-                case CountFormat.Int:
-                    return 4;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
-            }
-        }
-
-
         public static class BitSelect
         {
-            public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values,
-                CountFormat format = CountFormat.Byte) where T : struct, IEquatable<T> =>
-                Encode(input, counts, values, out _, format);
+            private const byte ByteFlag = (1 << 7);
+            private const byte ByteSize = byte.MaxValue >> 1;
+            private const ushort ShortFlag = (1 << 15);
+            private const ushort ShortSize = short.MaxValue >> 1;
 
+            #region Byte
 
-            private const byte BitSelectFlag = (1 << 7);
-            private static uint GetFlag(CountFormat format)
-            {
-                switch (format)
-                {
-                    case CountFormat.Byte:
-                        return (1U << 7); //Reserve topmost bit
-                    case CountFormat.Short:
-                        return (1U << 15); //Reserve topmost bit
-                    case CountFormat.Int:
-                        return (1U << 31); //Reserve topmost bit
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
-                }
-            }
-
-            private static uint GetSize(CountFormat format)
-            {
-                switch (format)
-                {
-                    case CountFormat.Byte:
-                        return byte.MaxValue >> 1; //Reserve topmost bit
-                    case CountFormat.Short:
-                        return short.MaxValue >> 1; //Reserve topmost bit
-                    case CountFormat.Int:
-                        return int.MaxValue >> 1; //Reserve topmost bit
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
-                }
-            }
+            public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values)
+                where T : struct, IEquatable<T> =>
+                Encode(input, counts, values, out _);
 
             public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values,
-                out uint largestRun, CountFormat format = CountFormat.Byte)
+                out byte largestRun)
                 where T : struct, IEquatable<T>
             {
-                var iSize = IndexSize(format);
-                var flag = GetFlag(format);
-                var counterSize = GetSize(format);
-
-
                 using (var tempValues = new NativeList<T>(input.Length, Allocator.Temp))
                 using (var tempCounts = new NativeList<byte>(input.Length, Allocator.Temp))
                 {
                     //Let allcount do most of the work
-                    AllCount.Encode(input, tempCounts, tempValues, out largestRun, format);
+                    AllCount.Encode(input, tempCounts, tempValues, out largestRun);
                     //Now lets group runs of one together
-                    uint counter = 0;
+                    byte counter = 0;
                     for (var i = 0; i < tempValues.Length; i++)
                     {
-                        var iIndex = i * iSize;
-                        var count = ReadHelper(tempCounts, iIndex, format);
+                        var count = tempCounts[i];
                         //Is it an actual run (not 1)
                         if (count > 1)
                         {
                             if (counter > 0)
                             {
-                                uint fixedCounter = counter | flag;
-                                WriteHelper(counts, fixedCounter, format);
+                                var fixedCounter = (byte) (counter | ByteFlag);
+                                counts.Add(fixedCounter);
                                 counter = 0;
                             }
 
                             //Special case, need to split the run into two identicle runs
-                            if ((count & flag) == flag)
+                            if ((count & ByteFlag) == ByteFlag)
                             {
-                                var fixedCount = count & ~flag;
-                                WriteHelper(counts, fixedCount, format);
-                                WriteHelper(counts, fixedCount, format);
+                                var fixedCount = (byte) (count & ~ByteFlag);
+                                counts.Add(fixedCount);
+                                counts.Add(fixedCount);
                                 values.Add(tempValues[i]);
                                 values.Add(tempValues[i]);
                             }
                             //Add as normal
                             else
                             {
-                                WriteHelper(counts, count, format);
+                                counts.Add(count);
                                 values.Add(tempValues[i]);
                             }
                         }
@@ -356,37 +232,34 @@ public static class DataManip
                             counter++;
 
                             //Special case, we have reached our limit
-                            if (counter >= counterSize)
+                            if (counter >= ByteSize)
                             {
-                                uint fixedCounter = counterSize | flag;
-                                WriteHelper(counts, fixedCounter, format);
-                                counter -= counterSize;
+                                var fixedCounter = (byte) (ByteSize | ByteFlag);
+                                counts.Add(fixedCounter);
+                                counter -= ByteSize;
                             }
                         }
                     }
 
                     if (counter > 0)
                     {
-                        uint fixedCounter = counter | flag;
-                        WriteHelper(counts, fixedCounter, format);
+                        var fixedCounter = (byte) (counter | ByteFlag);
+                        counts.Add(fixedCounter);
                     }
                 }
             }
 
 
-            public static void Decode<T>(NativeList<T> output, NativeArray<byte> counts, NativeArray<T> values,
-                CountFormat format)
+            public static void Decode<T>(NativeList<T> output, NativeArray<byte> counts, NativeArray<T> values)
                 where T : struct
             {
-                var iSize = IndexSize(format);
-                var flag = GetFlag(format);
                 var vIndex = 0;
                 //THIS IS LESS SIMPLER
                 for (var i = 0; i < counts.Length; i++)
                 {
-                    var count = ReadHelper(counts, i * iSize, format);
-                    var fixedCount = count & ~flag;
-                    var flagSet = (count & flag) == flag;
+                    var count = counts[i];
+                    var fixedCount = count & ~ByteFlag;
+                    var flagSet = (count & ByteFlag) == ByteFlag;
 
                     if (flagSet)
                     {
@@ -408,21 +281,18 @@ public static class DataManip
                 }
             }
 
-            public static void Decode<T>(NativeArray<T> output, NativeArray<byte> counts, NativeArray<T> values,
-                CountFormat format)
+            public static void Decode<T>(NativeArray<T> output, NativeArray<byte> counts, NativeArray<T> values)
                 where T : struct
             {
                 var k = 0;
-                var iSize = IndexSize(format);
-                var flag = GetFlag(format);
                 var vIndex = 0;
 
                 //THIS IS ALOT SIMPLER
                 for (var i = 0; i < counts.Length; i++)
                 {
-                    var count = ReadHelper(counts, i * iSize, format);
-                    var fixedCount = count & ~flag;
-                    var flagSet = (count & flag) == flag;
+                    var count = counts[i];
+                    var fixedCount = count & ~ByteFlag;
+                    var flagSet = (count & ByteFlag) == ByteFlag;
 
 
                     if (flagSet)
@@ -446,46 +316,177 @@ public static class DataManip
                     }
                 }
             }
+
+            #endregion
+
+            #region Short
+
+            public static void Encode<T>(NativeArray<T> input, NativeList<ushort> counts, NativeList<T> values)
+                where T : struct, IEquatable<T> =>
+                Encode(input, counts, values, out _);
+
+            public static void Encode<T>(NativeArray<T> input, NativeList<ushort> counts, NativeList<T> values,
+                out ushort largestRun)
+                where T : struct, IEquatable<T>
+            {
+                using (var tempValues = new NativeList<T>(input.Length, Allocator.Temp))
+                using (var tempCounts = new NativeList<ushort>(input.Length, Allocator.Temp))
+                {
+                    //Let allcount do most of the work
+                    AllCount.Encode(input, tempCounts, tempValues, out largestRun);
+                    //Now lets group runs of one together
+                    var counter = 0;
+                    for (var i = 0; i < tempValues.Length; i++)
+                    {
+                        var count = tempCounts[i];
+                        //Is it an actual run (not 1)
+                        if (count > 1)
+                        {
+                            if (counter > 0)
+                            {
+                                var fixedCounter = (ushort) (counter | ShortFlag);
+                                counts.Add(fixedCounter);
+                                counter = 0;
+                            }
+
+                            //Special case, need to split the run into two identicle runs
+                            if ((count & ShortFlag) == ShortFlag)
+                            {
+                                var fixedCount = (ushort) (count & ~ShortFlag);
+                                counts.Add(fixedCount);
+                                counts.Add(fixedCount);
+                                values.Add(tempValues[i]);
+                                values.Add(tempValues[i]);
+                            }
+                            //Add as normal
+                            else
+                            {
+                                counts.Add(count);
+                                values.Add(tempValues[i]);
+                            }
+                        }
+                        //Its a run of one
+                        else
+                        {
+                            //Add the value (we still need to know the value)
+                            values.Add(tempValues[i]);
+                            //Increase the counter
+                            counter++;
+
+                            //Special case, we have reached our limit
+                            if (counter >= ShortSize)
+                            {
+                                var fixedCounter = (ushort) (ShortSize | ShortFlag);
+                                counts.Add(fixedCounter);
+                                counter -= ShortSize;
+                            }
+                        }
+                    }
+
+                    if (counter > 0)
+                    {
+                        var fixedCounter = (ushort) (counter | ShortFlag);
+                        counts.Add(fixedCounter);
+                    }
+                }
+            }
+
+
+            public static void Decode<T>(NativeList<T> output, NativeArray<ushort> counts, NativeArray<T> values)
+                where T : struct
+            {
+                var vIndex = 0;
+                //THIS IS LESS SIMPLER
+                for (var i = 0; i < counts.Length; i++)
+                {
+                    var count = counts[i];
+                    var fixedCount = count & ~ShortFlag;
+                    var flagSet = (count & ShortFlag) == ShortFlag;
+
+                    if (flagSet)
+                    {
+                        for (var j = 0; j < fixedCount; j++)
+                        {
+                            output.Add(values[vIndex]);
+                            vIndex++;
+                        }
+                    }
+                    else
+                    {
+                        for (var j = 0; j < fixedCount; j++)
+                        {
+                            output.Add(values[vIndex]);
+                        }
+
+                        vIndex++;
+                    }
+                }
+            }
+
+            public static void Decode<T>(NativeArray<T> output, NativeArray<ushort> counts, NativeArray<T> values)
+                where T : struct
+            {
+                var k = 0;
+                var vIndex = 0;
+
+                //THIS IS ALOT SIMPLER
+                for (var i = 0; i < counts.Length; i++)
+                {
+                    var count = counts[i];
+                    var fixedCount = count & ~ShortFlag;
+                    var flagSet = (count & ShortFlag) == ShortFlag;
+
+
+                    if (flagSet)
+                    {
+                        for (var j = 0; j < fixedCount; j++)
+                        {
+                            output[k] = (values[vIndex]);
+                            vIndex++;
+                            k++;
+                        }
+                    }
+                    else
+                    {
+                        for (var j = 0; j < fixedCount; j++)
+                        {
+                            output[k] = (values[vIndex]);
+                            k++;
+                        }
+
+                        vIndex++;
+                    }
+                }
+            }
+
+            #endregion
         }
 
         public static class AllCount
         {
-            private static uint GetCounterSize(CountFormat format)
-            {
-                switch (format)
-                {
-                    case CountFormat.Byte:
-                        return byte.MaxValue;
-                    case CountFormat.Short:
-                        return ushort.MaxValue;
-                    case CountFormat.Int:
-                        return uint.MaxValue;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
-                }
-            }
+            private const byte ByteSize = byte.MaxValue;
+            private const ushort ShortSize = ushort.MaxValue;
+
+
+            public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values)
+                where T : struct, IEquatable<T> => Encode(input, counts, values, out _);
 
             public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values,
-                CountFormat format = CountFormat.Byte)
-                where T : struct, IEquatable<T> => Encode(input, counts, values, out _, format);
-
-            public static void Encode<T>(NativeArray<T> input, NativeList<byte> counts, NativeList<T> values,
-                out uint largestRun, CountFormat format)
+                out byte largestRun)
                 where T : struct, IEquatable<T>
             {
                 largestRun = 0;
                 if (input.Length <= 0)
                     return;
 
-                uint counter = 1;
-                uint counterCap = GetCounterSize(format);
-                T value = input[0];
+                byte counter = 1;
+                var value = input[0];
                 for (var i = 1; i < input.Length; i++)
                 {
                     var current = input[i];
                     //If we are the same (and we aren't about to overflow)
                     //Incriment the counter
-                    if (value.Equals(current) && counter < counterCap)
+                    if (value.Equals(current) && counter < ByteSize)
                     {
                         counter++;
                     }
@@ -495,8 +496,8 @@ public static class DataManip
                     {
                         if (largestRun < counter)
                             largestRun = counter;
-                        WriteHelper(counts, counter, format);
                         values.Add(value);
+                        counts.Add(counter);
                         counter = 1;
                         value = current;
                     }
@@ -504,20 +505,18 @@ public static class DataManip
 
                 if (largestRun < counter)
                     largestRun = counter;
-                WriteHelper(counts, counter, format);
                 values.Add(value);
+                counts.Add(counter);
             }
 
 
-            public static void Decode<T>(NativeList<T> output, NativeArray<byte> counts, NativeArray<T> values,
-                CountFormat format)
+            public static void Decode<T>(NativeList<T> output, NativeArray<byte> counts, NativeArray<T> values)
                 where T : struct
             {
-                var iSize = IndexSize(format);
                 //THIS IS ALOT SIMPLER
-                for (var i = 0; i < counts.Length / iSize; i++)
+                for (var i = 0; i < counts.Length; i++)
                 {
-                    var count = ReadHelper(counts, i * iSize, format);
+                    var count = counts[i];
 
 
                     for (var j = 0; j < count; j++)
@@ -525,16 +524,89 @@ public static class DataManip
                 }
             }
 
-            public static void Decode<T>(NativeArray<T> output, NativeArray<byte> counts, NativeArray<T> values,
-                CountFormat format)
+            public static void Decode<T>(NativeArray<T> output, NativeArray<byte> counts, NativeArray<T> values)
                 where T : struct
             {
                 var k = 0;
-                var iSize = IndexSize(format);
                 //THIS IS ALOT SIMPLER
-                for (var i = 0; i < counts.Length / iSize; i++)
+                for (var i = 0; i < counts.Length; i++)
                 {
-                    var count = ReadHelper(counts, i * iSize, format);
+                    var count = counts[i];
+
+
+                    for (var j = 0; j < count; j++)
+                    {
+                        output[k] = (values[i]);
+                        k++;
+                    }
+                }
+            }
+
+
+            public static void Encode<T>(NativeArray<T> input, NativeList<ushort> counts, NativeList<T> values)
+                where T : struct, IEquatable<T> => Encode(input, counts, values, out _);
+
+            public static void Encode<T>(NativeArray<T> input, NativeList<ushort> counts, NativeList<T> values,
+                out ushort largestRun)
+                where T : struct, IEquatable<T>
+            {
+                largestRun = 0;
+                if (input.Length <= 0)
+                    return;
+
+                ushort counter = 1;
+                var value = input[0];
+                for (var i = 1; i < input.Length; i++)
+                {
+                    var current = input[i];
+                    //If we are the same (and we aren't about to overflow)
+                    //Incriment the counter
+                    if (value.Equals(current) && counter < ShortSize)
+                    {
+                        counter++;
+                    }
+                    //We overflowed or we changed, either way add to the buffers, and alter the value
+                    //(If we overflowed, value and current are the same, so we didn't really alter the value)
+                    else
+                    {
+                        if (largestRun < counter)
+                            largestRun = counter;
+                        values.Add(value);
+                        counts.Add(counter);
+                        counter = 1;
+                        value = current;
+                    }
+                }
+
+                if (largestRun < counter)
+                    largestRun = counter;
+                values.Add(value);
+                counts.Add(counter);
+            }
+
+
+            public static void Decode<T>(NativeList<T> output, NativeArray<ushort> counts, NativeArray<T> values)
+                where T : struct
+            {
+                //THIS IS ALOT SIMPLER
+                for (var i = 0; i < counts.Length; i++)
+                {
+                    var count = counts[i];
+
+
+                    for (var j = 0; j < count; j++)
+                        output.Add(values[i]);
+                }
+            }
+
+            public static void Decode<T>(NativeArray<T> output, NativeArray<ushort> counts, NativeArray<T> values)
+                where T : struct
+            {
+                var k = 0;
+                //THIS IS ALOT SIMPLER
+                for (var i = 0; i < counts.Length; i++)
+                {
+                    var count = counts[i];
 
 
                     for (var j = 0; j < count; j++)
@@ -584,7 +656,7 @@ public static class DataManip
             //Iterate over the packed bytes
             for (var i = 0; i < input.Length; i++)
             {
-                byte packedByte = input[i];
+                var packedByte = input[i];
                 //Iterate over the bits
                 for (var j = 0; j < 8; j++)
                 {
@@ -604,19 +676,21 @@ public static class DataManip
     {
         public static void WriteRLE<T>(BinaryWriter writer, NativeArray<T> input) where T : struct, IEquatable<T>
         {
-            using (var counts = new NativeList<byte>(input.Length*2, Allocator.Temp))
+            using (var counts = new NativeList<ushort>(input.Length, Allocator.Temp))
             using (var values = new NativeList<T>(input.Length, Allocator.Temp))
             {
-                RunLengthEncoder.BitSelect.Encode(input, counts, values, CountFormat.Short);
+                RunLengthEncoder.BitSelect.Encode(input, counts, values);
 
 
                 writer.Write(counts.Length);
+                writer.Write(values.Length);
                 writer.WriteList(counts);
                 writer.WriteList(values);
             }
         }
 
-        public static void WritePackedRLE(BinaryWriter writer, NativeArray<bool> input)
+
+        public static void WritePrePackedRLE(BinaryWriter writer, NativeArray<bool> input)
         {
             using (var packed = BitPacker.Pack(input, Allocator.Temp))
             {
@@ -626,22 +700,61 @@ public static class DataManip
 
         public static void ReadRLE<T>(BinaryReader reader, NativeArray<T> output) where T : struct, IEquatable<T>
         {
-            var rleSize = reader.ReadInt32();
-            using (var counts = new NativeArray<byte>(rleSize*2, Allocator.Temp))
-            using (var values = new NativeArray<T>(rleSize, Allocator.Temp))
+            var countSize = reader.ReadInt32();
+            var valuesSize = reader.ReadInt32();
+            using (var counts = new NativeArray<ushort>(countSize, Allocator.Temp))
+            using (var values = new NativeArray<T>(valuesSize, Allocator.Temp))
             {
-                reader.ReadArray(counts, rleSize);
-                reader.ReadArray(values, rleSize);
-                RunLengthEncoder.BitSelect.Decode(output, counts, values, CountFormat.Short);
+                reader.ReadArray(counts, countSize);
+                reader.ReadArray(values, valuesSize);
+                RunLengthEncoder.BitSelect.Decode(output, counts, values);
             }
         }
 
-        public static void ReadPackedRLE(BinaryReader reader, NativeArray<bool> output)
+        public static void ReadPrePackedRLE(BinaryReader reader, NativeArray<bool> output)
         {
             using (var packed = new NativeArray<byte>(BitPacker.GetPackArraySize(output.Length), Allocator.Temp))
             {
                 ReadRLE(reader, packed);
                 BitPacker.Unpack(packed, output);
+            }
+        }
+
+        public static void WritePostPackedRLE(BinaryWriter writer, NativeArray<bool> input)
+        {
+            using (var counts = new NativeList<ushort>(input.Length, Allocator.Temp))
+            using (var values = new NativeList<bool>(input.Length, Allocator.Temp))
+            {
+                RunLengthEncoder.BitSelect.Encode(input, counts, values);
+
+
+                writer.Write(counts.Length);
+                using (var packed = BitPacker.Pack(values.AsArray(), Allocator.Temp))
+                {
+                    writer.Write(packed.Length);
+
+                    writer.WriteList(counts);
+                    writer.WriteArray(packed);
+                }
+            }
+        }
+
+        public static void ReadPostPackedRLE(BinaryReader reader, NativeArray<bool> output)
+        {
+            var countSize = reader.ReadInt32();
+            var valuesSize = reader.ReadInt32();
+            using (var counts = new NativeArray<ushort>(output.Length, Allocator.Temp))
+            using (var values = new NativeArray<bool>(output.Length, Allocator.Temp))
+            using (var packed = new NativeArray<byte>(valuesSize, Allocator.Temp))
+            {
+                reader.ReadArray(counts, countSize);
+
+                reader.ReadArray(packed, valuesSize);
+
+                BitPacker.Unpack(packed, values);
+
+
+                RunLengthEncoder.BitSelect.Decode(output, counts, values);
             }
         }
     }
@@ -666,6 +779,50 @@ public static class InDevVoxelChunkStreamer
         $"{world}W{Seperator}{chunkPosition.x}X{Seperator}{chunkPosition.y}Y{Seperator}{chunkPosition.z}Z.{ChunkFileExtension}";
 
 
+    public abstract class BinarySerializer<T>
+    {
+        public abstract void Serialize(BinaryWriter writer, T data);
+        public abstract T Deserialize(BinaryReader reader);
+    }
+
+    public class ChunkSerializer : BinarySerializer<VoxelChunk>
+    {
+        private const byte CurrentVersion = 0;
+
+        public override void Serialize(BinaryWriter writer, VoxelChunk data)
+        {
+            writer.Write(CurrentVersion);
+            writer.Write(data.ChunkSize.x);
+            writer.Write(data.ChunkSize.y);
+            writer.Write(data.ChunkSize.z);
+            //Write Active
+            DataManip.Serialization.WritePrePackedRLE(writer, data.Active);
+
+            DataManip.Serialization.WriteRLE(writer, data.Identities);
+        }
+
+        public override VoxelChunk Deserialize(BinaryReader reader)
+        {
+            var version = reader.ReadByte();
+            if (version < CurrentVersion)
+                throw new NotImplementedException("Deserialization Not Implimented For Past Versions");
+
+            var chunkSizeX = reader.ReadInt32();
+            var chunkSizeY = reader.ReadInt32();
+            var chunkSizeZ = reader.ReadInt32();
+
+
+            var chunk = new VoxelChunk(new int3(chunkSizeX, chunkSizeY, chunkSizeZ));
+
+            DataManip.Serialization.ReadPrePackedRLE(reader, chunk.Active);
+
+            DataManip.Serialization.ReadRLE(reader, chunk.Identities);
+
+            return chunk;
+        }
+    }
+
+
     public static void Save(string directory, byte world, int3 chunkPos, VoxelChunk chunk)
     {
         var fileName = GetChunkFileName(world, chunkPos);
@@ -674,45 +831,76 @@ public static class InDevVoxelChunkStreamer
         {
             using (var writer = new BinaryWriter(file, FileEncoding))
             {
-                //This should definately be moved to a 'chunkdef file' or something
-                //Or maybe, a generic Chunk class which we can transfer data between
-                //WRITE chunk size
+                var serializer = new ChunkSerializer();
+                serializer.Serialize(writer, chunk);
+            }
+        }
+    }
+
+
+    public static void SaveTest(string directory, byte world, int3 chunkPos, VoxelChunk chunk)
+    {
+        SavePrePacked(directory,world,chunkPos,chunk);
+        SaveUnPacked(directory,world,chunkPos,chunk);
+        SavePostPacked(directory,world,chunkPos,chunk);
+    }
+    public static void SavePrePacked(string directory, byte world, int3 chunkPos, VoxelChunk chunk)
+    {
+        var fileName = GetChunkFileName(world, chunkPos);
+        var fullPath = Path.Combine(directory, fileName);
+        using (var file = File.Open(fullPath+"0", FileMode.Create, FileAccess.Write))
+        {
+            using (var writer = new BinaryWriter(file, FileEncoding))
+            {
                 writer.Write(chunk.ChunkSize.x);
                 writer.Write(chunk.ChunkSize.y);
                 writer.Write(chunk.ChunkSize.z);
-                var flatSize = chunk.ChunkSize.x * chunk.ChunkSize.y * chunk.ChunkSize.z;
                 //Write Active
-                DataManip.Serialization.WritePackedRLE(writer, chunk.Active);
+                DataManip.Serialization.WritePrePackedRLE(writer, chunk.Active);
 
                 DataManip.Serialization.WriteRLE(writer, chunk.Identities);
             }
         }
     }
-
-    public static void Load(string directory, byte world, int3 chunkPos, out VoxelChunk chunk)
+    public static void SaveUnPacked(string directory, byte world, int3 chunkPos, VoxelChunk chunk)
     {
         var fileName = GetChunkFileName(world, chunkPos);
         var fullPath = Path.Combine(directory, fileName);
-        using (var file = File.Open(fullPath, FileMode.Open, FileAccess.Read))
+        using (var file = File.Open(fullPath+"1", FileMode.Create, FileAccess.Write))
         {
-            using (var reader = new BinaryReader(file, FileEncoding))
+            using (var writer = new BinaryWriter(file, FileEncoding))
             {
-                //This should definately be moved to a 'chunkdef file' or something
-                //Or maybe, a generic Chunk class which we can transfer data between
-                //READ chunk size
-                var chunkSizeX = reader.ReadInt32();
-                var chunkSizeY = reader.ReadInt32();
-                var chunkSizeZ = reader.ReadInt32();
+                writer.Write(chunk.ChunkSize.x);
+                writer.Write(chunk.ChunkSize.y);
+                writer.Write(chunk.ChunkSize.z);
+                //Write Active
+                DataManip.Serialization.WriteRLE(writer, chunk.Active);
 
-
-                chunk = new VoxelChunk(new int3(chunkSizeX, chunkSizeY, chunkSizeZ));
-
-                DataManip.Serialization.ReadPackedRLE(reader, chunk.Active);
-
-                DataManip.Serialization.ReadRLE(reader, chunk.Identities);
+                DataManip.Serialization.WriteRLE(writer, chunk.Identities);
             }
         }
     }
+    public static void SavePostPacked(string directory, byte world, int3 chunkPos, VoxelChunk chunk)
+    {
+        var fileName = GetChunkFileName(world, chunkPos);
+        var fullPath = Path.Combine(directory, fileName);
+        using (var file = File.Open(fullPath+"2", FileMode.Create, FileAccess.Write))
+        {
+            using (var writer = new BinaryWriter(file, FileEncoding))
+            {
+                writer.Write(chunk.ChunkSize.x);
+                writer.Write(chunk.ChunkSize.y);
+                writer.Write(chunk.ChunkSize.z);
+                //Write Active
+                DataManip.Serialization.WritePostPackedRLE(writer, chunk.Active);
+
+                DataManip.Serialization.WriteRLE(writer, chunk.Identities);
+            }
+        }
+    }
+    
+    
+    
 }
 
 //Collection of Worlds

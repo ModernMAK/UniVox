@@ -1,29 +1,36 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Text;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public class SerializationUnitTests : MonoBehaviour
 {
+    private const int DataLen = 64;
+    private const int TestsCount = byte.MaxValue;
+    private const uint TestSeed = byte.MaxValue;
+
     public void Awake()
     {
-        RunPackTest();
-        RunAllCountTest(DataManip.CountFormat.Byte);
-        RunAllCountTest(DataManip.CountFormat.Short);
-        RunAllCountTest(DataManip.CountFormat.Int);
+        RunTest("PackTest", PackTest);
+        RunTest("RLE-AllCount-Byte", ByteAllCountTest);
+        RunTest("RLE-BitSet-Byte", ByteBitSetTest);
+        RunTest("RLE-AllCount-Short", ShortAllCountTest);
+        RunTest("RLE-BitSet-Short", ShortBitSetTest);
+        RunTest("RLE-Common", CommonTest);
     }
 
-    public void RunPackTest()
+    public void RunTest(string testName, Func<uint, bool> test)
     {
+        var rand = new Random(TestSeed);
         var passed = 0;
         var failed = 0;
         var firstFail = -1;
-        for (var i = 1; i < short.MaxValue; i++)
+        for (var i = 0; i < TestsCount; i++)
         {
-            if (PackTest((uint) i))
+            if (test(rand.NextUInt(1, uint.MaxValue)))
             {
                 passed++;
             }
@@ -35,30 +42,48 @@ public class SerializationUnitTests : MonoBehaviour
             }
         }
 
-        Debug.Log($"PACKING\n\nPassed:\t{passed}\nFailed:\t{failed}\nFirst Failure:\t{firstFail}");
+        Debug.Log($"{testName}\n\nPassed:\t{passed}\nFailed:\t{failed}\nFirst Failure:\t{firstFail}");
     }
 
-    public void RunAllCountTest(DataManip.CountFormat format)
+    public bool CommonTest(uint seed)
     {
-        var passed = 0;
-        var failed = 0;
-        var firstFail = -1;
-        for (var i = 1; i < short.MaxValue; i++)
+        var serializer = new InDevVoxelChunkStreamer.ChunkSerializer();
+        using (var original = new VoxelChunk(new int3(2), Allocator.Temp, NativeArrayOptions.ClearMemory))
         {
-            if (AllCountTest((uint) i, format))
+            using (var memory = new MemoryStream(short.MaxValue))
             {
-                passed++;
-            }
-            else
-            {
-                if (firstFail == -1)
-                    firstFail = i;
-                failed++;
+                using (var writer = new BinaryWriter(memory, Encoding.Unicode, true))
+                {
+                    serializer.Serialize(writer, original);
+                }
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory, Encoding.Unicode, true))
+                {
+                    var temp = serializer.Deserialize(reader);
+                    var activeEqual = original.Active.ArraysEqual(temp.Active);
+                    
+                    var idsEqual = original.Identities.ArraysEqual(temp.Identities);
+                    temp.Dispose();
+                    return activeEqual && idsEqual;
+                }
             }
         }
+    }
 
-        Debug.Log(
-            $"RLE-AllCount\nFormat:\t{format}\n\nPassed:\t{passed}\nFailed:\t{failed}\nFirst Failure:\t{firstFail}");
+    public static bool ArraysEqual<T>(NativeArray<T> array, NativeArray<T> other) where T : struct, IEquatable<T>
+    {
+        if (array.Length != other.Length)
+            return false;
+
+        for (int i = 0; i != array.Length; i++)
+        {
+            if (!array[i].Equals(other[i]))
+                return false;
+        }
+
+        return true;
     }
 
     public NativeArray<bool> GetRandomData(uint seed, int len)
@@ -71,7 +96,6 @@ public class SerializationUnitTests : MonoBehaviour
         return original;
     }
 
-    private const int DataLen = 8;
 
     public bool PackTest(uint seed)
     {
@@ -108,7 +132,7 @@ public class SerializationUnitTests : MonoBehaviour
     }
 
 
-    public bool AllCountTest(uint seed, DataManip.CountFormat format)
+    public bool ByteAllCountTest(uint seed)
     {
         using (var original = GetRandomData(seed, DataLen))
         {
@@ -119,7 +143,7 @@ public class SerializationUnitTests : MonoBehaviour
                     using (var counts = new NativeList<byte>(original.Length * 4, Allocator.Temp))
                     using (var values = new NativeList<bool>(original.Length, Allocator.Temp))
                     {
-                        DataManip.RunLengthEncoder.AllCount.Encode(original, counts, values, format);
+                        DataManip.RunLengthEncoder.AllCount.Encode(original, counts, values);
                         writer.Write(counts.Length);
                         writer.WriteList(counts);
                         writer.WriteList(values);
@@ -132,11 +156,142 @@ public class SerializationUnitTests : MonoBehaviour
                 {
                     using (var copy = new NativeArray<bool>(original.Length, Allocator.Temp))
                     {
-                        var countsLen = reader.Read();
+                        var countsLen = reader.ReadInt32();
                         using (var counts = new NativeArray<byte>(countsLen, Allocator.Temp))
-                        using (var values = new NativeList<bool>(original.Length, Allocator.Temp))
+                        using (var values = new NativeArray<bool>(countsLen, Allocator.Temp))
                         {
-                            DataManip.RunLengthEncoder.AllCount.Decode(copy, counts, values, format);
+                            reader.ReadArray(counts, countsLen);
+                            reader.ReadArray(values, countsLen);
+
+                            DataManip.RunLengthEncoder.AllCount.Decode(copy, counts, values);
+
+                            return original.ArraysEqual(copy);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public bool ByteBitSetTest(uint seed)
+    {
+        using (var original = GetRandomData(seed, DataLen))
+        {
+            using (var memory = new MemoryStream(short.MaxValue))
+            {
+                using (var writer = new BinaryWriter(memory, Encoding.Unicode, true))
+                {
+                    using (var counts = new NativeList<byte>(original.Length * 4, Allocator.Temp))
+                    using (var values = new NativeList<bool>(original.Length, Allocator.Temp))
+                    {
+                        DataManip.RunLengthEncoder.BitSelect.Encode(original, counts, values);
+                        writer.Write(counts.Length);
+                        writer.Write(values.Length);
+                        writer.WriteList(counts);
+                        writer.WriteList(values);
+                    }
+                }
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory, Encoding.Unicode, true))
+                {
+                    using (var copy = new NativeArray<bool>(original.Length, Allocator.Temp))
+                    {
+                        var countsLen = reader.ReadInt32();
+                        var valuesLen = reader.ReadInt32();
+                        using (var counts = new NativeArray<byte>(countsLen, Allocator.Temp))
+                        using (var values = new NativeArray<bool>(valuesLen, Allocator.Temp))
+                        {
+                            reader.ReadArray(counts, countsLen);
+                            reader.ReadArray(values, valuesLen);
+
+                            DataManip.RunLengthEncoder.BitSelect.Decode(copy, counts, values);
+
+                            return original.ArraysEqual(copy);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    public bool ShortAllCountTest(uint seed)
+    {
+        using (var original = GetRandomData(seed, DataLen))
+        {
+            using (var memory = new MemoryStream(short.MaxValue))
+            {
+                using (var writer = new BinaryWriter(memory, Encoding.Unicode, true))
+                {
+                    using (var counts = new NativeList<ushort>(original.Length * 4, Allocator.Temp))
+                    using (var values = new NativeList<bool>(original.Length, Allocator.Temp))
+                    {
+                        DataManip.RunLengthEncoder.AllCount.Encode(original, counts, values);
+                        writer.Write(counts.Length);
+                        writer.WriteList(counts);
+                        writer.WriteList(values);
+                    }
+                }
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory, Encoding.Unicode, true))
+                {
+                    using (var copy = new NativeArray<bool>(original.Length, Allocator.Temp))
+                    {
+                        var countsLen = reader.ReadInt32();
+                        using (var counts = new NativeArray<ushort>(countsLen, Allocator.Temp))
+                        using (var values = new NativeArray<bool>(countsLen, Allocator.Temp))
+                        {
+                            reader.ReadArray(counts, countsLen);
+                            reader.ReadArray(values, countsLen);
+
+                            DataManip.RunLengthEncoder.AllCount.Decode(copy, counts, values);
+
+                            return original.ArraysEqual(copy);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public bool ShortBitSetTest(uint seed)
+    {
+        using (var original = GetRandomData(seed, DataLen))
+        {
+            using (var memory = new MemoryStream(short.MaxValue))
+            {
+                using (var writer = new BinaryWriter(memory, Encoding.Unicode, true))
+                {
+                    using (var counts = new NativeList<ushort>(original.Length, Allocator.Temp))
+                    using (var values = new NativeList<bool>(original.Length, Allocator.Temp))
+                    {
+                        DataManip.RunLengthEncoder.BitSelect.Encode(original, counts, values);
+                        writer.Write(counts.Length);
+                        writer.Write(values.Length);
+                        writer.WriteList(counts);
+                        writer.WriteList(values);
+                    }
+                }
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory, Encoding.Unicode, true))
+                {
+                    using (var copy = new NativeArray<bool>(original.Length, Allocator.Temp))
+                    {
+                        var countsLen = reader.ReadInt32();
+                        var valuesLen = reader.ReadInt32();
+                        using (var counts = new NativeArray<ushort>(countsLen, Allocator.Temp))
+                        using (var values = new NativeArray<bool>(valuesLen, Allocator.Temp))
+                        {
+                            reader.ReadArray(counts, countsLen);
+                            reader.ReadArray(values, valuesLen);
+
+                            DataManip.RunLengthEncoder.BitSelect.Decode(copy, counts, values);
 
                             return original.ArraysEqual(copy);
                         }
