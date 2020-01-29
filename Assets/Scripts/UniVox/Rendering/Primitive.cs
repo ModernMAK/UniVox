@@ -49,6 +49,14 @@ namespace UniVox.Rendering
             return new Primitive<TVertex>(Left, Pivot, Right, vertex, IsTriangle);
         }
 
+        public Primitive<TVertex> FlipWinding()
+        {
+            if (IsTriangle)
+                return new Primitive<TVertex>(Right, Pivot, Left);
+            else
+                return new Primitive<TVertex>(Right, Opposite, Left, Pivot);
+        }
+
         public TVertex Left { get; }
         public TVertex Pivot { get; }
         public TVertex Right { get; }

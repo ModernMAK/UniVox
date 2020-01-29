@@ -136,6 +136,8 @@ namespace UniVox.Rendering
 
             public static void WriteIndexSequence(NativeArray<short> buffer, int start, short value)
                 => Write(buffer, start, value, (short) (value + 1), (short) (value + 2), (short) (value + 3));
+            public static void WriteIndexSequence(NativeArray<ushort> buffer, int start, ushort value)
+                => Write(buffer, start, value, (ushort) (value + 1), (ushort) (value + 2), (ushort) (value + 3));
 
 
             public static void WriteIndexSequence(NativeList<int> buffer, int start, int value)
@@ -143,6 +145,9 @@ namespace UniVox.Rendering
 
             public static void WriteIndexSequence(NativeList<short> buffer, int start, short value)
                 => Write(buffer, start, value, (short) (value + 1), (short) (value + 2), (short) (value + 3));
+            
+            public static void WriteIndexSequence(NativeList<ushort> buffer, int start, ushort value)
+                => Write(buffer, start, value, (ushort) (value + 1), (ushort) (value + 2), (ushort) (value + 3));
 
 
             public static void WriteIndexSequence(NativeList<int3> buffer, int start, int value)

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,7 +11,6 @@ using UniVox.Utility;
 
 namespace UniVox.Rendering
 {
-    [Obsolete("Its a Disaster")]
     public class GreedyMeshGeneratorProxy : MeshGeneratorProxy<RenderChunk>
     {
         public struct ResizeJob : IJob
@@ -18,6 +18,7 @@ namespace UniVox.Rendering
             public Mesh.MeshData Mesh;
             public NativeValue<int> VertexCount;
             public NativeValue<int> IndexCount;
+            public bool Initializing;
 
 
             public void Execute()
@@ -25,279 +26,81 @@ namespace UniVox.Rendering
                 //Position and Normal are padded (it seems unity enforces 4byte words)
                 //a ( +X ) represents how many bytes of padding were used
                 Mesh.SetVertexBufferParams(VertexCount,
-                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4,
-                        0), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4,
-                        1), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4,
-                        2), //(4+0) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4,
-                        3) //(4+0) * 1 bytes
+                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2),
+                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4)
                 );
                 //28 bytes
 
 
-                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt32);
+                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt16);
 
                 Mesh.subMeshCount = 1;
-                Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount));
+                if (Initializing)
+                    Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), (MeshUpdateFlags) byte.MaxValue);
+                else
+                    Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), MeshUpdateFlags.DontRecalculateBounds);
             }
         }
 
-        public struct InitializeJob : IJob
+
+        /*
+         * STRICT ORDERING
+         * Position,
+         * Normal,
+         * Tangent,
+         * Color,
+         * TexCoord0-7,
+         * BlendWeight,
+         * BlendIndices
+         */
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Vertex
         {
-            public Mesh.MeshData Mesh;
-            public int VertexCount;
-            public int IndexCount;
-
-            public void Execute()
-            {
-                //Position and Normal are padded (it seems unity enforces 4byte words)
-                //a ( +X ) represents how many bytes of padding were used
-                Mesh.SetVertexBufferParams(VertexCount,
-                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4,
-                        0), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4,
-                        1), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4,
-                        2), //(4+0) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4,
-                        3) //(4+0) * 1 bytes
-                );
-                //28 bytes
-                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt32);
-
-                Mesh.subMeshCount = 1;
-                //I dont know how big updateflags is, but without an 'all' flag, this is the best i can do
-                Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), (MeshUpdateFlags) byte.MaxValue);
-            }
+            public half4 Position;
+            public half4 Normal;
+            public half4 Tangent;
+            public Color32 Color;
+            public half2 Uv;
         }
 
 
         const int MaxVertexCountPerVoxel = 4 * 6 + 6; //4 verts on 6 faces with 6 extra verts for two stray triangles
         const int MaxIndexCountPerVoxel = 6 * 6 + 6; //6 indexes on 6 faces with 6 (2*3) for two stray triangles
 
-
-        private struct RenderQuad
-        {
-            public int3 Position;
-            public Direction Direction;
-            public int2 Size;
-        }
-
-        private struct QuadJob : IJob
-        {
-            [ReadOnly] public NativeArray<VoxelCulling> Culling;
-            [WriteOnly] public NativeList<RenderQuad> Quads;
-            public IndexConverter3D Converter3D;
-
-            //We do something stupid like this because unity safety checks
-            //I cant have a job with uninitialized NativeArray (makes sense)
-            //But then I cant cache NativeArrays for reuse without passing them around
-            private struct Args : IDisposable
-            {
-                public NativeArray<Direction> DirectionArray;
-                public NativeArray<Directions> InspectionFlag;
-
-                public void Dispose()
-                {
-                    DirectionArray.Dispose();
-                    InspectionFlag.Dispose();
-                }
-            }
-
-
-            private static void GetSizeVectors(Direction direction, out int3 tangent, out int3 bitangent)
-            {
-                switch (direction)
-                {
-                    case Direction.Left:
-                    case Direction.Right:
-                        bitangent = new int3(0, 1, 0);
-                        tangent = new int3(0, 0, 1);
-                        break;
-                    case Direction.Up:
-                    case Direction.Down:
-                        tangent = new int3(1, 0, 0);
-                        bitangent = new int3(0, 0, 1);
-                        break;
-                    case Direction.Backward:
-                    case Direction.Forward:
-                        tangent = new int3(1, 0, 0);
-                        bitangent = new int3(0, 1, 0);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
-            }
-
-            private int GetNormalSize(Direction direction, int3 size)
-            {
-                switch (direction)
-                {
-                    case Direction.Backward:
-                    case Direction.Forward:
-                        return size.z;
-                    case Direction.Up:
-                    case Direction.Down:
-                        return size.y;
-                    case Direction.Left:
-                    case Direction.Right:
-
-                        return size.x;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
-            }
-
-            private int2 GetSize(Direction direction, int3 size)
-            {
-                switch (direction)
-                {
-                    case Direction.Backward:
-                    case Direction.Forward:
-                        return new int2(size.x, size.y);
-                    case Direction.Up:
-                    case Direction.Down:
-                        return new int2(size.x, size.z);
-                    case Direction.Left:
-                    case Direction.Right:
-                        return new int2(size.y, size.z);
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
-            }
-
-            private void ProcessPlane(int3 offset, Direction direction, Args args)
-            {
-                GetSizeVectors(direction, out var tangent, out var bitangent);
-                var dirFlag = direction.ToFlag();
-                var inspectionFlags = args.InspectionFlag;
-                var size = GetSize(direction, Converter3D.Size);
-                //Lets only add V runs for now
-                for (var u = 0; u < size.x; u++)
-                {
-                    for (var v = 0; v < size.y; v++)
-                    {
-                        var startPos = u * tangent + v * bitangent + offset;
-                        var startIndex = Converter3D.Flatten(startPos);
-                        if (inspectionFlags[startIndex].HasDirection(direction))
-                        {
-                            continue;
-                        }
-
-                        inspectionFlags[startIndex] |= dirFlag;
-
-                        var startCulling = Culling[startIndex];
-                        if (!startCulling.IsVisible(direction))
-                        {
-                            continue;
-                        }
-
-
-                        var cachedU = 0;
-                        var cachedV = 0;
-                        for (var du = 1; du < size.x - u; du++)
-                        {
-                            var tempPos = (u + du) * tangent + v * bitangent + offset;
-                            var tempIndex = Converter3D.Flatten(tempPos);
-                            if (inspectionFlags[tempIndex].HasDirection(direction))
-                            {
-                                cachedU = du - 1;
-                                break;
-                            }
-                            else if (Culling[tempIndex].IsVisible(direction))
-                            {
-                                cachedU = du;
-                                inspectionFlags[tempIndex] |= dirFlag;
-                            }
-                            else
-                            {
-                                cachedU = du - 1;
-                                break;
-                            }
-                        }
-
-//SKIP FOR NOW
-//                        for (var dv = 1; dv < size.y - v; dv++)
-//                        {
-//                            for (var du = 0; du < cachedU; du++)
-//                            {
-//                                
-//                            }
-//                        }
-                        var quad = new RenderQuad()
-                        {
-                            Position = startPos, Direction = direction, Size = new int2(cachedU + 1, cachedV + 1)
-                        };
-                        Quads.Add(quad);
-                    }
-                }
-            }
-
-            private void ProcessPlanes(Axis axis, Args args)
-            {
-                var posDir = axis.ToDirection(true);
-                var negDir = axis.ToDirection(false);
-                var offset = posDir.ToInt3();
-                var size = GetNormalSize(posDir, Converter3D.Size);
-                for (var w = 0; w < size; w++)
-                {
-                    ProcessPlane(offset * w, posDir, args);
-                    ProcessPlane(offset * w, negDir, args);
-                }
-            }
-
-            public void Execute()
-            {
-                var args = new Args()
-                {
-                    DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
-                    InspectionFlag =
-                        new NativeArray<Directions>(Converter3D.Size.x * Converter3D.Size.y * Converter3D.Size.z,
-                            Allocator.Temp)
-                };
-
-                ProcessPlanes(Axis.X, args);
-                ProcessPlanes(Axis.Y, args);
-                ProcessPlanes(Axis.Z, args);
-
-                args.Dispose();
-            }
-        }
-
-
         public override JobHandle Generate(Mesh.MeshData mesh, RenderChunk input, JobHandle dependencies)
         {
             var flatSize = input.ChunkSize.x * input.ChunkSize.y * input.ChunkSize.z;
-            var vertexCount = new NativeValue<int>(Allocator.TempJob);
-            var indexCount = new NativeValue<int>(Allocator.TempJob);
-
-            var quads = new NativeList<RenderQuad>(6 * flatSize, Allocator.TempJob);
-
-            dependencies = new InitializeJob()
+            var converter = new IndexConverter3D(input.ChunkSize);
+            var vertexCount = new NativeValue<int>(MaxVertexCountPerVoxel * flatSize, Allocator.TempJob);
+            var indexCount = new NativeValue<int>(MaxIndexCountPerVoxel * flatSize, Allocator.TempJob);
+            var quads = new NativeList<QuadGroup>(flatSize, Allocator.TempJob);
+            dependencies = new ResizeJob()
             {
                 Mesh = mesh,
-                IndexCount = MaxIndexCountPerVoxel * flatSize,
-                VertexCount = MaxVertexCountPerVoxel * flatSize,
+                IndexCount = indexCount,
+                VertexCount = vertexCount,
+                Initializing = true
             }.Schedule(dependencies);
 
-            dependencies = new QuadJob()
+            dependencies = new SearchQuads()
             {
-                Converter3D = new IndexConverter3D(input.ChunkSize),
+                Mesh = mesh,
                 Culling = input.Culling,
                 Quads = quads,
+                Converter = converter
             }.Schedule(dependencies);
 
             dependencies = new GenerateJob()
             {
                 Mesh = mesh,
+                Converter = converter,
                 VertexCount = vertexCount,
                 IndexCount = indexCount,
                 Quads = quads.AsDeferredJobArray()
             }.Schedule(dependencies);
-
-            dependencies = quads.Dispose(dependencies);
 
             dependencies = new ResizeJob()
             {
@@ -306,12 +109,239 @@ namespace UniVox.Rendering
                 Mesh = mesh
             }.Schedule(dependencies);
 
+            dependencies = quads.Dispose(dependencies);
             dependencies = vertexCount.Dispose(dependencies);
             dependencies = indexCount.Dispose(dependencies);
-
-
             return dependencies;
         }
+
+        private struct QuadGroup
+        {
+            public int3 Position;
+            public int2 Size;
+            public Direction Direction;
+        }
+
+        private static void GetScanVectors(Direction direction, out int3 norm, out int3 tan, out int3 bitan)
+        {
+            int3 up = new int3(0, 1, 0);
+            int3 right = new int3(1, 0, 0);
+            int3 forward = new int3(0, 0, 1);
+            switch (direction)
+            {
+                case Direction.Up:
+                case Direction.Down:
+                    norm = up;
+                    tan = right;
+                    bitan = forward;
+                    break;
+                case Direction.Right:
+                case Direction.Left:
+                    norm = right;
+                    tan = forward;
+                    bitan = up;
+                    break;
+                case Direction.Forward:
+                case Direction.Backward:
+                    norm = forward;
+                    tan = right;
+                    bitan = up;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
+        private static void GetScanSize(Direction direction, int3 size, out int norm, out int tan, out int bitan)
+        {
+            GetScanVectors(direction, out var normV, out var tanV, out var bitanV);
+            norm = math.csum(size * normV);
+            tan = math.csum(size * tanV);
+            bitan = math.csum(size * bitanV);
+        }
+
+        private struct SearchQuads : IJob
+        {
+            [ReadOnly] public NativeArray<VoxelCulling> Culling;
+            [WriteOnly] public NativeList<QuadGroup> Quads;
+
+            public Mesh.MeshData Mesh;
+
+            public IndexConverter3D Converter;
+
+
+            //We do something stupid like this because unity safety checks
+            //I cant have a job with uninitialized NativeArray (makes sense)
+            //But then I cant cache NativeArrays for reuse without passing them around
+            private struct Args : IDisposable
+            {
+                public NativeArray<Direction> DirectionArray;
+                public NativeArray<Vertex> VertexBuffer;
+                public NativeArray<ushort> IndexBuffer;
+                public NativeArray<Directions> InspectedBuffer;
+
+                public void Dispose()
+                {
+                    DirectionArray.Dispose();
+                    InspectedBuffer.Dispose();
+                }
+            }
+
+
+            private void Initialize(out Args args)
+            {
+                args = new Args()
+                {
+                    DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
+                    VertexBuffer = Mesh.GetVertexData<Vertex>(0),
+                    IndexBuffer = Mesh.GetIndexData<ushort>(),
+                    InspectedBuffer =
+                        new NativeArray<Directions>(Converter.Size.x * Converter.Size.y * Converter.Size.z,
+                            Allocator.Temp)
+                };
+            }
+
+            private void Uninitialize(Args args)
+            {
+                args.Dispose();
+            }
+
+
+            private void Scan(Args args, Direction direction)
+            {
+                var inspectBuffer = args.InspectedBuffer;
+                var dirFlag = direction.ToFlag();
+                GetScanSize(direction, Converter.Size, out var nSize, out var tSize, out var bSize);
+                GetScanVectors(direction, out var nVector, out var tVector, out var bVector);
+                //Iterate over the chunk
+                //This is really convoluted, but basically, N is (more or less) a constant axis
+                //t and b are vectors on the plane we inspect, mapping (t,b) => (x,y) of the plane
+                for (var n = 0; n < nSize; n++)
+                for (var t = 0; t < tSize; t++)
+                for (var b = 0; b < bSize; b++)
+                {
+                    var currentPos = nVector * n + tVector * t + b * bVector;
+                    var currentIndex = Converter.Flatten(currentPos);
+
+                    if (inspectBuffer[currentIndex].HasDirection(dirFlag))
+                    {
+                        //The quad has already been parsed
+                        continue;
+                    }
+
+                    if (!Culling[currentIndex].IsVisible(dirFlag))
+                    {
+                        //The quad can be skipped; its hidden
+                        continue;
+                    }
+
+
+                    //Quad's db and dt
+                    var qb = 0;
+                    var qt = 0;
+                    //Iterate over the bitangent
+                    for (var db = 1; db < bSize - b; db++)
+                    {
+                        var deltaPos = nVector * n + tVector * t + (b + db) * bVector;
+                        var deltaIndex = Converter.Flatten(deltaPos);
+
+                        if (inspectBuffer[deltaIndex].HasDirection(dirFlag))
+                        {
+                            //The quad has already been parsed
+                            //We need to update our status to end the run
+                            qb = db - 1;
+                            break;
+                        }
+
+                        if (!Culling[deltaIndex].IsVisible(dirFlag))
+                        {
+                            //The quad can be skipped; its hidden
+                            //We need to update our status to end the run
+                            qb = db - 1;
+                            break;
+                        }
+
+                        //No problems, the run advances
+                        qb = db;
+                    }
+
+
+                    //Iterate over 
+                    for (var dt = 1; dt < tSize - t; dt++)
+                    {
+                        //Iterate over the bitangent again
+                        //But limit it to our qb run (a run of 0 is still valid)
+                        bool failed = false;
+                        for (var db = 0; db <= qb; db++)
+                        {
+                            var deltaPos = nVector * n + tVector * (t + dt) + (b + db) * bVector;
+                            var deltaIndex = Converter.Flatten(deltaPos);
+
+                            if (inspectBuffer[deltaIndex].HasDirection(dirFlag))
+                            {
+                                //The quad has already been parsed
+                                //We need to update our status to end the run
+                                failed = true;
+                                break;
+                            }
+
+                            if (!Culling[deltaIndex].IsVisible(dirFlag))
+                            {
+                                //The quad can be skipped; its hidden
+                                //We need to update our status to end the run
+
+                                failed = true;
+                                break;
+                            }
+                        }
+
+                        if (failed)
+                        {
+                            qt = dt - 1;
+                            break;
+                        }
+                        else
+                            qt = dt;
+                    }
+
+                    //We add 1 to qb and qt
+                    //It makes sense to use 0's when they are offsets (0 representing the 'here' position)
+                    //But as a size, 1 makes sense (as 0 represents nothing)
+
+                    var qSize = new int2(qt + 1, qb + 1);
+                    var quad = new QuadGroup()
+                    {
+                        Direction = direction,
+                        Position = currentPos,
+                        Size = qSize
+                    };
+                    Quads.Add(quad);
+
+                    for (var db = 0; db < qSize.y; db++)
+                    for (var dt = 0; dt < qSize.x; dt++)
+                    {
+                        var deltaPos = nVector * n + tVector * (t + dt) + (b + db) * bVector;
+                        var deltaIndex = Converter.Flatten(deltaPos);
+
+                        //Mark the area as inspected
+                        inspectBuffer[deltaIndex] |= dirFlag;
+                    }
+                }
+            }
+
+
+            public void Execute()
+            {
+                Initialize(out var args);
+                for (var i = 0; i < 6; i++)
+                {
+                    Scan(args, args.DirectionArray[i]);
+                }
+
+                Uninitialize(args);
+            }
+        }
+
 
         public override JobHandle GenerateBound(Mesh.MeshData mesh, NativeValue<Bounds> bounds, JobHandle dependencies)
         {
@@ -325,78 +355,58 @@ namespace UniVox.Rendering
 
             public void Execute()
             {
-                var positions = Mesh.GetVertexData<half4>(0);
-
-                float xMin = positions[0].x;
-                float xMax = positions[0].x;
-                float yMin = positions[0].y;
-                float yMax = positions[0].y;
-                float zMin = positions[0].z;
-                float zMax = positions[0].z;
-
-                for (var i = 1; i < positions.Length; i++)
+                using (var positions = new NativeArray<Vector3>(Mesh.vertexCount, Allocator.Temp))
                 {
-                    var pos = positions[i];
-                    if (xMin > pos.x)
-                        xMin = pos.x;
-                    else if (xMax < pos.x)
-                        xMax = pos.x;
+                    Mesh.GetVertices(positions);
 
-                    if (yMin > pos.y)
-                        yMin = pos.y;
-                    else if (yMax < pos.y)
-                        yMax = pos.y;
 
-                    if (zMin > pos.z)
-                        zMin = pos.z;
-                    else if (zMax < pos.z)
-                        zMax = pos.z;
+                    float xMin = positions[0].x;
+                    float xMax = positions[0].x;
+                    float yMin = positions[0].y;
+                    float yMax = positions[0].y;
+                    float zMin = positions[0].z;
+                    float zMax = positions[0].z;
+
+                    for (var i = 1; i < positions.Length; i++)
+                    {
+                        var pos = positions[i];
+                        if (xMin > pos.x)
+                            xMin = pos.x;
+                        else if (xMax < pos.x)
+                            xMax = pos.x;
+
+                        if (yMin > pos.y)
+                            yMin = pos.y;
+                        else if (yMax < pos.y)
+                            yMax = pos.y;
+
+                        if (zMin > pos.z)
+                            zMin = pos.z;
+                        else if (zMax < pos.z)
+                            zMax = pos.z;
+                    }
+
+                    var min = new float3(xMin, yMin, zMin);
+                    var max = new float3(xMax, yMax, zMax);
+
+                    var center = (min + max) / 2f;
+                    var size = max - min;
+
+                    Bound.Value = new Bounds(center, size);
                 }
-
-                var min = new float3(xMin, yMin, zMin);
-                var max = new float3(xMax, yMax, zMax);
-
-                var center = (min + max) / 2f;
-                var size = max - min;
-
-                Bound.Value = new Bounds(center, size);
             }
         }
 
 
         private struct GenerateJob : IJob
         {
-            public NativeArray<RenderQuad> Quads;
+            public NativeArray<QuadGroup> Quads;
 
             public Mesh.MeshData Mesh;
 
+            public IndexConverter3D Converter;
             public NativeValue<int> VertexCount;
             public NativeValue<int> IndexCount;
-
-            private half4 PaddedRemap(float3 input)
-            {
-                return new half4((half) input.x, (half) input.y, (half) input.z, (half) 0);
-            }
-
-            private Primitive<half4> PaddedRemap(Primitive<float3> input)
-            {
-                return new Primitive<half4>(PaddedRemap(input.Left), PaddedRemap(input.Pivot), PaddedRemap(input.Right),
-                    PaddedRemap(input.Opposite), input.IsTriangle);
-            }
-
-            private Primitive<float3> ShiftScalePrimitive(Primitive<float3> input, float3 tangent, float3 bitangent)
-            {
-                return new Primitive<float3>(input.Left, input.Pivot + tangent, input.Right + tangent + bitangent,
-                    input.Opposite + bitangent, input.IsTriangle);
-            }
-
-            private Primitive<T> FlipWinding<T>(Primitive<T> input)
-            {
-                if (input.IsTriangle)
-                    return new Primitive<T>(input.Right, input.Pivot, input.Left);
-                else
-                    return new Primitive<T>(input.Right, input.Pivot, input.Left, input.Opposite);
-            }
 
 
             private int _indexCount;
@@ -408,10 +418,7 @@ namespace UniVox.Rendering
             private struct Args : IDisposable
             {
                 public NativeArray<Direction> DirectionArray;
-                public NativeArray<half4> VertexBuffer;
-                public NativeArray<half4> NormalBuffer;
-                public NativeArray<half4> TangentBuffer;
-                public NativeArray<Color32> ColorBuffer;
+                public NativeArray<Vertex> VertexBuffer;
                 public NativeArray<int> IndexBuffer;
 
                 public void Dispose()
@@ -426,10 +433,7 @@ namespace UniVox.Rendering
                 args = new Args()
                 {
                     DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
-                    VertexBuffer = Mesh.GetVertexData<half4>(0),
-                    NormalBuffer = Mesh.GetVertexData<half4>(1),
-                    TangentBuffer = Mesh.GetVertexData<half4>(2),
-                    ColorBuffer = Mesh.GetVertexData<Color32>(3),
+                    VertexBuffer = Mesh.GetVertexData<Vertex>(0),
                     IndexBuffer = Mesh.GetIndexData<int>(),
                 };
                 _indexCount = 0;
@@ -443,57 +447,56 @@ namespace UniVox.Rendering
                 IndexCount.Value = _indexCount;
             }
 
-
-            private static void GetSizeVectors(Direction direction, out int3 normal, out int3 tangent,
-                out int3 bitangent)
+            private Primitive<Vertex> GenPrimitiveQuad(int3 pos, int2 size, Direction direction)
             {
-                normal = direction.ToInt3();
-                switch (direction)
+                GetScanVectors(direction, out var norm, out var tan, out var bitan);
+
+                var fixedSize = size - new int2(1); //Ironically, we undo a +1 from the quad algo
+                var scaledTan = tan * size.x;
+                var scaledBitan = bitan * size.y;
+
+                var l = pos + (float3) (norm - tan - bitan) / 2f;
+                var p = pos + (float3) (norm + tan - bitan) / 2f + scaledTan;
+                var r = pos + (float3) (norm + tan + bitan) / 2f + scaledTan + scaledBitan;
+                var o = pos + (float3) (norm - tan + bitan) / 2f + scaledBitan;
+
+                var hNorm = (half4) new float4(norm, 0f);
+                var hTan = (half4) new float4(tan, 1f);
+                var du = new float2(1f, 0f);
+                var dv = new float2(0f, 1f);
+
+                var left = new Vertex()
+                    {Position = (half4) new float4(l, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) 0f};
+                var pivot = new Vertex()
+                    {Position = (half4) new float4(p, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) du};
+                var right = new Vertex()
                 {
-                    case Direction.Left:
-                    case Direction.Right:
-                        bitangent = new int3(0, 1, 0);
-                        tangent = new int3(0, 0, 1);
-                        break;
-                    case Direction.Up:
-                    case Direction.Down:
-                        tangent = new int3(1, 0, 0);
-                        bitangent = new int3(0, 0, 1);
-                        break;
-                    case Direction.Backward:
-                    case Direction.Forward:
-                        tangent = new int3(1, 0, 0);
-                        bitangent = new int3(0, 1, 0);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
+                    Position = (half4) new float4(r, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) (du + dv)
+                };
+                var opposite = new Vertex()
+                    {Position = (half4) new float4(o, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) dv};
+
+                return new Primitive<Vertex>(left, pivot, right, opposite);
             }
 
-            private void ParseQuad(int voxelIndex, Args args)
+            private void Write<T>(NativeArray<T> buffer, int index, Primitive<T> primitive) where T : struct
             {
-                var quad = Quads[voxelIndex];
+                if (primitive.IsTriangle)
 
-                var voxelPos = quad.Position;
+                    NativeMeshUtil.Triangle.Write(buffer, index, primitive.Left, primitive.Pivot, primitive.Right);
+                else
+                    NativeMeshUtil.Quad.Write(buffer, index, primitive.Left, primitive.Pivot, primitive.Right,
+                        primitive.Opposite);
+            }
+
+            private void GenerateQuad(int index, Args args)
+            {
+                var quads = Quads[index];
 
 
-                GetSizeVectors(quad.Direction, out var norm, out var tan, out var bit);
-                var face = BoxelRenderUtil.GetFace(voxelPos, norm, tan, bit);
-                var scaledFace = ShiftScalePrimitive(face, tan * quad.Size.x, bit * quad.Size.y);
-                var paddedFace = PaddedRemap(scaledFace);
-                if (quad.Direction == Direction.Up)
-                    paddedFace = FlipWinding(paddedFace);
+                var primitive = GenPrimitiveQuad(quads.Position, quads.Size, quads.Direction);
 
-                //Write it to the buffer
-                NativeMeshUtil.Quad.Write(args.VertexBuffer, _vertexCount, paddedFace.Left, paddedFace.Pivot,
-                    paddedFace.Right, paddedFace.Opposite);
-                //Write the normal to the buffer
-                NativeMeshUtil.Quad.WriteUniform(args.NormalBuffer, _vertexCount, PaddedRemap(norm));
-                //Write the tangent to the buffer (after fixing it)
-                NativeMeshUtil.Quad.WriteUniform(args.TangentBuffer, _vertexCount,
-                    (half4) new float4(tan.x, tan.y, tan.z, 1f));
-                //Write the color
-                NativeMeshUtil.Quad.WriteUniform(args.ColorBuffer, _vertexCount, default);
+                Write(args.VertexBuffer, _vertexCount, primitive);
 
                 //Write the index to the buffer
                 NativeMeshUtil.QuadTrianglePair.WriteIndexSequence(args.IndexBuffer, _indexCount, _vertexCount);
@@ -508,7 +511,7 @@ namespace UniVox.Rendering
                 Initialize(out var args);
                 for (var index = 0; index < Quads.Length; index++)
                 {
-                    ParseQuad(index, args);
+                    GenerateQuad(index, args);
                 }
 
                 Uninitialize(args);
