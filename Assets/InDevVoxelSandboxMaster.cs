@@ -7,7 +7,6 @@ using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Rendering;
 using UniVox.Types.Native;
-using Random = Unity.Mathematics.Random;
 
 public class InDevVoxelSandboxMaster : MonoBehaviour
 {
@@ -56,30 +55,55 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         }
     }
 
+    private bool TryLoad(byte worldId, int3 position, out VoxelChunk chunk)
+    {
+        try
+        {
+            chunk = Load(worldId, position);
+            return true;
+        }
+        catch (FileNotFoundException fnfe)
+        {
+            Debug.LogWarning(fnfe.Message);
+            chunk = default;
+            return false;
+        }
+    }
+
 
     private Mesh Generate(byte worldId, int3 key)
     {
-        using (var chunk = new VoxelChunk(new int3(32), Allocator.TempJob))
+        var mesh = new Mesh() {name = $"{worldId}_{key}"};
+        VoxelChunk chunk;
+        JobHandle depends = default;
+        var shouldSave = false;
+        if (!TryLoad(worldId, key, out chunk))
         {
-            _chunkGen.Generate(key, chunk);
+            chunk = new VoxelChunk(new int3(32), Allocator.TempJob);
+            depends = _chunkGen.Generate(key, chunk);
+            shouldSave = true;
+        }
 
-            Save(worldId, key, chunk);
 
-            using (var render = ConvertToRender(chunk, Allocator.TempJob))
+        using (var render = ConvertToRender(chunk, Allocator.TempJob))
+        {
+            var meshArr = Mesh.AllocateWritableMeshData(1);
+            depends = _meshGen.Generate(meshArr[0], render, depends);
+            using (var bound = new NativeValue<Bounds>(Allocator.TempJob))
             {
-                var meshArr = Mesh.AllocateWritableMeshData(1);
-                _meshGen.Generate(meshArr[0], render, new JobHandle()).Complete();
-                using (var bound = new NativeValue<Bounds>(Allocator.TempJob))
-                {
-                    _meshGen.GenerateBound(meshArr[0], bound, new JobHandle()).Complete();
+                depends = _meshGen.GenerateBound(meshArr[0], bound, depends);
 
-                    var mesh = new Mesh() {name = $"{worldId}_{key}"};
-                    Mesh.ApplyAndDisposeWritableMeshData(meshArr, mesh);
-                    mesh.bounds = bound;
-                    return mesh;
-                }
+                depends.Complete();
+                Mesh.ApplyAndDisposeWritableMeshData(meshArr, mesh);
+                mesh.bounds = bound;
             }
         }
+
+        if (shouldSave)
+            Save(worldId, key, chunk);
+
+        chunk.Dispose();
+        return mesh;
     }
 
     void Awake()
@@ -102,32 +126,5 @@ public class InDevVoxelSandboxMaster : MonoBehaviour
         gameObject.AddComponent<MeshFilter>();
 
         GetComponent<MeshFilter>().mesh = m;
-    }
-
-
-    public struct RandomBoolJob : IJob
-    {
-        public Random Rand;
-        public NativeArray<bool> Array;
-
-
-        public void Execute()
-        {
-            for (var i = 0; i < Array.Length; i++)
-                Array[i] = Rand.NextBool();
-        }
-    }
-
-    public struct RandomByteJob : IJob
-    {
-        public Random Rand;
-        public NativeArray<byte> Array;
-
-
-        public void Execute()
-        {
-            for (var i = 0; i < Array.Length; i++)
-                Array[i] = (byte) Rand.NextInt(0, byte.MaxValue + 1);
-        }
     }
 }

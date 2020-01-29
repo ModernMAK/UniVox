@@ -174,8 +174,8 @@ namespace UniVox.Rendering
                         continue;
 
 
-                    VoxelRenderingUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                    var face = VoxelRenderingUtil.GetFace(voxelPos, norm, tan, bit);
+                    BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
+                    var face = BoxelRenderUtil.GetFace(voxelPos, norm, tan, bit);
                     var paddedFace = PaddedRemap(face);
                     //Write it to the buffer
                     NativeMeshUtil.Quad.Write(args.VertexBuffer, _vertexCount, paddedFace.Left, paddedFace.Pivot,

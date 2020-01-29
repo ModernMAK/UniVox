@@ -5,20 +5,20 @@ using Unity.Collections.LowLevel.Unsafe;
 
 public static unsafe class BinarySerializatoinExtensions
 {
-    private static readonly byte[] buffer = new byte[short.MaxValue];
+    private static readonly byte[] Buffer = new byte[short.MaxValue];
 
     private static void WriteBytes(this BinaryWriter writer, void* data, int bytes)
     {
         int remaining = bytes;
-        int bufferSize = buffer.Length;
+        int bufferSize = Buffer.Length;
 
-        fixed (byte* fixedBuffer = buffer)
+        fixed (byte* fixedBuffer = Buffer)
         {
             while (remaining != 0)
             {
                 int bytesToWrite = Math.Min(remaining, bufferSize);
                 UnsafeUtility.MemCpy(fixedBuffer, data, bytesToWrite);
-                writer.Write(buffer, 0, bytesToWrite);
+                writer.Write(Buffer, 0, bytesToWrite);
                 data = (byte*) data + bytesToWrite;
                 remaining -= bytesToWrite;
             }
@@ -39,13 +39,13 @@ public static unsafe class BinarySerializatoinExtensions
     private static void ReadBytes(this BinaryReader reader, void* data, int bytes)
     {
         int remaining = bytes;
-        int bufferSize = buffer.Length;
+        int bufferSize = Buffer.Length;
 
-        fixed (byte* fixedBuffer = buffer)
+        fixed (byte* fixedBuffer = Buffer)
         {
             while (remaining != 0)
             {
-                int read = reader.Read(buffer, 0, Math.Min(remaining, bufferSize));
+                int read = reader.Read(Buffer, 0, Math.Min(remaining, bufferSize));
                 remaining -= read;
                 UnsafeUtility.MemCpy(data, fixedBuffer, read);
                 data = (byte*) data + read;

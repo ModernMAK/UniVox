@@ -165,9 +165,9 @@ Material:
     - _Anisotropy: 0
     - _Blend: 0
     - _BlendMode: 0
-    - _BlendStrength: 4
+    - _BlendStrength: 2
     - _BumpScale: 1
-    - _CellSize: 32
+    - _CellSize: 16
     - _CoatMask: 0
     - _Cull: 2
     - _CullMode: 2
@@ -304,3 +304,4 @@ Material:
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 0, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []

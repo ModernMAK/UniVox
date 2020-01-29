@@ -72,20 +72,6 @@ public class SerializationUnitTests : MonoBehaviour
         }
     }
 
-    public static bool ArraysEqual<T>(NativeArray<T> array, NativeArray<T> other) where T : struct, IEquatable<T>
-    {
-        if (array.Length != other.Length)
-            return false;
-
-        for (int i = 0; i != array.Length; i++)
-        {
-            if (!array[i].Equals(other[i]))
-                return false;
-        }
-
-        return true;
-    }
-
     public NativeArray<bool> GetRandomData(uint seed, int len)
     {
         var rand = new Random(seed);

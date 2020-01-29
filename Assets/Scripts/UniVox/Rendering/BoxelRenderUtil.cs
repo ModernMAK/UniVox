@@ -4,7 +4,7 @@ using UniVox.Types;
 
 namespace UniVox.Rendering
 {
-    public static class VoxelRenderingUtil
+    public static class BoxelRenderUtil
     {
         public static readonly float3 Up = new float3(0, 1, 0);
         public static readonly float3 Down = new float3(0, -1, 0);

@@ -74,7 +74,8 @@ namespace UniVox.Rendering
         {
             return new CalculateCullingJob(active, culling, size).Schedule(dependencies);
         }
-        
-        
+
+        public static JobHandle CalculateCulling(NativeArray<bool> active,
+            NativeArray<VoxelCulling> culling, int3 size) => CalculateCulling(active, culling, size, new JobHandle());
     }
 }
