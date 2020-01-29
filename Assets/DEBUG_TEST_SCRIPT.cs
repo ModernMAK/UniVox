@@ -282,7 +282,4 @@ public class DEBUG_TEST_SCRIPT : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-    }
 }

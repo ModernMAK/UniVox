@@ -109,6 +109,56 @@ namespace UniVox.Rendering
             return dependencies;
         }
 
+        public override JobHandle GenerateBound(Mesh.MeshData mesh, NativeValue<Bounds> bounds, JobHandle dependencies)
+        {
+            return new FindHalfBoundJob() {Bound = bounds, Mesh = mesh}.Schedule(dependencies);
+        }
+
+        private struct FindHalfBoundJob : IJob
+        {
+            public NativeValue<Bounds> Bound;
+            public Mesh.MeshData Mesh;
+
+            public void Execute()
+            {
+                var positions = Mesh.GetVertexData<half4>(0);
+
+                float xMin = positions[0].x;
+                float xMax = positions[0].x;
+                float yMin = positions[0].y;
+                float yMax = positions[0].y;
+                float zMin = positions[0].z;
+                float zMax = positions[0].z;
+
+                for (var i = 1; i < positions.Length; i++)
+                {
+                    var pos = positions[i];
+                    if (xMin > pos.x)
+                        xMin = pos.x;
+                    else if (xMax < pos.x)
+                        xMax = pos.x;
+
+                    if (yMin > pos.y)
+                        yMin = pos.y;
+                    else if (yMax < pos.y)
+                        yMax = pos.y;
+
+                    if (zMin > pos.z)
+                        zMin = pos.z;
+                    else if (zMax < pos.z)
+                        zMax = pos.z;
+                }
+
+                var min = new float3(xMin, yMin, zMin);
+                var max = new float3(xMax, yMax, zMax);
+
+                var center = (min + max) / 2f;
+                var size = max - min;
+
+                Bound.Value = new Bounds(center, size);
+            }
+        }
+
 
         private struct GenerateJob : IJob
         {

@@ -97,6 +97,11 @@ namespace UniVox.Rendering
             return dependencies;
         }
 
+        public override JobHandle GenerateBound(Mesh.MeshData mesh, NativeValue<Bounds> bounds, JobHandle dependencies)
+        {
+            throw new NotImplementedException();
+        }
+
 
         private struct GenerateJob : IJob
         {

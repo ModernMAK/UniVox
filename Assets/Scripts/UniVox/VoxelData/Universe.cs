@@ -5,6 +5,7 @@ using Unity.Entities;
 
 namespace UniVox
 {
+    [Obsolete]
     public class Universe : IDisposable, IReadOnlyDictionary<byte, WorldMap>
     {
         private readonly Dictionary<byte, WorldMap> _records;

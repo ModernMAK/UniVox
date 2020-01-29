@@ -74,5 +74,7 @@ namespace UniVox.Rendering
         {
             return new CalculateCullingJob(active, culling, size).Schedule(dependencies);
         }
+        
+        
     }
 }

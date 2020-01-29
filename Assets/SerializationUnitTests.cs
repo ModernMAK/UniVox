@@ -47,7 +47,7 @@ public class SerializationUnitTests : MonoBehaviour
 
     public bool CommonTest(uint seed)
     {
-        var serializer = new InDevVoxelChunkStreamer.ChunkSerializer();
+        var serializer = new ChunkSerializer();
         using (var original = new VoxelChunk(new int3(2), Allocator.Temp, NativeArrayOptions.ClearMemory))
         {
             using (var memory = new MemoryStream(short.MaxValue))
