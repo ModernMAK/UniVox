@@ -36,8 +36,9 @@ public class InDevWorldsPanel : MonoBehaviour
 
         //Get world folder
         var worldDirectoryPath = Path.Combine(Application.persistentDataPath, "World");
-        var worldDirectory = new DirectoryInfo(worldDirectoryPath);
-
+        var worldDirectory = Directory.CreateDirectory(worldDirectoryPath);
+        
+        
         var items = 0;
         //Iterate over subdirectories (the world-saves in this case)
         foreach (var subDirectory in worldDirectory.GetDirectories())

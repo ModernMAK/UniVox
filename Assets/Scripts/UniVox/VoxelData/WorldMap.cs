@@ -10,7 +10,7 @@ namespace UniVox
     {
         //Without resizing, how many chunks do we expect to have
         //Assuming 2 chunks in each direction; 125
-        //Rounded to 128 because I like (Arbitrarily) powers of two
+        //Rounded to 128 because I like (arbitrarily, and because im a NERD) powers of two
         private const int DefaultChunksLoaded = 128;
         private bool _dispose;
 
@@ -24,7 +24,8 @@ namespace UniVox
             _dispose = false;
             _handle = new JobHandle();
 //            DefaultWorldInitialization.Initialize(name,false);
-            EntityWorld = World.Active; //TODO use custom world
+            throw new NotImplementedException();
+//            EntityWorld = World.Active; //TODO use custom world
 //            EntityWorld = new Unity.Entities.WorldMap(name);
         }
 

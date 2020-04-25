@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -172,13 +173,15 @@ namespace UniVox.Rendering
         public static BlobAssetReference<Collider> Create(NativeArray<float3> vertexes,
             NativeArray<int> indexes)
         {
-            return MeshCollider.Create(vertexes, indexes);
+            throw new NotImplementedException();
+//            return MeshCollider.Create(vertexes, indexes);
         }
 
         public static BlobAssetReference<Collider> Create(NativeArray<float3> vertexes,
             NativeArray<int> indexes, CollisionFilter filter)
         {
-            return MeshCollider.Create(vertexes, indexes, filter);
+            throw new NotImplementedException();
+//            return MeshCollider.Create(vertexes, indexes, filter);
         }
     }
 }
