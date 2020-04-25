@@ -8,10 +8,9 @@ namespace UniVox.Rendering
 {
     public static class VoxelRenderUtility
     {
-        private struct CalculateCullingJob : IJob
+        private struct CalculateCullingJob : IJobParallelFor
         {
-            public CalculateCullingJob(NativeArray<bool> active, NativeArray<VoxelCulling> culling,
-                int3 size)
+            public CalculateCullingJob(NativeArray<bool> active, NativeArray<VoxelCulling> culling, int3 size)
             {
                 _active = active;
                 _culling = culling;
@@ -19,11 +18,15 @@ namespace UniVox.Rendering
                 _directions = DirectionsX.GetDirectionsNative(Allocator.TempJob);
             }
 
-            [ReadOnly] private readonly NativeArray<bool> _active;
+            [NativeDisableParallelForRestriction] [ReadOnly]
+            private readonly NativeArray<bool> _active;
+
             [WriteOnly] private NativeArray<VoxelCulling> _culling;
 
             //Assigned when execute begins;
             private IndexConverter3D _indexMap;
+
+            [NativeDisableParallelForRestriction] [ReadOnly] [DeallocateOnJobCompletion]
             private NativeArray<Direction> _directions;
 
             private const int DirectionSize = 6;
@@ -67,12 +70,23 @@ namespace UniVox.Rendering
                     CalculateCulling(voxelIndex);
                 }
             }
+
+            public void Execute(int index)
+            {
+                CalculateCulling(index);
+            }
         }
+
+        private const int CullingBatchCount = byte.MaxValue;
 
         public static JobHandle CalculateCulling(NativeArray<bool> active,
             NativeArray<VoxelCulling> culling, int3 size, JobHandle dependencies)
         {
-            return new CalculateCullingJob(active, culling, size).Schedule(dependencies);
+            return new CalculateCullingJob(active, culling, size).Schedule(active.Length, CullingBatchCount,
+                dependencies);
         }
+
+        public static JobHandle CalculateCulling(NativeArray<bool> active,
+            NativeArray<VoxelCulling> culling, int3 size) => CalculateCulling(active, culling, size, new JobHandle());
     }
 }

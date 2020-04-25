@@ -6,6 +6,7 @@ using UniVox.Types;
 
 namespace UniVox
 {
+    [Obsolete]
     public class WorldMap : IDisposable
     {
         //Without resizing, how many chunks do we expect to have
@@ -24,7 +25,9 @@ namespace UniVox
             _dispose = false;
             _handle = new JobHandle();
 //            DefaultWorldInitialization.Initialize(name,false);
+
             throw new NotImplementedException();
+
 //            EntityWorld = World.Active; //TODO use custom world
 //            EntityWorld = new Unity.Entities.WorldMap(name);
         }

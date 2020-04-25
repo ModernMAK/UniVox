@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -17,6 +18,7 @@ namespace UniVox.Rendering
             public Mesh.MeshData Mesh;
             public NativeValue<int> VertexCount;
             public NativeValue<int> IndexCount;
+            public bool Initializing;
 
 
             public void Execute()
@@ -24,14 +26,11 @@ namespace UniVox.Rendering
                 //Position and Normal are padded (it seems unity enforces 4byte words)
                 //a ( +X ) represents how many bytes of padding were used
                 Mesh.SetVertexBufferParams(VertexCount,
-                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4,
-                        0), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4,
-                        1), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4,
-                        2), //(4+0) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4,
-                        3) //(4+0) * 1 bytes
+                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2),
+                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4)
                 );
                 //28 bytes
 
@@ -39,37 +38,32 @@ namespace UniVox.Rendering
                 Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt32);
 
                 Mesh.subMeshCount = 1;
-                Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount));
+                if (Initializing)
+                    Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), (MeshUpdateFlags) byte.MaxValue);
+                else
+                    Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), MeshUpdateFlags.DontRecalculateBounds);
             }
         }
 
-        public struct InitializeJob : IJob
+
+        /*
+         * STRICT ORDERING
+         * Position,
+         * Normal,
+         * Tangent,
+         * Color,
+         * TexCoord0-7,
+         * BlendWeight,
+         * BlendIndices
+         */
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Vertex
         {
-            public Mesh.MeshData Mesh;
-            public int VertexCount;
-            public int IndexCount;
-
-            public void Execute()
-            {
-                //Position and Normal are padded (it seems unity enforces 4byte words)
-                //a ( +X ) represents how many bytes of padding were used
-                Mesh.SetVertexBufferParams(VertexCount,
-                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4,
-                        0), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float16, 4,
-                        1), //(3+1) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4,
-                        2), //(4+0) * 2 bytes
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4,
-                        3) //(4+0) * 1 bytes
-                );
-                //28 bytes
-                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt32);
-
-                Mesh.subMeshCount = 1;
-                //I dont know how big updateflags is, but without an 'all' flag, this is the best i can do
-                Mesh.SetSubMesh(0, new SubMeshDescriptor(0, IndexCount), (MeshUpdateFlags) byte.MaxValue);
-            }
+            public half4 Position;
+            public half4 Normal;
+            public half4 Tangent;
+            public Color32 Color;
+            public half2 Uv;
         }
 
 
@@ -79,14 +73,15 @@ namespace UniVox.Rendering
         public override JobHandle Generate(Mesh.MeshData mesh, RenderChunk input, JobHandle dependencies)
         {
             var flatSize = input.ChunkSize.x * input.ChunkSize.y * input.ChunkSize.z;
-            var vertexCount = new NativeValue<int>(Allocator.TempJob);
-            var indexCount = new NativeValue<int>(Allocator.TempJob);
+            var vertexCount = new NativeValue<int>(MaxVertexCountPerVoxel * flatSize, Allocator.TempJob);
+            var indexCount = new NativeValue<int>(MaxIndexCountPerVoxel * flatSize, Allocator.TempJob);
 
-            dependencies = new InitializeJob()
+            dependencies = new ResizeJob()
             {
                 Mesh = mesh,
-                IndexCount = MaxIndexCountPerVoxel * flatSize,
-                VertexCount = MaxVertexCountPerVoxel * flatSize,
+                IndexCount = indexCount,
+                VertexCount = vertexCount,
+                Initializing = true
             }.Schedule(dependencies);
 
             dependencies = new GenerateJob()
@@ -105,8 +100,63 @@ namespace UniVox.Rendering
                 Mesh = mesh
             }.Schedule(dependencies);
 
-
+            dependencies = vertexCount.Dispose(dependencies);
+            dependencies = indexCount.Dispose(dependencies);
             return dependencies;
+        }
+
+        public override JobHandle GenerateBound(Mesh.MeshData mesh, NativeValue<Bounds> bounds, JobHandle dependencies)
+        {
+            return new FindHalfBoundJob() {Bound = bounds, Mesh = mesh}.Schedule(dependencies);
+        }
+
+        private struct FindHalfBoundJob : IJob
+        {
+            public NativeValue<Bounds> Bound;
+            public Mesh.MeshData Mesh;
+
+            public void Execute()
+            {
+                using (var positions = new NativeArray<Vector3>(Mesh.vertexCount, Allocator.Temp))
+                {
+                    Mesh.GetVertices(positions);
+
+
+                    float xMin = positions[0].x;
+                    float xMax = positions[0].x;
+                    float yMin = positions[0].y;
+                    float yMax = positions[0].y;
+                    float zMin = positions[0].z;
+                    float zMax = positions[0].z;
+
+                    for (var i = 1; i < positions.Length; i++)
+                    {
+                        var pos = positions[i];
+                        if (xMin > pos.x)
+                            xMin = pos.x;
+                        else if (xMax < pos.x)
+                            xMax = pos.x;
+
+                        if (yMin > pos.y)
+                            yMin = pos.y;
+                        else if (yMax < pos.y)
+                            yMax = pos.y;
+
+                        if (zMin > pos.z)
+                            zMin = pos.z;
+                        else if (zMax < pos.z)
+                            zMax = pos.z;
+                    }
+
+                    var min = new float3(xMin, yMin, zMin);
+                    var max = new float3(xMax, yMax, zMax);
+
+                    var center = (min + max) / 2f;
+                    var size = max - min;
+
+                    Bound.Value = new Bounds(center, size);
+                }
+            }
         }
 
 
@@ -120,17 +170,6 @@ namespace UniVox.Rendering
             public NativeValue<int> VertexCount;
             public NativeValue<int> IndexCount;
 
-            private half4 PaddedRemap(float3 input)
-            {
-                return new half4((half) input.x, (half) input.y, (half) input.z, (half) 0);
-            }
-
-            private Primitive<half4> PaddedRemap(Primitive<float3> input)
-            {
-                return new Primitive<half4>(PaddedRemap(input.Left), PaddedRemap(input.Pivot), PaddedRemap(input.Right),
-                    PaddedRemap(input.Opposite), input.IsTriangle);
-            }
-
 
             private int _indexCount;
             private int _vertexCount;
@@ -141,10 +180,7 @@ namespace UniVox.Rendering
             private struct Args : IDisposable
             {
                 public NativeArray<Direction> DirectionArray;
-                public NativeArray<half4> VertexBuffer;
-                public NativeArray<half4> NormalBuffer;
-                public NativeArray<half4> TangentBuffer;
-                public NativeArray<Color32> ColorBuffer;
+                public NativeArray<Vertex> VertexBuffer;
                 public NativeArray<int> IndexBuffer;
 
                 public void Dispose()
@@ -159,10 +195,7 @@ namespace UniVox.Rendering
                 args = new Args()
                 {
                     DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
-                    VertexBuffer = Mesh.GetVertexData<half4>(0),
-                    NormalBuffer = Mesh.GetVertexData<half4>(1),
-                    TangentBuffer = Mesh.GetVertexData<half4>(2),
-                    ColorBuffer = Mesh.GetVertexData<Color32>(3),
+                    VertexBuffer = Mesh.GetVertexData<Vertex>(0),
                     IndexBuffer = Mesh.GetIndexData<int>(),
                 };
                 _indexCount = 0;
@@ -176,6 +209,40 @@ namespace UniVox.Rendering
                 IndexCount.Value = _indexCount;
             }
 
+            private Primitive<Vertex> GenQuad(int3 pos, Direction direction)
+            {
+                BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
+                var face = BoxelRenderUtil.GetFace(pos, norm, tan, bit);
+
+                var hNorm = (half4) new float4(norm, 0f);
+                var hTan = (half4) new float4(tan, 1f);
+                var du = new float2(1f, 0f);
+                var dv = new float2(0f, 1f);
+
+                var left = new Vertex()
+                    {Position = (half4) new float4(face.Left, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) 0f};
+                var pivot = new Vertex()
+                    {Position = (half4) new float4(face.Pivot, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) du};
+                var right = new Vertex()
+                {
+                    Position = (half4) new float4(face.Right, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) (du + dv)
+                };
+                var opposite = new Vertex()
+                    {Position = (half4) new float4(face.Opposite, 0), Normal = hNorm, Tangent = hTan, Uv = (half2) dv};
+
+                return new Primitive<Vertex>(left, pivot, right, opposite);
+            }
+
+            private void Write<T>(NativeArray<T> buffer, int index, Primitive<T> primitive) where T : struct
+            {
+                if (primitive.IsTriangle)
+
+                    NativeMeshUtil.Triangle.Write(buffer, index, primitive.Left, primitive.Pivot, primitive.Right);
+                else
+                    NativeMeshUtil.Quad.Write(buffer, index, primitive.Left, primitive.Pivot, primitive.Right,
+                        primitive.Opposite);
+            }
+
             private void GenerateVoxel(int voxelIndex, Args args)
             {
                 var voxelPos = Converter.Expand(voxelIndex);
@@ -186,20 +253,9 @@ namespace UniVox.Rendering
                     if (!culling.IsVisible(direction))
                         continue;
 
+                    var primitive = GenQuad(voxelPos, direction);
 
-                    VoxelRenderingUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                    var face = VoxelRenderingUtil.GetFace(voxelPos, norm, tan, bit);
-                    var paddedFace = PaddedRemap(face);
-                    //Write it to the buffer
-                    NativeMeshUtil.Quad.Write(args.VertexBuffer, _vertexCount, paddedFace.Left, paddedFace.Pivot,
-                        paddedFace.Right, paddedFace.Opposite);
-                    //Write the normal to the buffer
-                    NativeMeshUtil.Quad.WriteUniform(args.NormalBuffer, _vertexCount, PaddedRemap(norm));
-                    //Write the tangent to the buffer (after fixing it)
-                    NativeMeshUtil.Quad.WriteUniform(args.TangentBuffer, _vertexCount,
-                        (half4) new float4(tan.x, tan.y, tan.z, 1f));
-                    //Write the color
-                    NativeMeshUtil.Quad.WriteUniform(args.ColorBuffer, _vertexCount, default);
+                    Write(args.VertexBuffer, _vertexCount, primitive);
 
                     //Write the index to the buffer
                     NativeMeshUtil.QuadTrianglePair.WriteIndexSequence(args.IndexBuffer, _indexCount, _vertexCount);
