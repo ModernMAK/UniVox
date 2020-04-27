@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD:Assets/VFXDefaultResources.asset.meta
 guid: 88d070d4944fdd148a12469a693a6b46
+=======
+guid: 5ff57807de9c971449326d31e8f9cd5f
+>>>>>>> b619622734fcda8398f4d5061e9b71546140400e:Assets/Graphics/Materials/Default.mat.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 0
