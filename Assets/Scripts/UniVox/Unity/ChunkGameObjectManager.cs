@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UniVox.Types;
 
-public class UniverseRenderManager : MonoBehaviour
+public class ChunkGameObjectManager : MonoBehaviour
 {
     private struct ChunkObject
     {
@@ -27,12 +28,12 @@ public class UniverseRenderManager : MonoBehaviour
     [SerializeField] private Transform _worldContainer;
 
     private Dictionary<int, Transform> _worldTable;
-    private Dictionary<int4, ChunkObject> _chunkTable;
+    private Dictionary<ChunkIdentity, ChunkObject> _chunkTable;
 
     private void Awake()
     {
         _worldTable = new Dictionary<int, Transform>();
-        _chunkTable = new Dictionary<int4, ChunkObject>();
+        _chunkTable = new Dictionary<ChunkIdentity, ChunkObject>();
     }
 
     private void CacheContainer(Transform container)
@@ -43,40 +44,47 @@ public class UniverseRenderManager : MonoBehaviour
 
     private void CacheChunk(Transform chunk)
     {
-        if (chunk.parent.childCount == 1)
+        if (chunk.parent != null && chunk.parent.childCount == 1)
             CacheContainer(chunk.parent);
         chunk.parent = _cachedChunkContainer;
         chunk.gameObject.SetActive(false);
     }
 
 
-    public void Render(int worldId, int3 chunkPos, int3 worldPos, Mesh mesh, Material[] materials, Mesh meshCollider)
+    public void Render(ChunkIdentity chunkId, float3 worldPos, Mesh mesh, Material[] materials, Mesh meshCollider)
     {
         if (mesh.subMeshCount != materials.Length)
             throw new Exception("Too Many / Not Enough Materials");
 
-        var mergedPos = new int4(chunkPos, worldId);
-        if (!_worldTable.TryGetValue(worldId, out var container))
+        if (!_worldTable.TryGetValue(chunkId.World, out var container))
         {
             container = GetContainer();
-            container.name = $"World {worldId}";
+            container.name = $"World {chunkId}";
             container.parent = _worldContainer;
-            _worldTable[worldId] = container;
+            _worldTable[chunkId.World] = container;
         }
 
-        if (!_chunkTable.TryGetValue(mergedPos, out var chunk))
+        if (!_chunkTable.TryGetValue(chunkId, out var chunk))
         {
             chunk = GetChunkObject();
             chunk.Transform.parent = container;
-            _chunkTable[mergedPos] = chunk;
+            _chunkTable[chunkId] = chunk;
         }
 
-        chunk.Transform.name = $"Chunk_{chunkPos.x}_{chunkPos.y}_{chunkPos.z}";
+        chunk.Transform.name = $"Chunk_{chunkId.Chunk.x}_{chunkId.Chunk.y}_{chunkId.Chunk.z}";
         chunk.Filter.mesh = mesh;
         chunk.Renderer.materials = materials;
         chunk.Collider.sharedMesh = meshCollider;
         chunk.Transform.position = (float3) worldPos;
         chunk.Transform.gameObject.SetActive(true);
+    }
+
+    public void Hide(ChunkIdentity chunkId)
+    {
+        if (_chunkTable.TryGetValue(chunkId, out var chunk))
+        {
+            CacheChunk(chunk.Transform);
+        }
     }
 
 
@@ -90,7 +98,7 @@ public class UniverseRenderManager : MonoBehaviour
         }
         else
         {
-            return new GameObject().transform;
+            return new GameObject("Container").transform;
         }
     }
 

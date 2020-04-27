@@ -24,9 +24,24 @@ namespace UniVox.Serialization
         public override VoxelChunk Deserialize(BinaryReader reader)
         {
             var version = reader.ReadByte();
-            if (version != CurrentVersion)
-                throw new NotImplementedException("Deserialization Not Implemented For Past Versions");
+            switch (version)
+            {
+//                case 1:
+//                    return DeserializeV1(reader);
+                case CurrentVersion:
+                    return DeserializeVCurrent(reader);
+                default:
+                    throw new NotImplementedException($"Deserialization Not Implemented For Version {version}!");
+                        
+            }
 
+        }
+
+        //I wanted to change serialization but i didnt end up doing it. Probably will do it eventually.
+        private VoxelChunk DeserializeVCurrent(BinaryReader reader) => DeserializeV1(reader);
+        private VoxelChunk DeserializeV1(BinaryReader reader)
+        {
+            
             var chunkSizeX = reader.ReadInt32();
             var chunkSizeY = reader.ReadInt32();
             var chunkSizeZ = reader.ReadInt32();

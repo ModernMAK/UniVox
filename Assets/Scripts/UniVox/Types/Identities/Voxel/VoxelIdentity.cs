@@ -65,10 +65,10 @@ namespace UniVox.Types
             return new ChunkIdentity(voxelIdentity.WorldId, voxelIdentity.ChunkId);
         }
 
-        public static implicit operator VoxelIdentity(ChunkIdentity voxelIdentity)
-        {
-            return new VoxelIdentity(voxelIdentity.WorldId, voxelIdentity.ChunkId, 0);
-        }
+//        public static implicit operator VoxelIdentity(ChunkIdentity voxelIdentity)
+//        {
+//            return new VoxelIdentity(voxelIdentity.WorldId, voxelIdentity.ChunkId, 0);
+//        }
 
 
         public ChunkIdentity CreateChunkId()

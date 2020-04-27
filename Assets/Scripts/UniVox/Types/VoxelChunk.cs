@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 
 public struct VoxelChunk : IDisposable
@@ -19,7 +20,24 @@ public struct VoxelChunk : IDisposable
 
     public void Dispose()
     {
-        Identities.Dispose();
-        Active.Dispose();
+        if (Identities.IsCreated)
+            Identities.Dispose();
+        if (Active.IsCreated)
+            Active.Dispose();
+    }
+
+    public JobHandle Dispose(JobHandle depends)
+    {
+        if (Identities.IsCreated)
+            depends = Identities.Dispose(depends);
+        if (Active.IsCreated)
+            depends = Active.Dispose(depends);
+        return depends;
+    }
+
+    public void CopyTo(VoxelChunk chunk)
+    {
+        Identities.CopyTo(chunk.Identities);
+        Active.CopyTo(chunk.Active);
     }
 }

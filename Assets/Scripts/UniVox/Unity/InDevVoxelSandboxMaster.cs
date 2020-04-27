@@ -17,7 +17,7 @@ namespace UniVox.Unity
     {
         public string singletonGameObjectName;
 
-        [SerializeField] private UniverseRenderManager _universeRenderManager;
+        [SerializeField] private ChunkGameObjectManager chunkGameObjectManager;
 
         private GameObject _singleton;
         [SerializeField] private string _worldName;
@@ -40,7 +40,7 @@ namespace UniVox.Unity
 
         private void Save(byte worldId, int3 position, VoxelChunk chunk)
         {
-            var fullDir = Path.Combine(InDevPathUtil.WorldDirectory, _worldName,
+            var fullDir = Path.Combine(InDevPathUtil.SaveDirectory, _worldName,
                 InDevVoxelChunkStreamer.GetChunkFileName(worldId, position));
             using (var file = File.Open(fullDir, FileMode.Create, FileAccess.Write))
             {
@@ -53,7 +53,7 @@ namespace UniVox.Unity
 
         private VoxelChunk Load(byte worldId, int3 position)
         {
-            var fullDir = Path.Combine(InDevPathUtil.WorldDirectory, _worldName,
+            var fullDir = Path.Combine(InDevPathUtil.SaveDirectory, _worldName,
                 InDevVoxelChunkStreamer.GetChunkFileName(worldId, position));
             using (var file = File.Open(fullDir, FileMode.Open, FileAccess.Read))
             {

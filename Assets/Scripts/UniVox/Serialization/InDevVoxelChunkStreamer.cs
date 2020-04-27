@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using Unity.Mathematics;
@@ -5,6 +6,7 @@ using UniVox.Utility;
 
 namespace UniVox.Serialization
 {
+    [Obsolete("Use a Serializer")]
     public static class InDevVoxelChunkStreamer
     {
         //I don't know how we want to save things yet, but savnig individual chunks seems like a good first step

@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 
 namespace UniVox.MeshGen
@@ -26,6 +27,14 @@ namespace UniVox.MeshGen
             Identities.Dispose();
             Culling.Dispose();
             MaterialIds.Dispose();
+        }
+
+        public JobHandle Dispose(JobHandle dependency)
+        {
+            dependency = Identities.Dispose(dependency);
+            dependency = Culling.Dispose(dependency);
+            dependency = MaterialIds.Dispose(dependency);
+            return dependency;
         }
     }
 }

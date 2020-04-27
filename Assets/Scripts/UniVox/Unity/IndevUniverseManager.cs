@@ -10,17 +10,19 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UniVox.MeshGen;
 using UniVox.MeshGen.Utility;
+using UniVox.Types;
 using UniVox.Types.Native;
 
-public class UniverseManager : MonoBehaviour
+public class IndevUniverseManager : MonoBehaviour
 {
-    [SerializeField] private UniverseRenderManager _renderManager;
+    [SerializeField] private ChunkGameObjectManager _chunkGameObjectManager;
     private NaiveChunkMeshGenerator _naiveChunkMeshGen;
     private VoxelChunkGenerator _voxelChunkGenerator;
-
+    
     [SerializeField] private bool _runMeshGen;
     [SerializeField] private Material[] _materials;
     [SerializeField] private int _seed;
+    
     [Range(0f, 1f)] [SerializeField] private float _solidity;
     [SerializeField] private int3 _testChunkRange;
     [SerializeField] private int3 _testChunkSize;
@@ -67,7 +69,7 @@ public class UniverseManager : MonoBehaviour
 
         var mats = GetMaterials(uniqueMats);
         uniqueMats.Dispose();
-        _renderManager.Render(0, chunkPos, worldPos, renderMesh, mats, colliderMesh);
+        _chunkGameObjectManager.Render(new ChunkIdentity(0, chunkPos), worldPos, renderMesh, mats, colliderMesh);
         
         renderChunk.Dispose();
         chunk.Dispose();
