@@ -24,7 +24,9 @@ public class ChunkMeshManager : MonoBehaviour
     private void Awake()
     {
         _chunkGameObjectManager = GetComponent<ChunkGameObjectManager>();
-        _meshGenerator = new NaiveChunkMeshGenerator();
+        //Alternatively...
+        //= new NaiveChunkMeshGenerator();
+        _meshGenerator = new GreedyChunkMeshGenerator();
         _cachedMeshes = new Queue<Mesh[]>();
         _meshTable = new Dictionary<ChunkIdentity, Mesh[]>();
         _request = new LinkedList<DataHandle<RenderRequest>>();
@@ -61,12 +63,16 @@ public class ChunkMeshManager : MonoBehaviour
         chunk.Identities.CopyTo(renderChunk.Identities);
         var matIds = renderChunk.MaterialIds;
 
+
+//        var rangePerMat = Mathf.CeilToInt((float) byte.MaxValue / _materials.Length);
         for (var i = 0; i < renderChunk.Identities.Length; i++)
         {
             matIds[i] = renderChunk.Identities[i] % _materials.Length;
+//            if (matIds[i] >= _materials.Length)
+//                matIds[i] = _materials.Length-1;
         }
 
-        depends = VoxelRenderUtility.CalculateCulling(chunk.Active, renderChunk.Culling, chunk.ChunkSize, depends);
+        depends = VoxelRenderUtility.CalculateCulling(chunk.Flags, renderChunk.Culling, chunk.ChunkSize, depends);
         return depends;
     }
 

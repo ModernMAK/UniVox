@@ -64,9 +64,13 @@ public class UniverseChunkIO : MonoBehaviour
             chunk = Load(chunkId);
             return true;
         }
-        catch (FileNotFoundException fnfe)
+        catch (FileNotFoundException) //fnfe)
         {
-            Debug.Log(fnfe);
+            //TODO wrap this in a custom log
+            //For better control of logging;
+            //If we hade Error, Warng, Info, Everything...
+            //This would be everything
+//            Debug.Log(fnfe);
             chunk = default;
             return false;
         }

@@ -10,16 +10,16 @@ namespace UniVox.MeshGen.Utility
     {
         private struct CalculateCullingJob : IJobParallelFor
         {
-            public CalculateCullingJob(NativeArray<bool> active, NativeArray<VoxelCulling> culling, int3 size)
+            public CalculateCullingJob(NativeArray<VoxelFlag> flags, NativeArray<VoxelCulling> culling, int3 size)
             {
-                _active = active;
+                _flags = flags;
                 _culling = culling;
                 _indexMap = new IndexConverter3D(size);
                 _directions = DirectionsX.GetDirectionsNative(Allocator.TempJob);
             }
 
             [NativeDisableParallelForRestriction] [ReadOnly]
-            private readonly NativeArray<bool> _active;
+            private readonly NativeArray<VoxelFlag> _flags;
 
             [WriteOnly] private NativeArray<VoxelCulling> _culling;
 
@@ -41,7 +41,7 @@ namespace UniVox.MeshGen.Utility
             {
                 var voxelPosition = _indexMap.Expand(voxelIndex);
                 var culling = new VoxelCulling();
-                if (_active[voxelIndex])
+                if (_flags[voxelIndex].HasFlag(VoxelFlag.Active))
                     for (var directionIndex = 0; directionIndex < _directions.Length; directionIndex++)
                     {
                         var direction = _directions[directionIndex];
@@ -52,7 +52,7 @@ namespace UniVox.MeshGen.Utility
                         {
                             culling = culling.Reveal(direction.ToFlag());
                         }
-                        else if (!_active[neighborIndex])
+                        else if (!_flags[neighborIndex].HasFlag(VoxelFlag.Active))
                         {
                             culling = culling.Reveal(direction.ToFlag());
                         }
@@ -64,7 +64,7 @@ namespace UniVox.MeshGen.Utility
 
             public void Execute()
             {
-                var len = _active.Length;
+                var len = _flags.Length;
                 for (var voxelIndex = 0; voxelIndex < len; voxelIndex++)
                 {
                     CalculateCulling(voxelIndex);
@@ -79,14 +79,14 @@ namespace UniVox.MeshGen.Utility
 
         private const int CullingBatchCount = byte.MaxValue;
 
-        public static JobHandle CalculateCulling(NativeArray<bool> active,
+        public static JobHandle CalculateCulling(NativeArray<VoxelFlag> flags,
             NativeArray<VoxelCulling> culling, int3 size, JobHandle dependencies)
         {
-            return new CalculateCullingJob(active, culling, size).Schedule(active.Length, CullingBatchCount,
+            return new CalculateCullingJob(flags, culling, size).Schedule(flags.Length, CullingBatchCount,
                 dependencies);
         }
 
-        public static JobHandle CalculateCulling(NativeArray<bool> active,
-            NativeArray<VoxelCulling> culling, int3 size) => CalculateCulling(active, culling, size, new JobHandle());
+        public static JobHandle CalculateCulling(NativeArray<VoxelFlag> flags,
+            NativeArray<VoxelCulling> culling, int3 size) => CalculateCulling(flags, culling, size, new JobHandle());
     }
 }

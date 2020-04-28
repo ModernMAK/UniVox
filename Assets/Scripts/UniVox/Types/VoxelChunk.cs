@@ -11,33 +11,39 @@ public struct VoxelChunk : IDisposable
         var voxels = chunkSize.x * chunkSize.y * chunkSize.z;
         ChunkSize = chunkSize;
         Identities = new NativeArray<byte>(voxels, allocator, options);
-        Active = new NativeArray<bool>(voxels, allocator, options);
+        Flags = new NativeArray<VoxelFlag>(voxels, allocator, options);
     }
 
     public int3 ChunkSize { get; }
     public NativeArray<byte> Identities { get; }
-    public NativeArray<bool> Active { get; }
+    public NativeArray<VoxelFlag> Flags { get; }
 
     public void Dispose()
     {
         if (Identities.IsCreated)
             Identities.Dispose();
-        if (Active.IsCreated)
-            Active.Dispose();
+        if (Flags.IsCreated)
+            Flags.Dispose();
     }
 
     public JobHandle Dispose(JobHandle depends)
     {
         if (Identities.IsCreated)
             depends = Identities.Dispose(depends);
-        if (Active.IsCreated)
-            depends = Active.Dispose(depends);
+        if (Flags.IsCreated)
+            depends = Flags.Dispose(depends);
         return depends;
     }
 
     public void CopyTo(VoxelChunk chunk)
     {
         Identities.CopyTo(chunk.Identities);
-        Active.CopyTo(chunk.Active);
+        Flags.CopyTo(chunk.Flags);
     }
+}
+
+[Flags]
+public enum VoxelFlag : byte
+{
+    Active = (1 << 0)
 }

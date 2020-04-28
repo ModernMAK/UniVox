@@ -137,7 +137,32 @@ namespace UniVox.Types
                     throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
             }
         }
+        
+        public static void GetPlane(this Axis axis, out int3 normal, out int3 tangent, out int3 bitangent)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                    normal = new int3(1,0,0);
+                    tangent = new int3(0, 0, 1);
+                    bitangent = new int3(0, 1, 0);
+                    break;
+                case Axis.Y:
+                    normal = new int3(0,1,0);
+                    tangent = new int3(1, 0, 0);
+                    bitangent = new int3(0, 0, 1);
+                    break;
+                case Axis.Z:
+                    normal = new int3(0,0,1);
+                    tangent = new int3(1, 0, 0);
+                    bitangent = new int3(0, 1, 0);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
+            }
+        }
 
+        [Obsolete("Arbitraty")]
         public static void GetPlaneDirections(this Axis axis, out Direction normal, out Direction tangent,
             out Direction bitangent)
         {
@@ -146,6 +171,7 @@ namespace UniVox.Types
             bitangent = axis.GetBitangent();
         }
 
+        [Obsolete("Arbitraty")]
         public static void GetPlaneVectors(this Axis axis, out int3 normal, out int3 tangent, out int3 bitangent)
         {
             axis.GetPlaneDirections(out var n, out var t, out var b);
@@ -154,11 +180,13 @@ namespace UniVox.Types
             bitangent = b.ToInt3();
         }
 
+        [Obsolete("Arbitraty")]
         public static Direction GetNormal(this Axis axis, bool positive = true)
         {
             return axis.ToDirection(positive);
         }
 
+        [Obsolete("Arbitraty")]
         public static Direction GetTangent(this Axis axis, bool positive = true)
         {
             switch (axis)
@@ -173,6 +201,7 @@ namespace UniVox.Types
             }
         }
 
+        [Obsolete("Arbitraty")]
         public static Direction GetBitangent(this Axis axis, bool positive = true)
         {
             switch (axis)

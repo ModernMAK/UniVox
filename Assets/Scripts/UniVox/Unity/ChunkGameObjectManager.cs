@@ -22,10 +22,13 @@ public class ChunkGameObjectManager : MonoBehaviour
         public MeshRenderer Renderer { get; }
     }
 
+    
+#pragma warning disable 649
     [SerializeField] private GameObject _templateChunk;
     [SerializeField] private Transform _cachedChunkContainer;
     [SerializeField] private Transform _cachedContainerContainer;
     [SerializeField] private Transform _worldContainer;
+#pragma warning restore 649
 
     private Dictionary<int, Transform> _worldTable;
     private Dictionary<ChunkIdentity, ChunkObject> _chunkTable;
@@ -59,7 +62,7 @@ public class ChunkGameObjectManager : MonoBehaviour
         if (!_worldTable.TryGetValue(chunkId.World, out var container))
         {
             container = GetContainer();
-            container.name = $"World {chunkId}";
+            container.name = $"World {chunkId.World}";
             container.parent = _worldContainer;
             _worldTable[chunkId.World] = container;
         }

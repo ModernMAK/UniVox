@@ -11,6 +11,7 @@ using UniVox.Utility;
 
 namespace UniVox.MeshGen
 {
+    //keeping this until i've replicated this in GreedyChunkMeshGen
     public class GreedyMeshGeneratorProxy : MeshGeneratorProxy<RenderChunk>
     {
         public struct ResizeJob : IJob

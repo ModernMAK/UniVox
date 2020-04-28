@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class MeshBoundVisualizer : MonoBehaviour
 {
-    [SerializeField] private bool _hideCollider;
-    [SerializeField] private Color _colliderBoundColor;
-    [SerializeField] private Color _colliderBoundErrorColor;
-    [SerializeField] private bool _hideMesh;
-    [SerializeField] private Color _meshBoundColor;
-    [SerializeField] private Color _meshBoundErrorColor;
+    [SerializeField] private bool _hideCollider = true;
+    [SerializeField] private Color _colliderBoundColor = new Color(0f, 1f, 0f);
+    [SerializeField] private Color _colliderBoundErrorColor = new Color(0f, 0.5f, 0);
+    [SerializeField] private bool _hideMesh = true;
+    [SerializeField] private Color _meshBoundColor = new Color(0f, 0f, 1f);
+    [SerializeField] private Color _meshBoundErrorColor = new Color(0f, 0f, 0.5f);
 
 
     private MeshRenderer _mesh;
@@ -42,7 +42,7 @@ public class MeshBoundVisualizer : MonoBehaviour
 
         if (!_hideCollider)
         {
-            if(_collider != null)
+            if (_collider != null)
             {
                 Gizmos.color = _colliderBoundColor;
                 var bounds = _collider.bounds;

@@ -12,6 +12,7 @@ using UniVox.Utility;
 
 namespace UniVox.MeshGen
 {
+
     public class NaiveChunkMeshGenerator : VoxelMeshGenerator<RenderChunk>
     {
         public override JobHandle GenerateMesh(Mesh.MeshData mesh, NativeValue<Bounds> meshBound,
@@ -185,8 +186,10 @@ namespace UniVox.MeshGen
             public void Execute()
             {
                 //Position and Normal must be padded (because unity enforces 4byte words)
-                //64 bytes -> 32 bytes  = 2 Compression
+                //64 bytes -> 28 bytes  = ~2.3 Compression
                 //Pretty good since a naive mesh has up to (axis^3)*24 verts
+                //The average mesh is .8mb thats 25k verts (and thats assuming that the mesh is all verts no indexes) meaning we could have smaller indexes! (25k is still less than a short)
+                //Still this implies we should work on greedy meshing
                 Mesh.SetVertexBufferParams(VertexCount,
                     //4 bytes*3 fields -> 2 bytes * 4 fields
                     new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float16, 4),
@@ -195,9 +198,9 @@ namespace UniVox.MeshGen
                     //4 bytes*4 fields -> 2 bytes * 4 fields 
                     new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4),
                     //4 bytes*2 fields -> 2 bytes * 2 fields 
-                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2)
                     //4 bytes*4 fields -> 1 bytes * 4 fields 
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4)
+//                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UInt8, 4)
                 );
             }
         }
@@ -290,14 +293,14 @@ namespace UniVox.MeshGen
          * BlendWeight,
          * BlendIndices
          */
-        //32 bytes
+        //28 bytes
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshVertex
         {
             public half4 Position;//8 bytes (Padded)
             public half4 Normal;//8 bytes (Padded)
             public half4 Tangent;//8 bytes
-            public Color32 Color;//4 bytes
+//            public Color32 Color;//4 bytes Currently unused, so lets drop it
             public half2 Uv;//4 bytes
         }
 

@@ -1,15 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Types;
+using UniVox.WorldGen;
 
 public class UniverseChunkGenerator : MonoBehaviour
 {
     [SerializeField] private int _seed = 8675309;
     [Range(0f, 1f)] [SerializeField] private float _solidity = 1f;
 
-    private VoxelChunkGenerator _generator;
+    private AbstractGenerator<int3, VoxelChunk> _generator;
 
     public void Awake()
     {
