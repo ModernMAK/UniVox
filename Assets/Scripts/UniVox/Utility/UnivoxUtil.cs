@@ -84,7 +84,7 @@ namespace UniVox
 
         #region System Conversion Util
 
-        private static readonly float3 VoxelSpaceOffset = new float3(1f / 2f);
+        public static readonly float3 VoxelSpaceOffset = new float3(1f / 2f);
         private const float ReallySmallMultiplier = 1f / 100f;
 
         public static int3 ToWorldPosition(int3 chunkPosition, int3 blockPosition)

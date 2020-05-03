@@ -34,7 +34,7 @@ namespace UniVox.Serialization
 
         public static void WriteList<T>(this BinaryWriter writer, NativeList<T> data) where T : struct
         {
-            writer.WriteBytes(data.GetUnsafePtr(), data.Length * UnsafeUtility.SizeOf<T>());
+            writer.WriteBytes(data.GetUnsafeReadOnlyPtr(), data.Length * UnsafeUtility.SizeOf<T>());
         }
 
 

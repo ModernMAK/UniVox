@@ -1,30 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Jobs;
+﻿using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UniVox.Types;
 using UniVox.WorldGen;
 
-public class UniverseChunkGenerator : MonoBehaviour
+namespace UniVox.Unity
 {
-    [SerializeField] private int _seed = 8675309;
-    [Range(0f, 1f)] [SerializeField] private float _solidity = 1f;
-
-    private AbstractGenerator<int3, VoxelChunk> _generator;
-
-    public void Awake()
+    public class UniverseChunkGenerator : MonoBehaviour
     {
-        _generator = new VoxelChunkGenerator()
+        [SerializeField] private int _seed = 8675309;
+        [Range(0f, 1f)] [SerializeField] private float _solidity = 1f;
+
+        private AbstractGenerator<int3, VoxelChunk> _generator;
+
+        public void Awake()
         {
-            Seed = _seed,
-            Solidity = _solidity
-        };
-    }
+            _generator = new VoxelChunkGenerator()
+            {
+                Seed = _seed,
+                Solidity = _solidity
+            };
+        }
 
 
-    public JobHandle Generate(ChunkIdentity chunkId, VoxelChunk chunk)
-    {
-        return _generator.Generate(chunkId.Chunk * chunk.ChunkSize, chunk);
+        public JobHandle Generate(ChunkIdentity chunkId, VoxelChunk chunk)
+        {
+            return _generator.Generate(chunkId.Chunk * chunk.ChunkSize, chunk);
+        }
     }
 }

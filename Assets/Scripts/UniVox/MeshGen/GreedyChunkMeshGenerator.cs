@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -18,7 +19,7 @@ namespace UniVox.MeshGen
             NativeList<int> uniqueMaterials, RenderChunk input, JobHandle dependencies = new JobHandle())
         {
             var flatSize = input.ChunkSize.x * input.ChunkSize.y * input.ChunkSize.z;
-            var vertexCount = new NativeValue<ushort>(ushort.MaxValue, Allocator.TempJob);
+            var vertexCount = new NativeValue<int>((MaxVertexCountPerVoxel * flatSize), Allocator.TempJob);
             var indexCount = new NativeValue<int>((MaxIndexCountPerVoxel * flatSize), Allocator.TempJob);
             //Lets assume every block has a different material (god forbid)
             var submeshIndexCount = new NativeList<int>(flatSize, Allocator.TempJob);
@@ -102,7 +103,7 @@ namespace UniVox.MeshGen
         {
             var indexStart = new NativeValue<int>(0, Allocator.TempJob);
             var flatSize = input.ChunkSize.x * input.ChunkSize.y * input.ChunkSize.z;
-            var vertexCount = new NativeValue<ushort>(ushort.MaxValue, Allocator.TempJob);
+            var vertexCount = new NativeValue<int>(MaxVertexCountPerVoxel * flatSize, Allocator.TempJob);
             var indexCount = new NativeValue<int>(MaxIndexCountPerVoxel * flatSize, Allocator.TempJob);
             var submeshIndex = new NativeValue<int>(0, Allocator.TempJob);
             var submeshCount = new NativeValue<int>(1, Allocator.TempJob);
@@ -177,9 +178,10 @@ namespace UniVox.MeshGen
             return dependencies;
         }
 
+        [BurstCompile]
         struct GetUnique<T> : IJob where T : struct, IEquatable<T>
         {
-            public NativeArray<T> Source;
+            [ReadOnly] public NativeArray<T> Source;
             public NativeList<T> UniqueValues;
 
             public void Execute()
@@ -195,12 +197,11 @@ namespace UniVox.MeshGen
             }
         }
 
-
         struct ResizeMeshVertexBufferJob : IJob
         {
             public Mesh.MeshData Mesh;
 
-            public NativeValue<ushort> VertexCount;
+            public NativeValue<int> VertexCount;
 
             public void Execute()
             {
@@ -226,7 +227,7 @@ namespace UniVox.MeshGen
         {
             public Mesh.MeshData Mesh;
 
-            public NativeValue<ushort> VertexCount;
+            public NativeValue<int> VertexCount;
 
             public void Execute()
             {
@@ -244,6 +245,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct ResizeIndexBufferJob : IJob
         {
             public Mesh.MeshData Mesh;
@@ -251,10 +253,11 @@ namespace UniVox.MeshGen
 
             public void Execute()
             {
-                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt16);
+                Mesh.SetIndexBufferParams(IndexCount, IndexFormat.UInt32);
             }
         }
 
+        [BurstCompile]
         struct SetSubMeshCountJob : IJob
         {
             public Mesh.MeshData Mesh;
@@ -266,6 +269,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct SetAllSubMeshJob : IJob
         {
             public Mesh.MeshData Mesh;
@@ -286,6 +290,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct SetSubMeshJob : IJob
         {
             public Mesh.MeshData Mesh;
@@ -346,6 +351,7 @@ namespace UniVox.MeshGen
             public Direction Direction;
         }
 
+        [BurstCompile]
         private struct GatherMeshQuadsJob : IJob
         {
             //If we paralelize this, the we should paralize each direction
@@ -358,17 +364,17 @@ namespace UniVox.MeshGen
             /// <summary>
             /// Chunk Data - Culling
             /// </summary>
-            public NativeArray<VoxelCulling> ChunkCulling;
+            [ReadOnly] public NativeArray<VoxelCulling> ChunkCulling;
 
             /// <summary>
             /// Chunk Data - Materials
             /// </summary>
-            public NativeArray<int> ChunkMaterials;
+            [ReadOnly] public NativeArray<int> ChunkMaterials;
 
             /// <summary>
             /// Chunk Size Data
             /// </summary>
-            public IndexConverter3D Converter;
+            [ReadOnly] public IndexConverter3D Converter;
 
             /// <summary>
             /// The Quads gathered
@@ -545,6 +551,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         private struct GatherColliderQuadsJob : IJob
         {
             //If we paralelize this, the we should paralize each direction
@@ -557,12 +564,12 @@ namespace UniVox.MeshGen
             /// <summary>
             /// Chunk Data - Culling
             /// </summary>
-            public NativeArray<VoxelCulling> ChunkCulling;
+            [ReadOnly] public NativeArray<VoxelCulling> ChunkCulling;
 
             /// <summary>
             /// Chunk Size Data
             /// </summary>
-            public IndexConverter3D Converter;
+            [ReadOnly] public IndexConverter3D Converter;
 
             /// <summary>
             /// The Quads gathered
@@ -717,6 +724,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         private struct GenerateMeshJob : IJob
         {
             /// <summary>
@@ -727,29 +735,29 @@ namespace UniVox.MeshGen
             /// <summary>
             /// The Mesh Boundary To Edit
             /// </summary>
-            public NativeValue<Bounds> Bound;
+            [WriteOnly] public NativeValue<Bounds> Bound;
 
             /// <summary>
             /// Chunk Data - Materials
             /// </summary>
-            public NativeArray<int> ChunkMaterials;
+            [ReadOnly] public NativeArray<int> ChunkMaterials;
 
-            public NativeList<Quad> Quads;
+            [ReadOnly] public NativeList<Quad> Quads;
 
             /// <summary>
             /// Chunk Size Data
             /// </summary>
-            public IndexConverter3D Converter;
+            [ReadOnly] public IndexConverter3D Converter;
 
             /// <summary>
             /// Mesh Vertex Count
             /// </summary>
-            public NativeValue<ushort> VertexCount;
+            [WriteOnly] public NativeValue<int> VertexCount;
 
             /// <summary>
             /// Mesh Index Count
             /// </summary>
-            public NativeValue<int> IndexCount;
+            [WriteOnly] public NativeValue<int> IndexCount;
 
             /// <summary>
             /// Mesh Index Count, per submesh
@@ -759,10 +767,10 @@ namespace UniVox.MeshGen
             /// <summary>
             /// Array of UNIQUE Material Ids
             /// </summary>
-            public NativeArray<int> UniqueMaterialIds;
+            [ReadOnly] public NativeArray<int> UniqueMaterialIds;
 
             private int _indexCount;
-            private ushort _vertexCount;
+            private int _vertexCount;
 
             //We do something stupid like this because unity safety checks
             //I cant have a job with uninitialized NativeArray (makes sense)
@@ -771,7 +779,7 @@ namespace UniVox.MeshGen
             {
                 public NativeArray<Direction> DirectionArray;
                 public NativeArray<MeshVertex> VertexBuffer;
-                public NativeArray<ushort> IndexBuffer;
+                public NativeArray<int> IndexBuffer;
 
                 public void Dispose()
                 {
@@ -786,7 +794,7 @@ namespace UniVox.MeshGen
                 {
                     DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
                     VertexBuffer = Mesh.GetVertexData<MeshVertex>(0),
-                    IndexBuffer = Mesh.GetIndexData<ushort>(),
+                    IndexBuffer = Mesh.GetIndexData<int>(),
                 };
                 _indexCount = 0;
                 _vertexCount = 0;
@@ -806,7 +814,7 @@ namespace UniVox.MeshGen
             private Primitive<MeshVertex> GenQuad(int3 pos, int2 quadSize, Direction direction)
             {
                 direction.ToAxis().GetPlane(out var tan, out var bit);
-                
+
                 var norm = direction.ToInt3();
 //                BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
 
@@ -820,12 +828,15 @@ namespace UniVox.MeshGen
 //                    posOffset *= -1;
 
 
-                var face = BoxelRenderUtil.GetFace(pos + posOffset, norm, tan * quadSize.x, bit * quadSize.y);
+                var face = BoxelRenderUtil.GetFace(pos + posOffset + UnivoxUtil.VoxelSpaceOffset, norm,
+                    tan * quadSize.x, bit * quadSize.y);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
                 //Scale the UV by quadsize, allows tiling to work properly
-                var dOffset = new float2(math.csum(pos * tan), math.csum(pos * bit));//This works because tan & bit are axis aligned
+                var dOffset =
+                    new float2(math.csum(pos * tan),
+                        math.csum(pos * bit)); //This works because tan & bit are axis aligned
                 var du = new float2(1f, 0f) * quadSize.x;
                 var dv = new float2(0f, 1f) * quadSize.y;
 
@@ -944,6 +955,7 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         private struct GenerateColliderJob : IJob
         {
             /// <summary>
@@ -954,28 +966,28 @@ namespace UniVox.MeshGen
             /// <summary>
             /// The Mesh Boundary To Edit
             /// </summary>
-            public NativeValue<Bounds> Bound;
+            [WriteOnly] public NativeValue<Bounds> Bound;
 
-            public NativeList<Quad> Quads;
+            [ReadOnly] public NativeList<Quad> Quads;
 
             /// <summary>
             /// Chunk Size Data
             /// </summary>
-            public IndexConverter3D Converter;
+            [ReadOnly] public IndexConverter3D Converter;
 
             /// <summary>
             /// Mesh Vertex Count
             /// </summary>
-            public NativeValue<ushort> VertexCount;
+            [WriteOnly] public NativeValue<int> VertexCount;
 
             /// <summary>
             /// Mesh Index Count
             /// </summary>
-            public NativeValue<int> IndexCount;
+            [WriteOnly] public NativeValue<int> IndexCount;
 
 
             private int _indexCount;
-            private ushort _vertexCount;
+            private int _vertexCount;
 
             //We do something stupid like this because unity safety checks
             //I cant have a job with uninitialized NativeArray (makes sense)
@@ -984,7 +996,7 @@ namespace UniVox.MeshGen
             {
                 public NativeArray<Direction> DirectionArray;
                 public NativeArray<ColliderVertex> VertexBuffer;
-                public NativeArray<ushort> IndexBuffer;
+                public NativeArray<int> IndexBuffer;
 
                 public void Dispose()
                 {
@@ -999,7 +1011,7 @@ namespace UniVox.MeshGen
                 {
                     DirectionArray = DirectionsX.GetDirectionsNative(Allocator.Temp),
                     VertexBuffer = Mesh.GetVertexData<ColliderVertex>(0),
-                    IndexBuffer = Mesh.GetIndexData<ushort>(),
+                    IndexBuffer = Mesh.GetIndexData<int>(),
                 };
                 _indexCount = 0;
                 _vertexCount = 0;
@@ -1032,7 +1044,8 @@ namespace UniVox.MeshGen
 //                    posOffset *= -1;
 
 
-                var face = BoxelRenderUtil.GetFace(pos + posOffset, norm, tan * quadSize.x, bit * quadSize.y);
+                var face = BoxelRenderUtil.GetFace(pos + posOffset + UnivoxUtil.VoxelSpaceOffset, norm,
+                    tan * quadSize.x, bit * quadSize.y);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
@@ -1065,7 +1078,7 @@ namespace UniVox.MeshGen
 
                 //Z works fine
                 //Flip all others
-                if (direction == Direction.Forward || direction == Direction.Backward)
+                if (direction == Direction.Forward || direction == Direction.Left || direction == Direction.Down)
                     return new Primitive<ColliderVertex>(left, pivot, right, opposite);
                 else
                     return new Primitive<ColliderVertex>(right, pivot, left, opposite); //Flipped winding

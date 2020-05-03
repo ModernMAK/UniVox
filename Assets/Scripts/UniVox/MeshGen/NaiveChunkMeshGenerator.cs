@@ -406,7 +406,7 @@ namespace UniVox.MeshGen
             private Primitive<MeshVertex> GenQuad(int3 pos, Direction direction)
             {
                 BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                var face = BoxelRenderUtil.GetFace(pos, norm, tan, bit);
+                var face = BoxelRenderUtil.GetFace(pos+ UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
@@ -547,7 +547,7 @@ namespace UniVox.MeshGen
             private Primitive<ColliderVertex> GenQuad(int3 pos, Direction direction)
             {
                 BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                var face = BoxelRenderUtil.GetFace(pos, norm, tan, bit);
+                var face = BoxelRenderUtil.GetFace(pos+ UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);

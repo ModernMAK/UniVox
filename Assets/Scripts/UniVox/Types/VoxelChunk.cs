@@ -3,6 +3,12 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
+public struct VoxelBlock
+{
+    public byte Identity { get; set; }
+    public VoxelFlag Flags { get; set; }
+}
+
 public struct VoxelChunk : IDisposable
 {
     public VoxelChunk(int3 chunkSize, Allocator allocator = Allocator.Persistent,
@@ -15,9 +21,27 @@ public struct VoxelChunk : IDisposable
     }
 
     public int3 ChunkSize { get; }
+    
     public NativeArray<byte> Identities { get; }
     public NativeArray<VoxelFlag> Flags { get; }
 
+    public VoxelBlock GetBlock(int index)
+    {
+        return new VoxelBlock()
+        {
+            Identity = Identities[index],
+            Flags = Flags[index]
+        };
+    }
+    
+    public void SetBlock(int index, VoxelBlock block)
+    {
+        var identities = Identities;
+        var flags = Flags;
+        identities[index] = block.Identity;
+        flags[index] = block.Flags;
+    }
+    
     public void Dispose()
     {
         if (Identities.IsCreated)

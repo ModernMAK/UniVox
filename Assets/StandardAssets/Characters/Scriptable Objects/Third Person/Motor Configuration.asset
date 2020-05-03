@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d70839d074c4aaf8d6d3e6c7b3cfbc7, type: 3}
+  m_Name: Motor Configuration
+  m_EditorClassIdentifier: 
+  m_DefaultGroundMovementConfig: {fileID: 11400000, guid: 5927e7372f4e89c4cbb71aae26e27deb,
+    type: 2}
+  m_StrafeOrientTime: 0.125
+  m_LateralStrafeJumpScale: 1
+  m_JumpHeightMap:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 4
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.099
+      value: 4
+      inSlope: -0
+      outSlope: -13.377428
+      tangentMode: 5
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.1
+      value: 3
+      inSlope: 3.3408613
+      outSlope: 3.3408613
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.122293845
+    - serializedVersion: 3
+      time: 1
+      value: 4
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_StandingJumpSpeed: 3.5
+  m_FallForwardSpeedMax: 5
+  m_FallForwardSpeedInc: 0.05
+  m_FallForwardSpeedDecay: 0.0025
+  m_FallDirectionDelta: 0.025
+  m_TurningSpeed: 300
+  m_TurnAroundAngle: 160
+  m_StandingTurnAroundAngle: 89
+  m_Advanced:
+    m_ForwardInputSamples: 5
+    m_StrafeInputWindowSize: 5
+    m_AutoToggleSprint: 1
+    m_ForwardVelocitySamples: 10
+    m_AirTurnSpeedScale: 0.01
+    m_MinInputThreshold: 0.5
+    m_MaxMovementThreshold: 0.01
+    m_MovementTimeThreshold: 0.5
+    m_TurnSpeedScale: 0.075
+    m_TurnSpeedDecay: 5
+    m_NormalizedTurnSpeedDelta: 0.5
+    m_StandingTurnAroundSpeed: 0.25
+    m_TurnAroundIgnoreTime: 0.1
+    m_InputBufferSize: 5
