@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -12,7 +13,6 @@ using UniVox.Utility;
 
 namespace UniVox.MeshGen
 {
-
     public class NaiveChunkMeshGenerator : VoxelMeshGenerator<RenderChunk>
     {
         public override JobHandle GenerateMesh(Mesh.MeshData mesh, NativeValue<Bounds> meshBound,
@@ -158,9 +158,10 @@ namespace UniVox.MeshGen
             return dependencies;
         }
 
+        [BurstCompile]
         struct GetUnique<T> : IJob where T : struct, IEquatable<T>
         {
-            public NativeArray<T> Source;
+            [ReadOnly] public NativeArray<T> Source;
             public NativeList<T> UniqueValues;
 
             public void Execute()
@@ -181,7 +182,7 @@ namespace UniVox.MeshGen
         {
             public Mesh.MeshData Mesh;
 
-            public NativeValue<int> VertexCount;
+            [ReadOnly] public NativeValue<int> VertexCount;
 
             public void Execute()
             {
@@ -204,11 +205,11 @@ namespace UniVox.MeshGen
                 );
             }
         }
+
         struct ResizeColliderVertexBufferJob : IJob
         {
             public Mesh.MeshData Mesh;
-
-            public NativeValue<int> VertexCount;
+            [ReadOnly] public NativeValue<int> VertexCount;
 
             public void Execute()
             {
@@ -226,10 +227,11 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct ResizeIndexBufferJob : IJob
         {
             public Mesh.MeshData Mesh;
-            public NativeValue<int> IndexCount;
+            [ReadOnly] public NativeValue<int> IndexCount;
 
             public void Execute()
             {
@@ -237,10 +239,11 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct SetSubMeshCountJob : IJob
         {
             public Mesh.MeshData Mesh;
-            public NativeValue<int> SubMeshCount;
+            [ReadOnly] public NativeValue<int> SubMeshCount;
 
             public void Execute()
             {
@@ -248,11 +251,12 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct SetAllSubMeshJob : IJob
         {
             public Mesh.MeshData Mesh;
-            public NativeArray<int> IndexCount;
-            public MeshUpdateFlags UpdateFlags;
+            [ReadOnly] public NativeArray<int> IndexCount;
+            [ReadOnly] public MeshUpdateFlags UpdateFlags;
 
             public void Execute()
             {
@@ -268,13 +272,14 @@ namespace UniVox.MeshGen
             }
         }
 
+        [BurstCompile]
         struct SetSubMeshJob : IJob
         {
             public Mesh.MeshData Mesh;
-            public NativeValue<int> SubMeshIndex;
-            public NativeValue<int> IndexStart;
-            public NativeValue<int> IndexCount;
-            public MeshUpdateFlags UpdateFlags;
+            [ReadOnly] public NativeValue<int> SubMeshIndex;
+            [ReadOnly] public NativeValue<int> IndexStart;
+            [ReadOnly] public NativeValue<int> IndexCount;
+            [ReadOnly] public MeshUpdateFlags UpdateFlags;
 
             public void Execute()
             {
@@ -297,26 +302,29 @@ namespace UniVox.MeshGen
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshVertex
         {
-            public half4 Position;//8 bytes (Padded)
-            public half4 Normal;//8 bytes (Padded)
-            public half4 Tangent;//8 bytes
+            public half4 Position; //8 bytes (Padded)
+            public half4 Normal; //8 bytes (Padded)
+
+            public half4 Tangent; //8 bytes
+
 //            public Color32 Color;//4 bytes Currently unused, so lets drop it
-            public half2 Uv;//4 bytes
+            public half2 Uv; //4 bytes
         }
 
         //24 bytes
         [StructLayout(LayoutKind.Sequential)]
         private struct ColliderVertex
         {
-            public half4 Position;//8 bytes (Padded)
-            public half4 Normal;//8 bytes (Padded)
-            public half4 Tangent;//8 bytes
+            public half4 Position; //8 bytes (Padded)
+            public half4 Normal; //8 bytes (Padded)
+            public half4 Tangent; //8 bytes
         }
 
 
         const int MaxVertexCountPerVoxel = 4 * 6; //4 verts on 6 faces
         const int MaxIndexCountPerVoxel = (2 * 3) * 6; //6 indeces (2 triangles, 3 indexes a piece) on 6 faces
 
+        [BurstCompile]
         private struct GenerateMeshJob : IJob
         {
             /// <summary>
@@ -332,37 +340,37 @@ namespace UniVox.MeshGen
             /// <summary>
             /// Chunk Data - Culling
             /// </summary>
-            public NativeArray<VoxelCulling> ChunkCulling;
+            [ReadOnly] public NativeArray<VoxelCulling> ChunkCulling;
 
             /// <summary>
             /// Chunk Data - Materials
             /// </summary>
-            public NativeArray<int> ChunkMaterials;
+            [ReadOnly] public NativeArray<int> ChunkMaterials;
 
             /// <summary>
             /// Chunk Size Data
             /// </summary>
-            public IndexConverter3D Converter;
+            [ReadOnly] public IndexConverter3D Converter;
 
             /// <summary>
             /// Mesh Vertex Count
             /// </summary>
-            public NativeValue<int> VertexCount;
+            [WriteOnly] public NativeValue<int> VertexCount;
 
             /// <summary>
             /// Mesh Index Count
             /// </summary>
-            public NativeValue<int> IndexCount;
+            [WriteOnly] public NativeValue<int> IndexCount;
 
             /// <summary>
             /// Mesh Index Count, per submesh
             /// </summary>
-            public NativeList<int> SubMeshIndexCount;
+            [WriteOnly] public NativeList<int> SubMeshIndexCount;
 
             /// <summary>
             /// Array of UNIQUE Material Ids
             /// </summary>
-            public NativeArray<int> UniqueMaterialIds;
+            [ReadOnly] public NativeArray<int> UniqueMaterialIds;
 
             private int _indexCount;
             private int _vertexCount;
@@ -406,7 +414,7 @@ namespace UniVox.MeshGen
             private Primitive<MeshVertex> GenQuad(int3 pos, Direction direction)
             {
                 BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                var face = BoxelRenderUtil.GetFace(pos+ UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
+                var face = BoxelRenderUtil.GetFace(pos + UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
@@ -486,13 +494,15 @@ namespace UniVox.MeshGen
 
                 //Basically, assume that the bound is the full chunk
                 //Because im too lazy to reimpliment that code
-                var center = (float3) Converter.Size / 2f - 1f / 2f;//UnivoxUtil.ToUnitySpace((float3)Converter.Size / 2f);
+                var center =
+                    (float3) Converter.Size / 2f - 1f / 2f; //UnivoxUtil.ToUnitySpace((float3)Converter.Size / 2f);
                 var fullExtents = (float3) Converter.Size;
                 Bound.Value = new Bounds(center, fullExtents);
                 Uninitialize(args);
             }
         }
 
+        [BurstCompile]
         private struct GenerateColliderJob : IJob
         {
             public NativeArray<VoxelCulling> ChunkCulling;
@@ -501,8 +511,8 @@ namespace UniVox.MeshGen
             public NativeValue<Bounds> Bound;
 
             public IndexConverter3D Converter;
-            public NativeValue<int> VertexCount;
-            public NativeValue<int> IndexCount;
+            [WriteOnly] public NativeValue<int> VertexCount;
+            [WriteOnly] public NativeValue<int> IndexCount;
 
 
             private int _indexCount;
@@ -547,7 +557,7 @@ namespace UniVox.MeshGen
             private Primitive<ColliderVertex> GenQuad(int3 pos, Direction direction)
             {
                 BoxelRenderUtil.GetDirectionalAxis(direction, out var norm, out var tan, out var bit);
-                var face = BoxelRenderUtil.GetFace(pos+ UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
+                var face = BoxelRenderUtil.GetFace(pos + UnivoxUtil.VoxelSpaceOffset, norm, tan, bit);
 
                 var hNorm = (half4) new float4(norm, 0f);
                 var hTan = (half4) new float4(tan, 1f);
@@ -590,7 +600,7 @@ namespace UniVox.MeshGen
                         primitive.Opposite);
             }
 
-           
+
             private void GenerateVoxel(int voxelIndex, Args args)
             {
                 var voxelPos = Converter.Expand(voxelIndex);
@@ -632,7 +642,7 @@ namespace UniVox.MeshGen
                 var center = UnivoxUtil.ToUnitySpace(Converter.Size) / 2f;
                 var fullExtents = (float3) Converter.Size;
                 Bound.Value = new Bounds(center, fullExtents);
-                
+
                 Uninitialize(args);
             }
         }

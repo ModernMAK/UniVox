@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -49,9 +50,6 @@ namespace UniVox.Unity
         private void Awake()
         {
             _chunkGameObjectManager = GetComponent<ChunkGameObjectManager>();
-
-//Alternatively...
-//= new NaiveChunkMeshGenerator();
             _meshGenerator = new GreedyChunkMeshGenerator();
             _cachedMeshes = new Queue<Mesh[]>();
             _meshTable = new Dictionary<ChunkIdentity, Mesh[]>();
@@ -82,6 +80,7 @@ namespace UniVox.Unity
         }
 
 
+        [BurstCompile]
         private struct CopyArrayJob<T> : IJobParallelFor where T : struct
         {
             [ReadOnly] public NativeArray<T> Source;
@@ -94,6 +93,7 @@ namespace UniVox.Unity
             }
         }
 
+        [BurstCompile]
         private struct CalculateMatIdJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<byte> Identities;
@@ -102,7 +102,7 @@ namespace UniVox.Unity
 
             public void Execute(int index)
             {
-                MaterialIds[index] = Identities[index] % MaterialCount;
+                MaterialIds[index] = Identities[index] * 31 % MaterialCount;
             }
         }
 

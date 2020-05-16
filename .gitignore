@@ -66,3 +66,7 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
+
+# Too big for Github; since I dont plan to use them at the moment, not a big loss
+Assets/Art/*/Textures.Com.7z
+Assets/Art/*/Textures.Com.7z.meta
