@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/StandardAssets/Characters/Scriptable Objects/Control Map/StandardControls.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/StandardAssets/Characters/Scriptable Objects/Control Map/StandardControls.inputactions'
 
 using System;
 using System.Collections;

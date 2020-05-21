@@ -9,9 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3608e2ed3be1431d8403b5b8fe2824a6, type: 3}
-  m_Name: DirtPath
+  m_Script: {fileID: 11500000, guid: f8862732f4b6468f917a2c3d007a2fb8, type: 3}
+  m_Name: DirtPathItem
   m_EditorClassIdentifier: 
   _key: {fileID: 11400000, guid: f491bb8e69be8f84c9fa4befd5a9c1b9, type: 2}
+  ItemName: Dirt
+  BlockInfo: {fileID: 11400000, guid: 2133a3ce0c2540146acbc83c5244260d, type: 2}
   Icon: {fileID: 11400000, guid: 61f003f2d57c29a4885988a7d53c3927, type: 2}
-  Material: {fileID: 11400000, guid: fc05d4064d396664cbbfb5c77d2cd850, type: 2}

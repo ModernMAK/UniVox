@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3608e2ed3be1431d8403b5b8fe2824a6, type: 3}
+  m_Name: DirtPathBlock
+  m_EditorClassIdentifier: 
+  _key: {fileID: 11400000, guid: f491bb8e69be8f84c9fa4befd5a9c1b9, type: 2}
+  Material: {fileID: 11400000, guid: fc05d4064d396664cbbfb5c77d2cd850, type: 2}

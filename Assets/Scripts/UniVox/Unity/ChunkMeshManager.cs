@@ -42,7 +42,6 @@ namespace UniVox.Unity
         private VoxelMeshGenerator<RenderChunk> _meshGenerator;
         private Dictionary<ChunkIdentity, Mesh[]> _meshTable;
         private Queue<Mesh[]> _cachedMeshes;
-        [SerializeField] private Material[] _materials;
 
         private LinkedList<DataHandle<RenderRequest>> _request;
         private ChunkGameObjectManager _chunkGameObjectManager;
@@ -98,11 +97,11 @@ namespace UniVox.Unity
         {
             [ReadOnly] public NativeArray<byte> Identities;
             [WriteOnly] public NativeArray<int> MaterialIds;
-            [ReadOnly] public int MaterialCount;
+            [ReadOnly] public NativeArray<int> IdentityToMaterial;
 
             public void Execute(int index)
             {
-                MaterialIds[index] = Identities[index] * 31 % MaterialCount;
+                MaterialIds[index] = IdentityToMaterial[Identities[index]];
             }
         }
 
@@ -123,13 +122,15 @@ namespace UniVox.Unity
             }.Schedule(flatSize, 1024, depends);
 
 
+            var lookup = GameData.Instance.GetBlockToMaterial(Allocator.TempJob);
             depends = new CalculateMatIdJob()
             {
                 Identities = renderChunk.Identities,
                 MaterialIds = renderChunk.MaterialIds,
-                MaterialCount = _materials.Length
+                IdentityToMaterial = lookup
             }.Schedule(flatSize, 1024, depends);
 
+            lookup.Dispose(depends);
             depends = VoxelRenderUtility.CalculateCullingNaive(chunk.Flags, renderChunk.Culling, chunk.ChunkSize,
                 depends);
             return depends;
@@ -146,15 +147,15 @@ namespace UniVox.Unity
             var neighborhood = UniverseManager.ChunkManager.GetChunkNeighborhood(chunkId);
             var matIds = renderChunk.MaterialIds;
 
-//        var rangePerMat = Mathf.CeilToInt((float) byte.MaxValue / _materials.Length);
-            for (var i = 0;
-                i < renderChunk.Identities.Length;
-                i++)
-            {
-                matIds[i] = renderChunk.Identities[i] % _materials.Length;
-//            if (matIds[i] >= _materials.Length)
-//                matIds[i] = _materials.Length-1;
-            }
+////        var rangePerMat = Mathf.CeilToInt((float) byte.MaxValue / _materials.Length);
+//            for (var i = 0;
+//                i < renderChunk.Identities.Length;
+//                i++)
+//            {
+////                matIds[i] = renderChunk.Identities[i] % _materials.Length;
+////            if (matIds[i] >= _materials.Length)
+////                matIds[i] = _materials.Length-1;
+//            }
 
             depends = VoxelRenderUtility.CalculateCullingAdvanced(renderChunk.Culling, neighborhood, depends);
             return depends;
@@ -262,12 +263,10 @@ namespace UniVox.Unity
 
         private Material[] GetMaterials(NativeList<int> materialIds)
         {
+            var materials = GameData.Instance.Materials;
             var mats = new Material[materialIds.Length];
-            for (var i = 0;
-                i < materialIds.Length;
-                i++)
-            {
-                mats[i] = _materials[materialIds[i]];
+            for (var i = 0; i < materialIds.Length; i++) {
+                mats[i] = materials[materialIds[i]];
             }
 
             return mats;
