@@ -220,7 +220,7 @@ MonoBehaviour:
     supportTerrainHole: 0
     supportRayTracing: 0
     lightLoopSettings:
-      cookieAtlasSize: 256
+      cookieAtlasSize: 2048
       cookieFormat: 74
       pointCookieSize: 128
       cubeCookieTexArraySize: 16
@@ -315,7 +315,7 @@ MonoBehaviour:
       ChromaticAberrationMaxSamples: 03000000060000000c000000
     lightSettings:
       useContactShadow:
-        m_Values: 000000
+        m_Values: 
         m_SchemaId:
           m_Id: 
     maximumLODLevel:
@@ -344,8 +344,8 @@ MonoBehaviour:
   m_DefaultMaterialQualityLevel: 4
   diffusionProfileSettings: {fileID: 0}
   diffusionProfileSettingsList:
-  - {fileID: 11400000, guid: 230685434c7a2fa4b847e70aef23c286, type: 2}
-  - {fileID: 11400000, guid: 5e772f470f2e6424e94838967720b21f, type: 2}
+  - {fileID: 11400000, guid: 1e4f43b8041717145b298176ec08ce11, type: 2}
+  - {fileID: 11400000, guid: 42f99d565defdf84182b7944b04f8280, type: 2}
   beforeTransparentCustomPostProcesses: []
   beforePostProcessCustomPostProcesses: []
   afterPostProcessCustomPostProcesses: []

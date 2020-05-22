@@ -6,10 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Main Test.unity
+    path: Assets/Game/Scenes/Main Test.unity
     guid: 9b9cbe521d67c1f4fb64bd4ea339a29b
   - enabled: 1
-    path: Assets/Scenes/Voxel Sandbox.unity
+    path: Assets/Game/Scenes/Voxel Sandbox.unity
     guid: 6ee5afde4e233fa4c8b56f083f49c0ec
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 8998ec5afc8cf1a42981485dce3ab3c7,

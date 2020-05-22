@@ -12,14 +12,14 @@ namespace UniVox.Types
         public const Directions AllFlag = (Directions) 0b00111111;
         public const Directions NoneFlag = 0;
 
-        private const int DirectionSize = 6;
+        private const int DirectionCount = 6;
 
         private static readonly Direction[] AllDirectionsArray = (Direction[]) Enum.GetValues(typeof(Direction));
         public static IEnumerable<Direction> AllDirections => AllDirectionsArray;
 
         public static NativeArray<Direction> GetDirectionsNative(Allocator allocator)
         {
-            return new NativeArray<Direction>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory)
+            return new NativeArray<Direction>(DirectionCount, allocator, NativeArrayOptions.UninitializedMemory)
             {
                 [0] = Direction.Backward,
                 [1] = Direction.Down,
@@ -50,7 +50,7 @@ namespace UniVox.Types
         public static NativeArray<Directions> GetDirectionFlagsNative(NativeArray<Direction> directionArr,
             Allocator allocator)
         {
-            var array = new NativeArray<Directions>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory);
+            var array = new NativeArray<Directions>(DirectionCount, allocator, NativeArrayOptions.UninitializedMemory);
 
             for (var i = 0; i < 6; i++)
                 array[i] = directionArr[i].ToFlag();
@@ -68,7 +68,7 @@ namespace UniVox.Types
         public static NativeArray<int3> GetDirectionOffsetsNative(NativeArray<Direction> directionArr,
             Allocator allocator)
         {
-            var array = new NativeArray<int3>(DirectionSize, allocator, NativeArrayOptions.UninitializedMemory);
+            var array = new NativeArray<int3>(DirectionCount, allocator, NativeArrayOptions.UninitializedMemory);
 
             for (var i = 0; i < 6; i++)
                 array[i] = directionArr[i].ToInt3();
@@ -336,6 +336,30 @@ namespace UniVox.Types
             if (dir.z < -FloatError)
                 return Direction.Backward;
             throw new NotSupportedException("We can't guess the direction based on the input provided!");
+        }
+
+        
+        public static Direction FindClosestDirection(float3 dir)
+        {
+            
+            var dotProducts = new float[DirectionCount];
+            for (var i = 0; i < DirectionCount; i++)
+            {
+               dotProducts[i] = math.dot(dir, AllDirectionsArray[i].ToFloat3());
+            }
+            var best = dotProducts[0];
+            var index = 0;
+            for (var i = 1; i < DirectionCount; i++)
+            {
+                if (best < dotProducts[i])
+                {
+                    best = dotProducts[i];
+                    index = i;
+                }
+            }
+
+            return AllDirectionsArray[index];
+
         }
 
         public static Vector3Int ToVector3Int(this Direction direction)

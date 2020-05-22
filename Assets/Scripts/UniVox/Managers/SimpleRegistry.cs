@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace UniVox.Managers
 {
-    public class SimpleRegistry<TValue> : IRegistry<string,int, TValue>
+    public class SimpleRegistry<TValue> : IRegistry<string, int, TValue>
     {
         private readonly Dictionary<string, int> _keys;
         private readonly List<Tuple<string, int, TValue>> _records;
@@ -22,12 +22,54 @@ namespace UniVox.Managers
             return id;
         }
 
+        public int Register(string key, TValue value, RegisterOptions registerOptions)
+        {
+            if (!TryRegister(key, value, out var id, registerOptions))
+                throw new Exception();
+            return id;
+        }
+
         public bool TryRegister(string key, TValue value, out int identity)
         {
             if (_keys.ContainsKey(key))
             {
                 identity = default;
                 return false;
+            }
+
+            var index = _records.Count;
+            identity = index;
+            var record = new Tuple<string, int, TValue>(key, identity, value);
+
+            _keys[key] = index;
+            _records.Add(record);
+
+            return true;
+        }
+
+        public bool TryRegister(string key, TValue value, out int identity, RegisterOptions registerOptions)
+        {
+            if (_keys.TryGetValue(key, out var recordIndex))
+            {
+                if (registerOptions == RegisterOptions.ReturnExistingKey)
+                {
+                    identity = _records[recordIndex].Item2;
+                    return true;
+                }
+                else if (registerOptions == RegisterOptions.Overwrite)
+                {
+                    var old = _records[recordIndex];
+                    _records[recordIndex] = new Tuple<string, int, TValue>(old.Item1,old.Item2,value);
+                    identity = _records[recordIndex].Item2;
+                    return true;
+                }
+                else
+                {
+                    identity = default;                   
+                    return false;
+                }
+                
+
             }
 
             var index = _records.Count;

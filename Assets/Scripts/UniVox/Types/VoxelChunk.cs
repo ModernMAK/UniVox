@@ -3,12 +3,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-public struct VoxelBlock
-{
-    public byte Identity { get; set; }
-    public VoxelFlag Flags { get; set; }
-}
-
 public struct VoxelChunk : IDisposable
 {
     public VoxelChunk(int3 chunkSize, Allocator allocator = Allocator.Persistent,
@@ -64,10 +58,4 @@ public struct VoxelChunk : IDisposable
         Identities.CopyTo(chunk.Identities);
         Flags.CopyTo(chunk.Flags);
     }
-}
-
-[Flags]
-public enum VoxelFlag : byte
-{
-    Active = (1 << 0)
 }

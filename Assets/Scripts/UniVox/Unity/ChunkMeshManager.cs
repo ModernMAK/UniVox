@@ -13,25 +13,6 @@ using UniVox.Types.Native;
 
 namespace UniVox.Unity
 {
-    /// <summary>
-    /// Useful utility for getting everything surrounding a block/chunk/etc
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class DirectionalNeighborhood<T>
-    {
-        public DirectionalNeighborhood()
-        {
-            Neighbors = new T[6];
-        }
-
-        public T Center { get; set; }
-        public T[] Neighbors { get; }
-
-        public T GetNeighbor(Direction direction) => Neighbors[(int) direction];
-        public void SetNeighbor(Direction direction, T value) => Neighbors[(int) direction] = value;
-    }
-
-
     [RequireComponent(typeof(ChunkGameObjectManager))]
     public class ChunkMeshManager : MonoBehaviour
     {
@@ -45,6 +26,9 @@ namespace UniVox.Unity
 
         private LinkedList<DataHandle<RenderRequest>> _request;
         private ChunkGameObjectManager _chunkGameObjectManager;
+        [SerializeField]
+        private Material _debugMaterial;
+        
         
         private void Awake()
         {
@@ -99,9 +83,26 @@ namespace UniVox.Unity
             [WriteOnly] public NativeArray<int> MaterialIds;
             [ReadOnly] public NativeArray<int> IdentityToMaterial;
 
+            private const int DefaultMaterialIdentity = -1;
             public void Execute(int index)
             {
-                MaterialIds[index] = IdentityToMaterial[Identities[index]];
+                if (IdentityToMaterial.Length <= 0)
+                {
+                    //Specify Debug
+                    MaterialIds[index] = DefaultMaterialIdentity;
+                }
+                else
+                {
+                    int id = Identities[index];
+                    //Wrap id
+                    if (IdentityToMaterial.Length <= id)
+                    {
+                        id %= IdentityToMaterial.Length;
+                    }
+                
+                    MaterialIds[index] = id;                    
+                }
+
             }
         }
 
@@ -265,8 +266,15 @@ namespace UniVox.Unity
         {
             var materials = GameData.Instance.Materials;
             var mats = new Material[materialIds.Length];
-            for (var i = 0; i < materialIds.Length; i++) {
-                mats[i] = materials[materialIds[i]];
+            for (var i = 0; i < materialIds.Length; i++)
+            {
+                var matId = materialIds[i];
+                if (matId < 0)
+                {
+                    mats[i] = _debugMaterial;
+                }
+                else
+                    mats[i] = materials[matId];
             }
 
             return mats;

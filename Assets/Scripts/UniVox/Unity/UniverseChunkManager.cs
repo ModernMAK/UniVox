@@ -258,16 +258,4 @@ Update the render list.
             ChunkUnloaded?.Invoke(this, chunkId);
         }
     }
-
-    public class ChunkLoadedArgs : EventArgs
-    {
-        public ChunkLoadedArgs(ChunkIdentity chunkIdentity, PersistentDataHandle<VoxelChunk> voxelChunk)
-        {
-            Identity = chunkIdentity;
-            ChunkHandle = voxelChunk;
-        }
-
-        public ChunkIdentity Identity { get; }
-        public PersistentDataHandle<VoxelChunk> ChunkHandle { get; }
-    }
 }

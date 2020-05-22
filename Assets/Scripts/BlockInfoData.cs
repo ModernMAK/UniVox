@@ -1,4 +1,5 @@
 using UnityEngine;
+using UniVox.Managers;
 
 [CreateAssetMenu(fileName = "BlockInfo.Asset", menuName = "Data/Registry/Block")]
 public class BlockInfoData : RegistryData
@@ -11,7 +12,7 @@ public class BlockInfoData : RegistryData
         var materialId = Material.Register();
         var blockInfo = new BlockInfo(materialId);
         var registry = GameData.Instance.Blocks;
-        return registry.Register(Key.GetFullKey(), blockInfo);
+        return registry.Register(Key.GetFullKey(), blockInfo, RegisterOptions.ReturnExistingKey);
     }
 
     public override bool TryRegister(out int identity)
@@ -19,6 +20,6 @@ public class BlockInfoData : RegistryData
         Material.TryRegister(out var materialId);
         var blockInfo = new BlockInfo(materialId);
         var registry = GameData.Instance.Blocks;
-        return registry.TryRegister(Key.GetFullKey(), blockInfo, out identity);
+        return registry.TryRegister(Key.GetFullKey(), blockInfo, out identity, RegisterOptions.ReturnExistingKey);
     }
 }

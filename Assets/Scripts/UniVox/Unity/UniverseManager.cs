@@ -5,6 +5,9 @@ namespace UniVox.Unity
 {
     public class UniverseManager : MonoBehaviour
     {
+        public static UniverseManager Instance { get; private set; }
+        
+        
         [SerializeField] private UniverseChunkManager _chunkManager;
         [SerializeField] private ChunkMeshManager _chunkMeshManager;
 
@@ -15,6 +18,8 @@ namespace UniVox.Unity
 
         private void Awake()
         {
+            Instance = this;
+            
             if (_chunkManager == null)
                 _chunkManager = GetComponentInChildren<UniverseChunkManager>();
 

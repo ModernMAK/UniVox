@@ -59,7 +59,8 @@ public class PlayerVoxelRaycaster : MonoBehaviour
 
                 else
                 {
-                    DisplayHitDebug(false, $"Obstructions Found!\nFirst Obstruction:\t{obstructions[0].name}", true, hitinfo.point, hitinfo.normal, worldPosUnity,
+                    DisplayHitDebug(false, $"Obstructions Found!\nFirst Obstruction:\t{obstructions[0].name}", true,
+                        hitinfo.point, hitinfo.normal, worldPosUnity,
                         worldPos, chunkPos,
                         blockIndex);
                 }

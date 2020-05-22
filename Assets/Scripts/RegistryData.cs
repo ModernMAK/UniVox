@@ -7,10 +7,10 @@ public abstract class RegistryData<TData> : RegistryData
     public TData Data => _data;
 
 
-    public int Register(IRegistry<string, int, TData> registry) => registry.Register(Key.GetFullKey(), Data);
+    public int Register(IRegistry<string, int, TData> registry) => registry.Register(Key.GetFullKey(), Data, RegisterOptions.ReturnExistingKey);
 
     public bool TryRegister(IRegistry<string, int, TData> registry, out int identity) =>
-        registry.TryRegister(Key.GetFullKey(), Data, out identity);
+        registry.TryRegister(Key.GetFullKey(), Data, out identity, RegisterOptions.ReturnExistingKey);
     
 
 }

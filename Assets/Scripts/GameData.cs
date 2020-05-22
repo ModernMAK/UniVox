@@ -55,14 +55,3 @@ public class GameData
         return hashmap;
     }
 }
-
-
-public struct BlockInfo
-{
-    public BlockInfo(int matId)
-    {
-        Material = matId;
-    }
-    
-    public int Material { get; }
-}
