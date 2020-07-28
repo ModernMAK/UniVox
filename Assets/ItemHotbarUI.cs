@@ -7,10 +7,12 @@ using UnityEngine.UI;
 
 public class ItemHotbarUI : MonoBehaviour
 {
+#pragma warning disable 649
     [SerializeField] private GameObject _slotTemplate;
     [SerializeField] private Transform _slotContainer;
     [SerializeField] private AspectRatioFitter _aspectRatioFitter;
     [SerializeField] private int _slotCount;
+#pragma warning restore 649
     private ItemSlotData[] _slots;
 
     private struct ItemSlotData

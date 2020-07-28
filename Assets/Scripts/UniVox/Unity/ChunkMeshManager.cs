@@ -26,9 +26,12 @@ namespace UniVox.Unity
 
         private LinkedList<DataHandle<RenderRequest>> _request;
         private ChunkGameObjectManager _chunkGameObjectManager;
+
+#pragma warning disable 649
         [SerializeField]
         private Material _debugMaterial;
-        
+#pragma warning restore 649
+
         
         private void Awake()
         {

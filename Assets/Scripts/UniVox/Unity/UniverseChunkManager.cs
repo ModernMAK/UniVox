@@ -139,7 +139,7 @@ Update the render list.
             }
 
             var chunk = new VoxelChunk(_chunkSize);
-
+            var loaded = false;
             if (_universeChunkIo.TryLoad(chunkId, out var loadedChunk))
             {
                 try
@@ -148,15 +148,18 @@ Update the render list.
                     loadedChunk.Dispose();
                     var handle = _chunksLoaded[chunkId] = new PersistentDataHandle<VoxelChunk>(chunk, new JobHandle());
                     OnChunkLoaded(new ChunkLoadedArgs(chunkId, handle));
+                    loaded = true;
                 }
                 catch (ArgumentException argumentException)
                 {
                     Debug.LogWarning($"Failed to copy data! Chunk size mismatch?\n{argumentException.StackTrace}");
-                    chunk.Dispose(); //It failed, so we dispose
+                    // chunk.Dispose(); //It failed, so we dispose
                     loadedChunk.Dispose();
+
                 }
             }
-            else
+            
+            if(!loaded)
             {
                 var handle = _universeChunkGenerator.Generate(chunkId, chunk);
 

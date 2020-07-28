@@ -48,7 +48,7 @@ public class PlayerStreamer : MonoBehaviour
         {
             var worldId = 0;
             var chunkId = new ChunkIdentity(worldId, _currentChunk);
-            _isLoaded = _universeManager.ChunkManager.TryGetChunk(chunkId, out _);
+            _isLoaded = _universeManager.ChunkManager.TryGetChunkHandle(chunkId, out _);
 
 
             if (!_isRequesting)
