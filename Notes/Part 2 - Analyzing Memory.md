@@ -7,7 +7,7 @@ This doesn't seem to add up. Feel free to skip it.
 
 This is a new feature and one im extremely unfamiliar with. So I probably wont do it. BUT,for fun, lets see how much we could save by reducing the size of the buffer itself.
 | Element | Components  | Original Size | Orignal Bytes | New Size |  New Bytes | Gain |
-|---|---|---|---|---|---|  ---| ---|
+|---|---|---|---|---|---|  ---|
 |Position|3|Float16|12 (4*3)|Float16|6 (2*3)| 6 |
 |Normal|3|Float16|12 (4*3)|Float16|6 (2*3)|6|
 |Tangent|4|Float16|16 (4*4)|Float16|8 (2*4)|8|
