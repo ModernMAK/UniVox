@@ -60,6 +60,27 @@ Update the render list.
             _universeChunkGenerator = GetComponent<UniverseChunkGenerator>();
 //        _voxelChunkGenerator = new VoxelChunkGenerator(){}
         }
+        private void OnDestroy()
+        {
+            _chunkLoadRequests.Clear();
+
+            foreach (var chunkPair in _chunksLoaded)
+            {
+                var persistantDataHandle = chunkPair.Value;
+                persistantDataHandle.Handle.Complete();
+                persistantDataHandle.Data.Dispose();
+            }
+            _chunksLoaded.Clear();
+
+            foreach (var dataHandle in _chunksGenerating)
+            {
+                dataHandle.Handle.Complete();
+                dataHandle.Data.Item2.Dispose();
+            }
+            _chunksGenerating.Clear();
+
+
+        }
 
         private void Update()
         {
@@ -140,8 +161,10 @@ Update the render list.
 
             var chunk = new VoxelChunk(_chunkSize);
             var loaded = false;
+            // Try Load from disk
             if (_universeChunkIo.TryLoad(chunkId, out var loadedChunk))
             {
+                // Copy from disk
                 try
                 {
                     loadedChunk.CopyTo(chunk);
@@ -150,6 +173,7 @@ Update the render list.
                     OnChunkLoaded(new ChunkLoadedArgs(chunkId, handle));
                     loaded = true;
                 }
+                //On failure try to generate
                 catch (ArgumentException argumentException)
                 {
                     Debug.LogWarning($"Failed to copy data! Chunk size mismatch?\n{argumentException.StackTrace}");
@@ -162,7 +186,6 @@ Update the render list.
             if(!loaded)
             {
                 var handle = _universeChunkGenerator.Generate(chunkId, chunk);
-
                 var data = new Tuple<ChunkIdentity, VoxelChunk>(chunkId, chunk);
                 var dataHandle = new DataHandle<Tuple<ChunkIdentity, VoxelChunk>>(data, handle);
                 _chunksGenerating.AddLast(dataHandle);
@@ -238,18 +261,6 @@ Update the render list.
 
         public event EventHandler<ChunkIdentity> ChunkUnloaded;
 
-        private void OnDestroy()
-        {
-            //This probably will 'crash' but if this is being destroyed
-            //That might be okay? Depends on if disposing actually goes through
-            foreach (var chunk in _chunksLoaded.Values)
-            {
-                chunk.Handle.Complete();
-                chunk.Data.Dispose();
-            }
-
-//        _chunksLoaded.DisposeElements();
-        }
 
         protected virtual void OnChunkLoaded(ChunkLoadedArgs args)
         {

@@ -24,7 +24,7 @@ namespace UniVox.Unity
         private Dictionary<ChunkIdentity, Mesh[]> _meshTable;
         private Queue<Mesh[]> _cachedMeshes;
 
-        private LinkedList<DataHandle<RenderRequest>> _request;
+        private LinkedList<DataHandle<RenderRequest>> _renderRequests;
         private ChunkGameObjectManager _chunkGameObjectManager;
 
 #pragma warning disable 649
@@ -39,8 +39,24 @@ namespace UniVox.Unity
             _meshGenerator = new GreedyChunkMeshGenerator();
             _cachedMeshes = new Queue<Mesh[]>();
             _meshTable = new Dictionary<ChunkIdentity, Mesh[]>();
-            _request = new LinkedList<DataHandle<RenderRequest>>();
+            _renderRequests = new LinkedList<DataHandle<RenderRequest>>();
         }
+
+        private void Update()
+        {
+            ProcessRenderResults();
+        }
+        private void OnDestroy()
+        {
+            foreach(var request in _renderRequests)
+            {
+                request.Handle.Complete();
+                request.Data.Dispose();
+            }
+            _renderRequests.Clear();
+
+        }
+
 
         private Mesh[] GetMeshArray(ChunkIdentity chunkIdentity)
         {
@@ -202,6 +218,7 @@ namespace UniVox.Unity
             depends = ConvertToRenderable(chunkId, chunk.Data, out var renderChunk, depends);
             depends = _meshGenerator.GenerateMesh(meshArrayData[0], meshBound, uniqueMats, renderChunk, depends);
             depends = _meshGenerator.GenerateCollider(meshArrayData[1], colliderBound, renderChunk, depends);
+            //depends = uniqueMats.Dispose(depends); // Cant dispose, needed in request
             depends = renderChunk.Dispose(depends);
 //        depends = chunk.Dispose(depends);DOH! We dont want to dispose the chunk
             chunk.DependOn(depends);
@@ -217,7 +234,7 @@ namespace UniVox.Unity
                 WorldPosition = chunk.Data.ChunkSize * chunkId.Chunk
             };
 
-            _request.AddLast(new DataHandle<RenderRequest>(request, depends));
+            _renderRequests.AddLast(new DataHandle<RenderRequest>(request, depends));
         }
 
         public void RequestHide(ChunkIdentity chunkId)
@@ -229,15 +246,9 @@ namespace UniVox.Unity
                 _meshTable.Remove(chunkId);
             }
         }
-
-        private void Update()
-        {
-            ProcessRenderResults();
-        }
-
         public void ProcessRenderResults()
         {
-            var current = _request.First;
+            var current = _renderRequests.First;
             while (current != null)
             {
                 var next = current.Next;
@@ -258,7 +269,7 @@ namespace UniVox.Unity
                     data.Dispose();
                     _meshTable[data.ChunkIdentity] = meshes;
 
-                    _request.Remove(current);
+                    _renderRequests.Remove(current);
                 }
 
                 current = next;
