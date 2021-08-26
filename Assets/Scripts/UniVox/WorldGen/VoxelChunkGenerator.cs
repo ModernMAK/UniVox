@@ -30,6 +30,8 @@ namespace UniVox.WorldGen
                 {
                     Flags[index] |= VoxelFlag.Active;
                 }
+                else
+                    Flags[index] &= ~(VoxelFlag.Active);
             }
         }
 
