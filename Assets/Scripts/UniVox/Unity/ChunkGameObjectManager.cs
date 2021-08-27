@@ -44,6 +44,8 @@ namespace UniVox.Unity
             _chunkTable = new Dictionary<ChunkIdentity, ChunkObject>();
         }
 
+        public bool IsCreated(ChunkIdentity chunkIdentity) => _chunkTable.ContainsKey(chunkIdentity);
+
         private void CacheContainer(Transform container)
         {
             container.parent = _cachedContainerContainer;

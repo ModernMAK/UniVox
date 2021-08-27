@@ -39,6 +39,7 @@ Update the render list.
         [SerializeField] private int _maxRequestsGenerating = 8; //Pretty okay number, enough to let some generate, but not enough to cause any major stalling
 
         [SerializeField] private int3 _chunkSize;
+        public int3 ChunkSize => _chunkSize;
 
         private Queue<Request> _chunkLoadRequests;
 

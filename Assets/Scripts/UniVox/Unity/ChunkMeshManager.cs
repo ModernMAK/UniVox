@@ -197,10 +197,15 @@ namespace UniVox.Unity
                 UniqueMaterials.Dispose();
                 MeshBound.Dispose();
                 ColliderBound.Dispose();
+                // MeshDataArray.Dispose(); // TODO find out why I cant dispose this here?
             }
 
             public JobHandle Dispose(JobHandle depends)
             {
+                depends.Complete();
+                this.Dispose();
+                throw new NotSupportedException();
+                MeshDataArray.Dispose(); // TODO wrap in a jobify? Or drop job-dispose method? Currently raises NotSupported after completing the dependencies and disposing references.
                 depends = UniqueMaterials.Dispose(depends);
                 depends = MeshBound.Dispose(depends);
                 depends = ColliderBound.Dispose(depends);
@@ -246,7 +251,7 @@ namespace UniVox.Unity
                 _meshTable.Remove(chunkId);
             }
         }
-        public void ProcessRenderResults()
+        public void ProcessRenderResults(bool forceComplete=false)
         {
             var current = _renderRequests.First;
             while (current != null)
@@ -254,6 +259,8 @@ namespace UniVox.Unity
                 var next = current.Next;
                 var handle = current.Value.Handle;
                 var data = current.Value.Data;
+                if (forceComplete)
+                    handle.Complete();
 
                 if (handle.IsCompleted)
                 {
@@ -266,10 +273,10 @@ namespace UniVox.Unity
 
                     var mats = GetMaterials(data.UniqueMaterials);
                     _chunkGameObjectManager.Render(data.ChunkIdentity, data.WorldPosition, meshes[0], mats, meshes[1]);
-                    data.Dispose();
                     _meshTable[data.ChunkIdentity] = meshes;
 
                     _renderRequests.Remove(current);
+                    data.Dispose();
                 }
 
                 current = next;

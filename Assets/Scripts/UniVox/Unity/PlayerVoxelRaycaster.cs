@@ -27,9 +27,10 @@ public class PlayerVoxelRaycaster : MonoBehaviour
                 _voxelLayerMask))
             {
                 var worldPos = UnivoxUtil.ToVoxelSpace(hitinfo.point, -hitinfo.normal);
-                var chunkPos = UnivoxUtil.ToChunkPosition(worldPos);
-                var blockPos = UnivoxUtil.ToBlockPosition(worldPos);
-                var blockIndex = UnivoxUtil.GetIndex(blockPos);
+                var chunkSize = _universeManager.ChunkManager.ChunkSize;
+                var chunkPos = UnivoxUtil.ToChunkPosition(worldPos, chunkSize);
+                var blockPos = UnivoxUtil.ToBlockPosition(worldPos, chunkSize);
+                var blockIndex = UnivoxUtil.GetIndex(blockPos, chunkSize);
                 var worldPosUnity = UnivoxUtil.ToUnitySpace(worldPos);
                 var chunkId = new ChunkIdentity(0, chunkPos);
 
@@ -73,9 +74,10 @@ public class PlayerVoxelRaycaster : MonoBehaviour
                 _voxelLayerMask))
             {
                 var worldPos = UnivoxUtil.ToVoxelSpace(hitinfo.point, hitinfo.normal);
-                var chunkPos = UnivoxUtil.ToChunkPosition(worldPos);
-                var blockPos = UnivoxUtil.ToBlockPosition(worldPos);
-                var blockIndex = UnivoxUtil.GetIndex(blockPos);
+                var chunkSize = _universeManager.ChunkManager.ChunkSize;
+                var chunkPos = UnivoxUtil.ToChunkPosition(worldPos, chunkSize);
+                var blockPos = UnivoxUtil.ToBlockPosition(worldPos, chunkSize);
+                var blockIndex = UnivoxUtil.GetIndex(blockPos, chunkSize);
                 var worldPosUnity = UnivoxUtil.ToUnitySpace(worldPos);
                 var chunkId = new ChunkIdentity(0, chunkPos);
                 if (!Physics.CheckBox(worldPosUnity, Vector3.one / 2f, Quaternion.identity, _obstructionLayerMask))

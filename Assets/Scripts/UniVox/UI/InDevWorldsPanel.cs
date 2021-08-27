@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UniVox.Unity;
-
+# if UNITY_EDITOR // TODO make not use unityeditor stuff
 public class InDevWorldsPanel : MonoBehaviour
 {
 #pragma warning disable 0649
@@ -89,3 +89,4 @@ public class InDevWorldsPanel : MonoBehaviour
         }
     }
 }
+#endif

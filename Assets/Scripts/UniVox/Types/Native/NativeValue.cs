@@ -1,12 +1,14 @@
 using System;
 using System.Diagnostics;
 using Unity.Burst;
+using Unity.Jobs;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
-
 namespace UniVox.Types.Native
 {
+
+
+
     /// <summary>
     ///     <para>
     ///         A NativeValue exposes a pointer of native memory to managed code, making it possible to share a blittable piece of data between

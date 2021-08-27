@@ -93,11 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ba7b2538be5064287c6a0d01be96df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _materials:
-  - {fileID: 2100000, guid: 1ab0c60eb14c2ca41902a6bbdd980e1b, type: 2}
-  - {fileID: 2100000, guid: 2ab900c32eee71a4f800b0efb235a39b, type: 2}
-  - {fileID: 2100000, guid: 9a34dc4dfd6ff13499ce341b33bf503c, type: 2}
-  - {fileID: 2100000, guid: b67260ebb202d3a46b2199357faa5f76, type: 2}
+  _debugMaterial: {fileID: 0}
 --- !u!1 &8203945625788889272
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,7 +141,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _chunkManager: {fileID: 0}
-  chunkMeshManager: {fileID: 0}
+  _chunkMeshManager: {fileID: 0}
+  _chunkGoManager: {fileID: 0}
 --- !u!114 &8203945625788889277
 MonoBehaviour:
   m_ObjectHideFlags: 0

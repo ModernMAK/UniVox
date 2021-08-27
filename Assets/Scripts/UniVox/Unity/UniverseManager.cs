@@ -10,10 +10,12 @@ namespace UniVox.Unity
         
         [SerializeField] private UniverseChunkManager _chunkManager;
         [SerializeField] private ChunkMeshManager _chunkMeshManager;
+        [SerializeField] private ChunkGameObjectManager _chunkGoManager;
 
 
         public UniverseChunkManager ChunkManager => _chunkManager;
         public ChunkMeshManager ChunkMeshManager => _chunkMeshManager;
+        public ChunkGameObjectManager ChunkGameObjectManager => _chunkGoManager;
 
 
         private void Awake()
@@ -28,6 +30,9 @@ namespace UniVox.Unity
             if (_chunkMeshManager == null)
                 _chunkMeshManager = GetComponentInChildren<ChunkMeshManager>();
             _chunkMeshManager.InitializeManager(this);
+
+            if (_chunkGoManager == null)
+                _chunkGoManager = GetComponentInChildren<ChunkGameObjectManager>();
         }
 
         private void OnEnable()

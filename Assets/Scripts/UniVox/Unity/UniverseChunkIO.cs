@@ -75,9 +75,9 @@ namespace UniVox.Unity
                 chunk = default;
                 return false;
             }
-            catch (DirectoryNotFoundException dnfe)
+            catch (DirectoryNotFoundException)// dnfe)
             {
-                Debug.Log(dnfe);
+                //Debug.LogWarning(dnfe);
                 chunk = default;
                 return false;
             }

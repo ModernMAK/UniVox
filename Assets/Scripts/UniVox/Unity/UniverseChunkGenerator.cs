@@ -13,12 +13,13 @@ namespace UniVox.Unity
 
         private AbstractGenerator<int3, VoxelChunk> _generator;
 
-        public void Awake()
+        public void Start()
         {
             _generator = new VoxelChunkGenerator()
             {
                 Seed = _seed,
-                Solidity = _solidity
+                Solidity = _solidity,
+                IdentityCount = GameData.Instance.Blocks.Count,
             };
         }
 
